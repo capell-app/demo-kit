@@ -91,7 +91,7 @@
                 "capell:demo-kit-doctor",
                 "capell:demo-kit-screenshot-fixture",
                 "capell:demo-kit-refresh-stitch-pages",
-                "capell:kitchen-sink-demo"
+                "capell:demo-kit-kitchen-sink"
             ],
             "commandClasses": [
                 "Capell\\DemoKit\\Console\\Commands\\DemoCommand",
