@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Actions\BuildDemoGenerationReviewAction;
+use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
 use Capell\DemoKit\Actions\ListDemoKitProvenanceSitesAction;
 use Capell\DemoKit\Actions\MarkDemoSiteProvenanceAction;
 use Capell\DemoKit\Actions\QueueDemoKitGenerationAction;
@@ -142,6 +143,28 @@ it('runs the demo command and persists the completed state with created-content 
         ->and($run->created_content)->toHaveCount(1)
         ->and($run->created_content[0]['name'])->toBe('Queue Site')
         ->and(TrackingDemoCommand::$executionOrder)->toBe(['test:queued-example-site-data']);
+});
+
+it('keeps generation retryable after a transient exception', function (): void {
+    $run = DemoKitGenerationRun::query()->create([
+        'status' => DemoKitGenerationRun::STATUS_QUEUED,
+        'parameters' => [],
+    ]);
+    $action = Mockery::mock(new InsertExampleSiteDataAction);
+    app()->instance('LaravelActions:AsFake:' . InsertExampleSiteDataAction::class, $action);
+    $calls = 0;
+    $action->shouldReceive('handle')->twice()->andReturnUsing(function () use (&$calls): void {
+        if (++$calls === 1) {
+            throw new RuntimeException('Temporary generation failure');
+        }
+    });
+    $job = new RunDemoKitGenerationJob(demoKitGenerationRunId($run));
+    expect(fn () => $job->handle())->toThrow(RuntimeException::class, 'Temporary generation failure');
+    expect($run->refresh()->status)->toBe(DemoKitGenerationRun::STATUS_RUNNING)
+        ->and($run->finished_at)->toBeNull();
+    $job->handle();
+    expect($run->refresh()->status)->toBe(DemoKitGenerationRun::STATUS_COMPLETED)
+        ->and($run->finished_at)->not->toBeNull();
 });
 
 it('represents failed and stalled runs without leaking secrets', function (): void {

@@ -18,7 +18,9 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 1;
+    public int $tries = 3;
+
+    public int $backoff = 60;
 
     public int $timeout = 900;
 
@@ -47,19 +49,14 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
             'error_message' => null,
         ]);
 
-        try {
-            InsertExampleSiteDataAction::run($run->parameters);
+        // Keep the run eligible for retries; only failed() records terminal failure.
+        InsertExampleSiteDataAction::run($run->parameters);
 
-            $run->update([
-                'status' => DemoKitGenerationRun::STATUS_COMPLETED,
-                'created_content' => $this->createdContent($run),
-                'finished_at' => now(),
-            ]);
-        } catch (Throwable $throwable) {
-            $this->markFailed($run, $throwable);
-
-            throw $throwable;
-        }
+        $run->update([
+            'status' => DemoKitGenerationRun::STATUS_COMPLETED,
+            'created_content' => $this->createdContent($run),
+            'finished_at' => now(),
+        ]);
     }
 
     public function failed(?Throwable $throwable): void
