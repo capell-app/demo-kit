@@ -10,6 +10,7 @@ use Capell\DemoKit\Models\DemoKitGenerationRun;
 use Capell\DemoKit\Support\DemoKitScreenshotFixtureGuard;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -18,6 +19,7 @@ use RuntimeException;
  */
 final class RestoreDemoKitScreenshotFixtureAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(string $state, string $attemptToken): DemoKitScreenshotFixtureData

@@ -17,6 +17,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -25,6 +26,7 @@ use RuntimeException;
  */
 final class PrepareDemoKitScreenshotFixtureAction
 {
+    use AsFake;
     use AsObject;
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Console\Commands;
 
+use Capell\Core\Enums\Database\DatabaseFamily;
+use Capell\Core\Facades\CapellDatabase;
 use Capell\DemoKit\Actions\PrepareDemoKitScreenshotFixtureAction;
 use Capell\DemoKit\Actions\RestoreDemoKitScreenshotFixtureAction;
 use Capell\DemoKit\Data\DemoKitScreenshotFixtureData;
@@ -71,7 +73,7 @@ final class DemoKitScreenshotFixtureCommand extends Command
 
     private function isTransientSqliteLock(Throwable $exception): bool
     {
-        return DB::connection()->getDriverName() === 'sqlite'
+        return CapellDatabase::for(DB::connection())->family() === DatabaseFamily::Sqlite
             && str_contains(strtolower($exception->getMessage()), 'database is locked');
     }
 

@@ -1386,7 +1386,7 @@ abstract class BaseDemoCreator
         foreach ($testimonials as $testimonial) {
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $testimonial['name'],
-                'parent_id' => $testimonialContent->id,
+                'parent_id' => $testimonialContent->getKey(),
                 'blueprint_id' => $testimonialType->id,
             ], [
                 'meta' => [
@@ -1397,9 +1397,14 @@ abstract class BaseDemoCreator
             $this->createMedia($content);
 
             $translations = [];
+            $existingTranslations = $content->getRelationValue('translations');
+
+            if (! $existingTranslations instanceof Collection) {
+                throw new RuntimeException('Demo content translations must be a collection.');
+            }
 
             foreach ($languages as $language) {
-                if ($content->translations->contains('language_id', $language->id)) {
+                if ($existingTranslations->contains('language_id', $language->id)) {
                     continue;
                 }
 
@@ -1511,9 +1516,14 @@ abstract class BaseDemoCreator
             'name' => 'Team Members',
         ]);
 
-        $meta = $teamContent->meta ?? [];
+        $meta = $teamContent->getAttribute('meta') ?? [];
+
+        if (! is_array($meta)) {
+            throw new RuntimeException('Demo content metadata must be an array.');
+        }
+
         $meta['icon'] = 'heroicon-o-users';
-        $teamContent->meta = $meta;
+        $teamContent->setAttribute('meta', $meta);
 
         $teamContent->save();
 
@@ -1522,7 +1532,7 @@ abstract class BaseDemoCreator
         foreach ($teamMembers as $member) {
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $member['name'],
-                'parent_id' => $teamContent->id,
+                'parent_id' => $teamContent->getKey(),
             ], [
                 'meta' => [
                     'position' => $member['position'],
@@ -1532,9 +1542,14 @@ abstract class BaseDemoCreator
             $this->createMedia($content);
 
             $translations = [];
+            $existingTranslations = $content->getRelationValue('translations');
+
+            if (! $existingTranslations instanceof Collection) {
+                throw new RuntimeException('Demo content translations must be a collection.');
+            }
 
             foreach ($languages as $language) {
-                if ($content->translations->contains('language_id', $language->id)) {
+                if ($existingTranslations->contains('language_id', $language->id)) {
                     continue;
                 }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Capell\DemoKit\Actions\ListDemoKitProvenanceSitesAction;
 use Capell\DemoKit\Actions\PrepareDemoKitScreenshotFixtureAction;
 use Capell\DemoKit\Actions\RestoreDemoKitScreenshotFixtureAction;
 use Capell\DemoKit\Console\Commands\DemoKitScreenshotFixtureCommand;
@@ -82,7 +83,8 @@ it('registers the guarded prepare and restore command', function (): void {
         static fn (mixed $entry): bool => is_array($entry) && isset($entry['entryState']),
     ));
 
-    expect($fixtureEntries)->toHaveCount(20);
+    expect($fixtureEntries)->toHaveCount(18)
+        ->and(array_column($entries, 'id'))->not->toContain('demo-kit-reset-completed', 'demo-kit-reset-completed-mobile');
     foreach ($fixtureEntries as $entry) {
         if (! is_array($entry)
             || data_get($entry, 'entryState.setup.command') !== 'capell:demo-kit-screenshot-fixture'
@@ -160,6 +162,22 @@ it('allocates a unique site origin for every disposable fixture site', function 
             ->and($fixtureDomain->path)->not->toBe($baseDomain->path);
 
         RestoreDemoKitScreenshotFixtureAction::run('reuse-review', 'fixture-token-origin');
+    });
+});
+
+it('returns reset completion to the empty planner while preserving ordinary content', function (): void {
+    withDemoKitScreenshotEnvironment(function (): void {
+        $actor = screenshotFixtureActor();
+        expect(ListDemoKitProvenanceSitesAction::run($actor))->toBeEmpty();
+
+        $fixture = PrepareDemoKitScreenshotFixtureAction::run('reset-completed', 'fixture-reset-completed', $actor);
+
+        expect(ListDemoKitProvenanceSitesAction::run($actor))->toBeEmpty()
+            ->and(DemoKitGenerationRun::query()->count())->toBe(0)
+            ->and(Site::onlyTrashed()->whereKey($fixture->siteIds)->count())->toBe(1)
+            ->and(Site::query()->where('name', 'Demo Kit Screenshot Ordinary Content')->exists())->toBeTrue();
+
+        RestoreDemoKitScreenshotFixtureAction::run('reset-completed', 'fixture-reset-completed');
     });
 });
 

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions;
 
 use Capell\DemoKit\Models\DemoKitGenerationRun;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ReclaimStalledDemoKitGenerationRunsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(?int $runId = null): void
