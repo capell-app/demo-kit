@@ -17,6 +17,7 @@ use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
+use Capell\DemoKit\Console\Commands\DemoKitScreenshotFixtureCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
@@ -57,6 +58,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 AdminDemoCommand::class,
                 FullDemoCommand::class,
                 DemoKitDoctorCommand::class,
+                DemoKitScreenshotFixtureCommand::class,
                 RefreshDemoStitchPagesCommand::class,
                 KitchenSinkDemoCommand::class,
             ]);

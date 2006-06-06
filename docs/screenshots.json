@@ -243,6 +243,27 @@
         },
         {
             "id": "demo-kit-reuse-review",
+            "entryState": {
+                "state": "reuse-review",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reuse-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reuse-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Review of reusable generated sites.",
             "package": "demo-kit",
             "surface": "admin",
@@ -277,6 +298,27 @@
         },
         {
             "id": "demo-kit-reuse-review-mobile",
+            "entryState": {
+                "state": "reuse-review",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reuse-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reuse-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Review of reusable generated sites on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -311,6 +353,27 @@
         },
         {
             "id": "demo-kit-blocked-review",
+            "entryState": {
+                "state": "blocked-review",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=blocked-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=blocked-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Review blocked by ordinary content.",
             "package": "demo-kit",
             "surface": "admin",
@@ -345,6 +408,27 @@
         },
         {
             "id": "demo-kit-blocked-review-mobile",
+            "entryState": {
+                "state": "blocked-review",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=blocked-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=blocked-review",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Review blocked by ordinary content on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -379,6 +463,27 @@
         },
         {
             "id": "demo-kit-queue-confirmation",
+            "entryState": {
+                "state": "queue-confirmation",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=queue-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=queue-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Explicit generation confirmation.",
             "package": "demo-kit",
             "surface": "admin",
@@ -386,7 +491,7 @@
             "target": "DemoKitPage",
             "url": "/demo-kit",
             "viewport": "desktop",
-            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm demo generation\")",
+            "waitFor": "[role=\"alertdialog\"]:has-text(\"Confirm demo generation\")",
             "required": true,
             "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or blocking collision. Verify counts and fingerprint in the confirmation. Cancel after capture; this entry must not submit the queue action.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation.png",
@@ -421,6 +526,27 @@
         },
         {
             "id": "demo-kit-queue-confirmation-mobile",
+            "entryState": {
+                "state": "queue-confirmation",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=queue-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=queue-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Explicit generation confirmation on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -428,7 +554,7 @@
             "target": "DemoKitPage",
             "url": "/demo-kit",
             "viewport": "mobile",
-            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm demo generation\")",
+            "waitFor": "[role=\"alertdialog\"]:has-text(\"Confirm demo generation\")",
             "required": true,
             "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or blocking collision. Verify counts and fingerprint in the confirmation. Cancel after capture; this entry must not submit the queue action.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation-mobile.png",
@@ -463,6 +589,27 @@
         },
         {
             "id": "demo-kit-queued",
+            "entryState": {
+                "state": "queued",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=queued",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=queued",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Queued generation.",
             "package": "demo-kit",
             "surface": "admin",
@@ -483,6 +630,27 @@
         },
         {
             "id": "demo-kit-queued-mobile",
+            "entryState": {
+                "state": "queued",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=queued",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=queued",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Queued generation on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -503,6 +671,27 @@
         },
         {
             "id": "demo-kit-running",
+            "entryState": {
+                "state": "running",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=running",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=running",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Running generation.",
             "package": "demo-kit",
             "surface": "admin",
@@ -523,6 +712,27 @@
         },
         {
             "id": "demo-kit-running-mobile",
+            "entryState": {
+                "state": "running",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=running",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=running",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Running generation on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -543,6 +753,27 @@
         },
         {
             "id": "demo-kit-completed",
+            "entryState": {
+                "state": "completed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Completed generation and created content.",
             "package": "demo-kit",
             "surface": "admin",
@@ -563,6 +794,27 @@
         },
         {
             "id": "demo-kit-completed-mobile",
+            "entryState": {
+                "state": "completed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Completed generation and created content on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -583,6 +835,27 @@
         },
         {
             "id": "demo-kit-failed",
+            "entryState": {
+                "state": "failed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=failed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=failed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Failed generation with redacted error.",
             "package": "demo-kit",
             "surface": "admin",
@@ -603,6 +876,27 @@
         },
         {
             "id": "demo-kit-failed-mobile",
+            "entryState": {
+                "state": "failed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=failed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=failed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Failed generation with redacted error on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -623,6 +917,27 @@
         },
         {
             "id": "demo-kit-stalled",
+            "entryState": {
+                "state": "stalled",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=stalled",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=stalled",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Stalled generation requiring a new review.",
             "package": "demo-kit",
             "surface": "admin",
@@ -643,6 +958,27 @@
         },
         {
             "id": "demo-kit-stalled-mobile",
+            "entryState": {
+                "state": "stalled",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=stalled",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=stalled",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Stalled generation requiring a new review on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -663,6 +999,27 @@
         },
         {
             "id": "demo-kit-reset-confirmation",
+            "entryState": {
+                "state": "reset-confirmation",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reset-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reset-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Provenance-only reset confirmation.",
             "package": "demo-kit",
             "surface": "admin",
@@ -670,7 +1027,7 @@
             "target": "DemoKitPage",
             "url": "/demo-kit",
             "viewport": "desktop",
-            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm provenance-only reset\")",
+            "waitFor": "[role=\"alertdialog\"]:has-text(\"Confirm provenance-only reset\")",
             "required": true,
             "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare one provenance-owned site and one ordinary site. Inspect the selector: only the provenance-owned site is offered. Cancel after capture; never submit a destructive reset during a screenshot capture.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation.png",
@@ -689,6 +1046,27 @@
         },
         {
             "id": "demo-kit-reset-confirmation-mobile",
+            "entryState": {
+                "state": "reset-confirmation",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reset-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reset-confirmation",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Provenance-only reset confirmation on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -696,7 +1074,7 @@
             "target": "DemoKitPage",
             "url": "/demo-kit",
             "viewport": "mobile",
-            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm provenance-only reset\")",
+            "waitFor": "[role=\"alertdialog\"]:has-text(\"Confirm provenance-only reset\")",
             "required": true,
             "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare one provenance-owned site and one ordinary site. Inspect the selector: only the provenance-owned site is offered. Cancel after capture; never submit a destructive reset during a screenshot capture.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation-mobile.png",
@@ -715,6 +1093,27 @@
         },
         {
             "id": "demo-kit-reset-completed",
+            "entryState": {
+                "state": "reset-completed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reset-completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reset-completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Ordinary content preserved after reset.",
             "package": "demo-kit",
             "surface": "admin",
@@ -735,6 +1134,27 @@
         },
         {
             "id": "demo-kit-reset-completed-mobile",
+            "entryState": {
+                "state": "reset-completed",
+                "tokenPlaceholder": "{attempt-token}",
+                "setup": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--state=reset-completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                },
+                "restore": {
+                    "command": "capell:demo-kit-screenshot-fixture",
+                    "args": [
+                        "--force",
+                        "--restore",
+                        "--state=reset-completed",
+                        "--attempt-token={attempt-token}"
+                    ]
+                }
+            },
             "title": "Ordinary content preserved after reset on mobile.",
             "package": "demo-kit",
             "surface": "admin",
@@ -801,7 +1221,7 @@
             "beforeWait": [
                 {
                     "type": "click",
-                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                    "selector": ".fi-topbar-open-sidebar-btn"
                 }
             ]
         },

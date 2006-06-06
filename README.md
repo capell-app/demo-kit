@@ -35,7 +35,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ![Demo Kit ready to plan](docs/screenshots/demo-kit-admin-page.png)
 
-![Demo Kit with navigation open](docs/screenshots/demo-kit-admin-sidebar-menu-open.png)
+![Review of reusable generated sites](docs/screenshots/demo-kit-reuse-review.png)
 
 - Demo Kit ready to plan (admin, required evidence).
 - Demo Kit ready to plan on mobile (admin, required evidence).
@@ -121,18 +121,21 @@ Screenshot contract: `docs/screenshots.json`.
 - `InstallKitchenSinkDemoPageAction`
 - `ListDemoKitProvenanceSitesAction`
 - `MarkDemoSiteProvenanceAction`
+- `PrepareDemoKitScreenshotFixtureAction`
 - `QueueDemoKitGenerationAction`
 - `ReclaimStalledDemoKitGenerationRunsAction`
 - `RedactDemoKitErrorMessageAction`
 - `RefreshDemoStitchPagesAction`
 - `ResetDemoKitProvenanceAction`
 - `ResetDemoSitesAction`
+- `RestoreDemoKitScreenshotFixtureAction`
 - `SyncKitchenSinkPageAssetsAction`
 
 ### Data objects
 
 - `DemoGenerationPlanData`
 - `DemoGenerationReviewData`
+- `DemoKitScreenshotFixtureData`
 - `DemoPageContentViewData`
 - `DemoPagePlanData`
 - `DemoProfileData`
@@ -155,6 +158,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `HasSitesOption`
 - `DemoCommand`
 - `DemoKitDoctorCommand`
+- `DemoKitScreenshotFixtureCommand`
 - `FullDemoCommand`
 - `KitchenSinkDemoCommand`
 - `RefreshDemoStitchPagesCommand`

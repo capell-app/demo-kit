@@ -9,12 +9,25 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Gate;
+use Workbench\App\Providers\ScreenshotWorkbenchServiceProvider;
 
 it('registers demo kit views as frontend tailwind sources', function (): void {
     expect(CapellCore::getVendorAssetsForType(VendorAssetEnum::TailwindSource)
         ->filter(fn (mixed $asset): bool => data_get($asset, 'packageName') === DemoKitServiceProvider::$packageName)
         ->pluck('value')
         ->all())->toContain('resources/views/**/*.blade.php');
+});
+
+it('waits for short SQLite writer overlap in the disposable screenshot workbench', function (): void {
+    putenv('CAPELL_SCREENSHOT_WORKBENCH=true');
+
+    try {
+        (new ScreenshotWorkbenchServiceProvider(app()))->register();
+
+        expect(config('database.connections.sqlite.busy_timeout'))->toBe(30_000);
+    } finally {
+        putenv('CAPELL_SCREENSHOT_WORKBENCH');
+    }
 });
 
 it('enables session presentation mode and contributes the optional extensions chapter', function (): void {

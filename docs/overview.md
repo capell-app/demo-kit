@@ -23,6 +23,29 @@ The Demo Kit extension page is available only in `local` and `testing` environme
 - Run `capell:demo-kit-doctor` after a full install to check that the demo dependency, content, and public resources are healthy.
 - Review and replace generated material before launch so sample content is not published to visitors.
 
+## Screenshot fixture states
+
+The screenshot runner uses the guarded `capell:demo-kit-screenshot-fixture`
+command for state-specific captures. It supplies a unique `--attempt-token`, a
+state such as `queued` or `completed`, and `--force`; the command accepts these
+operations only in the explicit local/testing screenshot environment identified
+by `CAPELL_SCREENSHOT_APP_PATH` and `CAPELL_SCREENSHOT_FIXTURE`. The package
+screenshot configuration sets those values for the disposable Testbench
+application; keep them scoped to that workbench and never copy them into a
+shared application environment. Restore with the same state and token plus
+`--restore`. Ownership markers make preparation idempotent and restoration
+removes only rows created by that attempt. Do not run this command against a
+shared or production database.
+
+The screenshot workbench uses four Testbench workers because fixture routes can
+make loopback requests while a browser request is still open. Those workers
+share one disposable SQLite file, so the workbench enables a 30-second SQLite
+busy timeout for short writer overlap between HTTP requests and fixture setup
+or restore, and the guarded command retries only SQLite's transient
+database-lock error for a bounded interval. If a run is interrupted, stop its owned server, restore the clean
+workbench snapshot, and resume only after the database integrity check passes;
+do not fix a lock by deleting rows from a shared database.
+
 ---
 
 For developers: see the [README](../README.md).
