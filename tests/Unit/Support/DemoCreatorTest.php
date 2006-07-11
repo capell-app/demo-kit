@@ -235,7 +235,7 @@ function demoKitWidgetCreatorCases(array $fixture): array
  */
 function publicDemoKitWidgetCreatorMethodNames(): array
 {
-    return array_values(collect((new ReflectionClass(DemoCreator::class))->getMethods(ReflectionMethod::IS_PUBLIC))
+    return array_values(collect(new ReflectionClass(DemoCreator::class)->getMethods(ReflectionMethod::IS_PUBLIC))
         ->filter(function (ReflectionMethod $method): bool {
             if (! str_starts_with($method->getName(), 'create')) {
                 return false;
@@ -624,12 +624,18 @@ it('uses a custom hero image layout for pricing', function (): void {
 
     $page->refresh()->loadMissing(['layout', 'media', 'translation']);
 
+    if (! $page instanceof Page) {
+        throw new RuntimeException('Expected DemoCreator to return a page.');
+    }
+
     expect($page->layout?->key)->toBe('capell-demo-pricing')
         ->and($page->layout?->widgets)->toContain('demo-page-hero')
         ->and($page->meta)->toMatchArray(['show_hero' => true, 'hero_style' => 'compact'])
-        ->and($page->translation?->getMeta('hero'))->toBeString()
-        ->and($page->media)->toHaveCount(1)
-        ->and($page->media->first()?->file_name)->toBe('pricing.jpg');
+        ->and($page->translation?->getMeta('hero'))->toBeString();
+
+    $pageMedia = $page->getRelation('media');
+    expect($pageMedia instanceof Collection ? $pageMedia->count() : 0)->toBe(1);
+    expect($pageMedia instanceof Collection ? $pageMedia->first()?->getAttribute('file_name') : null)->toBe('pricing.jpg');
 });
 
 it('seeds distinct page scoped assets for reusable demo page content widget', function (): void {

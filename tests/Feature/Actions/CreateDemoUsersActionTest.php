@@ -45,15 +45,7 @@ it('assigns panel access to the demo editor', function (): void {
         ->and(userHasRole($editor, 'panel_user'))->toBeTrue();
 });
 
-// config('permission.teams') is false in production today (CAP-0532's cutover
-// hasn't happened yet), so Spatie's own assignRole() writes team_id=NULL for
-// every assignment regardless of which helper called it -- PermissionRegistrar
-// only writes the pivot's team_id when its own ->teams flag is on, a separate
-// thing from setPermissionsTeamId() naming which team. Proving this action
-// calls the correct helper (assignRoleForSite() for the editor role, bare
-// assignRole() for super_admin/panel-access) therefore means enabling teams
-// mode for the scope of this describe block, the same way PagePolicyTest does
-// for its own CAP-0532 site-scoping proof.
+// Exercise the release configuration explicitly; Testbench also supports hosts without teams.
 describe('with permission.teams enabled (post-cutover simulation)', function (): void {
     beforeEach(function (): void {
         config(['permission.teams' => true]);
@@ -73,6 +65,8 @@ describe('with permission.teams enabled (post-cutover simulation)', function ():
         config()->set('filament-shield.panel_user.name', 'panel_user');
 
         $site = Site::factory()->create();
+        $otherSite = Site::factory()->create();
+        resolve(PermissionRegistrar::class)->setPermissionsTeamId($otherSite->getKey());
 
         CreateDemoUsersAction::run($site);
 
@@ -83,7 +77,9 @@ describe('with permission.teams enabled (post-cutover simulation)', function ():
 
         expect(userRoleTeamId($editor, 'editor'))->toBe($site->getKey())
             ->and(userRoleTeamId($editor, 'panel_user'))->toBeNull()
-            ->and(userRoleTeamId($admin, 'super_admin'))->toBeNull();
+            ->and(userRoleTeamId($admin, 'super_admin'))->toBeNull()
+            ->and($admin->isGlobalAdmin())->toBeTrue()
+            ->and(resolve(PermissionRegistrar::class)->getPermissionsTeamId())->toBe($otherSite->getKey());
     });
 });
 

@@ -33,37 +33,165 @@ Evidence: [`src/Data/DemoGenerationPlanData.php`](src/Data/DemoGenerationPlanDat
 
 Screenshot contract: `docs/screenshots.json`.
 
-![Demo Kit admin page](docs/screenshots/demo-kit-admin-page.png)
+![Demo Kit ready to plan](docs/screenshots/demo-kit-admin-page.png)
 
-![Generated demo page content widget](docs/screenshots/demo-page-content-widget.png)
+![Demo Kit with navigation open](docs/screenshots/demo-kit-admin-sidebar-menu-open.png)
 
-- Demo Kit admin page (admin, required).
-- Insights consent priming capture (frontend, optional).
-- Generated demo page content widget (frontend, required).
-- Generated homepage section widget (frontend, required).
+- Demo Kit ready to plan (admin, required evidence).
+- Demo Kit ready to plan on mobile (admin, required evidence).
+- Recommended generation profile (admin, required evidence).
+- Recommended generation profile on mobile (admin, required evidence).
+- Custom generation profile (admin, required evidence).
+- Custom generation profile on mobile (admin, required evidence).
+- Generation review before confirmation (admin, required evidence).
+- Generation review before confirmation on mobile (admin, required evidence).
+- Review of reusable generated sites (admin, required evidence).
+- Review of reusable generated sites on mobile (admin, required evidence).
+- Review blocked by ordinary content (admin, required evidence).
+- Review blocked by ordinary content on mobile (admin, required evidence).
+- Explicit generation confirmation (admin, required evidence).
+- Explicit generation confirmation on mobile (admin, required evidence).
+- Queued generation (admin, required evidence).
+- Queued generation on mobile (admin, required evidence).
+- Running generation (admin, required evidence).
+- Running generation on mobile (admin, required evidence).
+- Completed generation and created content (admin, required evidence).
+- Completed generation and created content on mobile (admin, required evidence).
+- Failed generation with redacted error (admin, required evidence).
+- Failed generation with redacted error on mobile (admin, required evidence).
+- Stalled generation requiring a new review (admin, required evidence).
+- Stalled generation requiring a new review on mobile (admin, required evidence).
+- Provenance-only reset confirmation (admin, required evidence).
+- Provenance-only reset confirmation on mobile (admin, required evidence).
+- Ordinary content preserved after reset (admin, required evidence).
+- Ordinary content preserved after reset on mobile (admin, required evidence).
+- Demo Kit with navigation open (admin, required evidence).
+- Demo Kit with navigation open on mobile (admin, required evidence).
+- Insights consent priming capture (frontend, supplementary evidence).
+- Generated demo page content widget (frontend, required evidence).
+- Generated homepage section widget (frontend, required evidence).
 
 ## Technical Shape
 
-- Service providers: `Capell\DemoKit\Providers\DemoKitServiceProvider`.
-- Config files: `packages/demo-kit/config/capell-demo-kit.php`.
-- Migrations: `packages/demo-kit/database/migrations/2026_07_19_130000_create_demo_kit_generation_runs_table.php`.
-- Models: `DemoKitGenerationRun`.
-- Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
-- Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
-- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `BuildKitchenSinkLayoutWidgetEntriesAction`, `ConfigureKitchenSinkReferenceWidgetsAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `CreateKitchenSinkContextPagesAction`, `CreateKitchenSinkSourceWidgetsAction`, `CreateKitchenSinkVariantWidgetsAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `and 10 more`.
-- Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
-- Jobs: `RunDemoKitGenerationJob`.
-- Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
-- Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
-- Manifest contributions: `admin-page: Capell\DemoKit\Manifest\DemoKitAdminPageContribution`, `asset: Capell\DemoKit\Manifest\DemoKitAssetsContribution`, `configurator: Capell\DemoKit\Manifest\DemoKitConfiguratorContribution`, `console-command: Capell\DemoKit\Manifest\DemoKitConsoleCommandsContribution`, `dashboard-widget: Capell\DemoKit\Manifest\DemoKitRenderablesContribution`, `frontend-component: Capell\DemoKit\Manifest\DemoKitFrontendComponentsContribution`, `health-check: Capell\DemoKit\Health\DemoKitHealthCheck`.
-- Health checks: `Capell\DemoKit\Health\DemoKitHealthCheck`.
-- Blade views: `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`, `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`, `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`, `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`, `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`, `packages/demo-kit/resources/views/livewire/resources-library.blade.php`.
-- Cache tags: `demo-kit`.
+### Service providers
+
+- `Capell\DemoKit\Providers\DemoKitServiceProvider`
+
+### Config files
+
+- `packages/demo-kit/config/capell-demo-kit.php`
+
+### Migrations
+
+- `packages/demo-kit/database/migrations/2026_07_19_130000_create_demo_kit_generation_runs_table.php`
+- `packages/demo-kit/database/migrations/2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table.php`
+
+### Models
+
+- `DemoKitGenerationRun`
+
+### Filament classes
+
+- `HomepageSectionWidgetConfigurator`
+- `DemoKitPage`
+
+### Livewire components
+
+- `KitchenSinkStressWidget`
+- `ResourcesLibrary`
+
+### Actions
+
+- `BuildDemoGenerationPlanAction`
+- `BuildDemoGenerationReviewAction`
+- `BuildDemoPageContentViewDataAction`
+- `BuildKitchenSinkLayoutWidgetEntriesAction`
+- `ConfigureKitchenSinkReferenceWidgetsAction`
+- `CreateDemoLanguagesAction`
+- `CreateDemoSiteAction`
+- `CreateDemoUsersAction`
+- `CreateKitchenSinkContextPagesAction`
+- `CreateKitchenSinkSourceWidgetsAction`
+- `CreateKitchenSinkVariantWidgetsAction`
+- `AssertDefaultDemoInstallHealthAction`
+- `DemoInstallHealthData`
+- `DummyContentGeneratorAction`
+- `HasDemoSiteProvenanceAction`
+- `InsertExampleSiteDataAction`
+- `InstallKitchenSinkDemoPageAction`
+- `ListDemoKitProvenanceSitesAction`
+- `MarkDemoSiteProvenanceAction`
+- `QueueDemoKitGenerationAction`
+- `ReclaimStalledDemoKitGenerationRunsAction`
+- `RedactDemoKitErrorMessageAction`
+- `RefreshDemoStitchPagesAction`
+- `ResetDemoKitProvenanceAction`
+- `ResetDemoSitesAction`
+- `SyncKitchenSinkPageAssetsAction`
+
+### Data objects
+
+- `DemoGenerationPlanData`
+- `DemoGenerationReviewData`
+- `DemoPageContentViewData`
+- `DemoPagePlanData`
+- `DemoProfileData`
+- `DemoSiteGenerationPlanData`
+
+### Jobs
+
+- `RunDemoKitGenerationJob`
+
+### Command signatures
+
+- `capell:demo-kit-doctor`
+- `capell:demo-kit-full-demo`
+
+### Console command classes
+
+- `AdminDemoCommand`
+- `GuardsAgainstProduction`
+- `HasLanguagesOption`
+- `HasSitesOption`
+- `DemoCommand`
+- `DemoKitDoctorCommand`
+- `FullDemoCommand`
+- `KitchenSinkDemoCommand`
+- `RefreshDemoStitchPagesCommand`
+
+### Manifest contributions
+
+- `admin-page: Capell\DemoKit\Manifest\DemoKitAdminPageContribution`
+- `asset: Capell\DemoKit\Manifest\DemoKitAssetsContribution`
+- `configurator: Capell\DemoKit\Manifest\DemoKitConfiguratorContribution`
+- `console-command: Capell\DemoKit\Manifest\DemoKitConsoleCommandsContribution`
+- `dashboard-widget: Capell\DemoKit\Manifest\DemoKitRenderablesContribution`
+- `frontend-component: Capell\DemoKit\Manifest\DemoKitFrontendComponentsContribution`
+- `health-check: Capell\DemoKit\Health\DemoKitHealthCheck`
+
+### Health checks
+
+- `Capell\DemoKit\Health\DemoKitHealthCheck`
+
+### Blade views
+
+- `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`
+- `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`
+- `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`
+- `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`
+- `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`
+- `packages/demo-kit/resources/views/livewire/resources-library.blade.php`
+
+### Cache tags
+
+- `demo-kit`
+
 
 ## Data Model
 
+- Required tables: `capell_demo_kit_generation_runs`.
 - Models: `DemoKitGenerationRun`.
-- Migration files: `2026_07_19_130000_create_demo_kit_generation_runs_table.php`.
+- Migration files: `2026_07_19_130000_create_demo_kit_generation_runs_table.php`, `2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
 - Deletion/retention behaviour: Docs gap: migrations and manifest contributions do not prove a cascade, pruning command, or timed retention policy.
 
@@ -72,9 +200,9 @@ Screenshot contract: `docs/screenshots.json`.
 - Required packages: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
 - Admin navigation: declares `admin-page: DemoKitAdminPageContribution`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: DemoKitConfiguratorContribution`, `dashboard-widget: DemoKitRenderablesContribution`.
-- Permissions: none declared in `capell.json`.
+- Permissions: Shield-generated page permissions for `Capell\DemoKit\Filament\Pages\DemoKitPage` (names and grants depend on host Shield configuration).
 - Public routes: none declared.
-- Database changes: migration files exist in the scaffold, but `capell.json` does not currently declare active migrations.
+- Database changes: package migrations are declared.
 - Config: `config/capell-demo-kit.php`.
 - Settings: no package settings declared.
 - Queues or schedules: queue jobs `RunDemoKitGenerationJob`.
@@ -84,6 +212,7 @@ Screenshot contract: `docs/screenshots.json`.
 ## Common Pitfalls
 
 - Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Run migrations before opening package resources or public routes.
 - Review package configuration before production-like verification: `config/capell-demo-kit.php`.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
 - Custom write integrations must preserve invalidation for `demo-kit` cache tags.
@@ -92,6 +221,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 | Symptom | Likely cause | Check | Fix |
 | --- | --- | --- | --- |
+| Package health check reports a problem | Package configuration or runtime dependencies are not ready | Run `php artisan capell:demo-kit-doctor` | Follow the reported checks, then rerun the doctor command |
 | Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
 | Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
 | Background work does not run | Queue worker or declared schedule is not active | Check the jobs and scheduled commands listed in `Technical Shape` | Start the queue worker or host scheduler, then run the focused command or package test |
@@ -100,8 +230,8 @@ Screenshot contract: `docs/screenshots.json`.
 ## Quick Start
 
 1. Install the package: `composer require capell-app/demo-kit`.
-2. Run the required setup: `php artisan migrate`.
-3. Open the Demo Kit admin page and confirm the admin workflow loads.
+2. See it working: run `php artisan capell:demo-kit-full-demo`.
+3. Open the package admin surface at `/demo-kit` and confirm Demo Kit is available.
 
 ## Next Steps
 

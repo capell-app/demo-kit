@@ -24,6 +24,7 @@ use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
 use Capell\Tests\Fixtures\Models\User;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel;
@@ -418,10 +419,11 @@ it('builds the insert example site data schema', function (): void {
     $schema = resolve(ExampleSiteDataActionSchema::class)->schema();
 
     capell_expect($schema)
-        ->toHaveCount(3)
-        ->and($schema[0])->toBeInstanceOf(TextInput::class)
-        ->and($schema[1])->toBeInstanceOf(LanguageSelect::class)
-        ->and($schema[2])->toBeInstanceOf(SiteSelect::class);
+        ->toHaveCount(4)
+        ->and($schema[0])->toBeInstanceOf(Radio::class)
+        ->and($schema[1])->toBeInstanceOf(TextInput::class)
+        ->and($schema[2])->toBeInstanceOf(LanguageSelect::class)
+        ->and($schema[3])->toBeInstanceOf(SiteSelect::class);
 });
 
 it('inserts example site data through the registered demo command', function (): void {

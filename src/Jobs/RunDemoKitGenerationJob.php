@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Jobs;
 
+use Capell\Core\Models\Site;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
 use Capell\DemoKit\Actions\RedactDemoKitErrorMessageAction;
 use Capell\DemoKit\Models\DemoKitGenerationRun;
@@ -36,7 +37,7 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
     {
         $run = DemoKitGenerationRun::query()->find($this->runId);
 
-        if (! $run instanceof DemoKitGenerationRun || ! in_array($run->status, ['queued', 'running'], true)) {
+        if (! $run instanceof DemoKitGenerationRun || ! in_array($run->status, [DemoKitGenerationRun::STATUS_QUEUED, DemoKitGenerationRun::STATUS_RUNNING], true)) {
             return;
         }
 
@@ -50,7 +51,8 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
             InsertExampleSiteDataAction::run($run->parameters);
 
             $run->update([
-                'status' => 'succeeded',
+                'status' => DemoKitGenerationRun::STATUS_COMPLETED,
+                'created_content' => $this->createdContent($run),
                 'finished_at' => now(),
             ]);
         } catch (Throwable $throwable) {
@@ -72,7 +74,7 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
     private function markFailed(DemoKitGenerationRun $run, ?Throwable $throwable): void
     {
         $run->update([
-            'status' => 'failed',
+            'status' => DemoKitGenerationRun::STATUS_FAILED,
             'error_message' => Str::limit(
                 $throwable instanceof Throwable
                     ? RedactDemoKitErrorMessageAction::run($throwable)
@@ -82,5 +84,32 @@ final class RunDemoKitGenerationJob implements ShouldBeUnique, ShouldQueue
             ),
             'finished_at' => now(),
         ]);
+    }
+
+    /** @return list<array{name: string, site_id: int|null, url: string}> */
+    private function createdContent(DemoKitGenerationRun $run): array
+    {
+        $plannedSites = data_get($run->review, 'plan.sites', []);
+        if (! is_array($plannedSites)) {
+            return [];
+        }
+
+        $names = array_values(array_filter(array_map(
+            static fn (mixed $site): string => is_array($site) && is_string($site['name'] ?? null) ? $site['name'] : '',
+            $plannedSites,
+        )));
+        $sites = Site::query()->whereIn('name', $names)->get()->keyBy('name');
+
+        return array_values(array_map(function (string $name) use ($sites): array {
+            $site = $sites->get($name);
+
+            return [
+                'name' => $name,
+                'site_id' => $site instanceof Site && is_int($site->getKey()) ? $site->getKey() : null,
+                'url' => $site instanceof Site && is_int($site->getKey())
+                    ? url('/admin/sites/' . $site->getKey() . '/edit')
+                    : '',
+            ];
+        }, $names));
     }
 }

@@ -20,7 +20,7 @@ final class DemoPageContentAssetSections
             return [];
         }
 
-        return $widget->assets
+        return array_values($widget->assets
             ->filter(fn (mixed $asset): bool => $asset instanceof WidgetAsset)
             ->filter(fn (WidgetAsset $asset): bool => $this->belongsToPosition($asset, $page, $container, $occurrence))
             ->filter(fn (WidgetAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true)
@@ -28,7 +28,7 @@ final class DemoPageContentAssetSections
             ->map(fn (WidgetAsset $asset): array => $this->normalize($asset))
             ->filter(fn (array $section): bool => $section !== [])
             ->values()
-            ->all();
+            ->all());
     }
 
     private function belongsToPosition(WidgetAsset $asset, Pageable $page, string $container, int $occurrence): bool
@@ -75,7 +75,7 @@ final class DemoPageContentAssetSections
             return [];
         }
 
-        return array_values((new Collection($items))
+        return array_values(new Collection($items)
             ->filter(fn (mixed $item): bool => is_array($item))
             ->map(fn (array $item): array => [
                 'label' => $this->stringValue($item['label'] ?? ''),
@@ -97,7 +97,7 @@ final class DemoPageContentAssetSections
             return [];
         }
 
-        return array_values((new Collection($items))
+        return array_values(new Collection($items)
             ->map(fn (mixed $item): string => $this->stringValue($item))
             ->filter(fn (string $item): bool => $item !== '')
             ->values()

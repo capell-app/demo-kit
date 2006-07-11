@@ -47,7 +47,10 @@ final class CreateKitchenSinkVariantWidgetsAction
                     'is_livewire' => $sourceWidget->is_livewire,
                     'view_file' => $sourceWidget->view_file,
                     'meta' => $this->variantMeta($sourceWidget, $entry),
-                    'admin' => [...($sourceWidget->admin ?? []), 'kitchen_sink_source_key' => $entry['source_key']],
+                    'admin' => [
+                        ...(is_array($sourceWidget->admin) ? $sourceWidget->admin : []),
+                        'kitchen_sink_source_key' => $entry['source_key'],
+                    ],
                     'status' => true,
                 ],
             );

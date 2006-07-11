@@ -6,6 +6,7 @@ namespace Capell\DemoKit\Actions;
 
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\Permissions\PermissionTeamContext;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -73,17 +74,20 @@ final class CreateDemoUsersAction
 
         $guardName = (string) config('auth.defaults.guard', 'web');
 
-        $role = Role::findOrCreate($roleName, $guardName);
-
         if ($roleName === Utils::getSuperAdminName()) {
-            $user->assignRole($role);
+            PermissionTeamContext::run(null, function () use ($user, $roleName, $guardName): void {
+                $user->assignRole(Role::findOrCreate($roleName, $guardName));
+            }, $user);
         } else {
+            $role = PermissionTeamContext::run($site->id, fn (): Role => Role::findOrCreate($roleName, $guardName));
             $user->assignRoleForSite($site, $role);
         }
 
         if ($roleName !== Utils::getSuperAdminName() && Utils::isPanelUserRoleEnabled()) {
             // Panel access is not a site-content role, so keep it global.
-            $user->assignRole(Role::findOrCreate(Utils::getPanelUserRoleName(), $guardName));
+            PermissionTeamContext::run(null, function () use ($user, $guardName): void {
+                $user->assignRole(Role::findOrCreate(Utils::getPanelUserRoleName(), $guardName));
+            }, $user);
         }
     }
 }

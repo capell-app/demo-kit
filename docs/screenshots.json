@@ -7,19 +7,803 @@
     "entries": [
         {
             "id": "demo-kit-admin-page",
-            "title": "Demo Kit admin page.",
+            "title": "Demo Kit ready to plan.",
             "package": "demo-kit",
             "surface": "admin",
             "targetType": "admin-page",
             "target": "DemoKitPage",
             "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "button:has-text(\"Plan demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No generation-run rows and no provenance-owned sites. Verify the recommended starting action and empty durable status.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page-dark.png",
+            "useCase": "Choose a generation profile before writing any demo content.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-admin-page-mobile",
+            "title": "Demo Kit ready to plan on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "button:has-text(\"Plan demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No generation-run rows and no provenance-owned sites. Verify the recommended starting action and empty durable status.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page-mobile-dark.png",
+            "useCase": "Choose a generation profile before writing any demo content.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-recommended-profile",
+            "title": "Recommended generation profile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "[role=\"dialog\"] input[value=\"recommended\"]",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run. The recommended profile is selected and custom controls are hidden. Close the modal without submitting after capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-recommended-profile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-recommended-profile-dark.png",
+            "useCase": "Review the recommended deterministic profile.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-recommended-profile-mobile",
+            "title": "Recommended generation profile on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "[role=\"dialog\"] input[value=\"recommended\"]",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run. The recommended profile is selected and custom controls are hidden. Close the modal without submitting after capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-recommended-profile-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-recommended-profile-mobile-dark.png",
+            "useCase": "Review the recommended deterministic profile.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-custom-profile",
+            "title": "Custom generation profile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "[role=\"dialog\"] input[type=\"url\"]",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run. Custom profile exposes URL, languages and sites. Close without submitting after capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-custom-profile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-custom-profile-dark.png",
+            "useCase": "Choose custom site and language inputs.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] input[value=\"custom\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-custom-profile-mobile",
+            "title": "Custom generation profile on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "[role=\"dialog\"] input[type=\"url\"]",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run. Custom profile exposes URL, languages and sites. Close without submitting after capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-custom-profile-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-custom-profile-mobile-dark.png",
+            "useCase": "Choose custom site and language inputs.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] input[value=\"custom\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-generation-review",
+            "title": "Generation review before confirmation.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Plan fingerprint:",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or ordinary-name collision. Inspect site, language, page and media counts and the fingerprint. Planning must not dispatch a generation job.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-generation-review.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-generation-review-dark.png",
+            "useCase": "Check the plan before queueing it.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-generation-review-mobile",
+            "title": "Generation review before confirmation on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Plan fingerprint:",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or ordinary-name collision. Inspect site, language, page and media counts and the fingerprint. Planning must not dispatch a generation job.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-generation-review-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-generation-review-mobile-dark.png",
+            "useCase": "Check the plan before queueing it.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-reuse-review",
+            "title": "Review of reusable generated sites.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=reusable Demo Kit provenance",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a site whose name matches the recommended plan and mark it through MarkDemoSiteProvenanceAction. No active run. Do not queue generation.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reuse-review.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reuse-review-dark.png",
+            "useCase": "Identify existing Demo Kit content that can be reused.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-reuse-review-mobile",
+            "title": "Review of reusable generated sites on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=reusable Demo Kit provenance",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a site whose name matches the recommended plan and mark it through MarkDemoSiteProvenanceAction. No active run. Do not queue generation.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reuse-review-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reuse-review-mobile-dark.png",
+            "useCase": "Identify existing Demo Kit content that can be reused.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-blocked-review",
+            "title": "Review blocked by ordinary content.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=ordinary content \u2014 blocked",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare an ordinary site with a name matching the recommended plan, without Demo Kit provenance. No active run. Do not submit the queue confirmation.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-blocked-review.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-blocked-review-dark.png",
+            "useCase": "See why an existing ordinary site prevents generation.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-blocked-review-mobile",
+            "title": "Review blocked by ordinary content on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=ordinary content \u2014 blocked",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare an ordinary site with a name matching the recommended plan, without Demo Kit provenance. No active run. Do not submit the queue confirmation.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-blocked-review-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-blocked-review-mobile-dark.png",
+            "useCase": "See why an existing ordinary site prevents generation.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-queue-confirmation",
+            "title": "Explicit generation confirmation.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or blocking collision. Verify counts and fingerprint in the confirmation. Cancel after capture; this entry must not submit the queue action.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation-dark.png",
+            "useCase": "Confirm exactly the reviewed generation request.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "text=Plan fingerprint:"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Queue reviewed generation\")"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-queue-confirmation-mobile",
+            "title": "Explicit generation confirmation on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. No active run or blocking collision. Verify counts and fingerprint in the confirmation. Cancel after capture; this entry must not submit the queue action.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queue-confirmation-mobile-dark.png",
+            "useCase": "Confirm exactly the reviewed generation request.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Plan demo generation\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[role=\"dialog\"] input[value=\"recommended\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"dialog\"] button[type=\"submit\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "text=Plan fingerprint:"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Queue reviewed generation\")"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-queued",
+            "title": "Queued generation.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Generation is queued.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the latest durable generation run with status queued, its review and fingerprint. Pause this fixture queue worker so capture cannot race execution. Confirm planning is disabled and status refresh is active.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queued.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queued-dark.png",
+            "useCase": "See that a confirmed request is waiting for its worker.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-queued-mobile",
+            "title": "Queued generation on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Generation is queued.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the latest durable generation run with status queued, its review and fingerprint. Pause this fixture queue worker so capture cannot race execution. Confirm planning is disabled and status refresh is active.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queued-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-queued-mobile-dark.png",
+            "useCase": "See that a confirmed request is waiting for its worker.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-running",
+            "title": "Running generation.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Generation is running.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the latest durable run with status running, review, fingerprint and started_at. Keep the fixture worker paused. Confirm planning is disabled and status refresh is active.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-running.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-running-dark.png",
+            "useCase": "Track generation in progress.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-running-mobile",
+            "title": "Running generation on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Generation is running.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the latest durable run with status running, review, fingerprint and started_at. Keep the fixture worker paused. Confirm planning is disabled and status refresh is active.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-running-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-running-mobile-dark.png",
+            "useCase": "Track generation in progress.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-completed",
+            "title": "Completed generation and created content.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Completed plan fingerprint:",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a completed latest run with review, fingerprint and real created-content links to provenance-owned fixture sites. Verify the success state and links. Do not fabricate links to absent content.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-completed.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-completed-dark.png",
+            "useCase": "Open generated sites and identify the completed plan.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-completed-mobile",
+            "title": "Completed generation and created content on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Completed plan fingerprint:",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a completed latest run with review, fingerprint and real created-content links to provenance-owned fixture sites. Verify the success state and links. Do not fabricate links to absent content.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-completed-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-completed-mobile-dark.png",
+            "useCase": "Open generated sites and identify the completed plan.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-failed",
+            "title": "Failed generation with redacted error.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Generation failed.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a failed latest run with review, fingerprint and an error produced by RedactDemoKitErrorMessageAction. Verify the error contains no secret fixture value and planning is available.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-failed.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-failed-dark.png",
+            "useCase": "Understand a generation failure and start a fresh review.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-failed-mobile",
+            "title": "Failed generation with redacted error on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Generation failed.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a failed latest run with review, fingerprint and an error produced by RedactDemoKitErrorMessageAction. Verify the error contains no secret fixture value and planning is available.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-failed-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-failed-mobile-dark.png",
+            "useCase": "Understand a generation failure and start a fresh review.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-stalled",
+            "title": "Stalled generation requiring a new review.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "text=Generation stalled and needs a new review.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a stalled latest run with review, fingerprint and the translated stalled message. Verify planning is available.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-stalled.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-stalled-dark.png",
+            "useCase": "Recover from a generation run that stopped without completing.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-stalled-mobile",
+            "title": "Stalled generation requiring a new review on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Generation stalled and needs a new review.",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare a stalled latest run with review, fingerprint and the translated stalled message. Verify planning is available.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-stalled-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-stalled-mobile-dark.png",
+            "useCase": "Recover from a generation run that stopped without completing.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-reset-confirmation",
+            "title": "Provenance-only reset confirmation.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm provenance-only reset\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare one provenance-owned site and one ordinary site. Inspect the selector: only the provenance-owned site is offered. Cancel after capture; never submit a destructive reset during a screenshot capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation-dark.png",
+            "useCase": "Select only generated sites for an explicitly confirmed reset.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Reset generated sites\")"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-reset-confirmation-mobile",
+            "title": "Provenance-only reset confirmation on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "[role=\"dialog\"]:has-text(\"Confirm provenance-only reset\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare one provenance-owned site and one ordinary site. Inspect the selector: only the provenance-owned site is offered. Cancel after capture; never submit a destructive reset during a screenshot capture.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-confirmation-mobile-dark.png",
+            "useCase": "Select only generated sites for an explicitly confirmed reset.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Reset generated sites\")"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-reset-completed",
+            "title": "Ordinary content preserved after reset.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
+            "waitFor": "button:has-text(\"Plan demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. In an isolated fixture App, reset the provenance-owned fixture site through ResetDemoKitProvenanceAction before capture. Retain an ordinary site and no active run. Verify the reset action is absent; confirm ordinary-site survival separately through a behaviour test.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-completed.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-completed-dark.png",
+            "useCase": "Return to the planner after generated content is removed.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-reset-completed-mobile",
+            "title": "Ordinary content preserved after reset on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "button:has-text(\"Plan demo generation\")",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. In an isolated fixture App, reset the provenance-owned fixture site through ResetDemoKitProvenanceAction before capture. Retain an ordinary site and no active run. Verify the reset action is absent; confirm ordinary-site survival separately through a behaviour test.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-completed-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-reset-completed-mobile-dark.png",
+            "useCase": "Return to the planner after generated content is removed.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ]
+        },
+        {
+            "id": "demo-kit-admin-sidebar-menu-open",
+            "title": "Demo Kit with navigation open.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "desktop",
             "waitFor": "text=Demo Kit",
             "required": true,
-            "notes": "Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state.",
-            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page.png",
-            "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page.",
-            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page-dark.png",
-            "covers": ["packages/demo-kit/src/Filament/Pages/DemoKitPage.php"]
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the collapsible sidebar in its closed state and no active run.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open-dark.png",
+            "useCase": "Locate Demo Kit within the admin navigation.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                }
+            ]
+        },
+        {
+            "id": "demo-kit-admin-sidebar-menu-open-mobile",
+            "title": "Demo Kit with navigation open on mobile.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "viewport": "mobile",
+            "waitFor": "text=Demo Kit",
+            "required": true,
+            "notes": "Use an installed local/testing App and an administrator with extension-management permission. The route is relative to the runner admin base (normally /admin/demo-kit). Prepare each entry independently; do not depend on capture order or colour scheme. Prepare the collapsible sidebar in its closed state and no active run.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open-mobile.png",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open-mobile-dark.png",
+            "useCase": "Locate Demo Kit within the admin navigation.",
+            "covers": [
+                "packages/demo-kit/src/Filament/Pages/DemoKitPage.php",
+                "packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php"
+            ],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                }
+            ]
         },
         {
             "id": "insights-consent-prime",
@@ -36,7 +820,8 @@
             "required": false,
             "notes": "Runner-only warm-up capture that dismisses the Insights consent banner before marketplace-facing public screenshots are taken.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/insights-consent-prime.png",
-            "useCase": "The screenshot runner sets anonymous visitor consent state so public Demo Kit captures do not include analytics consent chrome."
+            "useCase": "The screenshot runner sets anonymous visitor consent state so public Demo Kit captures do not include analytics consent chrome.",
+            "viewport": "desktop"
         },
         {
             "id": "demo-page-content-widget",
@@ -52,7 +837,8 @@
             "notes": "Requires Demo Kit generated page data with a layout widget using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget.png",
             "useCase": "A maintainer verifies generated demo pages render designed content through the package-owned Blade view.",
-            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget-dark.png"
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget-dark.png",
+            "viewport": "desktop"
         },
         {
             "id": "homepage-section-widget",
@@ -68,29 +854,8 @@
             "notes": "Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero widget.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget.png",
             "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade.",
-            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget-dark.png"
-        },
-        {
-            "id": "demo-kit-admin-sidebar-menu-open",
-            "title": "Demo Kit admin page with admin sidebar menu open.",
-            "package": "demo-kit",
-            "surface": "admin",
-            "targetType": "admin-page",
-            "target": "DemoKitPage",
-            "url": "/demo-kit",
-            "waitFor": "text=Demo Kit",
-            "required": false,
-            "notes": "Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state. Capture this same admin surface with the fully collapsible sidebar opened.",
-            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open.png",
-            "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page.",
-            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open-dark.png",
-            "covers": ["packages/demo-kit/src/Filament/Pages/DemoKitPage.php"],
-            "beforeWait": [
-                {
-                    "type": "click",
-                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
-                }
-            ]
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget-dark.png",
+            "viewport": "desktop"
         }
     ]
 }

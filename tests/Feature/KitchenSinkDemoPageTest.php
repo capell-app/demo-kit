@@ -32,6 +32,7 @@ use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -118,7 +119,13 @@ it('installs the kitchen sink demo page idempotently', function (): void {
         expect($childPage->getMedia(MediaCollectionEnum::Image->value))->not->toBeEmpty($childPage->name);
     });
 
-    $footer = new LatestPages(headingClass: 'font-semibold', pages: $secondPage->children);
+    $footerPages = new Collection;
+
+    foreach ($secondPage->children as $childPage) {
+        $footerPages->push($childPage);
+    }
+
+    $footer = new LatestPages(headingClass: 'font-semibold', pages: $footerPages);
 
     expect($footer->pages)->toBeEmpty();
 });
@@ -399,7 +406,7 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
             ->and($editedMeta['sections'][0]['heading'] ?? null)->toBe($editedSectionHeading, $widgetKey)
             ->and($editedMeta['sections'][0]['key'] ?? null)->toBe($originalSections[0]['key'] ?? null, $widgetKey)
             ->and($editedMeta['component'] ?? $editedWidget->component)->toBe($originalMeta['component'] ?? $originalComponent, $widgetKey)
-            ->and($editedWidget->assets->pluck('id')->sort()->values()->all())->toBe($originalAssetIds, $widgetKey);
+            ->and($editedWidget->assets->pluck('id')->sort()->values()->all())->toBe($originalAssetIds, is_scalar($widgetKey) ? (string) $widgetKey : '');
 
         $editedTranslation = $editedWidget->translations()
             ->where('language_id', $language->getKey())

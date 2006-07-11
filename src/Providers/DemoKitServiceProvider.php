@@ -28,6 +28,7 @@ use Capell\DemoKit\Support\KitchenSinkPublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Livewire\Livewire;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
@@ -48,6 +49,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             ->hasAssets()
             ->hasConfigFile('capell-demo-kit')
             ->hasMigration('2026_07_19_130000_create_demo_kit_generation_runs_table')
+            ->hasMigration('2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table')
             ->hasViews(self::$name)
             ->hasTranslations()
             ->hasCommands([
@@ -60,6 +62,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             ]);
     }
 
+    #[Override]
     public function registeringPackage(): void
     {
         parent::registeringPackage();

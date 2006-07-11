@@ -15,6 +15,9 @@ use Override;
  * @property int $id
  * @property string $status
  * @property array<string, mixed> $parameters
+ * @property array<string, mixed>|null $review
+ * @property array<int, array<string, mixed>> $created_content
+ * @property string|null $fingerprint
  * @property string|null $error_message
  * @property CarbonImmutable|null $started_at
  * @property CarbonImmutable|null $finished_at
@@ -23,6 +26,16 @@ final class DemoKitGenerationRun extends Model
 {
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
+
+    public const string STATUS_QUEUED = 'queued';
+
+    public const string STATUS_RUNNING = 'running';
+
+    public const string STATUS_COMPLETED = 'completed';
+
+    public const string STATUS_FAILED = 'failed';
+
+    public const string STATUS_STALLED = 'stalled';
 
     protected $table = 'capell_demo_kit_generation_runs';
 
@@ -41,6 +54,8 @@ final class DemoKitGenerationRun extends Model
     {
         return [
             'parameters' => 'encrypted:array',
+            'review' => 'encrypted:array',
+            'created_content' => 'encrypted:array',
             'started_at' => 'immutable_datetime',
             'finished_at' => 'immutable_datetime',
         ];

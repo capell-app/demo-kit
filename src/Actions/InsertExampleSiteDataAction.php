@@ -32,7 +32,11 @@ final class InsertExampleSiteDataAction
             throw new RuntimeException((string) __('capell-demo-kit::actions.example_site_data_command_missing'));
         }
 
-        Artisan::call($demoCommand, $this->commandParams($data));
+        $exitCode = Artisan::call($demoCommand, $this->commandParams($data));
+
+        if ($exitCode !== 0) {
+            throw new RuntimeException((string) __('capell-demo-kit::actions.example_site_data_installation_failed'));
+        }
     }
 
     /**
@@ -45,7 +49,15 @@ final class InsertExampleSiteDataAction
             '--force' => true,
         ];
 
-        foreach (['url', 'user', 'languages', 'sites'] as $param) {
+        foreach ([
+            'url' => 'url',
+            'user' => 'user',
+            'languages' => 'languages',
+            'sites' => 'sites',
+            'seed' => 'seed',
+            'site_count' => 'site-count',
+            'pages' => 'page-count',
+        ] as $param => $option) {
             if (! array_key_exists($param, $data)) {
                 continue;
             }
@@ -62,7 +74,7 @@ final class InsertExampleSiteDataAction
                 continue;
             }
 
-            $params['--' . $param] = $data[$param];
+            $params['--' . $option] = $data[$param];
         }
 
         return $params;

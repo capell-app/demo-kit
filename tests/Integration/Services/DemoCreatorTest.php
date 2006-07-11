@@ -62,9 +62,14 @@ it('creates a demo site with languages, pages, and media', function (): void {
 
     $page->refresh();
 
-    expect($page)->toBeInstanceOf(Page::class)
-        ->and($page->translations)->not()->toBeEmpty()
-        ->and($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(1);
+    expect($page)->toBeInstanceOf(Page::class);
+
+    if (! $page instanceof Page) {
+        throw new RuntimeException('Expected DemoCreator to return a page.');
+    }
+
+    expect($page->translations)->not()->toBeEmpty();
+    expect($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(1);
 
     assertDatabaseHas('sites', ['name' => $site->name]);
     assertDatabaseHas('languages', ['code' => 'en']);
@@ -173,7 +178,7 @@ it('keeps an existing null-domain fallback instead of creating a host-specific d
         'default' => true,
     ]);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey($language->getKey())->get());
+    new DemoCreator(url: 'https://example.com')->setupSite($site, Language::query()->whereKey($language->getKey())->get());
 
     expect($site->siteDomains()->count())->toBe(1)
         ->and($site->siteDomains()->first()->domain)->toBeNull()
@@ -185,7 +190,7 @@ it('creates null-domain fallback domains when demo setup owns initial domain cre
     $french = Language::factory()->create(['code' => 'fr', 'default' => false]);
     $site = Site::factory()->language($english)->default()->create(['name' => 'Demo']);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey([$english->getKey(), $french->getKey()])->get());
+    new DemoCreator(url: 'https://example.com')->setupSite($site, Language::query()->whereKey([$english->getKey(), $french->getKey()])->get());
 
     $siteDomains = $site->siteDomains()->orderBy('language_id')->get();
 

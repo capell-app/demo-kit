@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Capell\Core\Contracts\Extensions\ExtensionContribution;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\PageUrl;
 use Capell\DemoKit\Actions\RedactDemoKitErrorMessageAction;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Illuminate\Support\Facades\File;
@@ -59,6 +61,7 @@ describe('demo kit capell.json manifest', function (): void {
                 $migrationFiles,
             ))->toBe([
                 '2026_07_19_130000_create_demo_kit_generation_runs_table',
+                '2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table',
             ]);
     });
 
@@ -83,8 +86,8 @@ describe('demo kit capell.json manifest', function (): void {
         $invalidationModels = collect($invalidationSources)->pluck('model')->all();
 
         expect($invalidationModels)->toContain(
-            'Capell\\Core\\Models\\Page',
-            'Capell\\Core\\Models\\PageUrl',
+            Page::class,
+            PageUrl::class,
         );
     });
 
