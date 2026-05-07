@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Providers;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\CapellAdminManager;
+use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
@@ -55,11 +56,46 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminPanelExtensions(): void
     {
-        if (! class_exists(CapellAdmin::class)) {
+        $this->registerExtensionPageRegistry();
+        $this->registerAdminSurfacePage();
+    }
+
+    private function registerExtensionPageRegistry(): void
+    {
+        if (! class_exists(ExtensionPageRegistry::class)) {
             return;
         }
 
-        CapellAdmin::registerExtensionPage(self::$packageName, DemoKitPage::class);
+        $registerExtensionPage = static function (ExtensionPageRegistry $extensionPageRegistry): void {
+            $extensionPageRegistry->register(self::$packageName, DemoKitPage::class);
+        };
+
+        $this->app->afterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
+
+        if ($this->app->resolved(ExtensionPageRegistry::class)) {
+            $registerExtensionPage($this->app->make(ExtensionPageRegistry::class));
+        }
+    }
+
+    private function registerAdminSurfacePage(): void
+    {
+        if (! class_exists(CapellAdminManager::class)) {
+            return;
+        }
+
+        $registerExtensionPage = static function (CapellAdminManager $capellAdminManager): void {
+            if (! method_exists($capellAdminManager, 'registerExtensionPage')) {
+                return;
+            }
+
+            $capellAdminManager->registerExtensionPage(self::$packageName, DemoKitPage::class);
+        };
+
+        $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
+
+        if ($this->app->resolved(CapellAdminManager::class)) {
+            $registerExtensionPage($this->app->make(CapellAdminManager::class));
+        }
     }
 
     private function getVersion(): string
