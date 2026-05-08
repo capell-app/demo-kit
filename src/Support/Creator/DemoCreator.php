@@ -118,8 +118,6 @@ class DemoCreator
                 ],
             ]);
 
-            $url_parts = parse_url((string) $this->url);
-
             $path = '';
             if (! $language->default) {
                 $path .= '/' . $language->code;
@@ -130,10 +128,11 @@ class DemoCreator
             }
 
             $site->siteDomains()->firstOrCreate([
-                'domain' => $url_parts['host'],
-                'path' => $path !== '' && $path !== '0' ? $path : null,
-            ], [
                 'language_id' => $language->id,
+            ], [
+                'domain' => null,
+                'scheme' => null,
+                'path' => $path !== '' && $path !== '0' ? $path : null,
                 'default' => $site->siteDomains()->doesntExist(),
             ]);
         }

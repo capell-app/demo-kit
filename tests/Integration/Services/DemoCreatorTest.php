@@ -7,8 +7,10 @@ use Capell\Core\Enums\MediaConversionEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\SiteDomain;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -109,7 +111,43 @@ it('sets up site translations and domains for languages', function (): void {
         expect($translation)->not()->toBeNull();
     }
 
-    expect($site->siteDomains()->count())->toBeGreaterThan(0);
+    expect($site->siteDomains()->count())->toBe($languages->count());
+});
+
+it('keeps an existing null-domain fallback instead of creating a host-specific demo domain', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->create(['name' => 'Demo']);
+
+    SiteDomain::query()->create([
+        'site_id' => $site->id,
+        'language_id' => $language->id,
+        'domain' => null,
+        'scheme' => null,
+        'path' => null,
+        'status' => true,
+        'default' => true,
+    ]);
+
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$language]));
+
+    expect($site->siteDomains()->count())->toBe(1)
+        ->and($site->siteDomains()->first()->domain)->toBeNull()
+        ->and($site->siteDomains()->first()->getRawOriginal('scheme'))->toBeNull();
+});
+
+it('creates null-domain fallback domains when demo setup owns initial domain creation', function (): void {
+    $english = Language::factory()->default()->create(['code' => 'en']);
+    $french = Language::factory()->create(['code' => 'fr', 'default' => false]);
+    $site = Site::factory()->language($english)->default()->create(['name' => 'Demo']);
+
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$english, $french]));
+
+    $siteDomains = $site->siteDomains()->orderBy('language_id')->get();
+
+    expect($siteDomains)->toHaveCount(2)
+        ->and($siteDomains->pluck('domain')->all())->toBe([null, null])
+        ->and($siteDomains->map(fn (SiteDomain $siteDomain): mixed => $siteDomain->getRawOriginal('scheme'))->all())->toBe([null, null])
+        ->and($siteDomains->pluck('path')->all())->toBe([null, '/fr']);
 });
 
 it('throws when demo resource path does not exist', function (): void {
