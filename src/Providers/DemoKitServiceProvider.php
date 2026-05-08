@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Providers;
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
@@ -54,6 +55,11 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         $this->registerAdminPanelExtensions();
     }
 
+    public function packageBooted(): void
+    {
+        $this->registerAdminPanelExtensions();
+    }
+
     private function registerAdminPanelExtensions(): void
     {
         $this->registerExtensionPageRegistry();
@@ -70,11 +76,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $extensionPageRegistry->register(self::$packageName, DemoKitPage::class);
         };
 
-        $this->app->afterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
-
-        if ($this->app->resolved(ExtensionPageRegistry::class)) {
+        if ($this->app->bound(ExtensionPageRegistry::class)) {
             $registerExtensionPage($this->app->make(ExtensionPageRegistry::class));
+
+            return;
         }
+
+        $this->app->afterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
     }
 
     private function registerAdminSurfacePage(): void
@@ -91,11 +99,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $capellAdminManager->registerExtensionPage(self::$packageName, DemoKitPage::class);
         };
 
-        $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
+        if ($this->app->bound(CapellAdminManager::class)) {
+            CapellAdmin::registerExtensionPage(self::$packageName, DemoKitPage::class);
 
-        if ($this->app->resolved(CapellAdminManager::class)) {
-            $registerExtensionPage($this->app->make(CapellAdminManager::class));
+            return;
         }
+
+        $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
     }
 
     private function getVersion(): string
