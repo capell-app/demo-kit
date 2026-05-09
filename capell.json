@@ -7,10 +7,7 @@
     "tier": "free",
     "bundle": "foundation",
     "description": "Demo Kit provides example content and media for local Capell demos.",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -28,9 +25,7 @@
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": [
-            "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
-        ],
+        "runtime": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"],
         "admin": [],
         "frontend": []
     },
