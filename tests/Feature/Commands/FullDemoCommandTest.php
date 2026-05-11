@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
@@ -37,6 +38,10 @@ it('creates full multi site and language demo data and runs package demos', func
     CapellCore::forcePackageInstalled('vendor/example-package');
     CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:demo';
     CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites'];
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->twice()
+        ->andReturn(true);
 
     Artisan::registerCommand(new TrackingDemoCommand);
 

@@ -9,6 +9,8 @@ use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
@@ -203,15 +205,15 @@ class AdminDemoCommand extends Command
     {
         $languageCodes = $allLanguages->pluck('code')->toArray();
 
-        $sites_count = count($sites);
-        $site_no = 0;
+        $sitesCount = count($sites);
+        $siteNumber = 0;
 
-        foreach ($sites as $i => $siteName) {
-            $site_no++;
+        foreach ($sites as $siteIndex => $siteName) {
+            $siteNumber++;
 
             $demoData = self::getDemoData($siteName, $languageCodes);
 
-            if ($i === 0) {
+            if ($siteIndex === 0) {
                 /** @var Collection<int, Language> $siteLanguages */
                 $siteLanguages = $allLanguages;
 
@@ -227,29 +229,55 @@ class AdminDemoCommand extends Command
 
             $name = Str::title($demoData['name'][$defaultLanguage->code] ?? $demoData['name']['en']);
             $this->newLine();
-            $this->info(sprintf('%d/%d. Site %s...', $site_no, $sites_count, $name));
+            $this->info(sprintf('%d/%d. Site %s...', $siteNumber, $sitesCount, $name));
 
             $site = CreateSiteAction::run(
                 $siteName,
-                url: rtrim($siteUrl, '/') . ($i > 0 ? '/' . str()->slug($siteName) : ''),
+                url: rtrim($siteUrl, '/') . ($siteIndex > 0 ? '/' . str()->slug($siteName) : ''),
                 language: $defaultLanguage,
                 languages: $siteLanguages,
             );
 
-            $this->line('Home page');
-            $pageCreator->createHomePage($site, $siteLanguages);
+            $bar = $this->output->createProgressBar($this->countPages($demoData['children']) + 4);
 
-            $this->line('Error page');
-            $pageCreator->createErrorPage($site, $siteLanguages);
+            /** @var ProgressBar $bar */
+            $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% — %message%');
+            $bar->setMessage('Starting...');
+            $bar->start();
 
-            $this->line('Setting up site');
-            $this->setupSite(
+            $this->runProgressStep($bar, 'Home page', fn () => $pageCreator->createHomePage($site, $siteLanguages));
+            $this->runProgressStep($bar, 'Error page', fn () => $pageCreator->createErrorPage($site, $siteLanguages));
+            $this->runProgressStep($bar, sprintf(
+                'Site setup: %s (%s)',
+                $defaultLanguage->code,
+                $siteLanguages->pluck('code')->implode(', '),
+            ), fn () => $this->setupSite(
                 demoData: $demoData['children'],
                 site: $site,
                 languages: $siteLanguages,
                 defaultLanguage: $defaultLanguage,
-            );
+                bar: $bar,
+            ));
+            $this->runProgressStep($bar, 'Layout builder demo', fn () => CreateLayoutBuilderDemoSiteAction::run(
+                new DemoSitePlanData(
+                    site: $site,
+                    contentTree: $demoData,
+                ),
+            ));
+
+            $bar->finish();
+            $this->newLine();
         }
+    }
+
+    private function runProgressStep(ProgressBar $bar, string $message, callable $callback): void
+    {
+        $bar->setMessage($this->formatProgressMessage($message));
+        $bar->display();
+
+        $callback();
+
+        $bar->advance();
     }
 
     private function countPages(array $pages): int
@@ -270,27 +298,13 @@ class AdminDemoCommand extends Command
         Site $site,
         Collection $languages,
         Language $defaultLanguage,
+        ProgressBar $bar,
     ): void {
-        $this->line('Setting up site with default language: ' . $defaultLanguage->code);
-        $this->line('Setting up languages: ' . $languages->pluck('code')->implode(', '));
         $this->demoCreator->setupSite($site, $languages);
-
-        $this->newLine();
-        $this->line('Setting up pages');
-        $totalPages = $this->countPages($demoData);
-        $bar = $this->output->createProgressBar($totalPages);
-
-        /** @var ProgressBar $bar */
-        $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% — %message%');
-        $bar->setMessage('Starting...');
-        $bar->start();
 
         foreach ($demoData as $pageData) {
             $this->createPagesWithProgress($pageData, $site, $languages, $defaultLanguage, bar: $bar);
         }
-
-        $bar->finish();
-        $this->newLine();
     }
 
     private function createPagesWithProgress(

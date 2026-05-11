@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
@@ -9,6 +11,7 @@ use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
@@ -88,12 +91,25 @@ it('runs demo command successfully', function (): void {
         return $mock;
     });
 
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->twice()
+        ->with(Mockery::on(fn (DemoSitePlanData $plan): bool => $plan->contentTree['children'] !== []))
+        ->andReturn(true);
+
     test()->artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
         '--user' => $user->email,
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
     ])->assertExitCode(0);
+
+    $output = str_replace("\r", "\n", Artisan::output());
+
+    expect($output)
+        ->not->toContain(PHP_EOL . 'Home page' . PHP_EOL)
+        ->not->toContain(PHP_EOL . 'Error page' . PHP_EOL)
+        ->not->toContain(PHP_EOL . 'Setting up site' . PHP_EOL)
+        ->not->toContain(PHP_EOL . 'Setting up pages' . PHP_EOL);
 
     File::delete($zipPath);
 });
