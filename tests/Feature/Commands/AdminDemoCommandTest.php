@@ -23,7 +23,7 @@ it('keeps progress messages short enough to preserve the bar width', function ()
         'Dogs » Spaniel » Springer Spaniel » English Springer Spaniel » Show English Springer Spaniel',
     );
 
-    expect(mb_strlen($message))->toBeLessThanOrEqual(32)
+    expect(mb_strlen((string) $message))->toBeLessThanOrEqual(32)
         ->and($message)->toEndWith('...');
 });
 

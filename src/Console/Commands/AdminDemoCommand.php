@@ -12,6 +12,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\PageCreator;
@@ -245,8 +246,8 @@ class AdminDemoCommand extends Command
             $bar->setMessage('Starting...');
             $bar->start();
 
-            $this->runProgressStep($bar, 'Home page', fn () => $pageCreator->createHomePage($site, $siteLanguages));
-            $this->runProgressStep($bar, 'Error page', fn () => $pageCreator->createErrorPage($site, $siteLanguages));
+            $this->runProgressStep($bar, 'Home page', fn (): Page => $pageCreator->createHomePage($site, $siteLanguages));
+            $this->runProgressStep($bar, 'Error page', fn (): Page => $pageCreator->createErrorPage($site, $siteLanguages));
             $this->runProgressStep($bar, sprintf(
                 'Site setup: %s (%s)',
                 $defaultLanguage->code,
