@@ -37,16 +37,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
-        CapellCore::registerPackage(
-            self::$packageName,
-            type: self::getType(),
-            serviceProviderClass: self::class,
-            path: realpath(__DIR__ . '/../..'),
-            version: $this->getVersion(),
-            description: fn (): string => 'Demo content and media kit for Capell',
-            setupCommand: 'capell:demo-kit-full-demo',
-        );
-
         $package = CapellCore::getPackage(self::$packageName);
         $package->setupParams = ['url', 'user', 'languages', 'sites', 'force'];
         $package->demoCommand = 'capell:demo-kit-full-demo';
