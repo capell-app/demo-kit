@@ -13,10 +13,7 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\DemoKit",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -29,9 +26,7 @@
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": [
-            "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
-        ],
+        "runtime": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"],
         "admin": [],
         "frontend": []
     },
@@ -53,15 +48,10 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
-        "cacheTags": [
-            "demo-kit"
-        ],
+        "cacheTags": ["demo-kit"],
         "cacheSafety": {
             "cacheable": false,
-            "variesBy": [
-                "site",
-                "locale"
-            ],
+            "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
             "invalidationSources": [],
             "queueInvalidation": true
@@ -77,15 +67,9 @@
     "marketplace": {
         "summary": "Demo Kit provides example content and media for local Capell demos.",
         "screenshots": [],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "admin-page"
-        ]
+        "deferredContributions": ["admin-page"]
     }
 }

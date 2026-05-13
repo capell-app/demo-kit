@@ -13,7 +13,6 @@ use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
-use Composer\InstalledVersions;
 use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
@@ -96,18 +95,5 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         }
 
         $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
-    }
-
-    private function getVersion(): string
-    {
-        if (! class_exists(InstalledVersions::class)) {
-            return 'dev';
-        }
-
-        if (! InstalledVersions::isInstalled(self::$packageName)) {
-            return 'dev';
-        }
-
-        return InstalledVersions::getPrettyVersion(self::$packageName) ?? 'dev';
     }
 }
