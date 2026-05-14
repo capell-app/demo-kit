@@ -317,6 +317,10 @@ class DemoCreator
             return;
         }
 
+        if (! $model->exists || $model->fresh() === null) {
+            return;
+        }
+
         if ($type === 'video') {
             $ext = 'mp4';
             $demo_path = static::getDemoResourcePath('video');

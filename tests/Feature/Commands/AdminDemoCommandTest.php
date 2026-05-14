@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
@@ -9,8 +10,6 @@ use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
-use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
-use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
@@ -30,6 +29,9 @@ it('keeps progress messages short enough to preserve the bar width', function ()
 });
 
 it('runs demo command successfully', function (): void {
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
     $user = User::factory()->create(['email' => 'admin@example.com']);
     $demoDirectory = storage_path('framework/testing/demo-kit-demo');
 
@@ -117,6 +119,40 @@ it('runs demo command successfully', function (): void {
         ->not->toContain(PHP_EOL . 'Setting up pages' . PHP_EOL);
 
     File::delete($zipPath);
+});
+
+it('skips layout builder demo when the layout demo packages are not installed', function (): void {
+    CapellCore::forcePackageInstalled('capell-app/content-sections', false);
+    CapellCore::forcePackageInstalled('capell-app/layout-builder', false);
+
+    $user = User::factory()->create(['email' => 'admin@example.com']);
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->never();
+
+    test()->artisan('capell:admin-demo', [
+        '--url' => 'https://example.test',
+        '--user' => $user->email,
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+    ])->assertExitCode(0);
 });
 
 it('rejects invalid numeric demo scale options', function (): void {

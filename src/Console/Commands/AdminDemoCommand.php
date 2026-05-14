@@ -24,8 +24,6 @@ use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
-use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
-use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User;
@@ -44,6 +42,10 @@ class AdminDemoCommand extends Command
     use PromptsWithOptionFallback;
 
     private const PROGRESS_MESSAGE_WIDTH = 32;
+
+    private const CONTENT_SECTIONS_PACKAGE = 'capell-app/content-sections';
+
+    private const LAYOUT_BUILDER_PACKAGE = 'capell-app/layout-builder';
 
     /**
      * The console command description.
@@ -285,16 +287,25 @@ class AdminDemoCommand extends Command
                 defaultLanguage: $defaultLanguage,
                 bar: $bar,
             ));
-            $this->runProgressStep($bar, 'Layout builder demo', fn () => CreateLayoutBuilderDemoSiteAction::run(
-                new DemoSitePlanData(
-                    site: $site,
-                    contentTree: $sitePlan->toContentTree(),
-                ),
-            ));
+            if ($this->shouldRunLayoutBuilderDemo()) {
+                $this->runProgressStep($bar, 'Layout builder demo', fn () => CreateLayoutBuilderDemoSiteAction::run(
+                    new DemoSitePlanData(
+                        site: $site,
+                        contentTree: $sitePlan->toContentTree(),
+                    ),
+                ));
+            }
 
             $bar->finish();
             $this->newLine();
         }
+    }
+
+    private function shouldRunLayoutBuilderDemo(): bool
+    {
+        return CapellCore::isPackageInstalled(self::LAYOUT_BUILDER_PACKAGE)
+            && CapellCore::isPackageInstalled(self::CONTENT_SECTIONS_PACKAGE)
+            && class_exists(CreateLayoutBuilderDemoSiteAction::class);
     }
 
     private function runProgressStep(ProgressBar $bar, string $message, callable $callback): void

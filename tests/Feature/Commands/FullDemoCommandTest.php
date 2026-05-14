@@ -18,7 +18,6 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
-use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
@@ -34,6 +33,9 @@ function fakeDemoKitCurrentRouteName(string $routeName): void
 
 it('creates full multi site and language demo data and runs package demos', function (): void {
     TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
 
     CapellCore::registerPackage(name: 'vendor/example-package');
     CapellCore::forcePackageInstalled('vendor/example-package');
