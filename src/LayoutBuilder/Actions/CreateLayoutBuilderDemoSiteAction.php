@@ -105,32 +105,26 @@ class CreateLayoutBuilderDemoSiteAction
 
     private function populateAPWidgetsContainer(array &$containers): void
     {
-        $heroBannerWidget = $this->demoCreator->createApHeroBannerWidget();
-        $cardGridWidget = $this->demoCreator->createApCardGridWidget();
-        $featureListWidget = $this->demoCreator->createApFeatureListWidget();
-        $ctaSectionWidget = $this->demoCreator->createApCtaSectionWidget();
-        $imageGalleryWidget = $this->demoCreator->createApImageGalleryWidget();
-        $statsWidget = $this->demoCreator->createModernStatsSectionWidget();
-        $processWidget = $this->demoCreator->createModernProcessStepsWidget();
-        $alternatingWidget = $this->demoCreator->createModernAlternatingContentWidget();
-        $testimonialsWidget = $this->demoCreator->createModernTestimonialsWidget();
-        $faqWidget = $this->demoCreator->createModernFaqWidget();
+        $heroWidget = $this->demoCreator->createHomepageHeroCommandCenterWidget();
+        $proofWidget = $this->demoCreator->createHomepageProofStripWidget();
+        $showcaseWidget = $this->demoCreator->createHomepageDemoShowcaseWidget();
+        $marketplaceWidget = $this->demoCreator->createHomepageMarketplaceWidget();
+        $pipelineWidget = $this->demoCreator->createHomepageTechnicalPipelineWidget();
+        $routeSplitWidget = $this->demoCreator->createHomepageRouteSplitWidget();
+        $finalCtaWidget = $this->demoCreator->createHomepageFinalCtaWidget();
 
         $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $heroBannerWidget->key],
-                ['widget_key' => $statsWidget->key],
-                ['widget_key' => $cardGridWidget->key],
-                ['widget_key' => $processWidget->key],
-                ['widget_key' => $featureListWidget->key],
-                ['widget_key' => $alternatingWidget->key],
-                ['widget_key' => $imageGalleryWidget->key],
-                ['widget_key' => $testimonialsWidget->key],
-                ['widget_key' => $faqWidget->key],
-                ['widget_key' => $ctaSectionWidget->key],
+                ['widget_key' => $heroWidget->key],
+                ['widget_key' => $proofWidget->key],
+                ['widget_key' => $showcaseWidget->key],
+                ['widget_key' => $marketplaceWidget->key],
+                ['widget_key' => $pipelineWidget->key],
+                ['widget_key' => $routeSplitWidget->key],
+                ['widget_key' => $finalCtaWidget->key],
             ],
         ];
     }

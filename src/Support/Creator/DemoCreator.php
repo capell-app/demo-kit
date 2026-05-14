@@ -229,8 +229,9 @@ class DemoCreator
         $pageData = [
             'name' => $name,
             'user_id' => $this->author?->getKey(),
-            'type_id' => $type?->getKey(),
+            'blueprint_id' => $type?->getKey(),
             'layout_id' => $layout?->getKey(),
+            'meta' => $this->demoPageMeta($name, $parent),
             'translations' => [],
             'visible_from' => now()->subDays(mt_rand(0, 90))->format('Y-m-d'),
         ];
@@ -244,7 +245,8 @@ class DemoCreator
 
             $slug = Str::slug($title);
 
-            $desc_content = DummyContentGeneratorAction::run($language->code);
+            $desc_content = $this->demoPageContent($name, $language->code)
+                ?? DummyContentGeneratorAction::run($language->code);
 
             $pageData['translations'][$language->code] = [
                 'title' => $title,
@@ -410,7 +412,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'size' => 'md',
                 'margin' => 'none',
@@ -463,7 +465,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -605,7 +607,7 @@ class DemoCreator
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
                 'component' => WidgetComponentEnum::AssetAccordion,
@@ -636,7 +638,7 @@ class DemoCreator
 
         $parentContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'FAQs',
-            'type_id' => $contentType->id,
+            'blueprint_id' => $contentType->id,
         ], [
         ]);
 
@@ -687,7 +689,7 @@ class DemoCreator
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $question,
                 'parent_id' => $parentContent->id,
-                'type_id' => $contentType->id,
+                'blueprint_id' => $contentType->id,
             ]);
 
             $widget->assets()->firstOrCreate([
@@ -773,7 +775,7 @@ class DemoCreator
             ? $model::query()->updateOrCreate([
                 'key' => $key,
                 'site_id' => $site->id,
-                'type_id' => $navigationType->id,
+                'blueprint_id' => $navigationType->id,
             ], [
                 'name' => $name,
                 'items' => $this->navigationPageItems($pages, $languages->first()),
@@ -783,7 +785,7 @@ class DemoCreator
         // Create widget
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $key,
                 'margin' => ['lg'],
@@ -845,7 +847,7 @@ class DemoCreator
         foreach ($features as $feature) {
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $feature['title'],
-                'type_id' => $type->getKey(),
+                'blueprint_id' => $type->getKey(),
             ], [
                 'meta' => [
                     'actions' => [
@@ -917,7 +919,7 @@ class DemoCreator
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -956,7 +958,7 @@ class DemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -1050,7 +1052,7 @@ class DemoCreator
     {
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
                 'view_file' => 'capell-layout-builder::components.widget.asset.blocks',
@@ -1139,7 +1141,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'align' => 'center',
                 'padding' => ['lg'],
@@ -1191,7 +1193,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
             'name' => 'Modern Feature List',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFeatureList,
                 'margin' => ['lg'],
@@ -1251,7 +1253,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
             'name' => 'Modern Team Members',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApTeamMembers,
                 'columns' => 3,
@@ -1334,7 +1336,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
             'name' => 'Modern Pricing Table',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApPricingTable,
                 'currency' => '$',
@@ -1426,7 +1428,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
             'name' => 'Modern Testimonials',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApTestimonials,
                 'columns' => 2,
@@ -1487,7 +1489,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-faq'], [
             'name' => 'Modern FAQ Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFaqSection,
                 'margin' => ['lg'],
@@ -1545,7 +1547,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-stats'], [
             'name' => 'Modern Stats Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApStatsSection,
                 'margin' => ['lg'],
@@ -1603,7 +1605,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
             'name' => 'Modern Alternating Content',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApAlternatingContent,
                 'margin' => ['lg'],
@@ -1660,7 +1662,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
             'name' => 'Modern Process Steps',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApProcessSteps,
                 'margin' => ['lg'],
@@ -1718,7 +1720,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
             'name' => 'Modern Image Gallery',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApImageGallery,
                 'columns' => 3,
@@ -1747,6 +1749,69 @@ class DemoCreator
         return $widget;
     }
 
+    public function createHomepageHeroCommandCenterWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-hero-command-center',
+            name: 'Capell Homepage Command Center Hero',
+            content: $this->homepageHeroCommandCenterHtml(),
+        );
+    }
+
+    public function createHomepageProofStripWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-proof-strip',
+            name: 'Capell Homepage Proof Strip',
+            content: $this->homepageProofStripHtml(),
+        );
+    }
+
+    public function createHomepageDemoShowcaseWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-demo-showcase',
+            name: 'Capell Homepage Demo Showcase',
+            content: $this->homepageDemoShowcaseHtml(),
+        );
+    }
+
+    public function createHomepageMarketplaceWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-extension-marketplace-showcase',
+            name: 'Extension Marketplace Showcase',
+            content: $this->homepageMarketplaceHtml(),
+        );
+    }
+
+    public function createHomepageTechnicalPipelineWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-technical-pipeline',
+            name: 'Capell Homepage Technical Pipeline',
+            content: $this->homepageTechnicalPipelineHtml(),
+        );
+    }
+
+    public function createHomepageRouteSplitWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-route-split',
+            name: 'Capell Homepage Route Split',
+            content: $this->homepageRouteSplitHtml(),
+        );
+    }
+
+    public function createHomepageFinalCtaWidget(): Widget
+    {
+        return $this->createHomepageSnippetWidget(
+            key: 'capell-home-final-cta',
+            name: 'Capell Homepage Final CTA',
+            content: $this->homepageFinalCtaHtml(),
+        );
+    }
+
     public function createApHeroBannerWidget(): Widget
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
@@ -1756,7 +1821,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApHeroBanner,
             ],
@@ -1764,7 +1829,7 @@ class DemoCreator
 
         $widget->forceFill([
             'name' => 'Capell Product Hero',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApHeroBanner,
                 'primary_button_text' => 'Explore the demo',
@@ -1799,7 +1864,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCardGrid,
             ],
@@ -1807,7 +1872,7 @@ class DemoCreator
 
         $widget->forceFill([
             'name' => 'Capell Capability Cards',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCardGrid,
                 'columns' => 3,
@@ -1867,7 +1932,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFeatureList,
             ],
@@ -1875,7 +1940,7 @@ class DemoCreator
 
         $widget->forceFill([
             'name' => 'Capell Workflow Feature List',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFeatureList,
                 'layout' => 'grid',
@@ -1977,7 +2042,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCTASection,
             ],
@@ -1985,7 +2050,7 @@ class DemoCreator
 
         $widget->forceFill([
             'name' => 'Capell Showcase CTA',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCTASection,
                 'primary_button_text' => 'Open the admin',
@@ -2018,7 +2083,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApImageGallery,
             ],
@@ -2026,7 +2091,7 @@ class DemoCreator
 
         $widget->forceFill([
             'name' => 'Capell Media Gallery',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApImageGallery,
                 'layout' => 'grid',
@@ -2128,6 +2193,481 @@ class DemoCreator
     private static function assertSafeDemoZipEntries(ZipArchive $zip): void
     {
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
+    }
+
+    private function createHomepageSnippetWidget(string $key, string $name, string $content): Widget
+    {
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Default);
+
+        $widgetType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Widget->value)
+            ->firstWhere('key', WidgetTypeEnum::Default->value);
+
+        throw_unless($widgetType instanceof Type, Exception::class, 'Unable to find default widget type.');
+
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => $key], [
+            'name' => $name,
+            'blueprint_id' => $widgetType->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::Snippet,
+                'heading_size' => 'h2',
+                'content_divider' => false,
+                'margin' => ['none'],
+            ],
+        ]);
+
+        $widget->forceFill([
+            'name' => $name,
+            'blueprint_id' => $widgetType->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::Snippet,
+                'heading_size' => 'h2',
+                'content_divider' => false,
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $widget->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                ['title' => null, 'content' => $content],
+            );
+        }
+
+        return $widget;
+    }
+
+    private function homepageHeroCommandCenterHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-hero">
+    <section class="capell-home-hero__copy">
+        <p class="capell-home-kicker">Capell CMS</p>
+        <h1>Composable content infrastructure for Laravel teams</h1>
+        <p>Ship multi-site CMS platforms without template sprawl: typed content, editor-owned layouts, package-owned rendering, static output, and diagnostics in one Laravel-native system.</p>
+        <div class="capell-home-actions">
+            <a class="capell-home-button" href="/resources">Explore the demo</a>
+            <a class="capell-home-button capell-home-button--secondary" href="/pricing/implementation">View implementation path</a>
+        </div>
+    </section>
+    <section class="capell-home-command-board" aria-label="Capell system board">
+        <div class="capell-home-board-row is-active"><span>Page types</span><strong>Home, Resources, Services</strong><em>Typed</em></div>
+        <div class="capell-home-board-row"><span>Packages</span><strong>Layout Builder, SEO, Search, Publishing</strong><em>Installed</em></div>
+        <div class="capell-home-board-row"><span>Workflow</span><strong>Draft, preview, approve, publish</strong><em>Traceable</em></div>
+        <div class="capell-home-board-row"><span>Frontend</span><strong>Static HTML, Vite assets, cache checks</strong><em>Ready</em></div>
+        <div class="capell-home-board-footer">
+            <div><strong>12+</strong><span>package surfaces</span></div>
+            <div><strong>4</strong><span>release checks</span></div>
+            <div><strong>0</strong><span>template leaks</span></div>
+        </div>
+    </section>
+</div>
+HTML;
+    }
+
+    private function homepageProofStripHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-proof-strip" aria-label="Demo proof points">
+    <div><strong>38</strong><span>packages installed</span></div>
+    <div><strong>7</strong><span>custom homepage widgets</span></div>
+    <div><strong>120+</strong><span>static pages generated</span></div>
+    <div><strong>4</strong><span>discovery checks</span></div>
+</div>
+HTML;
+    }
+
+    private function homepageDemoShowcaseHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-showcase">
+    <div class="capell-home-section-head">
+        <p class="capell-home-kicker">What ships in the demo</p>
+        <h2>Custom layouts that prove the CMS can change shape</h2>
+        <p>Each homepage region uses a different composition so the demo feels like a real system, not a repeated stack of generic cards.</p>
+    </div>
+    <div class="capell-home-showcase-grid">
+        <article class="capell-home-console-panel">
+            <div>
+                <p class="capell-home-kicker">Editorial command center</p>
+                <h3>Operational content, not placeholder blocks</h3>
+                <p>Use widget translations, page types, layout containers, and package data to show how an editor-owned surface stays structured.</p>
+            </div>
+            <dl>
+                <div><dt>Owner</dt><dd>Publishing Studio</dd></div>
+                <div><dt>Surface</dt><dd>Homepage + public pages</dd></div>
+                <div><dt>Status</dt><dd>Editable</dd></div>
+            </dl>
+        </article>
+        <article class="capell-home-market-grid-preview">
+            <p class="capell-home-kicker">Package marketplace</p>
+            <h3>Extension evidence grid</h3>
+            <div>
+                <span>SEO Suite</span>
+                <span>Search</span>
+                <span>Forms</span>
+                <span>Access Gate</span>
+                <span>Newsletter</span>
+                <span>Insights</span>
+            </div>
+        </article>
+        <article class="capell-home-workflow-panel">
+            <p class="capell-home-kicker">Publishing workflow</p>
+            <h3>Timeline plus checklist</h3>
+            <ol>
+                <li><strong>Model</strong><span>Types and widgets</span></li>
+                <li><strong>Compose</strong><span>Layout containers</span></li>
+                <li><strong>Release</strong><span>Cache and sitemap</span></li>
+            </ol>
+        </article>
+    </div>
+</div>
+HTML;
+    }
+
+    private function homepageMarketplaceHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-marketplace capell-extension-marketplace-section">
+    <div>
+        <p class="capell-home-kicker capell-section-kicker">Marketplace extensions</p>
+        <h2>Extension pages that help teams decide</h2>
+        <p>Extension detail pages show the contract behind each package: install eligibility, licence state, surfaces, dependencies, frontend budget, health status, documentation, feedback controls, and screenshot galleries.</p>
+    </div>
+    <div class="capell-home-marketplace-grid capell-extension-marketplace-grid">
+        <div><strong>See the product before installing</strong><span>Large screenshots make admin pages, frontend components, settings screens, and workflows visible without leaving Capell.</span></div>
+        <div><strong>Keep extension boundaries explicit</strong><span>Surfaces, package dependencies, contribution counts, and performance budgets tell developers what the extension adds.</span></div>
+        <div><strong>Connect docs to the buying decision</strong><span>Public and entitled documentation sit beside licence status, access checks, version history, and Marketplace actions.</span></div>
+    </div>
+</div>
+HTML;
+    }
+
+    private function homepageTechnicalPipelineHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-pipeline">
+    <div class="capell-home-pipeline__intro">
+        <p class="capell-home-kicker">Release path</p>
+        <h2>From admin edits to verified frontend</h2>
+        <p>Capell keeps the editable CMS surface and the generated public output connected through explicit ownership and checks.</p>
+    </div>
+    <ol>
+        <li><span>01</span><strong>Model content</strong><p>Define typed pages, widgets, translations, media, and package fields.</p></li>
+        <li><span>02</span><strong>Compose layout</strong><p>Place widgets into containers that the public theme renders predictably.</p></li>
+        <li><span>03</span><strong>Publish safely</strong><p>Preview changes, approve releases, warm cache, and generate static HTML.</p></li>
+        <li><span>04</span><strong>Verify output</strong><p>Run doctor, discovery, sitemap, and runtime asset checks before handover.</p></li>
+    </ol>
+</div>
+HTML;
+    }
+
+    private function homepageRouteSplitHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-route-split">
+    <a href="/resources">
+        <span>Resources hub</span>
+        <strong>Technical guides and launch checklists</strong>
+        <em>Read the CMS playbook</em>
+    </a>
+    <a href="/pricing/implementation">
+        <span>Implementation pricing</span>
+        <strong>A scoped path from install to handover</strong>
+        <em>Plan the rollout</em>
+    </a>
+    <a href="/contact/services">
+        <span>Services</span>
+        <strong>Architecture, migration, and package support</strong>
+        <em>Book scoping</em>
+    </a>
+</div>
+HTML;
+    }
+
+    private function homepageFinalCtaHtml(): string
+    {
+        return <<<'HTML'
+<div class="capell-home capell-home-final">
+    <div>
+        <p class="capell-home-kicker">Demo install</p>
+        <h2>Show a CMS that feels assembled, verified, and ready to extend.</h2>
+        <p>The homepage now demonstrates multiple layout shapes, custom widget compositions, package boundaries, and public-page discovery paths.</p>
+    </div>
+    <a class="capell-home-button" href="/contact/services">Start implementation scoping</a>
+</div>
+HTML;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function demoPageMeta(string $name, ?Page $parent): array
+    {
+        if ($name === 'Contact' && ! $parent instanceof Page) {
+            return [
+                'robots' => ['noindex'],
+                'demo_exclude_reason' => 'Plain contact route is reserved for contact-message flows; service pages remain discoverable.',
+            ];
+        }
+
+        return [];
+    }
+
+    private function demoPageContent(string $name, string $languageCode): ?string
+    {
+        if ($languageCode !== 'en') {
+            return null;
+        }
+
+        return match ($name) {
+            'Contact' => $this->contactIndexContent(),
+            'Services' => $this->contactServicesContent(),
+            'Pricing' => $this->pricingIndexContent(),
+            'Implementation' => $this->implementationPricingContent(),
+            'Resources' => $this->resourcesHubContent(),
+            default => null,
+        };
+    }
+
+    private function contactIndexContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-contact-gateway">
+    <section class="capell-demo-gateway">
+        <div class="capell-demo-gateway__intro">
+            <p class="capell-demo-kicker">Contact</p>
+            <h1>Contact routing for CMS teams</h1>
+            <p>Send implementation work to the technical intake path and keep the plain contact URL available for a future message flow. This page is deliberately built as a routing gateway, not a generic contact form.</p>
+        </div>
+        <div class="capell-demo-gateway__routes">
+            <article>
+                <span>Primary route</span>
+                <h2>Implementation enquiries</h2>
+                <p>Architecture reviews, migrations, package integration, and launch planning for Laravel teams evaluating Capell.</p>
+                <a class="capell-demo-button" href="/contact/services">Open service scoping</a>
+            </article>
+            <article>
+                <span>Reserved route</span>
+                <h2>Plain message route</h2>
+                <p>The base contact page can stay excluded from discovery while a future contact-message package owns the message workflow.</p>
+                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">Read resources first</a>
+            </article>
+        </div>
+        <aside class="capell-demo-route-status">
+            <p class="capell-demo-brief__label">Routing status</p>
+            <dl>
+                <div><dt>Discovery</dt><dd>Noindex base contact URL</dd></div>
+                <div><dt>Lead path</dt><dd>/contact/services</dd></div>
+                <div><dt>Response window</dt><dd>2 engineering days</dd></div>
+            </dl>
+        </aside>
+    </section>
+</div>
+HTML;
+    }
+
+    private function contactServicesContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-services-atelier">
+    <section class="capell-demo-atelier">
+        <div class="capell-demo-atelier__copy">
+            <p class="capell-demo-kicker">Services</p>
+            <h1>Implementation services for complex Capell rollouts</h1>
+            <p>Use a technical service desk for content modelling, migration paths, layout architecture, package boundaries, and launch verification before production work starts.</p>
+            <div class="capell-demo-actions">
+                <a class="capell-demo-button" href="/contact/services#scoping">Book scoping call</a>
+                <a class="capell-demo-button capell-demo-button--secondary" href="/pricing/implementation">See implementation pricing</a>
+            </div>
+        </div>
+        <aside class="capell-demo-audit-board" id="scoping">
+            <p class="capell-demo-brief__label">Audit board</p>
+            <ol>
+                <li><span>01</span><strong>Content inventory</strong><em>Types, media, redirects</em></li>
+                <li><span>02</span><strong>Editor workflow</strong><em>Roles, drafts, approvals</em></li>
+                <li><span>03</span><strong>Frontend ownership</strong><em>Layouts, tokens, cache</em></li>
+                <li><span>04</span><strong>Package surface</strong><em>Search, forms, SEO, auth</em></li>
+            </ol>
+        </aside>
+    </section>
+
+    <section class="capell-demo-workbench">
+        <div>
+            <span>Migration</span>
+            <h2>Legacy content imports</h2>
+            <p>Convert Blade pages, WordPress exports, spreadsheets, or database tables into typed Capell content with repeatable validation.</p>
+        </div>
+        <div>
+            <span>Theme systems</span>
+            <h2>Frontend architecture</h2>
+            <p>Build reusable public surfaces without letting admin concerns leak into package-owned rendering.</p>
+        </div>
+        <div>
+            <span>Workflow</span>
+            <h2>Editorial operations</h2>
+            <p>Define publishing rules, review states, preview paths, and release checks that editors can operate safely.</p>
+        </div>
+    </section>
+
+    <section class="capell-demo-service-strip">
+        <div><strong>2-6 weeks</strong><span>typical implementation window</span></div>
+        <div><strong>12+</strong><span>packages checked per rollout</span></div>
+        <div><strong>50k+</strong><span>records handled in migration fixtures</span></div>
+    </section>
+</div>
+HTML;
+    }
+
+    private function pricingIndexContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-pricing-matrix">
+    <section class="capell-demo-pricing-index">
+        <div>
+            <p class="capell-demo-kicker">Pricing</p>
+            <h1>Pricing paths for Capell delivery</h1>
+            <p>Choose the path that matches your ownership model: internal implementation, guided launch support, or a productized partner build.</p>
+        </div>
+        <aside>
+            <span>Recommended first step</span>
+            <strong>Implementation pricing</strong>
+            <p>Use the scoped implementation page when migration, launch risk, or editorial workflow is part of the buying decision.</p>
+            <a class="capell-demo-button" href="/pricing/implementation">View implementation pricing</a>
+        </aside>
+    </section>
+
+    <section class="capell-demo-compare">
+        <div class="capell-demo-compare__heading">
+            <p class="capell-demo-kicker">Compare paths</p>
+            <h2>Start from the work, not a generic tier</h2>
+        </div>
+        <div class="capell-demo-compare__grid">
+            <div><span>Path</span><strong>Internal team</strong><strong>Guided launch</strong><strong>Partner build</strong></div>
+            <div><span>Best for</span><p>Laravel team owns delivery</p><p>Team wants guardrails</p><p>First release outsourced</p></div>
+            <div><span>Includes</span><p>Documentation and packages</p><p>Architecture, imports, QA</p><p>Full setup and handover</p></div>
+            <div><span>Risk level</span><p>Known stack</p><p>Medium migration risk</p><p>High launch pressure</p></div>
+        </div>
+    </section>
+
+    <section class="capell-demo-pricing-paths">
+        <article><span>Licensing</span><h2>Platform access</h2><p>Use Capell packages, core CMS primitives, and supported demo profiles.</p></article>
+        <article><span>Support</span><h2>Technical advisory</h2><p>Review architecture, editor workflows, public rendering, and operational readiness.</p></article>
+        <article><span>Implementation</span><h2>Scoped launch package</h2><p>Plan content models, migrations, frontend surfaces, and release verification.</p></article>
+    </section>
+</div>
+HTML;
+    }
+
+    private function implementationPricingContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-implementation-plan">
+    <section class="capell-demo-ledger-hero">
+        <div>
+            <p class="capell-demo-kicker">Implementation pricing</p>
+            <h1>Implementation plan with commercial guardrails</h1>
+            <p>A productized Capell implementation for teams that need a production CMS foundation, migration confidence, and a clear handover path.</p>
+            <div class="capell-demo-price">from <strong>GBP 8,500</strong></div>
+            <div class="capell-demo-actions">
+                <a class="capell-demo-button" href="/contact/services">Schedule scoping</a>
+                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">Read launch guides</a>
+            </div>
+        </div>
+        <aside class="capell-demo-scope-panel">
+            <p class="capell-demo-brief__label">Scope confidence</p>
+            <div><span>Inputs received</span><strong>Content model, sample exports, launch date</strong></div>
+            <div><span>Pricing shape</span><strong>50% kickoff, 50% handover</strong></div>
+            <div><span>Owner model</span><strong>Lead engineer plus architect</strong></div>
+        </aside>
+    </section>
+
+    <section class="capell-demo-ledger">
+        <div class="capell-demo-ledger__phase"><span>Week 1</span><strong>Audit</strong><p>Content, package surface, roles, redirects, and operational constraints.</p></div>
+        <div class="capell-demo-ledger__phase"><span>Week 2-3</span><strong>Architecture</strong><p>Types, layouts, cache rules, preview paths, and package-owned rendering.</p></div>
+        <div class="capell-demo-ledger__phase"><span>Week 4-6</span><strong>Migration</strong><p>Imports, media handling, validation reports, and rejected-record review.</p></div>
+        <div class="capell-demo-ledger__phase"><span>Week 7-8</span><strong>Handover</strong><p>Editor training, developer notes, release checks, and post-launch ownership.</p></div>
+    </section>
+
+    <section class="capell-demo-inclusion-ledger">
+        <div>
+            <h2>Included</h2>
+            <ul>
+                <li>Content type and layout modelling</li>
+                <li>Migration scripts and validation reports</li>
+                <li>Theme integration and responsive QA</li>
+                <li>Editor training and launch checklist</li>
+            </ul>
+        </div>
+        <div>
+            <h2>Guardrails</h2>
+            <ul>
+                <li>Custom package builds are scoped separately</li>
+                <li>Third-party license fees stay outside delivery</li>
+                <li>Design-system rewrites need explicit approval</li>
+                <li>Retained support starts after handover</li>
+            </ul>
+        </div>
+        <aside>
+            <span>Commercial rule</span>
+            <strong>Every scope change gets priced before work starts.</strong>
+        </aside>
+    </section>
+</div>
+HTML;
+    }
+
+    private function resourcesHubContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-resources-library">
+    <section class="capell-demo-library-hero">
+        <div>
+            <p class="capell-demo-kicker">Resources</p>
+            <h1>Resource library for Capell builders</h1>
+            <p>Guides, architecture notes, launch checklists, and developer references for teams building Laravel and Filament CMS platforms with Capell.</p>
+        </div>
+        <form class="capell-demo-library-filter" action="/resources" method="get">
+            <label>
+                <span>Search resources</span>
+                <input name="q" type="search" placeholder="Migration, layouts, schema">
+            </label>
+            <div>
+                <button type="button">Guides</button>
+                <button type="button">Architecture</button>
+                <button type="button">Checklists</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="capell-demo-library-grid">
+        <article class="capell-demo-lead-feature">
+            <p class="capell-demo-kicker">Featured guide</p>
+            <h2>Scaling Laravel CMS architecture for 1M+ records</h2>
+            <p>Structure page types, media, imports, search, cache, and static generation before content volume stops being theoretical.</p>
+            <span>Architecture note - 12 min read</span>
+        </article>
+        <aside class="capell-demo-category-rail">
+            <a href="/resources">Architecture<span>Models, packages, cache</span></a>
+            <a href="/resources">Patterns<span>Layouts, forms, editors</span></a>
+            <a href="/resources">Schema<span>SEO and AI discovery</span></a>
+            <a href="/resources">Case studies<span>Launch breakdowns</span></a>
+        </aside>
+    </section>
+
+    <section class="capell-demo-resource-index">
+        <div class="capell-demo-resource-index__heading">
+            <p class="capell-demo-kicker">Resource index</p>
+            <h2>Recent technical notes</h2>
+        </div>
+        <article><span>Migration</span><h3>Designing imports editors can trust</h3><p>Validate source rows, preserve redirects, and keep rejected records explainable.</p><em>9 min</em></article>
+        <article><span>Publishing</span><h3>Approval workflows without admin leakage</h3><p>Keep draft tooling private while public pages stay clean and cacheable.</p><em>7 min</em></article>
+        <article><span>Theme systems</span><h3>Package-owned frontend rendering</h3><p>Build reusable public surfaces without coupling them to Filament screens.</p><em>11 min</em></article>
+        <article><span>SEO</span><h3>Making CMS pages discoverable by default</h3><p>Use metadata, sitemap rules, AI discovery profiles, and explicit exclusions.</p><em>8 min</em></article>
+    </section>
+</div>
+HTML;
     }
 
     private function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool
@@ -2302,7 +2842,7 @@ class DemoCreator
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $testimonial['name'],
                 'parent_id' => $testimonialContent->id,
-                'type_id' => $testimonialType->id,
+                'blueprint_id' => $testimonialType->id,
             ], [
                 'meta' => [
                     'position' => $testimonial['position'],

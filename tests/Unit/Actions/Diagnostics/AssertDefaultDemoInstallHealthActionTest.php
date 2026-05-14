@@ -148,8 +148,8 @@ function createWidgetAssets(string $widgetKey, int $count): void
     $widget = Widget::query()->where('key', $widgetKey)->firstOrFail();
 
     for ($index = 0; $index < $count; $index++) {
-        resolve(ConnectionResolverInterface::class)->table('widget_assets')->insert([
-            'widget_id' => $widget->id,
+        resolve(ConnectionResolverInterface::class)->table('layout_module_assets')->insert([
+            'layout_module_id' => $widget->id,
             'asset_type' => Page::query()->make()->getMorphClass(),
             'asset_id' => (string) Str::uuid(),
             'order' => $index + 1,

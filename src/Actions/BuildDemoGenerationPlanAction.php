@@ -134,17 +134,70 @@ final class BuildDemoGenerationPlanAction
      */
     private function buildPages(int $count, DemoProfileData $profile): array
     {
-        $availableNames = $this->pageNamesForCount($count);
+        $specialPages = $this->specialDemoPages();
+        $remainingCount = max(0, $count - $this->countPages($specialPages));
+        $availableNames = array_values(array_diff(
+            $this->pageNamesForCount($count),
+            ['Contact', 'Services', 'Pricing', 'Implementation', 'Resources'],
+        ));
         $pages = [];
 
-        foreach (array_slice($availableNames, 0, $count) as $name) {
+        foreach (array_slice($availableNames, 0, $remainingCount) as $name) {
             $pages[] = new DemoPagePlanData(
                 name: $this->translatedName($name),
                 mediaCount: mt_rand($profile->counts['media_per_page'][0], $profile->counts['media_per_page'][1]),
             );
         }
 
-        return $this->nestPages($pages, $profile);
+        return [
+            ...$specialPages,
+            ...$this->nestPages($pages, $profile),
+        ];
+    }
+
+    /**
+     * @return list<DemoPagePlanData>
+     */
+    private function specialDemoPages(): array
+    {
+        return [
+            new DemoPagePlanData(
+                name: $this->translatedName('Contact'),
+                mediaCount: 0,
+                children: [
+                    new DemoPagePlanData(
+                        name: $this->translatedName('Services'),
+                        mediaCount: 0,
+                    ),
+                ],
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Pricing'),
+                mediaCount: 0,
+                children: [
+                    new DemoPagePlanData(
+                        name: $this->translatedName('Implementation'),
+                        mediaCount: 0,
+                    ),
+                ],
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Resources'),
+                mediaCount: 0,
+            ),
+        ];
+    }
+
+    /**
+     * @param  list<DemoPagePlanData>  $pages
+     */
+    private function countPages(array $pages): int
+    {
+        return array_reduce(
+            $pages,
+            fn (int $count, DemoPagePlanData $page): int => $count + 1 + $this->countPages($page->children),
+            0,
+        );
     }
 
     /**
