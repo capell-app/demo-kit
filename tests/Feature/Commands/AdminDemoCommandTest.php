@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
-use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
+use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
