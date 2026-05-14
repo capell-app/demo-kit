@@ -412,7 +412,7 @@ it('skips media creation for stale deleted models', function (): void {
     ], $site, $site->languages, null, null, null, false);
     assert($page instanceof Page);
 
-    DB::table('pages')->whereKey($page->getKey())->delete();
+    DB::table('pages')->where('id', $page->getKey())->delete();
 
     $demoCreator->createMedia($page, 'home');
 
