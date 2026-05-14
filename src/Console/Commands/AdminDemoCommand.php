@@ -24,6 +24,8 @@ use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
+use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User;

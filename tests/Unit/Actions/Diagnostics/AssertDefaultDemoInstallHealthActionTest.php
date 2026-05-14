@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -11,6 +10,7 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Core\Models\Widget;
 use Capell\DemoKit\Actions\Diagnostics\AssertDefaultDemoInstallHealthAction;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Str;
 

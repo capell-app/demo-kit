@@ -23,7 +23,8 @@
         "capell-app/core": "*",
         "capell-app/frontend": "*",
         "capell-app/content-sections": "*",
-        "capell-app/navigation": "*"
+        "capell-app/navigation": "*",
+        "capell-app/layout-builder": "*"
     },
     "autoload": {
         "psr-4": {

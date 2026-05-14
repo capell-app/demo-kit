@@ -18,6 +18,7 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
+use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
