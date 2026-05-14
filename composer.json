@@ -21,7 +21,9 @@
         "php": "^8.2",
         "capell-app/admin": "*",
         "capell-app/core": "*",
-        "capell-app/frontend": "*"
+        "capell-app/frontend": "*",
+        "capell-app/content-sections": "*",
+        "capell-app/navigation": "*"
     },
     "autoload": {
         "psr-4": {

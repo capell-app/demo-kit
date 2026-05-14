@@ -6,13 +6,23 @@ namespace Capell\DemoKit\Console\Commands;
 
 use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
+use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
+use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 final class FullDemoCommand extends Command
 {
-    protected $signature = 'capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--force}';
+    protected $signature = 'capell:demo-kit-full-demo
+        {--url=}
+        {--user=}
+        {--languages=}
+        {--sites=}
+        {--site-count=}
+        {--page-count=}
+        {--seed=}
+        {--force}';
 
     protected $description = 'Create full multi-site and multi-language example data.';
 
@@ -25,8 +35,18 @@ final class FullDemoCommand extends Command
         }
 
         $url = $this->resolveUrl();
-        $languages = $this->resolveLanguages();
-        $sites = $this->resolveSites();
+        $plan = BuildDemoGenerationPlanAction::run([
+            'sites' => $this->parseCsvOption('sites'),
+            'site_count' => $this->resolvePositiveIntegerOption('site-count'),
+            'pages' => $this->resolvePositiveIntegerOption('page-count'),
+            'languages' => $this->resolveLanguages(),
+            'seed' => $this->resolveSeedOption(),
+        ]);
+        $languages = $plan->languageCodes;
+        $sites = array_map(
+            static fn (DemoSiteGenerationPlanData $site): string => $site->name,
+            $plan->sites,
+        );
 
         $this->info('Creating full example sites and languages.');
 
@@ -35,6 +55,15 @@ final class FullDemoCommand extends Command
             '--languages' => implode(',', $languages),
             '--sites' => implode(',', $sites),
         ];
+
+        $pageCount = $this->resolvePositiveIntegerOption('page-count');
+        if ($pageCount !== null) {
+            $adminDemoParams['--page-count'] = $pageCount;
+        }
+
+        if ($plan->seed !== null) {
+            $adminDemoParams['--seed'] = $plan->seed;
+        }
 
         if ($this->option('user') !== null) {
             $adminDemoParams['--user'] = $this->option('user');
@@ -90,27 +119,7 @@ final class FullDemoCommand extends Command
             return $languages;
         }
 
-        return array_values(array_keys(config('capell-demo-kit.languages', [])));
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function resolveSites(): array
-    {
-        $sites = $this->parseCsvOption('sites');
-
-        if ($sites !== []) {
-            return $sites;
-        }
-
-        return collect([config('app.name')])
-            ->merge(collect(config('capell-demo-kit.pages', []))
-                ->map(fn (array $site): string => (string) ($site['name']['en'] ?? ''))
-                ->filter(fn (string $site): bool => $site !== ''))
-            ->unique()
-            ->values()
-            ->all();
+        return ['all'];
     }
 
     /**
@@ -135,6 +144,24 @@ final class FullDemoCommand extends Command
             array_map(trim(...), explode(',', $value)),
             static fn (string $item): bool => $item !== '',
         ));
+    }
+
+    private function resolvePositiveIntegerOption(string $option): ?int
+    {
+        $value = $this->option($option);
+
+        if (! is_scalar($value) || in_array((string) $value, ['', '0'], true)) {
+            return null;
+        }
+
+        return max(1, (int) $value);
+    }
+
+    private function resolveSeedOption(): ?int
+    {
+        $seed = $this->option('seed');
+
+        return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
     }
 
     /**

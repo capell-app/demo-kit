@@ -11,6 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
+use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Spatie\LaravelPackageTools\Package;
@@ -31,15 +32,16 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 DemoCommand::class,
                 AdminDemoCommand::class,
                 FullDemoCommand::class,
+                DemoKitDoctorCommand::class,
             ]);
     }
 
     public function registeringPackage(): void
     {
         $package = CapellCore::getPackage(self::$packageName);
-        $package->setupParams = ['url', 'user', 'languages', 'sites', 'force'];
+        $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
         $package->demoCommand = 'capell:demo-kit-full-demo';
-        $package->demoParams = ['url', 'user', 'languages', 'sites', 'force'];
+        $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
 
         $this->registerAdminPanelExtensions();
     }

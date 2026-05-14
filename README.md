@@ -12,11 +12,12 @@ Demo content and media kit for Capell.
 
 ## What It Adds
 
-Demo content and media kit for Capell
+Generated demo content and media kit for Capell.
 
-- Example site content and media for local Capell demos.
+- Randomised example site content and media for local Capell demos.
 - Demo content provider for admin and frontend package setup.
 - Demo assets that help validate a package install quickly.
+- A package-owned doctor command for validating generated demo installs.
 
 ## Why It Matters
 
@@ -55,13 +56,29 @@ This package makes its Composer dependencies visible because they are part of th
 
 ## Commands
 
-- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
+- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
 - `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
-- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
+
+## Demo Generation
+
+Demo Kit keeps publishable config focused on scale and archive safety. The actual demo content pools live in code so the package can generate varied demos without forcing a huge static page tree into application config.
+
+Useful options:
+
+- `--site-count=5` creates a random set of site names from the package pool.
+- `--page-count=30` creates that many generated pages per site.
+- `--languages=all`, `--languages=en,fr`, or `--languages=random:3` controls the language pool.
+- `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
+
+Omit `--seed` for a fresh random demo on each run.
 
 ## Data And Persistence
 
 - Config: `packages/demo-kit/config/capell-demo-kit.php`.
+- Content pools: `packages/demo-kit/src/Support/DemoContentPool.php`.
+- Generated plan: `packages/demo-kit/src/Actions/BuildDemoGenerationPlanAction.php`.
 
 ## Extension Points
 

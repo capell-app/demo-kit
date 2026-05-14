@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Console\Commands\Concerns;
 
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
+use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -31,7 +32,7 @@ trait HasLanguagesOption
             ));
         }
 
-        $demoLanguages = collect(config('capell-demo-kit.languages', []))
+        $demoLanguages = collect(resolve(DemoContentPool::class)->languages())
             ->mapWithKeys(fn (array $language, string $key): array => [$key => $language['name']])
             ->all();
 

@@ -4,31 +4,33 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Console\Commands;
 
-use BezhanSalleh\FilamentShield\Support\Utils;
 use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
-use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\PageCreator;
+use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
+use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
+use Capell\DemoKit\Actions\CreateDemoUsersAction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
+use Capell\DemoKit\Data\DemoGenerationPlanData;
+use Capell\DemoKit\Data\DemoPagePlanData;
+use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
+use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\text;
 
-use Spatie\Permission\Models\Role;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Throwable;
 
@@ -52,7 +54,14 @@ class AdminDemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:admin-demo {--user=} {--languages=} {--url=} {--sites=}';
+    protected $signature = 'capell:admin-demo
+        {--user=}
+        {--languages=}
+        {--url=}
+        {--sites=}
+        {--site-count=}
+        {--page-count=}
+        {--seed=}';
 
     private DemoCreator $demoCreator;
 
@@ -68,12 +77,17 @@ class AdminDemoCommand extends Command
         }
 
         try {
-            $sites = $this->resolveSites();
-            $languageOptions = $this->resolveLanguages();
+            $plan = BuildDemoGenerationPlanAction::run([
+                'sites' => $this->resolveSites(),
+                'site_count' => $this->resolvePositiveIntegerOption('site-count'),
+                'pages' => $this->resolvePositiveIntegerOption('page-count'),
+                'languages' => $this->resolveLanguages(),
+                'seed' => $this->resolveSeedOption(),
+            ]);
             $siteUrl = $this->resolveSiteUrl();
             $user = $this->resolveUser();
 
-            $this->outputDemoSetupInfo($sites);
+            $this->outputDemoSetupInfo($plan);
             $this->createDemoUsers();
             $this->demoCreator = app()->make(DemoCreator::class, [
                 'url' => $siteUrl,
@@ -82,9 +96,10 @@ class AdminDemoCommand extends Command
 
             $pageCreator = resolve(PageCreator::class);
 
-            $languages = $this->createAndFetchLanguages($languageOptions);
+            $this->line('Adding demo languages');
+            CreateDemoLanguagesAction::run($plan->languageCodes);
 
-            $this->createDemoSites($sites, $languages, $siteUrl, $pageCreator);
+            $this->createDemoSites($plan, $siteUrl, $pageCreator);
 
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
@@ -157,94 +172,82 @@ class AdminDemoCommand extends Command
         return $user instanceof User ? $user : null;
     }
 
-    private function outputDemoSetupInfo(array $sites): void
+    private function resolvePositiveIntegerOption(string $option): ?int
+    {
+        $value = $this->option($option);
+
+        if (! is_scalar($value) || in_array((string) $value, ['', '0'], true)) {
+            return null;
+        }
+
+        return max(1, (int) $value);
+    }
+
+    private function resolveSeedOption(): ?int
+    {
+        $seed = $this->option('seed');
+
+        return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
+    }
+
+    private function outputDemoSetupInfo(DemoGenerationPlanData $plan): void
     {
         $this->newLine();
-        $this->comment('Inserting demo data for selected sites: ' . implode(', ', $sites));
+        $this->comment('Inserting generated demo data for sites: ' . implode(', ', array_map(
+            static fn (DemoSiteGenerationPlanData $site): string => $site->name,
+            $plan->sites,
+        )));
+
+        if ($plan->seed !== null) {
+            $this->comment('Demo seed: ' . $plan->seed);
+        }
+
         $this->newLine();
     }
 
     private function createDemoUsers(): void
     {
         $this->line('Creating demo users');
-        $this->createUser(
-            name: 'Demo Admin',
-            email: 'demo@example.com',
-            password: 'password',
-            roleName: Utils::getSuperAdminName(),
-        );
+        CreateDemoUsersAction::run();
         $this->info('Demo admin created with super admin role: demo@example.com');
-        $this->createUser(
-            name: 'Demo Editor',
-            email: 'editor@example.com',
-            password: 'password',
-            roleName: 'editor',
-        );
         $this->info('Editor user created with editor role');
     }
 
-    private function createAndFetchLanguages(array $languageOptions): Collection
+    private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator): void
     {
-        $this->line('Adding demo languages');
-        $this->demoCreator->createDefaultLanguages($languageOptions);
+        $sitesCount = count($plan->sites);
 
-        /** @var class-string<Language> $model */
-        $model = Language::class;
-
-        /** @var Collection<int, Language> $languages */
-        $languages = $model::query()
-            ->when(
-                $languageOptions,
-                fn (Builder $query): Builder => $query->whereIn('code', $languageOptions),
-            )
-            ->get();
-
-        return $languages;
-    }
-
-    private function createDemoSites(array $sites, Collection $allLanguages, string $siteUrl, PageCreator $pageCreator): void
-    {
-        $languageCodes = $allLanguages->pluck('code')->toArray();
-
-        $sitesCount = count($sites);
         $siteNumber = 0;
 
-        foreach ($sites as $siteIndex => $siteName) {
+        foreach ($plan->sites as $siteIndex => $sitePlan) {
             $siteNumber++;
 
-            $demoData = self::getDemoData($siteName, $languageCodes);
+            /** @var Collection<int, Language> $siteLanguages */
+            $siteLanguages = Language::query()
+                ->whereIn('code', $sitePlan->languageCodes)
+                ->get();
+            $defaultLanguage = $siteLanguages->first();
 
-            if ($siteIndex === 0) {
-                /** @var Collection<int, Language> $siteLanguages */
-                $siteLanguages = $allLanguages;
-
-                $defaultLanguage = $siteLanguages->first();
-            } else {
-                $subset = $allLanguages->random(random_int(1, $allLanguages->count()))->values();
-
-                /** @var Collection<int, Language> $siteLanguages */
-                $siteLanguages = new Collection($subset->all());
-
-                $defaultLanguage = $siteLanguages->random();
+            if (! $defaultLanguage instanceof Language) {
+                continue;
             }
 
-            $name = Str::title($demoData['name'][$defaultLanguage->code] ?? $demoData['name']['en']);
+            $name = Str::title($sitePlan->name);
             $this->newLine();
             $this->info(sprintf('%d/%d. Site %s...', $siteNumber, $sitesCount, $name));
 
             $site = CreateSiteAction::run(
-                $siteName,
-                url: rtrim($siteUrl, '/') . ($siteIndex > 0 ? '/' . str()->slug($siteName) : ''),
+                $sitePlan->name,
+                url: rtrim($siteUrl, '/') . ($siteIndex > 0 ? '/' . str()->slug($sitePlan->name) : ''),
                 language: $defaultLanguage,
                 languages: $siteLanguages,
             );
 
-            $bar = $this->output->createProgressBar($this->countPages($demoData['children']) + 4);
+            $bar = $this->output->createProgressBar($sitePlan->pageCount() + 4);
 
             /** @var ProgressBar $bar */
             $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% — %message%');
-            $bar->setMessage('Starting...');
-            $bar->start();
+            $bar->setMessage($this->formatProgressMessage('Home page'));
 
             $this->runProgressStep($bar, 'Home page', fn (): Page => $pageCreator->createHomePage($site, $siteLanguages));
             $this->runProgressStep($bar, 'Error page', fn (): Page => $pageCreator->createErrorPage($site, $siteLanguages));
@@ -253,7 +256,7 @@ class AdminDemoCommand extends Command
                 $defaultLanguage->code,
                 $siteLanguages->pluck('code')->implode(', '),
             ), fn () => $this->setupSite(
-                demoData: $demoData['children'],
+                demoData: $sitePlan,
                 site: $site,
                 languages: $siteLanguages,
                 defaultLanguage: $defaultLanguage,
@@ -262,7 +265,7 @@ class AdminDemoCommand extends Command
             $this->runProgressStep($bar, 'Layout builder demo', fn () => CreateLayoutBuilderDemoSiteAction::run(
                 new DemoSitePlanData(
                     site: $site,
-                    contentTree: $demoData,
+                    contentTree: $sitePlan->toContentTree(),
                 ),
             ));
 
@@ -274,28 +277,14 @@ class AdminDemoCommand extends Command
     private function runProgressStep(ProgressBar $bar, string $message, callable $callback): void
     {
         $bar->setMessage($this->formatProgressMessage($message));
-        $bar->display();
 
         $callback();
 
         $bar->advance();
     }
 
-    private function countPages(array $pages): int
-    {
-        $count = 0;
-        foreach ($pages as $page) {
-            $count++;
-            if (isset($page['children']) && is_array($page['children'])) {
-                $count += $this->countPages($page['children']);
-            }
-        }
-
-        return $count;
-    }
-
     private function setupSite(
-        array $demoData,
+        DemoSiteGenerationPlanData $demoData,
         Site $site,
         Collection $languages,
         Language $defaultLanguage,
@@ -303,13 +292,13 @@ class AdminDemoCommand extends Command
     ): void {
         $this->demoCreator->setupSite($site, $languages);
 
-        foreach ($demoData as $pageData) {
+        foreach ($demoData->pages as $pageData) {
             $this->createPagesWithProgress($pageData, $site, $languages, $defaultLanguage, bar: $bar);
         }
     }
 
     private function createPagesWithProgress(
-        array $pageData,
+        DemoPagePlanData $pageData,
         Site $site,
         Collection $languages,
         Language $defaultLanguage,
@@ -317,8 +306,7 @@ class AdminDemoCommand extends Command
         ?string $parentName = '',
         ?ProgressBar $bar = null,
     ): void {
-        /** @var array $pageData */
-        $pageNameSource = $pageData['name'][$defaultLanguage->code] ?? $pageData['name']['en'] ?? '';
+        $pageNameSource = $pageData->name[$defaultLanguage->code] ?? $pageData->name['en'] ?? '';
         $pageName = Str::title((string) $pageNameSource);
         $fullName = in_array($parentName, [null, '', '0'], true) ? $pageName : sprintf('%s » %s', $parentName, $pageName);
 
@@ -326,14 +314,20 @@ class AdminDemoCommand extends Command
             $bar->setMessage($this->formatProgressMessage($fullName));
         }
 
-        $parent = $this->demoCreator->createPage($pageData, $site, $languages, $parent);
+        $parent = $this->demoCreator->createPage(
+            $pageData->toContentTreeNode(),
+            $site,
+            $languages,
+            $parent,
+            createMedia: $pageData->mediaCount > 0,
+        );
 
         if ($bar instanceof ProgressBar) {
             $bar->advance();
         }
 
-        if (isset($pageData['children']) && is_array($pageData['children'])) {
-            foreach ($pageData['children'] as $childData) {
+        if ($pageData->children !== []) {
+            foreach ($pageData->children as $childData) {
                 $this->createPagesWithProgress($childData, $site, $languages, $defaultLanguage, $parent, $fullName, $bar);
             }
         }
@@ -346,54 +340,5 @@ class AdminDemoCommand extends Command
         }
 
         return Str::substr($message, 0, self::PROGRESS_MESSAGE_WIDTH - 3) . '...';
-    }
-
-    private function createUser(string $name, string $email, string $password, string $roleName): void
-    {
-        /** @var class-string<User> $userModel */
-        $userModel = config('auth.providers.users.model');
-
-        $panelUserRole = Role::findOrCreate($roleName);
-
-        /** @var User $user */
-        $user = $userModel::query()->where('email', $email)->first() ?? new $userModel;
-        $user->email = $email;
-        $user->name = $name;
-        $user->password = Hash::make($password);
-        $user->save();
-
-        $user->assignRole($panelUserRole);
-    }
-
-    private function getDemoData(?string $name, array $languages): array
-    {
-        $data = collect(config('capell-demo-kit.pages'));
-
-        if ($name !== null && $data->where('name.en', $name)->isNotEmpty()) {
-            $data = $data->firstWhere(fn (array $item): bool => $item['name']['en'] === $name);
-        } else {
-            $data = [
-                'name' => array_combine($languages, array_fill(0, count($languages), $name)),
-                'children' => $data->pluck('children')->flatten(1)->toArray(),
-            ];
-        }
-
-        if ($languages !== []) {
-            $filterLanguages = function (array $item) use (&$filterLanguages, $languages): array {
-                if (isset($item['name']) && is_array($item['name'])) {
-                    $item['name'] = array_intersect_key($item['name'], array_flip($languages));
-                }
-
-                if (isset($item['children']) && is_array($item['children'])) {
-                    $item['children'] = array_map($filterLanguages, $item['children']);
-                }
-
-                return $item;
-            };
-
-            $data['children'] = array_map($filterLanguages, $data['children']);
-        }
-
-        return $data;
     }
 }

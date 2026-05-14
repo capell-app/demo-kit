@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Capell\Core\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
-use Capell\Core\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
+use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\Tests\Fixtures\Models\User;
@@ -106,6 +106,7 @@ it('runs demo command successfully', function (): void {
     $output = str_replace("\r", "\n", Artisan::output());
 
     expect($output)
+        ->not->toContain('Starting...')
         ->not->toContain(PHP_EOL . 'Home page' . PHP_EOL)
         ->not->toContain(PHP_EOL . 'Error page' . PHP_EOL)
         ->not->toContain(PHP_EOL . 'Setting up site' . PHP_EOL)

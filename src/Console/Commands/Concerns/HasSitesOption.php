@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Console\Commands\Concerns;
 
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
+use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -31,15 +32,13 @@ trait HasSitesOption
             ));
         }
 
-        $demoData = collect(config('capell-demo-kit.pages'));
-
         $databaseSites = Schema::hasTable('sites')
             ? DB::table('sites')->pluck('name')->toArray()
             : [];
 
         $demoSitesOptions = collect([config('app.name')])
             ->merge($databaseSites)
-            ->merge($demoData->map(fn (array $demoSite): string => $demoSite['name']['en']))
+            ->merge(resolve(DemoContentPool::class)->siteNames())
             ->unique()
             ->mapWithKeys(fn (string $site): array => [$site => $site])
             ->all();
