@@ -33,11 +33,13 @@ use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Support\Creator\NavigationCreator;
+use Error;
 use Exception;
 use FilesystemIterator;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
@@ -313,11 +315,11 @@ class DemoCreator
      */
     public function createMedia(Model&HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
-        if ($model->getMedia($collection instanceof BackedEnum ? $collection->value : $collection)->isNotEmpty()) {
+        if (! $model->exists || $this->hasExistingMedia($model, $collection)) {
             return;
         }
 
-        if (! $model->exists || $model->fresh() === null) {
+        if ((method_exists($model, 'trashed') && $model->trashed()) || ! $model->newQuery()->whereKey($model->getKey())->exists()) {
             return;
         }
 
@@ -366,10 +368,24 @@ class DemoCreator
             return;
         }
 
-        $model->addMedia($demo_file)
-            ->preservingOriginal()
-            ->withCustomProperties($customProps)
-            ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
+        try {
+            $model->addMedia($demo_file)
+                ->preservingOriginal()
+                ->withCustomProperties($customProps)
+                ->toMediaCollection($this->mediaCollectionName($collection));
+        } catch (ModelNotFoundException $exception) {
+            if ($exception->getModel() === Media::class) {
+                return;
+            }
+
+            throw $exception;
+        } catch (Error $error) {
+            if (str_contains($error->getMessage(), 'Call to a member function getMedia() on null')) {
+                return;
+            }
+
+            throw $error;
+        }
     }
 
     public function setupRelatedSites(): void
@@ -2112,6 +2128,18 @@ class DemoCreator
     private static function assertSafeDemoZipEntries(ZipArchive $zip): void
     {
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
+    }
+
+    private function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool
+    {
+        $model->unsetRelation('media');
+
+        return $model->getMedia($this->mediaCollectionName($collection))->isNotEmpty();
+    }
+
+    private function mediaCollectionName(BackedEnum|string $collection): string
+    {
+        return $collection instanceof BackedEnum ? (string) $collection->value : $collection;
     }
 
     private function createFeatures(Site $site): Collection

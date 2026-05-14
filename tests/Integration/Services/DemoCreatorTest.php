@@ -11,6 +11,7 @@ use Capell\Core\Models\SiteDomain;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -339,7 +340,7 @@ it('falls back to a random demo image when the requested media file does not exi
     Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
 });
 
-it('does not create duplicate media when the target collection already has media', function (): void {
+it('does not create duplicate media when a previously-loaded target collection already has media', function (): void {
     useTinyDemoResources();
     Queue::fake();
     Storage::fake('public');
@@ -358,6 +359,7 @@ it('does not create duplicate media when the target collection already has media
     ], $site, $site->languages, null, null, null, false);
 
     assert($page instanceof Page);
+    $page->load('media');
 
     $initialImageName = $demoCreator->getRandomDemoImage(DemoCreator::getDemoResourcePath('img'));
     $demoCreator->createMedia($page, $initialImageName);
@@ -373,6 +375,74 @@ it('does not create duplicate media when the target collection already has media
     expect($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(1)
         ->and($currentMedia->id)->toBe($initialMedia->id)
         ->and($currentMedia->file_name)->toBe($initialMedia->file_name);
+});
+
+it('skips media creation for unsaved models', function (): void {
+    useTinyDemoResources();
+    Queue::fake();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+    $page = Page::factory()->make();
+
+    $demoCreator->createMedia($page, 'home');
+
+    expect($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(0);
+});
+
+it('skips media creation for stale deleted models', function (): void {
+    useTinyDemoResources();
+    Queue::fake();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+
+    $page = $demoCreator->createPage([
+        'name' => ['en' => 'Stale Media'],
+        'title' => ['en' => 'Stale Media'],
+    ], $site, $site->languages, null, null, null, false);
+    assert($page instanceof Page);
+
+    DB::table('pages')->whereKey($page->getKey())->delete();
+
+    $demoCreator->createMedia($page, 'home');
+
+    expect($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(0);
+});
+
+it('skips media creation for trashed models', function (): void {
+    useTinyDemoResources();
+    Queue::fake();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+
+    $page = $demoCreator->createPage([
+        'name' => ['en' => 'Trashed Media'],
+        'title' => ['en' => 'Trashed Media'],
+    ], $site, $site->languages, null, null, null, false);
+    assert($page instanceof Page);
+
+    $page->delete();
+
+    $demoCreator->createMedia($page, 'home');
+
+    expect($page->getMedia(MediaCollectionEnum::Image->value))->toHaveCount(0);
 });
 
 it('generates image conversions when creating demo media', function (): void {
