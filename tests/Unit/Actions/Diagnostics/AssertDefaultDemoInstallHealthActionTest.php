@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
 use Capell\Core\Models\Widget;
 use Capell\DemoKit\Actions\Diagnostics\AssertDefaultDemoInstallHealthAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
@@ -105,8 +105,8 @@ function createDemoHealthLayout(Site $site, array $widgetKeys): Layout
 
 function createDemoHealthWidget(string $key, string $title): Widget
 {
-    $type = Type::factory()->create([
-        'type' => LayoutTypeEnum::Widget->value,
+    $type = Blueprint::factory()->create([
+        'type' => LayoutTypeEnum::Element->value,
     ]);
 
     $widget = Widget::factory()

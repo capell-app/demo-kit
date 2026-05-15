@@ -35,7 +35,9 @@ final class DemoKitDoctorCommand extends Command
         $this->line('<fg=blue;options=bold>Demo Kit Health Check</>');
         $this->newLine();
 
-        $report->checks->each(fn (DoctorCheckResultData $check): mixed => $this->outputCheckResult($check));
+        $report->checks->each(function (DoctorCheckResultData $check): void {
+            $this->outputCheckResult($check);
+        });
         $this->newLine();
 
         if ($report->passed()) {

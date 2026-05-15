@@ -91,6 +91,7 @@ Omit `--seed` for a fresh random demo on each run.
 
 ## Docs
 
+- [overview.md](docs/overview.md)
 - [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
 
 ## Testing

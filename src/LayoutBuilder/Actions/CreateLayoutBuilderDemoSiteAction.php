@@ -41,7 +41,7 @@ class CreateLayoutBuilderDemoSiteAction
         $typeCreator = resolve(TypeCreator::class);
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
-        $typeCreator->createWidgetTypes();
+        $typeCreator->createElementTypes();
 
         /** @var ContentCreator $contentCreator */
         $contentCreator = resolve(ContentCreator::class);
@@ -99,32 +99,32 @@ class CreateLayoutBuilderDemoSiteAction
 
         $layout->update([
             'containers' => $containers,
-            'widgets' => $this->layoutWidgetKeys($containers),
+            'elements' => $this->layoutElementKeys($containers),
         ]);
     }
 
     private function populateAPWidgetsContainer(array &$containers): void
     {
-        $heroWidget = $this->demoCreator->createHomepageHeroCommandCenterWidget();
-        $proofWidget = $this->demoCreator->createHomepageProofStripWidget();
-        $showcaseWidget = $this->demoCreator->createHomepageDemoShowcaseWidget();
-        $marketplaceWidget = $this->demoCreator->createHomepageMarketplaceWidget();
-        $pipelineWidget = $this->demoCreator->createHomepageTechnicalPipelineWidget();
-        $routeSplitWidget = $this->demoCreator->createHomepageRouteSplitWidget();
-        $finalCtaWidget = $this->demoCreator->createHomepageFinalCtaWidget();
+        $heroElement = $this->demoCreator->createHomepageHeroCommandCenterWidget();
+        $proofElement = $this->demoCreator->createHomepageProofStripWidget();
+        $showcaseElement = $this->demoCreator->createHomepageDemoShowcaseWidget();
+        $marketplaceElement = $this->demoCreator->createHomepageMarketplaceWidget();
+        $pipelineElement = $this->demoCreator->createHomepageTechnicalPipelineWidget();
+        $routeSplitElement = $this->demoCreator->createHomepageRouteSplitWidget();
+        $finalCtaElement = $this->demoCreator->createHomepageFinalCtaWidget();
 
         $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
             ],
-            'widgets' => [
-                ['widget_key' => $heroWidget->key],
-                ['widget_key' => $proofWidget->key],
-                ['widget_key' => $showcaseWidget->key],
-                ['widget_key' => $marketplaceWidget->key],
-                ['widget_key' => $pipelineWidget->key],
-                ['widget_key' => $routeSplitWidget->key],
-                ['widget_key' => $finalCtaWidget->key],
+            'elements' => [
+                ['element_key' => $heroElement->key],
+                ['element_key' => $proofElement->key],
+                ['element_key' => $showcaseElement->key],
+                ['element_key' => $marketplaceElement->key],
+                ['element_key' => $pipelineElement->key],
+                ['element_key' => $routeSplitElement->key],
+                ['element_key' => $finalCtaElement->key],
             ],
         ];
     }
@@ -133,7 +133,7 @@ class CreateLayoutBuilderDemoSiteAction
      * @param  array<string, mixed>  $containers
      * @return list<string>
      */
-    private function layoutWidgetKeys(array $containers): array
+    private function layoutElementKeys(array $containers): array
     {
         return collect($containers)
             ->flatMap(function (mixed $container): array {
@@ -141,12 +141,12 @@ class CreateLayoutBuilderDemoSiteAction
                     return [];
                 }
 
-                $widgets = $container['widgets'] ?? [];
+                $elements = $container['elements'] ?? [];
 
-                return is_array($widgets) ? $widgets : [];
+                return is_array($elements) ? $elements : [];
             })
-            ->map(fn (mixed $widget): ?string => is_array($widget) ? ($widget['widget_key'] ?? null) : null)
-            ->filter(fn (?string $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
+            ->map(fn (mixed $element): ?string => is_array($element) ? ($element['element_key'] ?? null) : null)
+            ->filter(fn (?string $elementKey): bool => is_string($elementKey) && $elementKey !== '')
             ->unique()
             ->values()
             ->all();
