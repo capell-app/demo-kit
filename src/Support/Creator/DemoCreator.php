@@ -18,7 +18,6 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Widget;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
@@ -84,8 +83,8 @@ class DemoCreator
     /** @var class-string<Model> */
     private readonly string $contentModel;
 
-    /** @var class-string<Widget> */
-    private readonly string $widgetModel;
+    /** @var class-string<Element> */
+    private readonly string $elementModel;
 
     public function __construct(
         protected ?string $url = null,
@@ -100,7 +99,7 @@ class DemoCreator
         $this->pageModel = Page::class;
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
-        $this->widgetModel = Widget::class;
+        $this->elementModel = Element::class;
         $this->contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;
@@ -405,13 +404,13 @@ class DemoCreator
         });
     }
 
-    public function createContentWidget(Collection $languages): Widget
+    public function createContentWidget(Collection $languages): Element
     {
         $siteId = Site::query()->default()?->value('id');
 
         $type = resolve(TypeCreator::class)->contentBuilderElementType();
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-content'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -460,11 +459,11 @@ class DemoCreator
         return $widget;
     }
 
-    public function createSplitContentWidget(Collection $languages): Widget
+    public function createSplitContentWidget(Collection $languages): Element
     {
         $siteId = Site::query()->default()?->value('id');
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
             'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Element])->id,
             'meta' => [
@@ -598,7 +597,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createFaqWidget(Collection $languages): Widget
+    public function createFaqWidget(Collection $languages): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', 'assets');
@@ -607,7 +606,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
             'blueprint_id' => $widgetType->id,
@@ -740,7 +739,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
+    public function createStaticNavigationWidget(Collection $languages, Site $site): Element
     {
         $model = Navigation::class;
 
@@ -786,7 +785,7 @@ class DemoCreator
             : null;
 
         // Create widget
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -807,9 +806,9 @@ class DemoCreator
         return $widget;
     }
 
-    public function createContentsWidget(Widget $widget, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
+    public function createContentsWidget(Element $widget, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
     {
-        $pageWidgetAssets = $widget->assets()->where([
+        $pageElementAssets = $widget->assets()->where([
             'pageable_id' => $page->getKey(),
             'pageable_type' => $page->getMorphClass(),
             'container' => $container,
@@ -817,7 +816,7 @@ class DemoCreator
         ])
             ->exists();
 
-        if ($pageWidgetAssets) {
+        if ($pageElementAssets) {
             return;
         }
 
@@ -916,9 +915,9 @@ class DemoCreator
         }
     }
 
-    public function createClientLogosWidget(Collection $languages): Widget
+    public function createClientLogosWidget(Collection $languages): Element
     {
-        $widget = Widget::query()->firstOrCreate([
+        $widget = Element::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
@@ -955,9 +954,9 @@ class DemoCreator
         return $widget;
     }
 
-    public function createBusinessFeaturesWidget(Site $site): Widget
+    public function createBusinessFeaturesWidget(Site $site): Element
     {
-        $widget = Widget::query()->firstOrCreate([
+        $widget = Element::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
@@ -1051,9 +1050,9 @@ class DemoCreator
         return $widget;
     }
 
-    public function createStatisticsWidget(): Widget
+    public function createStatisticsWidget(): Element
     {
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
             'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Assets, 'type' => LayoutTypeEnum::Element])->id,
             'meta' => [
@@ -1129,7 +1128,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createTeamPortfolioWidget(Collection $languages): Widget
+    public function createTeamPortfolioWidget(Collection $languages): Element
     {
         $type = $this->typeModel::query()
             ->where([
@@ -1142,7 +1141,7 @@ class DemoCreator
             $type = resolve(TypeCreator::class)->contentsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -1185,7 +1184,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernFeatureListWidget(): Widget
+    public function createModernFeatureListWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1194,7 +1193,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
             'name' => 'Modern Feature List',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1245,7 +1244,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernTeamMembersWidget(): Widget
+    public function createModernTeamMembersWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1254,7 +1253,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
             'name' => 'Modern Team Members',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1328,7 +1327,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernPricingTableWidget(): Widget
+    public function createModernPricingTableWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1337,7 +1336,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
             'name' => 'Modern Pricing Table',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1420,7 +1419,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernTestimonialsWidget(): Widget
+    public function createModernTestimonialsWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1429,7 +1428,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
             'name' => 'Modern Testimonials',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1481,7 +1480,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernFaqWidget(): Widget
+    public function createModernFaqWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1490,7 +1489,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-faq'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-faq'], [
             'name' => 'Modern FAQ Section',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1539,7 +1538,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernStatsSectionWidget(): Widget
+    public function createModernStatsSectionWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1548,7 +1547,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-stats'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-stats'], [
             'name' => 'Modern Stats Section',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1597,7 +1596,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernAlternatingContentWidget(): Widget
+    public function createModernAlternatingContentWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1606,7 +1605,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
             'name' => 'Modern Alternating Content',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1654,7 +1653,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernProcessStepsWidget(): Widget
+    public function createModernProcessStepsWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1663,7 +1662,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
             'name' => 'Modern Process Steps',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1712,7 +1711,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createModernImageGalleryWidget(): Widget
+    public function createModernImageGalleryWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
@@ -1721,7 +1720,7 @@ class DemoCreator
             $widgetType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
             'name' => 'Modern Image Gallery',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1752,7 +1751,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createHomepageHeroCommandCenterWidget(): Widget
+    public function createHomepageHeroCommandCenterWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-hero-command-center',
@@ -1761,7 +1760,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageProofStripWidget(): Widget
+    public function createHomepageProofStripWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-proof-strip',
@@ -1770,7 +1769,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageDemoShowcaseWidget(): Widget
+    public function createHomepageDemoShowcaseWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-demo-showcase',
@@ -1779,7 +1778,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageMarketplaceWidget(): Widget
+    public function createHomepageMarketplaceWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-extension-marketplace-showcase',
@@ -1788,7 +1787,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageTechnicalPipelineWidget(): Widget
+    public function createHomepageTechnicalPipelineWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-technical-pipeline',
@@ -1797,7 +1796,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageRouteSplitWidget(): Widget
+    public function createHomepageRouteSplitWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-route-split',
@@ -1806,7 +1805,7 @@ class DemoCreator
         );
     }
 
-    public function createHomepageFinalCtaWidget(): Widget
+    public function createHomepageFinalCtaWidget(): Element
     {
         return $this->createHomepageSnippetWidget(
             key: 'capell-home-final-cta',
@@ -1815,14 +1814,14 @@ class DemoCreator
         );
     }
 
-    public function createApHeroBannerWidget(): Widget
+    public function createApHeroBannerWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::HeroBanner)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1858,14 +1857,14 @@ class DemoCreator
         return $widget;
     }
 
-    public function createApCardGridWidget(): Widget
+    public function createApCardGridWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::CardGrid)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -1926,14 +1925,14 @@ class DemoCreator
         return $widget;
     }
 
-    public function createApFeatureListWidget(): Widget
+    public function createApFeatureListWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::FeatureList)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -2036,14 +2035,14 @@ class DemoCreator
         return $widget;
     }
 
-    public function createApCtaSectionWidget(): Widget
+    public function createApCtaSectionWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::CTASection)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -2077,14 +2076,14 @@ class DemoCreator
         return $widget;
     }
 
-    public function createApImageGalleryWidget(): Widget
+    public function createApImageGalleryWidget(): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::ImageGallery)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
             'blueprint_id' => $widgetType->id,
             'meta' => [
@@ -2198,7 +2197,7 @@ class DemoCreator
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
     }
 
-    private function createHomepageSnippetWidget(string $key, string $name, string $content): Widget
+    private function createHomepageSnippetWidget(string $key, string $name, string $content): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Default);
@@ -2209,11 +2208,11 @@ class DemoCreator
 
         throw_unless($widgetType instanceof Blueprint, Exception::class, 'Unable to find default widget type.');
 
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => $key], [
+        $widget = Element::query()->firstOrCreate(['key' => $key], [
             'name' => $name,
             'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => ElementComponentEnum::Snippet,
+                'component' => ElementComponentEnum::Snippet->value,
                 'heading_size' => 'h2',
                 'content_divider' => false,
                 'margin' => ['none'],
@@ -2224,7 +2223,7 @@ class DemoCreator
             'name' => $name,
             'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => ElementComponentEnum::Snippet,
+                'component' => ElementComponentEnum::Snippet->value,
                 'heading_size' => 'h2',
                 'content_divider' => false,
                 'margin' => ['none'],
@@ -2997,7 +2996,7 @@ HTML;
         return $teamMembersCollection;
     }
 
-    private function createWidgetMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    private function createWidgetMedia(Element $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -3053,7 +3052,7 @@ HTML;
             }
         }
 
-        // Create content and link via WidgetAsset
+        // Create content and link via ElementAsset
         $content = $this->contentModel::create([
             'name' => str($filenameBase)->title(),
         ]);

@@ -11,10 +11,9 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Widget;
 use Capell\DemoKit\Data\DemoProfileData;
+use Capell\LayoutBuilder\Models\Element;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
@@ -26,6 +25,8 @@ final class AssertDefaultDemoInstallHealthAction
 {
     use AsObject;
 
+    private const LAYOUT_BUILDER_ELEMENT_MODEL = Element::class;
+
     private DemoProfileData $profile;
 
     public function handle(): DemoInstallHealthData
@@ -33,18 +34,39 @@ final class AssertDefaultDemoInstallHealthAction
         $this->profile = DemoProfileData::default();
 
         $checks = collect([
+            $this->layoutBuilderElementModelExists(),
             $this->homepageExists(),
-            $this->homepageLayoutHasWidgets(),
+            $this->homepageLayoutHasElements(),
             $this->homepageStartsWithHero(),
             $this->homepageUsesShowcaseOrder(),
-            $this->minimumWidgetCount(),
-            $this->apWidgetsHaveAssets(),
+            $this->minimumElementCount(),
+            ...($this->hasLayoutBuilderElementModel() ? [
+                $this->apElementsHaveAssets(),
+                $this->placeholderLabelsAreAbsent(),
+            ] : []),
             $this->minimumMediaCount(),
-            $this->placeholderLabelsAreAbsent(),
             $this->runtimeAssetsExist(),
         ]);
 
         return new DemoInstallHealthData($checks);
+    }
+
+    private function layoutBuilderElementModelExists(): DoctorCheckResultData
+    {
+        if ($this->hasLayoutBuilderElementModel()) {
+            return new DoctorCheckResultData(
+                label: 'Layout Builder demo dependency',
+                passed: true,
+                message: 'Layout Builder element model is available.',
+            );
+        }
+
+        return new DoctorCheckResultData(
+            label: 'Layout Builder demo dependency',
+            passed: false,
+            message: 'Layout Builder is not available to Demo Kit.',
+            remediation: 'Install capell-app/layout-builder before running the default demo health check.',
+        );
     }
 
     private function homepageExists(): DoctorCheckResultData
@@ -72,56 +94,56 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageLayoutHasWidgets(): DoctorCheckResultData
+    private function homepageLayoutHasElements(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $widgets = $this->layoutWidgetKeys($layout);
+        $elements = $this->layoutElementKeys($layout);
 
-        if ($widgets === []) {
+        if ($elements === []) {
             return new DoctorCheckResultData(
-                label: 'Homepage layout has widgets',
+                label: 'Homepage layout has elements',
                 passed: false,
-                message: 'The homepage layout does not contain any widget keys.',
+                message: 'The homepage layout does not contain any element keys.',
                 remediation: 'Run the selected theme setup/demo command after package setup has completed.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage layout has widgets',
+            label: 'Homepage layout has elements',
             passed: true,
-            message: sprintf('Homepage layout references %d widget occurrence(s).', count($widgets)),
+            message: sprintf('Homepage layout references %d element occurrence(s).', count($elements)),
         );
     }
 
-    private function minimumWidgetCount(): DoctorCheckResultData
+    private function minimumElementCount(): DoctorCheckResultData
     {
-        $count = $this->homepageWidgetCount();
+        $count = $this->homepageElementCount();
 
         if ($count < $this->profile->minimumWidgetCount) {
             return new DoctorCheckResultData(
-                label: 'Default demo widget count',
+                label: 'Default demo element count',
                 passed: false,
-                message: sprintf('Homepage has %d widget(s); expected at least %d.', $count, $this->profile->minimumWidgetCount),
+                message: sprintf('Homepage has %d element(s); expected at least %d.', $count, $this->profile->minimumWidgetCount),
                 remediation: 'Rerun the demo package step and confirm the demo package runs after setup packages.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo widget count',
+            label: 'Default demo element count',
             passed: true,
-            message: sprintf('Homepage has %d widget(s).', $count),
+            message: sprintf('Homepage has %d element(s).', $count),
         );
     }
 
     private function homepageUsesShowcaseOrder(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $widgets = $this->layoutWidgetKeys($layout);
-        $actual = array_slice($widgets, 0, count($this->profile->showcaseWidgetOrder));
+        $elements = $this->layoutElementKeys($layout);
+        $actual = array_slice($elements, 0, count($this->profile->showcaseWidgetOrder));
 
         if ($actual !== $this->profile->showcaseWidgetOrder) {
             return new DoctorCheckResultData(
-                label: 'Default demo showcase widget order',
+                label: 'Default demo showcase element order',
                 passed: false,
                 message: sprintf(
                     'Homepage starts with [%s]; expected [%s].',
@@ -133,58 +155,60 @@ final class AssertDefaultDemoInstallHealthAction
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo showcase widget order',
+            label: 'Default demo showcase element order',
             passed: true,
-            message: 'Homepage uses the curated Foundation showcase widget order.',
+            message: 'Homepage uses the curated Foundation showcase element order.',
         );
     }
 
-    private function apWidgetsHaveAssets(): DoctorCheckResultData
+    private function apElementsHaveAssets(): DoctorCheckResultData
     {
-        foreach ($this->profile->widgetAssetMinimums as $widgetKey => $minimum) {
-            $widget = Widget::query()
-                ->where('key', $widgetKey)
+        $elementModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+
+        foreach ($this->profile->widgetAssetMinimums as $elementKey => $minimum) {
+            $element = $elementModel::query()
+                ->where('key', $elementKey)
                 ->withCount('assets')
                 ->first();
 
-            $assetCount = $widget instanceof Widget ? (int) $widget->getAttribute('assets_count') : 0;
+            $assetCount = $element instanceof $elementModel ? (int) $element->getAttribute('assets_count') : 0;
 
             if ($assetCount < $minimum) {
                 return new DoctorCheckResultData(
-                    label: 'Default demo AP widget assets',
+                    label: 'Default demo AP element assets',
                     passed: false,
-                    message: sprintf('Widget "%s" has %d asset(s); expected at least %d.', $widgetKey, $assetCount, $minimum),
-                    remediation: 'Rerun the default demo fixtures so AP widgets receive their editable content and media assets.',
+                    message: sprintf('Element "%s" has %d asset(s); expected at least %d.', $elementKey, $assetCount, $minimum),
+                    remediation: 'Rerun the default demo fixtures so AP elements receive their editable content and media assets.',
                 );
             }
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo AP widget assets',
+            label: 'Default demo AP element assets',
             passed: true,
-            message: 'AP showcase widgets have the expected editable assets.',
+            message: 'AP showcase elements have the expected editable assets.',
         );
     }
 
     private function homepageStartsWithHero(): DoctorCheckResultData
     {
-        $firstWidgetKey = $this->firstHomepageWidgetKey();
+        $firstElementKey = $this->firstHomepageElementKey();
 
-        if ($firstWidgetKey === null || ! str_contains($firstWidgetKey, 'hero')) {
+        if ($firstElementKey === null || ! str_contains($firstElementKey, 'hero')) {
             return new DoctorCheckResultData(
-                label: 'Homepage starts with a hero widget',
+                label: 'Homepage starts with a hero element',
                 passed: false,
-                message: $firstWidgetKey === null
-                    ? 'The homepage layout has no first widget.'
-                    : sprintf('The homepage starts with "%s", not a hero widget.', $firstWidgetKey),
+                message: $firstElementKey === null
+                    ? 'The homepage layout has no first element.'
+                    : sprintf('The homepage starts with "%s", not a hero element.', $firstElementKey),
                 remediation: 'Rerun the demo package step after the selected theme setup so the homepage layout order is rebuilt.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage starts with a hero widget',
+            label: 'Homepage starts with a hero element',
             passed: true,
-            message: sprintf('Homepage starts with "%s".', $firstWidgetKey),
+            message: sprintf('Homepage starts with "%s".', $firstElementKey),
         );
     }
 
@@ -219,13 +243,15 @@ final class AssertDefaultDemoInstallHealthAction
 
     private function placeholderLabelsAreAbsent(): DoctorCheckResultData
     {
-        $homepageWidgetIds = Widget::query()
-            ->whereIn('key', $this->layoutWidgetKeys($this->homepageLayout()))
+        $elementModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+
+        $homepageElementIds = $elementModel::query()
+            ->whereIn('key', $this->layoutElementKeys($this->homepageLayout()))
             ->pluck('id');
 
         $found = Translation::query()
-            ->where('translatable_type', resolve(Widget::class)->getMorphClass())
-            ->whereIn('translatable_id', $homepageWidgetIds)
+            ->where('translatable_type', resolve($elementModel)->getMorphClass())
+            ->whereIn('translatable_id', $homepageElementIds)
             ->where(function ($query): void {
                 foreach ($this->profile->placeholderLabels as $label) {
                     $query->orWhere('title', 'like', sprintf('%%%s%%', $label))
@@ -273,14 +299,14 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageWidgetCount(): int
+    private function homepageElementCount(): int
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
             return 0;
         }
 
-        return count(array_unique($this->layoutWidgetKeys($layout)));
+        return count(array_unique($this->layoutElementKeys($layout)));
     }
 
     private function homepageLayout(): ?Layout
@@ -295,7 +321,7 @@ final class AssertDefaultDemoInstallHealthAction
         }
     }
 
-    private function firstHomepageWidgetKey(): ?string
+    private function firstHomepageElementKey(): ?string
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
@@ -307,13 +333,13 @@ final class AssertDefaultDemoInstallHealthAction
                 continue;
             }
 
-            $widget = collect($container['widgets'] ?? [])->first();
+            $element = collect($container['elements'] ?? [])->first();
 
-            if (! is_array($widget)) {
+            if (! is_array($element)) {
                 continue;
             }
 
-            $key = (string) ($widget['widget_key'] ?? $widget['key'] ?? '');
+            $key = (string) ($element['element_key'] ?? $element['key'] ?? '');
 
             return $key !== '' ? $key : null;
         }
@@ -324,41 +350,32 @@ final class AssertDefaultDemoInstallHealthAction
     /**
      * @return array<int, string>
      */
-    private function layoutWidgetKeys(?Layout $layout): array
+    private function layoutElementKeys(?Layout $layout): array
     {
         if (! $layout instanceof Layout) {
             return [];
         }
 
-        $containerWidgetKeys = collect($layout->containers ?? [])
+        return collect($layout->containers ?? [])
             ->flatMap(function (mixed $container): array {
                 if (! is_array($container)) {
                     return [];
                 }
 
-                $widgets = $container['widgets'] ?? [];
+                $elements = $container['elements'] ?? [];
 
-                return is_array($widgets) ? $widgets : [];
+                return is_array($elements) ? $elements : [];
             })
-            ->map(fn (mixed $widget): ?string => is_array($widget)
-                ? (string) ($widget['widget_key'] ?? $widget['key'] ?? '')
-                : (is_string($widget) ? $widget : null))
-            ->filter(fn (?string $key): bool => $key !== null && $key !== '')
-            ->values();
-
-        if ($containerWidgetKeys->isNotEmpty()) {
-            return $containerWidgetKeys->all();
-        }
-
-        return collect($layout->widgets ?? [])
-            ->flatMap(fn (mixed $container): Collection => is_array($container) && array_key_exists('widgets', $container)
-                ? collect($container['widgets'] ?? [])
-                : collect([$container]))
-            ->map(fn (mixed $widget): ?string => is_array($widget)
-                ? (string) ($widget['widget_key'] ?? $widget['key'] ?? '')
-                : (is_string($widget) ? $widget : null))
+            ->map(fn (mixed $element): ?string => is_array($element)
+                ? (string) ($element['element_key'] ?? $element['key'] ?? '')
+                : (is_string($element) ? $element : null))
             ->filter(fn (?string $key): bool => $key !== null && $key !== '')
             ->values()
             ->all();
+    }
+
+    private function hasLayoutBuilderElementModel(): bool
+    {
+        return class_exists(self::LAYOUT_BUILDER_ELEMENT_MODEL);
     }
 }
