@@ -29,6 +29,7 @@ use Capell\LayoutBuilder\Enums\ElementTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Capell\LayoutBuilder\Support\Creator\ElementCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Models\Navigation;
@@ -40,6 +41,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -601,16 +603,9 @@ class DemoCreator
             return $widget;
         }
 
-        $relatedPages->each(function (Page $relatedPage) use ($widget, $page, $container, $occurrence): void {
-            $widget->assets()->create([
-                'pageable_id' => $page->id,
-                'pageable_type' => $page->getMorphClass(),
-                'asset_id' => $relatedPage->id,
-                'asset_type' => resolve($this->pageModel)->getMorphClass(),
-                'container' => $container,
-                'occurrence' => $occurrence,
-            ]);
-        });
+        $relatedPages->each(
+            fn (Page $relatedPage): ElementAsset => $this->createPageElementAsset($widget, $page, $container, $occurrence, $relatedPage),
+        );
 
         return $widget;
     }
@@ -2213,6 +2208,21 @@ class DemoCreator
     private static function assertSafeDemoZipEntries(ZipArchive $zip): void
     {
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
+    }
+
+    private function createPageElementAsset(Element $element, Pageable $page, string $container, int $occurrence, Model $asset): ElementAsset
+    {
+        return DB::transaction(
+            fn (): ElementAsset => $element->assets()->createOrFirst([
+                'pageable_id' => $page->getKey(),
+                'pageable_type' => $page->getMorphClass(),
+                'container' => $container,
+                'occurrence' => $occurrence,
+                'asset_type' => $asset->getMorphClass(),
+                'asset_id' => $asset->getKey(),
+            ]),
+            attempts: 5,
+        );
     }
 
     private function layoutForDemoPage(string $name): ?Layout
