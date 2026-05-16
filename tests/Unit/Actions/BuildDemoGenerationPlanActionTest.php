@@ -50,7 +50,57 @@ it('honours page counts larger than the base page name pool', function (): void 
     expect($plan->sites[0]->pageCount())->toBe(50);
 });
 
+it('reserves special pages first when page counts are small', function (): void {
+    $plan = BuildDemoGenerationPlanAction::run([
+        'site_count' => 1,
+        'pages' => 3,
+        'languages' => ['en'],
+        'seed' => 246,
+    ]);
+
+    expect(demoPlanPageNames($plan->sites[0]->pages))->toBe([
+        'Contact',
+        'Pricing',
+        'Resources',
+    ]);
+});
+
+it('does not duplicate reserved footer page names in generated fallback pages', function (): void {
+    $plan = BuildDemoGenerationPlanAction::run([
+        'site_count' => 1,
+        'pages' => 50,
+        'languages' => ['en'],
+        'seed' => 789,
+    ]);
+
+    $pageNames = demoPlanPageNames($plan->sites[0]->pages);
+
+    expect(array_count_values($pageNames))
+        ->toMatchArray([
+            'Contact' => 1,
+            'Pricing' => 1,
+            'Resources' => 1,
+            'Integrations' => 1,
+            'Locations' => 1,
+            'Partners' => 1,
+            'Roadmap' => 1,
+            'Governance' => 1,
+            'Training' => 1,
+        ]);
+});
+
 it('keeps generated demo page trees out of publishable config', function (): void {
     expect(config('capell-demo-kit.pages'))->toBeNull()
         ->and(config('capell-demo-kit.counts.pages_per_site'))->toBe([12, 30]);
 });
+
+function demoPlanPageNames(array $pages): array
+{
+    return collect($pages)
+        ->flatMap(fn (mixed $page): array => [
+            $page->name['en'],
+            ...demoPlanPageNames($page->children),
+        ])
+        ->values()
+        ->all();
+}

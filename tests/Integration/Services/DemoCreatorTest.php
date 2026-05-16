@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\MediaConversionEnum;
+use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
+use Capell\FormBuilder\Models\Form;
+use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Models\Element;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -307,6 +314,56 @@ it('creates a page with parent relation and media disabled', function (): void {
 
     expect($childPage->parent_id)->toBe($parentPage->id);
     expect($childPage->getMedia()->count())->toBe(0);
+});
+
+it('uses standalone contact and footer layouts for demo pages', function (): void {
+    File::spy();
+
+    Blueprint::factory()->create([
+        'key' => ElementTypeEnum::Default->value,
+        'type' => LayoutTypeEnum::Element->value,
+    ]);
+
+    $demoCreator = new DemoCreator;
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $demoCreator->setupSite($site);
+
+    $contactPage = $demoCreator->createPage([
+        'name' => ['en' => 'Contact'],
+        'title' => ['en' => 'Contact'],
+    ], $site, createMedia: false);
+    $integrationsPage = $demoCreator->createPage([
+        'name' => ['en' => 'Integrations'],
+        'title' => ['en' => 'Integrations'],
+    ], $site, createMedia: false);
+
+    expect($contactPage->layout?->key)->toBe('contact-standalone')
+        ->and($integrationsPage->layout?->key)->toBe('footer-standard')
+        ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
+        ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
+        ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
+        ->and(Element::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::element.form')->exists())->toBeTrue();
+});
+
+it('skips contact form integration when form builder is not installed', function (): void {
+    File::spy();
+    CapellCore::forcePackageInstalled('capell-app/form-builder', false);
+
+    $demoCreator = new DemoCreator;
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+
+    $contactPage = $demoCreator->createPage([
+        'name' => ['en' => 'Contact'],
+        'title' => ['en' => 'Contact'],
+    ], $site, createMedia: false);
+
+    expect($contactPage->layout?->key)->toBe('contact-standalone')
+        ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeFalse()
+        ->and(Element::query()->where('key', 'contact-form')->exists())->toBeFalse();
+
+    CapellCore::forcePackageInstalled('capell-app/form-builder');
 });
 
 it('falls back to a random demo image when the requested media file does not exist', function (): void {

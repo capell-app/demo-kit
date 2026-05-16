@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Spatie\Image\Image;
@@ -56,6 +57,17 @@ class DemoCreator
     use Macroable;
 
     private const NavigationPackage = 'capell-app/navigation';
+
+    private const FormBuilderPackage = 'capell-app/form-builder';
+
+    private const StandardFooterPageNames = [
+        'Integrations',
+        'Locations',
+        'Partners',
+        'Roadmap',
+        'Governance',
+        'Training',
+    ];
 
     /** @var class-string<Language> */
     public string $languageModel;
@@ -225,6 +237,11 @@ class DemoCreator
         $pageCreator ??= new PageCreator;
 
         $name = Str::title($data['name']['en']);
+        $layout ??= $this->layoutForDemoPage($name);
+
+        if ($name === 'Contact') {
+            $this->ensureContactFormIntegration($site);
+        }
 
         $pageData = [
             'name' => $name,
@@ -251,6 +268,7 @@ class DemoCreator
             $pageData['translations'][$language->code] = [
                 'title' => $title,
                 'content' => $desc_content,
+                'summary' => $this->demoPageSummary($name),
                 'meta' => [
                     'description' => str($desc_content)->stripTags()->limit(160),
                     'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
@@ -2197,6 +2215,183 @@ class DemoCreator
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
     }
 
+    private function layoutForDemoPage(string $name): ?Layout
+    {
+        if (in_array($name, self::StandardFooterPageNames, true)) {
+            return $this->layoutModel::query()->firstOrCreate(
+                ['key' => 'footer-standard'],
+                [
+                    'name' => 'Footer Standard',
+                    'group' => 'default',
+                    'containers' => [
+                        'main' => [
+                            'meta' => [
+                                'colspan' => 12,
+                            ],
+                            'elements' => [
+                                ['element_key' => 'breadcrumbs'],
+                                ['element_key' => 'page-content'],
+                            ],
+                        ],
+                    ],
+                    'elements' => ['breadcrumbs', 'page-content'],
+                    'meta' => [
+                        'description' => 'A full-width editorial layout for shared footer pages.',
+                    ],
+                    'default' => false,
+                    'status' => true,
+                ],
+            );
+        }
+
+        if ($name !== 'Contact') {
+            return null;
+        }
+
+        $attributes = [
+            'name' => 'Contact Standalone',
+            'group' => 'default',
+            'containers' => [
+                'main' => [
+                    'meta' => [
+                        'colspan' => 12,
+                    ],
+                    'elements' => [
+                        ['element_key' => 'breadcrumbs'],
+                    ],
+                ],
+                'contact-copy' => [
+                    'meta' => [
+                        'colspan' => 7,
+                        'spacing' => 'lg',
+                        'html_class' => 'capell-demo-contact-copy-column',
+                    ],
+                    'elements' => [
+                        ['element_key' => 'page-content'],
+                    ],
+                ],
+                'contact-form' => [
+                    'meta' => [
+                        'colspan' => 5,
+                        'spacing' => 'lg',
+                        'html_class' => 'capell-demo-contact-form-column',
+                    ],
+                    'elements' => [
+                        [
+                            'element_key' => 'contact-form',
+                            'form_handle' => 'contact',
+                        ],
+                    ],
+                ],
+            ],
+            'elements' => ['breadcrumbs', 'page-content', 'contact-form'],
+            'meta' => [
+                'description' => 'A standalone contact layout without child or latest-page rails.',
+            ],
+            'default' => false,
+            'status' => true,
+        ];
+
+        $layout = $this->layoutModel::query()->firstOrCreate(['key' => 'contact-standalone'], $attributes);
+        $layout->forceFill($attributes)->save();
+
+        return $layout;
+    }
+
+    private function ensureContactFormIntegration(Site $site): void
+    {
+        $formModel = 'Capell\\FormBuilder\\Models\\Form';
+
+        if (! CapellCore::isPackageInstalled(self::FormBuilderPackage)
+            || ! class_exists($formModel)
+            || ! Schema::hasTable('forms')) {
+            return;
+        }
+
+        $formModel::query()->updateOrCreate(
+            [
+                'site_id' => $site->getKey(),
+                'handle' => 'contact',
+            ],
+            [
+                'name' => 'Contact',
+                'description' => 'Public contact form for Capell enquiries.',
+                'schema' => [
+                    [
+                        'key' => 'name',
+                        'label' => 'Name',
+                        'type' => 'text',
+                        'required' => true,
+                    ],
+                    [
+                        'key' => 'email',
+                        'label' => 'Email',
+                        'type' => 'email',
+                        'required' => true,
+                        'validation_rules' => ['email'],
+                    ],
+                    [
+                        'key' => 'topic',
+                        'label' => 'What can we help with?',
+                        'type' => 'select',
+                        'required' => true,
+                        'options' => [
+                            'cms-project' => 'CMS project',
+                            'migration' => 'Migration',
+                            'integration' => 'Package integration',
+                            'support' => 'Support',
+                        ],
+                    ],
+                    [
+                        'key' => 'message',
+                        'label' => 'Message',
+                        'type' => 'textarea',
+                        'required' => true,
+                    ],
+                    [
+                        'key' => 'company_website',
+                        'label' => 'Company website',
+                        'type' => 'honeypot',
+                    ],
+                ],
+                'settings' => [
+                    'success_message' => 'Thanks, your message has been sent.',
+                    'store_submissions' => true,
+                    'notification_email' => 'hello@capell.app',
+                    'collect_ip_address' => true,
+                    'collect_user_agent' => true,
+                ],
+                'is_active' => true,
+            ],
+        );
+
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::Default);
+
+        $widgetType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Element->value)
+            ->firstWhere('key', ElementTypeEnum::Default->value);
+
+        if (! $widgetType instanceof Blueprint) {
+            return;
+        }
+
+        Element::query()->updateOrCreate(
+            ['key' => 'contact-form'],
+            [
+                'name' => 'Contact form',
+                'blueprint_id' => $widgetType->getKey(),
+                'component' => 'capell-form-builder::element.form',
+                'is_livewire' => true,
+                'meta' => [
+                    'component' => 'capell-form-builder::element.form',
+                    'form_handle' => 'contact',
+                ],
+                'status' => true,
+            ],
+        );
+    }
+
     private function createHomepageSnippetWidget(string $key, string $name, string $content): Element
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
@@ -2250,7 +2445,7 @@ class DemoCreator
                 <p>Ship multi-site CMS platforms without template sprawl: typed content, editor-owned layouts, package-owned rendering, static output, and diagnostics in one Laravel-native system.</p>
                 <div class="capell-home-actions">
                     <a class="capell-home-button" href="/resources">Explore the demo</a>
-                    <a class="capell-home-button capell-home-button--secondary" href="/pricing/implementation">View implementation path</a>
+                    <a class="capell-home-button capell-home-button--secondary" href="/pricing">View pricing</a>
                 </div>
             </section>
             <section class="capell-home-command-board" aria-label="Capell system board">
@@ -2374,15 +2569,15 @@ HTML;
         <strong>Technical guides and launch checklists</strong>
         <em>Read the CMS playbook</em>
     </a>
-    <a href="/pricing/implementation">
-        <span>Implementation pricing</span>
-        <strong>A scoped path from install to handover</strong>
+    <a href="/pricing">
+        <span>Pricing</span>
+        <strong>Licensing and support for production teams</strong>
         <em>Plan the rollout</em>
     </a>
-    <a href="/contact/services">
-        <span>Services</span>
+    <a href="/contact#scoping">
+        <span>Contact</span>
         <strong>Architecture, migration, and package support</strong>
-        <em>Book scoping</em>
+        <em>Start scoping</em>
     </a>
 </div>
 HTML;
@@ -2397,7 +2592,7 @@ HTML;
         <h2>Show a CMS that feels assembled, verified, and ready to extend.</h2>
         <p>The homepage now demonstrates multiple layout shapes, custom widget compositions, package boundaries, and public-page discovery paths.</p>
     </div>
-    <a class="capell-home-button" href="/contact/services">Start implementation scoping</a>
+    <a class="capell-home-button" href="/contact#scoping">Start implementation scoping</a>
 </div>
 HTML;
     }
@@ -2407,13 +2602,6 @@ HTML;
      */
     private function demoPageMeta(string $name, ?Page $parent): array
     {
-        if ($name === 'Contact' && ! $parent instanceof Page) {
-            return [
-                'robots' => ['noindex'],
-                'demo_exclude_reason' => 'Plain contact route is reserved for contact-message flows; service pages remain discoverable.',
-            ];
-        }
-
         return [];
     }
 
@@ -2424,11 +2612,37 @@ HTML;
         }
 
         return match ($name) {
+            'About Us' => $this->emporiumAboutContent(),
+            'Homepage 2' => $this->emporiumHomepageTwoContent(),
             'Contact' => $this->contactIndexContent(),
             'Services' => $this->contactServicesContent(),
+            'Team' => $this->emporiumTeamContent(),
+            'FAQ' => $this->emporiumFaqContent(),
             'Pricing' => $this->pricingIndexContent(),
+            'Testimonials' => $this->emporiumTestimonialsContent(),
+            'Projects' => $this->emporiumProjectsContent(),
+            'Project Detail' => $this->emporiumProjectDetailContent(),
+            'Blog' => $this->emporiumBlogContent(),
+            'Home, Buildings and Architecture' => $this->emporiumSinglePostContent(),
             'Implementation' => $this->implementationPricingContent(),
             'Resources' => $this->resourcesHubContent(),
+            'Integrations' => $this->integrationsIndexContent(),
+            'Locations' => $this->locationsIndexContent(),
+            'Compliance' => $this->complianceLocationContent(),
+            'Sustainability' => $this->sustainabilityLocationContent(),
+            'Partners' => $this->partnersIndexContent(),
+            'Roadmap' => $this->roadmapIndexContent(),
+            'Governance' => $this->governanceIndexContent(),
+            'Training' => $this->trainingIndexContent(),
+            default => null,
+        };
+    }
+
+    private function demoPageSummary(string $name): ?string
+    {
+        return match ($name) {
+            'Compliance' => 'Regional compliance operations with publishing controls, evidence ownership, and structured local governance.',
+            'Sustainability' => 'Local sustainability reporting that keeps regional initiatives, metrics, and proof points consistent across the network.',
             default => null,
         };
     }
@@ -2437,33 +2651,36 @@ HTML;
     {
         return <<<'HTML'
 <div class="capell-demo-page capell-demo-contact-gateway">
-    <section class="capell-demo-gateway">
-        <div class="capell-demo-gateway__intro">
-            <p class="capell-demo-kicker">Contact</p>
-            <h1>Contact routing for CMS teams</h1>
-            <p>Send implementation work to the technical intake path and keep the plain contact URL available for a future message flow. This page is deliberately built as a routing gateway, not a generic contact form.</p>
-        </div>
-        <div class="capell-demo-gateway__routes">
-            <article>
-                <span>Primary route</span>
-                <h2>Implementation enquiries</h2>
-                <p>Architecture reviews, migrations, package integration, and launch planning for Laravel teams evaluating Capell.</p>
-                <a class="capell-demo-button" href="/contact/services">Open service scoping</a>
-            </article>
-            <article>
-                <span>Reserved route</span>
-                <h2>Plain message route</h2>
-                <p>The base contact page can stay excluded from discovery while a future contact-message package owns the message workflow.</p>
-                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">Read resources first</a>
-            </article>
-        </div>
-        <aside class="capell-demo-route-status">
-            <p class="capell-demo-brief__label">Routing status</p>
-            <dl>
-                <div><dt>Discovery</dt><dd>Noindex base contact URL</dd></div>
-                <div><dt>Lead path</dt><dd>/contact/services</dd></div>
-                <div><dt>Response window</dt><dd>2 engineering days</dd></div>
-            </dl>
+    <section class="capell-demo-contact-intro">
+        <p class="capell-demo-kicker">Contact us</p>
+        <h2>Get in touch with the Capell team</h2>
+        <p>Send a message about your CMS project, migration, integration work, or support needs. A clear contact page keeps the next step simple without sending visitors through child pages.</p>
+    </section>
+
+    <section class="capell-demo-contact-layout" aria-label="Contact options">
+        <aside class="capell-demo-contact-details" aria-label="Contact details">
+            <section>
+                <h2>Contact details</h2>
+                <dl>
+                    <div><dt>Email</dt><dd><a href="mailto:hello@capell.app">hello@capell.app</a></dd></div>
+                    <div><dt>Phone</dt><dd><a href="tel:+442045712840">+44 20 4571 2840</a></dd></div>
+                    <div><dt>Response</dt><dd>Within 2 business days</dd></div>
+                </dl>
+            </section>
+
+            <section>
+                <h2>Address</h2>
+                <address>
+                    Capell Studio<br>
+                    London<br>
+                    United Kingdom
+                </address>
+            </section>
+
+            <section>
+                <h2>Office hours</h2>
+                <p>Monday to Friday, 9:00 to 17:30 UK time.</p>
+            </section>
         </aside>
     </section>
 </div>
@@ -2480,8 +2697,8 @@ HTML;
             <h1>Implementation services for complex Capell rollouts</h1>
             <p>Use a technical service desk for content modelling, migration paths, layout architecture, package boundaries, and launch verification before production work starts.</p>
             <div class="capell-demo-actions">
-                <a class="capell-demo-button" href="/contact/services#scoping">Book scoping call</a>
-                <a class="capell-demo-button capell-demo-button--secondary" href="/pricing/implementation">See implementation pricing</a>
+                <a class="capell-demo-button" href="/contact#scoping">Book scoping call</a>
+                <a class="capell-demo-button capell-demo-button--secondary" href="/pricing">See pricing</a>
             </div>
         </div>
         <aside class="capell-demo-audit-board" id="scoping">
@@ -2522,41 +2739,392 @@ HTML;
 HTML;
     }
 
-    private function pricingIndexContent(): string
+    private function emporiumAboutContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-pricing-matrix">
-    <section class="capell-demo-pricing-index">
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--about">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">About Capell</p>
+        <h1>A CMS architecture team with a layout-builder product mindset</h1>
+        <p>Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
+    </section>
+
+    <section class="capell-demo-emporium-split">
         <div>
-            <p class="capell-demo-kicker">Pricing</p>
-            <h1>Pricing paths for Capell delivery</h1>
-            <p>Choose the path that matches your ownership model: internal implementation, guided launch support, or a productized partner build.</p>
+            <p class="capell-demo-kicker">Platform experience</p>
+            <h2>Experienced in flexible content systems</h2>
+            <p>Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
+            <p>Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
+            <div class="capell-demo-emporium-stats">
+                <div><strong>12+</strong><span>Page types</span></div>
+                <div><strong>40+</strong><span>Widget elements</span></div>
+                <div><strong>100+</strong><span>Media assets</span></div>
+            </div>
         </div>
-        <aside>
-            <span>Recommended first step</span>
-            <strong>Implementation pricing</strong>
-            <p>Use the scoped implementation page when migration, launch risk, or editorial workflow is part of the buying decision.</p>
-            <a class="capell-demo-button" href="/pricing/implementation">View implementation pricing</a>
+        <aside class="capell-demo-emporium-collage" aria-label="Capell content collage">
+            <span>Page</span><span>Gallery</span><span>Asset</span><span>Navigation</span>
         </aside>
     </section>
 
-    <section class="capell-demo-compare">
-        <div class="capell-demo-compare__heading">
-            <p class="capell-demo-kicker">Compare paths</p>
-            <h2>Start from the work, not a generic tier</h2>
+    <section class="capell-demo-emporium-process">
+        <p class="capell-demo-kicker">How we work</p>
+        <h2>From content model to public page</h2>
+        <ol>
+            <li><span>01</span><strong>Consultation</strong><p>Audit content, routes, media, integrations, and editor ownership.</p></li>
+            <li><span>02</span><strong>Builder design</strong><p>Define reusable elements that editors can safely compose.</p></li>
+            <li><span>03</span><strong>Migration and QA</strong><p>Move content into Capell and verify the public output.</p></li>
+            <li><span>04</span><strong>Publish</strong><p>Generate cacheable HTML and hand over the workflow.</p></li>
+        </ol>
+    </section>
+
+    <section class="capell-demo-emporium-promo">
+        <div>
+            <p class="capell-demo-kicker">Capell promotion</p>
+            <h2>Build a public site that editors can actually own</h2>
+            <p>Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
         </div>
-        <div class="capell-demo-compare__grid">
-            <div><span>Path</span><strong>Internal team</strong><strong>Guided launch</strong><strong>Partner build</strong></div>
-            <div><span>Best for</span><p>Laravel team owns delivery</p><p>Team wants guardrails</p><p>First release outsourced</p></div>
-            <div><span>Includes</span><p>Documentation and packages</p><p>Architecture, imports, QA</p><p>Full setup and handover</p></div>
-            <div><span>Risk level</span><p>Known stack</p><p>Medium migration risk</p><p>High launch pressure</p></div>
+        <a class="capell-demo-button" href="/contact#scoping">Get the best route</a>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumHomepageTwoContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--home-variant">
+    <section class="capell-demo-emporium-hero">
+        <p class="capell-demo-kicker">Architecture &amp; content</p>
+        <h1>A second homepage for service-led Capell builds</h1>
+        <p>This variation keeps the same Capell content but changes the rhythm: feature cards first, then services, team proof, project examples, pricing, and launch metrics.</p>
+        <a class="capell-demo-button" href="/projects">View portfolio</a>
+    </section>
+
+    <section class="capell-demo-emporium-feature-row">
+        <article><span>01</span><h2>Cost friendly</h2><p>Reuse governed widgets rather than designing every page from scratch.</p></article>
+        <article><span>02</span><h2>Communicative</h2><p>Make page structure clear to editors, reviewers, and developers.</p></article>
+        <article><span>03</span><h2>Responsive design</h2><p>Tailwind-friendly element layouts keep the public surface adaptable.</p></article>
+    </section>
+
+    <section class="capell-demo-emporium-services">
+        <div>
+            <p class="capell-demo-kicker">Our services</p>
+            <h2>Best service from Capell</h2>
+            <p>Implementation support, frontend architecture, migration planning, editor workflow setup, and launch verification.</p>
+        </div>
+        <div class="capell-demo-emporium-card-grid">
+            <article><h3>Layout architecture</h3><p>Reusable sections, galleries, cards, forms, and CTAs.</p></article>
+            <article><h3>Content migration</h3><p>Move existing pages, assets, redirects, and resource libraries safely.</p></article>
+            <article><h3>Publishing workflow</h3><p>Preview, approval, scheduling, cache generation, and release checks.</p></article>
+            <article><h3>Package integration</h3><p>Blog, search, forms, navigation, analytics, and access control.</p></article>
         </div>
     </section>
 
-    <section class="capell-demo-pricing-paths">
-        <article><span>Licensing</span><h2>Platform access</h2><p>Use Capell packages, core CMS primitives, and supported demo profiles.</p></article>
-        <article><span>Support</span><h2>Technical advisory</h2><p>Review architecture, editor workflows, public rendering, and operational readiness.</p></article>
-        <article><span>Implementation</span><h2>Scoped launch package</h2><p>Plan content models, migrations, frontend surfaces, and release verification.</p></article>
+    <section class="capell-demo-emporium-pricing-strip">
+        <article><span>Standard plan</span><strong>Developer</strong><p>Evaluation and proof-of-concept builds.</p></article>
+        <article><span>Premium plan</span><strong>Agency</strong><p>Production support for client delivery.</p></article>
+        <article><span>Ultimate plan</span><strong>Enterprise</strong><p>Governed rollout, support, and procurement.</p></article>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumTeamContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--team">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">Meet our team</p>
+        <h1>Implementation specialists for Capell websites</h1>
+        <p>A team page should prove capability, not just show profiles. These roles map to the actual work needed to build flexible Capell sites.</p>
+    </section>
+    <section class="capell-demo-emporium-team-grid">
+        <article><span>Strategy</span><h2>Mara Ellison</h2><p>CMS architecture lead</p></article>
+        <article><span>Frontend</span><h2>Jon Bell</h2><p>Tailwind and public rendering</p></article>
+        <article><span>Publishing</span><h2>Ada Morris</h2><p>Filament workflow specialist</p></article>
+        <article><span>Migration</span><h2>Cal Hart</h2><p>Content import engineer</p></article>
+        <article><span>QA</span><h2>Nia Porter</h2><p>Release and cache verification</p></article>
+        <article><span>Support</span><h2>Eli Stone</h2><p>Production support lead</p></article>
+    </section>
+    <section class="capell-demo-emporium-stats capell-demo-emporium-stats--band">
+        <div><strong>8+</strong><span>Specialist roles</span></div>
+        <div><strong>45+</strong><span>Packages checked</span></div>
+        <div><strong>4</strong><span>Release gates</span></div>
+        <div><strong>1</strong><span>Clear owner model</span></div>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumFaqContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--faq">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">FAQ</p>
+        <h1>You have questions?</h1>
+        <p>This page intentionally works without a large hero image. It proves Capell can render dense support content in a calmer page template.</p>
+    </section>
+    <section class="capell-demo-emporium-faq">
+        <div>
+            <h2>Capell architecture</h2>
+            <details open><summary>Can the header sit above the hero instead of overlaying it?</summary><p>Yes. The theme now has a header-over-hero switch so teams can use either an overlay treatment or a normal document flow header.</p></details>
+            <details><summary>Can a page skip the hero entirely?</summary><p>Yes. Pages can render directly into content, FAQ, article, pricing, or project layouts without needing a hero widget.</p></details>
+            <details><summary>Does public output leak editor controls?</summary><p>No. Public pages render clean frontend components while editor and Filament concerns stay private.</p></details>
+        </div>
+        <div>
+            <h2>Builder services</h2>
+            <details><summary>Can we keep existing content?</summary><p>Yes. The goal is to preserve content intent and improve layout, hierarchy, and reusable structure.</p></details>
+            <details><summary>Can we model project and blog pages?</summary><p>Yes. This demo includes project listing, project detail, blog index, and single article page coverage.</p></details>
+        </div>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumTestimonialsContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--testimonials">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">Testimonials</p>
+        <h1>What Capell builders say</h1>
+        <p>Reusable testimonial sections can act as proof bands, card grids, carousel content, or supporting evidence beside service pages.</p>
+    </section>
+    <section class="capell-demo-emporium-testimonial-grid">
+        <article><p>Capell replaced rigid templates with governed elements our editors can actually compose.</p><strong>Mara Ellison</strong><span>Senior Laravel developer</span></article>
+        <article><p>The public output stays clean while the editorial workflow remains flexible.</p><strong>Jon Bell</strong><span>Frontend lead</span></article>
+        <article><p>We can build resource hubs, landing pages, and service pages from the same content system.</p><strong>Ada Morris</strong><span>Publishing owner</span></article>
+        <article><p>The package boundaries make implementation work easier to estimate and support.</p><strong>Cal Hart</strong><span>Migration engineer</span></article>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumProjectsContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--projects">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">Latest project</p>
+        <h1>Capell implementation project library</h1>
+        <p>Project listings show that Capell can mix categories, galleries, cards, metadata, and detail routes without hard-coded portfolio templates.</p>
+    </section>
+    <nav class="capell-demo-emporium-filter" aria-label="Project filters"><a href="/projects">All</a><a href="/projects">Migration</a><a href="/projects">Layout Builder</a><a href="/projects">Publishing</a></nav>
+    <section class="capell-demo-emporium-project-grid">
+        <article><span>Layout Builder</span><h2>Flexible marketing site</h2><p>Hero slideshow, galleries, proof, resource cards, and contact strip.</p></article>
+        <article><span>Migration</span><h2>Content library rebuild</h2><p>Resource hub, media assets, navigation trees, and search-ready pages.</p></article>
+        <article><span>Publishing</span><h2>Governed multi-site estate</h2><p>Domains, languages, approval workflows, and cache generation.</p></article>
+        <article><span>Frontend</span><h2>Tailwind component system</h2><p>Reusable section elements with crisp responsive behaviour.</p></article>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumProjectDetailContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--project-detail">
+    <section class="capell-demo-emporium-article-layout">
+        <article>
+            <p class="capell-demo-kicker">Project detail</p>
+            <h1>Layout builder redesign for a flexible Capell website</h1>
+            <p class="capell-demo-emporium-meta">London | May 2026</p>
+            <p>The project detail page shows the long-form content pattern: narrative copy, project metadata, team ownership, recent project links, and a promotion section in one structured layout.</p>
+            <p>The implementation kept existing content intent but rebuilt the presentation around reusable Capell elements, asset-backed sections, and a clearer public route structure.</p>
+            <blockquote>“The real win is not visual novelty. It is being able to rebuild each section in the CMS without losing frontend discipline.”</blockquote>
+        </article>
+        <aside>
+            <h2>Project info</h2>
+            <dl><div><dt>Client project</dt><dd>Capell demo estate</dd></div><div><dt>Project date</dt><dd>May 2026</dd></div><div><dt>Location</dt><dd>United Kingdom</dd></div></dl>
+            <h2>Project head</h2>
+            <p>Mara Ellison<br><span>CMS architecture lead</span></p>
+        </aside>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumBlogContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--blog">
+    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <p class="capell-demo-kicker">Latest news</p>
+        <h1>Our blog for Capell builders</h1>
+        <p>Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.</p>
+    </section>
+    <section class="capell-demo-emporium-blog-grid">
+        <article><span>News</span><h2>Home, buildings and architecture</h2><p>How architecture-style page systems map to Capell layout builder websites.</p><a href="/home-buildings-and-architecture">Read more</a></article>
+        <article><span>Guide</span><h2>Designing a better homepage flow</h2><p>Turning mixed CMS objects into one coherent public page.</p><a href="/resources">Read more</a></article>
+        <article><span>Tips</span><h2>How to avoid rigid templates</h2><p>Use element boundaries, assets, and reusable sections to keep pages flexible.</p><a href="/resources">Read more</a></article>
+    </section>
+</div>
+HTML;
+    }
+
+    private function emporiumSinglePostContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--single-post">
+    <section class="capell-demo-emporium-article-layout">
+        <article>
+            <p class="capell-demo-kicker">Single post</p>
+            <h1>Home, buildings and architecture</h1>
+            <p class="capell-demo-emporium-meta">By Capell Studio | May 16, 2026</p>
+            <p>Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact. Capell can reproduce that structure with layout-builder elements instead of fixed page templates.</p>
+            <p>The important point is ownership. Editors should be able to change content, order, media, navigation, and resource cards. Developers should still own rendering, performance, cache generation, and package boundaries.</p>
+            <blockquote>“A flexible CMS is not a free-for-all. It is a governed system with enough expressive range to build the whole site.”</blockquote>
+            <p>This page closes the loop by proving the article detail template can sit beside the same Emporium-inspired site map without copying the original design or losing the Capell product story.</p>
+        </article>
+        <aside>
+            <h2>Recent posts</h2>
+            <a href="/blog">Designing a better homepage flow</a>
+            <a href="/blog">Avoiding rigid templates</a>
+            <a href="/resources">Publishing checklist</a>
+            <h2>Follow us</h2>
+            <p>Resources, release notes, and implementation guides for Capell builders.</p>
+        </aside>
+    </section>
+</div>
+HTML;
+    }
+
+    private function pricingIndexContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-pricing-matrix capell-pricing-template">
+    <section class="capell-pricing-hero">
+        <p class="capell-pricing-eyebrow">Licensing &amp; technical support</p>
+        <h1>Simple pricing for Capell CMS delivery</h1>
+        <p>Choose the access and support model that fits your team. Start with a developer plan for evaluation, move to agency support for production delivery, or scope an enterprise agreement when governance and response times matter.</p>
+        <div class="capell-pricing-actions">
+            <a class="capell-pricing-button" href="/contact#scoping">Talk to sales</a>
+            <a class="capell-pricing-button capell-pricing-button--secondary" href="/contact#scoping">Book pricing review</a>
+        </div>
+    </section>
+
+    <section class="capell-pricing-matrix" aria-labelledby="capell-pricing-matrix-heading">
+        <div class="capell-pricing-section-head">
+            <p class="capell-pricing-eyebrow">Pricing matrix</p>
+            <h2 id="capell-pricing-matrix-heading">Compare the commercial model</h2>
+            <p>Every plan keeps the same Capell foundation. The difference is production usage, support access, and the level of commercial governance around your rollout.</p>
+        </div>
+        <div class="capell-pricing-plan-cards" aria-label="Pricing plans">
+            <article>
+                <span>Developer</span>
+                <strong>GBP 0</strong>
+                <p>For local evaluation and proof of concept work.</p>
+                <ul>
+                    <li>Core API access</li>
+                    <li>Local projects</li>
+                    <li>Community support</li>
+                </ul>
+                <a href="/contact#developer">Get started</a>
+            </article>
+            <article class="is-featured">
+                <em>Popular</em>
+                <span>Agency</span>
+                <strong>GBP 99</strong>
+                <p>For production projects with commercial support.</p>
+                <ul>
+                    <li>1 production project</li>
+                    <li>Up to 5 custom domains</li>
+                    <li>Email support</li>
+                </ul>
+                <a href="/contact#agency">Start trial</a>
+            </article>
+            <article>
+                <span>Enterprise</span>
+                <strong>Custom</strong>
+                <p>For governed estates and dedicated support paths.</p>
+                <ul>
+                    <li>Unlimited projects</li>
+                    <li>Unlimited custom domains</li>
+                    <li>Dedicated support channel</li>
+                </ul>
+                <a href="/contact#enterprise">Contact sales</a>
+            </article>
+        </div>
+        <div class="capell-pricing-table-wrap">
+            <table class="capell-pricing-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Features</th>
+                        <th scope="col">
+                            <span>Developer</span>
+                            <strong>GBP 0</strong>
+                            <small>For local evaluation</small>
+                            <a href="/contact#developer">Get started</a>
+                        </th>
+                        <th scope="col" class="is-featured">
+                            <em>Popular</em>
+                            <span>Agency</span>
+                            <strong>GBP 99</strong>
+                            <small>Per production project</small>
+                            <a href="/contact#agency">Start trial</a>
+                        </th>
+                        <th scope="col">
+                            <span>Enterprise</span>
+                            <strong>Custom</strong>
+                            <small>For governed estates</small>
+                            <a href="/contact#enterprise">Contact sales</a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">Core API access</th><td>Included</td><td>Included</td><td>Included</td></tr>
+                    <tr><th scope="row">Production projects</th><td>Local only</td><td>1 project</td><td>Unlimited</td></tr>
+                    <tr><th scope="row">Custom domains</th><td>-</td><td>Up to 5</td><td>Unlimited</td></tr>
+                    <tr><th scope="row">Support tier</th><td>Community</td><td>Email support</td><td>Dedicated channel</td></tr>
+                    <tr><th scope="row">SLA guidance</th><td>-</td><td>99.9%</td><td>99.99%</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="capell-pricing-note">Need custom implementation? View technical pricing for scoped migrations, frontend integration, and handover.</p>
+    </section>
+
+    <section class="capell-pricing-addons" aria-label="Support options">
+        <article>
+            <span>Support</span>
+            <h2>Technical support</h2>
+            <p>Access our dedicated support team for troubleshooting, architecture reviews, and emergency incident response.</p>
+            <a href="/contact#support">Explore support plans</a>
+        </article>
+        <article>
+            <span>Enablement</span>
+            <h2>Team training</h2>
+            <p>Onboard engineering and editorial teams faster with specialised workshops, certification paths, and deep technical sessions.</p>
+            <a href="/training">View training catalogue</a>
+        </article>
+    </section>
+
+    <section class="capell-pricing-faq" aria-labelledby="capell-pricing-faq-heading">
+        <div class="capell-pricing-section-head">
+            <p class="capell-pricing-eyebrow">Commercial questions</p>
+            <h2 id="capell-pricing-faq-heading">Common pricing questions</h2>
+        </div>
+        <details>
+            <summary>Can we start on Developer and move to Agency later?</summary>
+            <p>Yes. Developer is intended for local evaluation and proof of concept work. Production projects should move to Agency or Enterprise before launch.</p>
+        </details>
+        <details>
+            <summary>Is implementation included in the monthly licence?</summary>
+            <p>No. Implementation is scoped separately so migration, theme integration, QA, and handover are priced around the actual delivery risk.</p>
+        </details>
+        <details>
+            <summary>Do Enterprise plans include custom governance?</summary>
+            <p>Yes. Enterprise plans can include security review, dedicated support paths, custom usage terms, and procurement documentation.</p>
+        </details>
+    </section>
+
+    <section class="capell-pricing-cta">
+        <div>
+            <p class="capell-pricing-eyebrow">Next step</p>
+            <h2>Ready for a technical deep dive?</h2>
+            <p>Bring your content model, launch requirements, and support expectations. We will recommend the right plan and implementation route.</p>
+        </div>
+        <a class="capell-pricing-button" href="/contact#scoping">Book pricing review</a>
     </section>
 </div>
 HTML;
@@ -2573,7 +3141,7 @@ HTML;
             <p>A productized Capell implementation for teams that need a production CMS foundation, migration confidence, and a clear handover path.</p>
             <div class="capell-demo-price">from <strong>GBP 8,500</strong></div>
             <div class="capell-demo-actions">
-                <a class="capell-demo-button" href="/contact/services">Schedule scoping</a>
+                <a class="capell-demo-button" href="/contact#scoping">Schedule scoping</a>
                 <a class="capell-demo-button capell-demo-button--secondary" href="/resources">Read launch guides</a>
             </div>
         </div>
@@ -2670,6 +3238,535 @@ HTML;
     </section>
 </div>
 HTML;
+    }
+
+    private function complianceLocationContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-location-detail">
+    <p>Compliance pages keep regional obligations, policy owners, review cadence, and evidence links close to the local publishing workflow.</p>
+    <p>Use this child page to prove location content is structured, governed, and reusable instead of being hand-coded into a single landing page.</p>
+</div>
+HTML;
+    }
+
+    private function sustainabilityLocationContent(): string
+    {
+        return <<<'HTML'
+<div class="capell-demo-page capell-demo-location-detail">
+    <p>Sustainability pages give each region room to publish local initiatives while keeping measurement language, media, and taxonomy consistent.</p>
+    <p>Editors can maintain local proof points without breaking the shared Capell page model or the wider site navigation.</p>
+</div>
+HTML;
+    }
+
+    private function integrationsIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Integrations');
+    }
+
+    private function locationsIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Locations');
+    }
+
+    private function partnersIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Partners');
+    }
+
+    private function roadmapIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Roadmap');
+    }
+
+    private function governanceIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Governance');
+    }
+
+    private function trainingIndexContent(): string
+    {
+        return $this->standardFooterPageContent('Training');
+    }
+
+    private function standardFooterPageContent(string $pageName): string
+    {
+        $page = $this->standardFooterPageConfigs()[$pageName];
+        $slug = Str::slug($pageName);
+
+        return sprintf(
+            <<<'HTML'
+<div class="capell-demo-page capell-demo-footer-page capell-demo-footer-page--%1$s">
+    <section class="capell-demo-footer-hero">
+        <div class="capell-demo-footer-hero__copy">
+            <p class="capell-demo-kicker">%2$s</p>
+            <h1>%3$s</h1>
+            <p>%4$s</p>
+            <div class="capell-demo-actions">
+                <a class="capell-demo-button" href="/contact#scoping">%5$s</a>
+                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">%6$s</a>
+            </div>
+        </div>
+        <aside class="capell-demo-footer-artifact">
+            <p class="capell-demo-brief__label">%7$s</p>
+            <strong>%8$s</strong>
+            <div class="capell-demo-footer-artifact__steps" aria-hidden="true">%10$s</div>
+        </aside>
+    </section>
+
+    <nav class="capell-demo-footer-tabs" aria-label="Footer page variations">
+        %11$s
+    </nav>
+
+    <section class="capell-demo-footer-editorial">
+        <div class="capell-demo-footer-editorial__copy">
+            <p class="capell-demo-kicker">Shared layout system</p>
+            <h2>%12$s</h2>
+            <p>%13$s</p>
+            <p>%14$s</p>
+            <p>%17$s</p>
+        </div>
+        <aside class="capell-demo-footer-proof">
+            <span>%15$s</span>
+            <strong>%16$s</strong>
+            <dl>%9$s</dl>
+        </aside>
+    </section>
+
+    <section class="capell-demo-footer-section">
+        <div class="capell-demo-footer-section-head">
+            <p class="capell-demo-kicker">%2$s content modules</p>
+            <h2>Reusable sections with page-specific assets and deeper copy</h2>
+            <p>The layout stays consistent across footer pages, but the evidence, examples, labels, metrics, and calls to action change enough that each page feels intentionally written.</p>
+        </div>
+        <div class="capell-demo-footer-sections" aria-label="%2$s capabilities">%18$s</div>
+    </section>
+
+    <section class="capell-demo-footer-evidence">
+        <div class="capell-demo-footer-section-head">
+            <p class="capell-demo-kicker">%19$s</p>
+            <h2>%20$s</h2>
+            <p>%21$s</p>
+        </div>
+        <div class="capell-demo-footer-evidence__rows">%22$s</div>
+    </section>
+
+    <section class="capell-demo-footer-variations" aria-label="Reusable asset slots">
+        <div class="capell-demo-footer-section-head">
+            <p class="capell-demo-kicker">Asset slots</p>
+            <h2>Same elements, different page assets</h2>
+            <p>Each footer page uses the same shell, then swaps the hero metric, proof list, feature modules, evidence rows, testimonial, and CTA details.</p>
+        </div>
+        <div class="capell-demo-footer-variation-strip">%23$s</div>
+    </section>
+
+    <section class="capell-demo-footer-cta">
+        <div>
+            <p class="capell-demo-kicker">%24$s</p>
+            <h2>%25$s</h2>
+            <p>%26$s</p>
+        </div>
+        <a class="capell-demo-button" href="/contact#scoping">%27$s</a>
+    </section>
+</div>
+HTML,
+            $slug,
+            $pageName,
+            $page['headline'],
+            $page['intro'],
+            $page['primaryAction'],
+            $page['secondaryAction'],
+            $page['assetLabel'],
+            $page['assetMetric'],
+            $this->standardFooterDefinitionList($page['stats']),
+            $this->standardFooterVisual($page['visual']),
+            $this->standardFooterPageTabs($pageName),
+            $page['storyHeading'],
+            $page['storyLead'],
+            $page['storyDetail'],
+            $page['proofLabel'],
+            $page['proofTitle'],
+            $page['proofBody'],
+            $this->standardFooterFeatureCards($pageName, $page['features']),
+            $page['deepDiveKicker'],
+            $page['deepDiveHeading'],
+            $page['deepDiveIntro'],
+            $this->standardFooterRows($page['rows']),
+            $this->standardFooterAssetSlots($page['assetSlots']),
+            $page['ctaKicker'],
+            $page['ctaHeading'],
+            $page['ctaBody'],
+            $page['ctaAction'],
+        );
+    }
+
+    /**
+     * @param  array<string, string>  $items
+     */
+    private function standardFooterDefinitionList(array $items): string
+    {
+        return implode('', array_map(
+            fn (string $label, string $value): string => sprintf('<div><dt>%s</dt><dd>%s</dd></div>', $label, $value),
+            array_keys($items),
+            $items,
+        ));
+    }
+
+    /**
+     * @param  list<string>  $items
+     */
+    private function standardFooterVisual(array $items): string
+    {
+        return implode('', array_map(
+            fn (string $item, int $index): string => sprintf('<div><span>%02d</span><strong>%s</strong></div>', $index + 1, $item),
+            $items,
+            array_keys($items),
+        ));
+    }
+
+    private function standardFooterPageTabs(string $activeName): string
+    {
+        return implode('', array_map(
+            function (string $name, array $page) use ($activeName): string {
+                $current = $name === $activeName ? ' aria-current="page"' : '';
+                $activeClass = $name === $activeName ? ' is-active' : '';
+
+                return sprintf(
+                    '<a class="capell-demo-footer-tabs__item%1$s" href="/%7$s"%2$s><span>%3$s</span><strong>%4$s</strong><em>%6$s</em><p>%5$s</p></a>',
+                    $activeClass,
+                    $current,
+                    $page['tabCode'],
+                    $name,
+                    $page['tabCopy'],
+                    $page['tabMetric'],
+                    Str::slug($name),
+                );
+            },
+            array_keys($this->standardFooterPageConfigs()),
+            $this->standardFooterPageConfigs(),
+        ));
+    }
+
+    /**
+     * @param  list<array{label: string, title: string, body: string}>  $features
+     */
+    private function standardFooterFeatureCards(string $pageName, array $features): string
+    {
+        $details = $this->standardFooterFeatureDetails($pageName);
+
+        return implode('', array_map(
+            fn (array $feature, int $index): string => sprintf(
+                '<article><span>%s</span><h2>%s</h2><p>%s</p><p>%s</p></article>',
+                $feature['label'],
+                $feature['title'],
+                $feature['body'],
+                $details[$index],
+            ),
+            $features,
+            array_keys($features),
+        ));
+    }
+
+    /**
+     * @param  list<array{label: string, title: string, body: string}>  $rows
+     */
+    private function standardFooterRows(array $rows): string
+    {
+        return implode('', array_map(
+            fn (array $row, int $index): string => sprintf(
+                '<article><span>%02d</span><div><em>%s</em><strong>%s</strong></div><p>%s</p></article>',
+                $index + 1,
+                $row['label'],
+                $row['title'],
+                $row['body'],
+            ),
+            $rows,
+            array_keys($rows),
+        ));
+    }
+
+    /**
+     * @param  array<string, string>  $slots
+     */
+    private function standardFooterAssetSlots(array $slots): string
+    {
+        return implode('', array_map(
+            fn (string $label, string $value): string => sprintf('<div><span>%s</span><strong>%s</strong></div>', $label, $value),
+            array_keys($slots),
+            $slots,
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function standardFooterFeatureDetails(string $pageName): array
+    {
+        return match ($pageName) {
+            'Integrations' => [
+                'Use the module for system diagrams, payload notes, authentication expectations, and support ownership so commercial readers understand the integration shape without needing a developer-only reference page.',
+                'Package and marketplace references can sit beside customer-facing value, making the page feel specific to Capell while keeping implementation details safely out of public templates.',
+                'Status, retry, and audit details turn the page into a credibility surface. The content can show how operators recover from failed syncs instead of only saying that integrations exist.',
+            ],
+            'Locations' => [
+                'The page can explain how local branches, child pages, translated paths, and media ownership work together without forcing every region into identical copy.',
+                'Regional examples, search metadata, and ownership notes give visitors useful local context while still showing that the CMS model is shared and maintainable.',
+                'Publishing discipline remains visible through cache coverage, redirects, translations, and editorial boundaries, which matters once the location network grows beyond a handful of pages.',
+            ],
+            'Partners' => [
+                'Certification criteria, architecture review, and handover expectations can be written into the page so partnership feels like a delivery model rather than a directory.',
+                'Runbooks, demo assets, and package guidance give partner teams material they can reuse, while the public page still stays easy for prospects to scan.',
+                'Extension boundaries keep the ecosystem credible. Partners can see where they add value without implying they own the core product contract.',
+            ],
+            'Roadmap' => [
+                'Release lanes help readers distinguish committed work from research, which makes the roadmap more trustworthy than a flat list of ambitions.',
+                'Feedback prompts can ask for the right evidence at the right point, so customer signal becomes part of the page rather than a separate product-board ritual.',
+                'Changelog links, shipped examples, and confidence labels keep older roadmap content honest by making it obvious what moved from promise to production.',
+            ],
+            'Governance' => [
+                'Workflow gates can be described in public language while the admin mechanics stay private, giving buyers confidence without exposing internal control details.',
+                'Audit references, reviewer roles, and publish evidence show that governance is part of the operating model, not a compliance paragraph added after the fact.',
+                'Role-aware copy helps separate editor permissions, emergency access, and preview behaviour from the public page output that visitors actually receive.',
+            ],
+            'Training' => [
+                'Editor, developer, and owner paths can each get their own module so training reads like a real handover plan instead of a generic onboarding promise.',
+                'Runbook assets make the page useful after launch because the same structure can point teams back to deployment, cache, package, and support routines.',
+                'Readiness checks, rehearsals, and module completion give the training page proof that the team can operate Capell once implementation support steps back.',
+            ],
+            default => ['', '', ''],
+        };
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function standardFooterPageConfigs(): array
+    {
+        return [
+            'Integrations' => [
+                'tabCode' => 'API',
+                'tabCopy' => 'Connectors, webhooks, and extension health.',
+                'tabMetric' => '24 endpoints',
+                'headline' => 'Integration surfaces for teams that need traceable sync',
+                'intro' => 'Show the connector story with a shared editorial layout, then swap in API diagrams, webhook states, marketplace extension proof, and operational sync metrics.',
+                'primaryAction' => 'Plan an integration',
+                'secondaryAction' => 'Read API notes',
+                'assetLabel' => 'Connector map',
+                'assetMetric' => '24 monitored touchpoints',
+                'stats' => ['Surface' => 'Marketplace extensions, webhooks, API tokens', 'Reliability' => 'Retries, audit entries, health alerts', 'Owner' => 'Developer-led setup with editor-safe status'],
+                'visual' => ['Register connector', 'Map payload', 'Observe sync', 'Review failures'],
+                'storyHeading' => 'Make integrations feel operational, not decorative',
+                'storyLead' => 'The same footer-page shell can explain API work without becoming a docs page. The hero asset becomes a connector map, the proof panel becomes health telemetry, and the deep-dive rows become lifecycle steps.',
+                'storyDetail' => 'That keeps the public page persuasive for buyers while still signalling that Capell integrations are Laravel-native, observable, and owned by packages.',
+                'proofLabel' => 'Operational proof',
+                'proofTitle' => 'Every connector needs an owner, a retry path, and a public explanation.',
+                'proofBody' => 'The page assets show which systems connect, what Capell records, and how teams recover when a sync fails.',
+                'features' => [
+                    ['label' => 'Connect', 'title' => 'API and webhook entry points', 'body' => 'Describe inbound submissions, outbound notifications, and token-controlled integration access.'],
+                    ['label' => 'Extend', 'title' => 'Marketplace package surface', 'body' => 'Show how extension installs and health alerts sit beside the core CMS rather than inside page templates.'],
+                    ['label' => 'Observe', 'title' => 'Sync confidence signals', 'body' => 'Use health checks, recent events, and retry notes as assets that change per integration.'],
+                ],
+                'deepDiveKicker' => 'Lifecycle',
+                'deepDiveHeading' => 'From connector request to monitored production sync',
+                'deepDiveIntro' => 'The table module becomes an integration lifecycle without changing the surrounding layout.',
+                'rows' => [
+                    ['label' => 'Discovery', 'title' => 'Map source systems', 'body' => 'Confirm records, identifiers, auth flow, expected volume, and failure ownership.'],
+                    ['label' => 'Build', 'title' => 'Wire package-owned actions', 'body' => 'Keep connector logic in actions and package services, not in public content output.'],
+                    ['label' => 'Verify', 'title' => 'Publish health evidence', 'body' => 'Surface connection state, last sync, retry policy, and escalation paths for operators.'],
+                ],
+                'assetSlots' => ['Hero metric' => '24 touchpoints', 'Proof list' => 'Retries and health alerts', 'Feature cards' => 'API, extensions, observability', 'Process rows' => 'Discover, build, verify', 'Testimonial' => 'Developer owner quote', 'CTA' => 'Plan an integration'],
+                'ctaKicker' => 'Integration planning',
+                'ctaHeading' => 'Turn fragile sync work into an owned Capell surface',
+                'ctaBody' => 'Bring the systems, auth model, and failure rules. The implementation can stay boring when the ownership is clear.',
+                'ctaAction' => 'Start integration scoping',
+            ],
+            'Locations' => [
+                'tabCode' => 'LOC',
+                'tabCopy' => 'Regional page trees and local ownership.',
+                'tabMetric' => '18 regions',
+                'headline' => 'Multi-site delivery without losing local context',
+                'intro' => 'Use location pages to show regional landing pages, local governance, routed child content, and shared CMS operations from one Laravel install.',
+                'primaryAction' => 'Plan a rollout',
+                'secondaryAction' => 'Read migration notes',
+                'assetLabel' => 'Network signal',
+                'assetMetric' => '18 publishable regions',
+                'stats' => ['Site model' => 'One CMS, many domains, shared package rules', 'Local ownership' => 'Regional editors with clear boundaries', 'Launch priority' => 'Redirects, translated slugs, media, cache coverage'],
+                'visual' => ['Global model', 'Regional tree', 'Local proof', 'Shared cache'],
+                'storyHeading' => 'Let every region vary without forking the system',
+                'storyLead' => 'The shared footer layout becomes a location hub by swapping in a coverage map, regional proof list, and local publishing cards.',
+                'storyDetail' => 'Visitors see a tailored local story while operators see the bigger point: Capell can run many page trees through one admin model.',
+                'proofLabel' => 'Operational proof',
+                'proofTitle' => 'Local pages should prove structure, not just list addresses.',
+                'proofBody' => 'The assets show regional ownership, routed child content, translated slugs, and shared infrastructure.',
+                'features' => [
+                    ['label' => 'Publish', 'title' => 'Regional page trees', 'body' => 'Give each location its own content branch while keeping reusable sections and global rules consistent.'],
+                    ['label' => 'Localize', 'title' => 'Language and slug control', 'body' => 'Use translation records and explicit paths for local search and editor confidence.'],
+                    ['label' => 'Govern', 'title' => 'Shared release discipline', 'body' => 'Keep redirects, media, cache generation, and page discovery in one operational workflow.'],
+                ],
+                'deepDiveKicker' => 'Coverage model',
+                'deepDiveHeading' => 'A repeatable path for location networks',
+                'deepDiveIntro' => 'The deep-dive module becomes a regional rollout ledger.',
+                'rows' => [
+                    ['label' => 'Model', 'title' => 'Define the region taxonomy', 'body' => 'Capture locations, service areas, languages, ownership, and page relationships.'],
+                    ['label' => 'Migrate', 'title' => 'Move local content safely', 'body' => 'Preserve media, redirects, search metadata, and legacy URL confidence.'],
+                    ['label' => 'Operate', 'title' => 'Give editors local guardrails', 'body' => 'Allow local updates while shared layouts, cache, and publishing checks stay central.'],
+                ],
+                'assetSlots' => ['Hero metric' => '18 regions', 'Proof list' => 'Ownership and routing', 'Feature cards' => 'Publish, localize, govern', 'Process rows' => 'Model, migrate, operate', 'Testimonial' => 'Regional editor quote', 'CTA' => 'Plan a rollout'],
+                'ctaKicker' => 'Location rollout',
+                'ctaHeading' => 'Make local pages manageable before the network grows',
+                'ctaBody' => 'Bring the regions, languages, legacy paths, and ownership model. Capell can keep the rollout structured from the first page.',
+                'ctaAction' => 'Scope location pages',
+            ],
+            'Partners' => [
+                'tabCode' => 'PRT',
+                'tabCopy' => 'Certified delivery and extension partners.',
+                'tabMetric' => '4 tiers',
+                'headline' => 'Partner delivery paths with clear implementation boundaries',
+                'intro' => 'Show agencies, integration partners, and extension builders how Capell supports co-delivery without blurring who owns architecture, code, content, and launch.',
+                'primaryAction' => 'Discuss partnership',
+                'secondaryAction' => 'Read partner notes',
+                'assetLabel' => 'Partner ladder',
+                'assetMetric' => '4 enablement tiers',
+                'stats' => ['Partner types' => 'Agencies, implementers, extension builders', 'Enablement' => 'Runbooks, demos, architecture review', 'Delivery rule' => 'Named owner for every workstream'],
+                'visual' => ['Evaluate fit', 'Certify workflow', 'Co-deliver', 'Support launch'],
+                'storyHeading' => 'Show partnership as a delivery system',
+                'storyLead' => 'The same layout becomes a partner page by replacing product proof with enablement assets: tiers, review lanes, co-delivery roles, and extension ownership.',
+                'storyDetail' => 'The result reads like a serious implementation network rather than a logo wall.',
+                'proofLabel' => 'Partner proof',
+                'proofTitle' => 'A good partner page explains how work gets handed off.',
+                'proofBody' => 'Use the asset panel to show tier, review cadence, supported packages, and expected launch ownership.',
+                'features' => [
+                    ['label' => 'Certify', 'title' => 'Implementation standards', 'body' => 'Make architecture review, testing, cache checks, and editor handover part of the partner promise.'],
+                    ['label' => 'Enable', 'title' => 'Reusable partner assets', 'body' => 'Give partners demo pages, runbooks, migration notes, and package guidance they can use repeatedly.'],
+                    ['label' => 'Extend', 'title' => 'Package ecosystem fit', 'body' => 'Show where partners can build extensions without taking over the core CMS contract.'],
+                ],
+                'deepDiveKicker' => 'Enablement',
+                'deepDiveHeading' => 'A partner lane for each delivery shape',
+                'deepDiveIntro' => 'The table module becomes a partner tier model.',
+                'rows' => [
+                    ['label' => 'Referral', 'title' => 'Qualified introduction', 'body' => 'The partner receives project context, timing, and the Capell fit before scoping.'],
+                    ['label' => 'Certified', 'title' => 'Reviewed implementation', 'body' => 'Architecture and launch checks are reviewed against Capell standards.'],
+                    ['label' => 'Extension', 'title' => 'Package-owned delivery', 'body' => 'Partner code ships as a package surface with documentation and upgrade boundaries.'],
+                ],
+                'assetSlots' => ['Hero metric' => '4 tiers', 'Proof list' => 'Standards and review', 'Feature cards' => 'Certify, enable, extend', 'Process rows' => 'Referral, certified, extension', 'Testimonial' => 'Partner lead quote', 'CTA' => 'Discuss partnership'],
+                'ctaKicker' => 'Partner program',
+                'ctaHeading' => 'Make co-delivery legible before clients enter the process',
+                'ctaBody' => 'Define the partner lane, package surface, and review rules so delivery stays clear.',
+                'ctaAction' => 'Start partner scoping',
+            ],
+            'Roadmap' => [
+                'tabCode' => 'MAP',
+                'tabCopy' => 'Release lanes, voting, and changelog proof.',
+                'tabMetric' => '6 lanes',
+                'headline' => 'A roadmap page that turns product direction into trust',
+                'intro' => 'Use the shared page system to show what is planned, what is shipping, what is open for feedback, and how releases are governed.',
+                'primaryAction' => 'Share feedback',
+                'secondaryAction' => 'Read release notes',
+                'assetLabel' => 'Release board',
+                'assetMetric' => '6 active lanes',
+                'stats' => ['Planning' => 'Now, next, later, research', 'Feedback' => 'Votes, comments, customer context', 'Confidence' => 'Changelog links and shipped proof'],
+                'visual' => ['Collect signal', 'Prioritize lane', 'Ship release', 'Close loop'],
+                'storyHeading' => 'Roadmaps need confidence, not a wish list',
+                'storyLead' => 'The reusable layout becomes a roadmap by swapping the proof panel for release lanes, vote counts, confidence labels, and shipped examples.',
+                'storyDetail' => 'It gives buyers and builders a reliable product-direction page without inventing a separate design pattern.',
+                'proofLabel' => 'Roadmap proof',
+                'proofTitle' => 'Every roadmap item should say why it matters and where it sits.',
+                'proofBody' => 'Use page assets for lane status, release confidence, and feedback prompts.',
+                'features' => [
+                    ['label' => 'Prioritize', 'title' => 'Release lanes', 'body' => 'Group work into now, next, later, research, partner, and platform lanes.'],
+                    ['label' => 'Listen', 'title' => 'Feedback loops', 'body' => 'Show which items accept input and what kind of customer evidence helps.'],
+                    ['label' => 'Prove', 'title' => 'Changelog confidence', 'body' => 'Link shipped work back to roadmap promises so the page stays credible.'],
+                ],
+                'deepDiveKicker' => 'Release lanes',
+                'deepDiveHeading' => 'A roadmap module that can become a public operating rhythm',
+                'deepDiveIntro' => 'The table module becomes a release lane tracker.',
+                'rows' => [
+                    ['label' => 'Now', 'title' => 'Committed delivery', 'body' => 'Work with owner, scope, acceptance criteria, and expected release window.'],
+                    ['label' => 'Next', 'title' => 'Validated direction', 'body' => 'High-confidence work waiting for final sequencing and implementation capacity.'],
+                    ['label' => 'Research', 'title' => 'Open product questions', 'body' => 'Ideas that need customer context before they become promises.'],
+                ],
+                'assetSlots' => ['Hero metric' => '6 lanes', 'Proof list' => 'Votes and confidence', 'Feature cards' => 'Prioritize, listen, prove', 'Process rows' => 'Now, next, research', 'Testimonial' => 'Product owner quote', 'CTA' => 'Share feedback'],
+                'ctaKicker' => 'Product direction',
+                'ctaHeading' => 'Show what is next without overpromising',
+                'ctaBody' => 'Use roadmap assets to make product direction specific, inspectable, and easier to trust.',
+                'ctaAction' => 'Discuss roadmap needs',
+            ],
+            'Governance' => [
+                'tabCode' => 'GOV',
+                'tabCopy' => 'Approvals, audit logs, roles, and policy checks.',
+                'tabMetric' => '12 controls',
+                'headline' => 'Governance content for teams that publish with consequences',
+                'intro' => 'Use the shared footer layout to explain approvals, permissions, audit history, compliance readiness, and release control without turning the page into a legal document.',
+                'primaryAction' => 'Review governance',
+                'secondaryAction' => 'Read workflow notes',
+                'assetLabel' => 'Control panel',
+                'assetMetric' => '12 publishing controls',
+                'stats' => ['Workflow' => 'Draft, review, approve, publish', 'Traceability' => 'Audit logs and workspace comments', 'Access' => 'Roles, gates, and break-glass paths'],
+                'visual' => ['Draft change', 'Review owner', 'Approve release', 'Audit event'],
+                'storyHeading' => 'Governance should be visible before it is needed',
+                'storyLead' => 'The reusable shell becomes a governance page by swapping the hero asset for controls, proof rows for audit signals, and feature cards for publishing safety.',
+                'storyDetail' => 'This gives technical buyers confidence that Capell can support structured review without leaking admin workflow into public pages.',
+                'proofLabel' => 'Control proof',
+                'proofTitle' => 'Publishing confidence depends on roles, evidence, and recovery paths.',
+                'proofBody' => 'Use assets to show reviewers, audit entries, approval state, and escalation paths.',
+                'features' => [
+                    ['label' => 'Approve', 'title' => 'Workflow gates', 'body' => 'Make review, approval, and scheduled publish steps explicit for content teams.'],
+                    ['label' => 'Trace', 'title' => 'Audit-ready changes', 'body' => 'Show who changed what, when it moved, and how release owners verify it.'],
+                    ['label' => 'Protect', 'title' => 'Role-aware access', 'body' => 'Keep admin rights, preview links, and emergency controls separate from public rendering.'],
+                ],
+                'deepDiveKicker' => 'Control model',
+                'deepDiveHeading' => 'Governance checks that map to real publishing work',
+                'deepDiveIntro' => 'The table module becomes an approval and audit checklist.',
+                'rows' => [
+                    ['label' => 'Access', 'title' => 'Define role boundaries', 'body' => 'Name who can edit, review, publish, grant access, and recover during incidents.'],
+                    ['label' => 'Workflow', 'title' => 'Model approval gates', 'body' => 'Represent draft, review, approval, and publish states without exposing admin details publicly.'],
+                    ['label' => 'Evidence', 'title' => 'Keep audit trails useful', 'body' => 'Capture workspace comments, review assignments, publish events, and release evidence.'],
+                ],
+                'assetSlots' => ['Hero metric' => '12 controls', 'Proof list' => 'Roles and audit logs', 'Feature cards' => 'Approve, trace, protect', 'Process rows' => 'Access, workflow, evidence', 'Testimonial' => 'Release lead quote', 'CTA' => 'Review governance'],
+                'ctaKicker' => 'Publishing control',
+                'ctaHeading' => 'Treat governance as a product surface, not a footnote',
+                'ctaBody' => 'Bring your roles, review model, and compliance pressure. Capell can make the workflow legible.',
+                'ctaAction' => 'Scope governance',
+            ],
+            'Training' => [
+                'tabCode' => 'TRN',
+                'tabCopy' => 'Editor onboarding and developer runbooks.',
+                'tabMetric' => '9 modules',
+                'headline' => 'Training pages that help teams actually own the CMS',
+                'intro' => 'Use the same content skeleton to show editor onboarding, developer runbooks, workshop formats, launch handover, and operational confidence.',
+                'primaryAction' => 'Plan training',
+                'secondaryAction' => 'Read launch guides',
+                'assetLabel' => 'Training map',
+                'assetMetric' => '9 handover modules',
+                'stats' => ['Audience' => 'Editors, developers, release owners', 'Format' => 'Workshops, runbooks, launch checklists', 'Outcome' => 'Confident ownership after handover'],
+                'visual' => ['Orient team', 'Practice workflow', 'Document runbook', 'Review launch'],
+                'storyHeading' => 'Handover is part of the product experience',
+                'storyLead' => 'The shared footer layout becomes training-focused by replacing the proof assets with modules, exercises, readiness checks, and owner-specific paths.',
+                'storyDetail' => 'It shows that Capell is not just installed. It is handed over in a way teams can operate.',
+                'proofLabel' => 'Readiness proof',
+                'proofTitle' => 'Training should leave evidence that the team can run the CMS.',
+                'proofBody' => 'Use assets for module completion, runbook ownership, launch rehearsal, and editor confidence.',
+                'features' => [
+                    ['label' => 'Onboard', 'title' => 'Editor workflow training', 'body' => 'Teach content owners how pages, media, previews, and approvals fit together.'],
+                    ['label' => 'Document', 'title' => 'Developer runbooks', 'body' => 'Give developers package, cache, deployment, and troubleshooting notes they can trust.'],
+                    ['label' => 'Rehearse', 'title' => 'Launch enablement', 'body' => 'Practice publish, rollback, cache, search, and support workflows before go-live.'],
+                ],
+                'deepDiveKicker' => 'Handover',
+                'deepDiveHeading' => 'A training module for each ownership group',
+                'deepDiveIntro' => 'The table module becomes a practical curriculum.',
+                'rows' => [
+                    ['label' => 'Editors', 'title' => 'Publishing workflow', 'body' => 'Pages, sections, media, SEO fields, previews, and approval expectations.'],
+                    ['label' => 'Developers', 'title' => 'Operational runbook', 'body' => 'Package updates, assets, cache generation, diagnostics, and extension boundaries.'],
+                    ['label' => 'Owners', 'title' => 'Launch readiness', 'body' => 'Handover checks, support model, release calendar, and escalation paths.'],
+                ],
+                'assetSlots' => ['Hero metric' => '9 modules', 'Proof list' => 'Readiness checks', 'Feature cards' => 'Onboard, document, rehearse', 'Process rows' => 'Editors, developers, owners', 'Testimonial' => 'Editor owner quote', 'CTA' => 'Plan training'],
+                'ctaKicker' => 'Training and handover',
+                'ctaHeading' => 'Make CMS ownership explicit before launch day',
+                'ctaBody' => 'Bring the team structure, release responsibilities, and support model. Training should map to real ownership.',
+                'ctaAction' => 'Scope training',
+            ],
+        ];
     }
 
     private function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool

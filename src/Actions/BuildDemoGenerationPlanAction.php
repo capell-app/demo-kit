@@ -134,12 +134,9 @@ final class BuildDemoGenerationPlanAction
      */
     private function buildPages(int $count, DemoProfileData $profile): array
     {
-        $specialPages = $this->specialDemoPages();
+        $specialPages = array_slice($this->specialDemoPages(), 0, $count);
         $remainingCount = max(0, $count - $this->countPages($specialPages));
-        $availableNames = array_values(array_diff(
-            $this->pageNamesForCount($count),
-            ['Contact', 'Services', 'Pricing', 'Implementation', 'Resources'],
-        ));
+        $availableNames = $this->availablePageNames($remainingCount);
         $pages = [];
 
         foreach (array_slice($availableNames, 0, $remainingCount) as $name) {
@@ -156,33 +153,127 @@ final class BuildDemoGenerationPlanAction
     }
 
     /**
+     * @return list<string>
+     */
+    private function availablePageNames(int $count): array
+    {
+        if ($count <= 0) {
+            return [];
+        }
+
+        $excluded = [
+            'About Us',
+            'Homepage 2',
+            'Contact',
+            'Services',
+            'Team',
+            'FAQ',
+            'Pricing',
+            'Testimonials',
+            'Projects',
+            'Project Detail',
+            'Blog',
+            'Home, Buildings and Architecture',
+            'Implementation',
+            'Resources',
+            'Integrations',
+            'Locations',
+            'Partners',
+            'Roadmap',
+            'Governance',
+            'Training',
+        ];
+        $requestedCount = $count + count($excluded);
+        $names = [];
+
+        while (count($names) < $count) {
+            $names = array_values(array_diff($this->pageNamesForCount($requestedCount), $excluded));
+            $requestedCount += max(1, count($this->contentPool->pageNames()));
+        }
+
+        return array_slice($names, 0, $count);
+    }
+
+    /**
      * @return list<DemoPagePlanData>
      */
     private function specialDemoPages(): array
     {
         return [
             new DemoPagePlanData(
+                name: $this->translatedName('About Us'),
+                mediaCount: 2,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Homepage 2'),
+                mediaCount: 3,
+            ),
+            new DemoPagePlanData(
                 name: $this->translatedName('Contact'),
                 mediaCount: 0,
-                children: [
-                    new DemoPagePlanData(
-                        name: $this->translatedName('Services'),
-                        mediaCount: 0,
-                    ),
-                ],
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Services'),
+                mediaCount: 2,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Team'),
+                mediaCount: 2,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('FAQ'),
+                mediaCount: 1,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Pricing'),
                 mediaCount: 0,
-                children: [
-                    new DemoPagePlanData(
-                        name: $this->translatedName('Implementation'),
-                        mediaCount: 0,
-                    ),
-                ],
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Testimonials'),
+                mediaCount: 2,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Projects'),
+                mediaCount: 3,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Project Detail'),
+                mediaCount: 3,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Blog'),
+                mediaCount: 3,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Home, Buildings and Architecture'),
+                mediaCount: 2,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Resources'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Integrations'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Locations'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Partners'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Roadmap'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Governance'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Training'),
                 mediaCount: 0,
             ),
         ];

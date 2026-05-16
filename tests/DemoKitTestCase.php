@@ -9,7 +9,9 @@ use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
+use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -48,6 +50,8 @@ class DemoKitTestCase extends AbstractTestCase
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
+            LayoutBuilderServiceProvider::class,
+            FormBuilderServiceProvider::class,
             DemoKitServiceProvider::class,
             LivewireServiceProvider::class,
         ];
@@ -63,6 +67,8 @@ class DemoKitTestCase extends AbstractTestCase
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FormBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(DemoKitServiceProvider::$packageName);
     }
 }
