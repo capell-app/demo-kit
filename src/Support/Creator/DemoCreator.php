@@ -236,7 +236,7 @@ class DemoCreator
         $languages ??= $site->languages;
         $pageCreator ??= new PageCreator;
 
-        $name = Str::title($data['name']['en']);
+        $name = $this->canonicalDemoPageName(Str::title($data['name']['en']));
         $layout ??= $this->layoutForDemoPage($name);
 
         if ($name === 'Contact') {
@@ -248,7 +248,7 @@ class DemoCreator
             'user_id' => $this->author?->getKey(),
             'blueprint_id' => $type?->getKey(),
             'layout_id' => $layout?->getKey(),
-            'meta' => $this->demoPageMeta($name, $parent),
+            'meta' => $this->demoPageMeta($name),
             'translations' => [],
             'visible_from' => now()->subDays(mt_rand(0, 90))->format('Y-m-d'),
         ];
@@ -2217,6 +2217,28 @@ class DemoCreator
 
     private function layoutForDemoPage(string $name): ?Layout
     {
+        $name = $this->canonicalDemoPageName($name);
+
+        $templateLayouts = [
+            'About Us' => ['capell-demo-about', 'Capell Demo About', true],
+            'Homepage 2' => ['capell-demo-homepage-2', 'Capell Demo Homepage 2', false],
+            'Services' => ['capell-demo-services', 'Capell Demo Services', true],
+            'Team' => ['capell-demo-team', 'Capell Demo Team', true],
+            'FAQ' => ['capell-demo-faq-no-hero', 'Capell Demo FAQ Without Hero', true],
+            'Pricing' => ['capell-demo-pricing-no-hero', 'Capell Demo Pricing Without Hero', true],
+            'Testimonials' => ['capell-demo-testimonials', 'Capell Demo Testimonials', true],
+            'Projects' => ['capell-demo-projects', 'Capell Demo Projects', true],
+            'Project Detail' => ['capell-demo-project-detail', 'Capell Demo Project Detail', true],
+            'Blog' => ['capell-demo-blog', 'Capell Demo Blog', true],
+            'Home, Buildings and Architecture' => ['capell-demo-article-no-hero', 'Capell Demo Article Without Hero', true],
+        ];
+
+        if (array_key_exists($name, $templateLayouts)) {
+            [$key, $layoutName, $withBreadcrumbs] = $templateLayouts[$name];
+
+            return $this->demoPageLayout($key, $layoutName, $withBreadcrumbs);
+        }
+
         if (in_array($name, self::StandardFooterPageNames, true)) {
             return $this->layoutModel::query()->firstOrCreate(
                 ['key' => 'footer-standard'],
@@ -2298,9 +2320,52 @@ class DemoCreator
         return $layout;
     }
 
+    private function demoPageLayout(string $key, string $name, bool $withBreadcrumbs): Layout
+    {
+        $elements = $withBreadcrumbs
+            ? [
+                ['element_key' => 'breadcrumbs'],
+                ['element_key' => 'page-content'],
+            ]
+            : [
+                ['element_key' => 'page-content'],
+            ];
+
+        $attributes = [
+            'name' => $name,
+            'group' => 'default',
+            'containers' => [
+                'main' => [
+                    'meta' => [
+                        'colspan' => 12,
+                        'spacing' => 'lg',
+                    ],
+                    'elements' => $elements,
+                ],
+            ],
+            'elements' => collect($elements)
+                ->pluck('element_key')
+                ->values()
+                ->all(),
+            'meta' => [
+                'description' => 'A Capell demo page template rendered through reusable page-content layout elements.',
+            ],
+            'default' => false,
+            'status' => true,
+        ];
+
+        $layout = $this->layoutModel::query()->firstOrCreate(['key' => $key], $attributes);
+        $layout->forceFill($attributes)->save();
+
+        return $layout;
+    }
+
     private function ensureContactFormIntegration(Site $site): void
     {
-        $formModel = 'Capell\\FormBuilder\\Models\\Form';
+        $formBuilderNamespace = 'FormBuilder';
+
+        /** @var class-string<Model> $formModel */
+        $formModel = sprintf('Capell\%s\Models\Form', $formBuilderNamespace);
 
         if (! CapellCore::isPackageInstalled(self::FormBuilderPackage)
             || ! class_exists($formModel)
@@ -2600,13 +2665,33 @@ HTML;
     /**
      * @return array<string, mixed>
      */
-    private function demoPageMeta(string $name, ?Page $parent): array
+    private function demoPageMeta(string $name): array
     {
-        return [];
+        $name = $this->canonicalDemoPageName($name);
+
+        $withoutHero = in_array($name, [
+            'FAQ',
+            'Pricing',
+            'Project Detail',
+            'Home, Buildings and Architecture',
+        ], true);
+
+        return [
+            'show_hero' => ! $withoutHero,
+            'hero_style' => match ($name) {
+                'Homepage 2' => 'immersive',
+                'About Us', 'Services', 'Team', 'Testimonials', 'Projects', 'Blog' => 'compact',
+                default => 'default',
+            },
+            'hero_asset_source' => 'mixed',
+            'header_over_hero' => $name === 'Homepage 2',
+        ];
     }
 
     private function demoPageContent(string $name, string $languageCode): ?string
     {
+        $name = $this->canonicalDemoPageName($name);
+
         if ($languageCode !== 'en') {
             return null;
         }
@@ -2640,10 +2725,21 @@ HTML;
 
     private function demoPageSummary(string $name): ?string
     {
+        $name = $this->canonicalDemoPageName($name);
+
         return match ($name) {
             'Compliance' => 'Regional compliance operations with publishing controls, evidence ownership, and structured local governance.',
             'Sustainability' => 'Local sustainability reporting that keeps regional initiatives, metrics, and proof points consistent across the network.',
             default => null,
+        };
+    }
+
+    private function canonicalDemoPageName(string $name): string
+    {
+        return match (Str::lower($name)) {
+            'faq' => 'FAQ',
+            'home, buildings and architecture' => 'Home, Buildings and Architecture',
+            default => $name,
         };
     }
 
@@ -2741,52 +2837,52 @@ HTML;
 
     private function emporiumAboutContent(): string
     {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--about">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
-        <p class="capell-demo-kicker">About Capell</p>
-        <h1>A CMS architecture team with a layout-builder product mindset</h1>
-        <p>Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
-    </section>
+        return <<<'HTML_WRAP'
+        <div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--about">
+            <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+                <p class="capell-demo-kicker">About Capell</p>
+                <h1>A CMS architecture team with a layout-builder product mindset</h1>
+                <p>Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
+            </section>
 
-    <section class="capell-demo-emporium-split">
-        <div>
-            <p class="capell-demo-kicker">Platform experience</p>
-            <h2>Experienced in flexible content systems</h2>
-            <p>Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
-            <p>Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
-            <div class="capell-demo-emporium-stats">
-                <div><strong>12+</strong><span>Page types</span></div>
-                <div><strong>40+</strong><span>Widget elements</span></div>
-                <div><strong>100+</strong><span>Media assets</span></div>
-            </div>
+            <section class="capell-demo-emporium-split">
+                <div>
+                    <p class="capell-demo-kicker">Platform experience</p>
+                    <h2>Experienced in flexible content systems</h2>
+                    <p>Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
+                    <p>Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
+                    <div class="capell-demo-emporium-stats">
+                        <div><strong>12+</strong><span>Page types</span></div>
+                        <div><strong>40+</strong><span>Widget elements</span></div>
+                        <div><strong>100+</strong><span>Media assets</span></div>
+                    </div>
+                </div>
+                <aside class="capell-demo-emporium-collage" aria-label="Capell content collage">
+                    <span>Page</span><span>Gallery</span><span>Asset</span><span>Navigation</span>
+                </aside>
+            </section>
+
+            <section class="capell-demo-emporium-process">
+                <p class="capell-demo-kicker">How we work</p>
+                <h2>From content model to public page</h2>
+                <ol>
+                    <li><span>01</span><strong>Consultation</strong><p>Audit content, routes, media, integrations, and editor ownership.</p></li>
+                    <li><span>02</span><strong>Builder design</strong><p>Define reusable elements that editors can safely compose.</p></li>
+                    <li><span>03</span><strong>Migration and QA</strong><p>Move content into Capell and verify the public output.</p></li>
+                    <li><span>04</span><strong>Publish</strong><p>Generate cacheable HTML and hand over the workflow.</p></li>
+                </ol>
+            </section>
+
+            <section class="capell-demo-emporium-promo">
+                <div>
+                    <p class="capell-demo-kicker">Capell promotion</p>
+                    <h2>Build a public site that editors can actually own</h2>
+                    <p>Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
+                </div>
+                <a class="capell-demo-button" href="/contact#scoping">Get the best route</a>
+            </section>
         </div>
-        <aside class="capell-demo-emporium-collage" aria-label="Capell content collage">
-            <span>Page</span><span>Gallery</span><span>Asset</span><span>Navigation</span>
-        </aside>
-    </section>
-
-    <section class="capell-demo-emporium-process">
-        <p class="capell-demo-kicker">How we work</p>
-        <h2>From content model to public page</h2>
-        <ol>
-            <li><span>01</span><strong>Consultation</strong><p>Audit content, routes, media, integrations, and editor ownership.</p></li>
-            <li><span>02</span><strong>Builder design</strong><p>Define reusable elements that editors can safely compose.</p></li>
-            <li><span>03</span><strong>Migration and QA</strong><p>Move content into Capell and verify the public output.</p></li>
-            <li><span>04</span><strong>Publish</strong><p>Generate cacheable HTML and hand over the workflow.</p></li>
-        </ol>
-    </section>
-
-    <section class="capell-demo-emporium-promo">
-        <div>
-            <p class="capell-demo-kicker">Capell promotion</p>
-            <h2>Build a public site that editors can actually own</h2>
-            <p>Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
-        </div>
-        <a class="capell-demo-button" href="/contact#scoping">Get the best route</a>
-    </section>
-</div>
-HTML;
+        HTML_WRAP;
     }
 
     private function emporiumHomepageTwoContent(): string

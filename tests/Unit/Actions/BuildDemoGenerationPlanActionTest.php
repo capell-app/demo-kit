@@ -22,6 +22,25 @@ it('builds repeatable demo plans when a seed is supplied', function (): void {
     expect($second->toArray())->toBe($first->toArray());
 });
 
+it('exposes a stable fingerprint for idempotent demo generation', function (): void {
+    $first = BuildDemoGenerationPlanAction::run([
+        'site_count' => 2,
+        'pages' => 8,
+        'languages' => ['all'],
+        'seed' => 4321,
+    ]);
+
+    $second = BuildDemoGenerationPlanAction::run([
+        'site_count' => 2,
+        'pages' => 8,
+        'languages' => ['all'],
+        'seed' => 4321,
+    ]);
+
+    expect($first->fingerprint())->toBe($second->fingerprint())
+        ->and($first->fingerprint())->toHaveLength(64);
+});
+
 it('builds generated plans within requested scale controls', function (): void {
     $plan = BuildDemoGenerationPlanAction::run([
         'site_count' => 4,

@@ -201,16 +201,24 @@ final class BuildDemoGenerationPlanAction
     {
         return [
             new DemoPagePlanData(
+                name: $this->translatedName('Contact'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Pricing'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
+                name: $this->translatedName('Resources'),
+                mediaCount: 0,
+            ),
+            new DemoPagePlanData(
                 name: $this->translatedName('About Us'),
                 mediaCount: 2,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Homepage 2'),
                 mediaCount: 3,
-            ),
-            new DemoPagePlanData(
-                name: $this->translatedName('Contact'),
-                mediaCount: 0,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Services'),
@@ -223,10 +231,6 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('FAQ'),
                 mediaCount: 1,
-            ),
-            new DemoPagePlanData(
-                name: $this->translatedName('Pricing'),
-                mediaCount: 0,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Testimonials'),
@@ -247,10 +251,6 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('Home, Buildings and Architecture'),
                 mediaCount: 2,
-            ),
-            new DemoPagePlanData(
-                name: $this->translatedName('Resources'),
-                mediaCount: 0,
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Integrations'),

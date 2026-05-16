@@ -18,4 +18,9 @@ final class DemoGenerationPlanData extends Data
         public readonly array $sites,
         public readonly DemoProfileData $profile,
     ) {}
+
+    public function fingerprint(): string
+    {
+        return hash('sha256', json_encode($this->toArray(), JSON_THROW_ON_ERROR));
+    }
 }
