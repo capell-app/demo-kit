@@ -424,13 +424,13 @@ class DemoCreator
         });
     }
 
-    public function createContentWidget(Collection $languages): Element
+    public function createContentElement(Collection $languages): Element
     {
         $siteId = Site::query()->default()?->value('id');
 
         $type = resolve(TypeCreator::class)->contentBuilderElementType();
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-content'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -457,10 +457,10 @@ class DemoCreator
             ],
         ]);
 
-        $this->createWidgetMedia($widget);
+        $this->createElementMedia($element);
 
         foreach ($languages as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -476,14 +476,14 @@ class DemoCreator
             );
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createSplitContentWidget(Collection $languages): Element
+    public function createSplitContentElement(Collection $languages): Element
     {
         $siteId = Site::query()->default()?->value('id');
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-split-content'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
             'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Element])->id,
             'meta' => [
@@ -510,10 +510,10 @@ class DemoCreator
             ],
         ]);
 
-        $this->createWidgetMedia($widget);
+        $this->createElementMedia($element);
 
         foreach ($languages as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -529,24 +529,24 @@ class DemoCreator
             );
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createBannerImageWidget(Collection $languages): Element
+    public function createBannerImageElement(Collection $languages): Element
     {
-        $widget = resolve(ElementCreator::class)->bannerImageElement();
+        $element = resolve(ElementCreator::class)->bannerImageElement();
 
-        $media = $this->createWidgetMedia($widget);
+        $media = $this->createElementMedia($element);
 
-        $meta = $widget->meta;
+        $meta = $element->meta;
 
         $meta['background_color'] = 'light-gray';
         $meta['background_image'] = $media->getFullUrl(MediaConversionEnum::Medium->value);
 
-        $widget->meta = $meta;
+        $element->meta = $meta;
 
         foreach ($languages as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Banner',
@@ -555,30 +555,30 @@ class DemoCreator
             );
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createGalleryWidget(): Element
+    public function createGalleryElement(): Element
     {
-        $widget = resolve(ElementCreator::class)->galleryElement();
+        $element = resolve(ElementCreator::class)->galleryElement();
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $this->createWidgetMedia($widget);
+            $this->createElementMedia($element);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createPageCardsWidget(Pageable $page, string $container = 'main', int $occurrence = 1): Element
+    public function createPageCardsElement(Pageable $page, string $container = 'main', int $occurrence = 1): Element
     {
-        $widget = resolve(ElementCreator::class)->pagesCardElement();
+        $element = resolve(ElementCreator::class)->pagesCardElement();
 
         if (
-            $widget->assets()
+            $element->assets()
                 ->where([
                     'pageable_id' => $page->getKey(),
                     'pageable_type' => $page->getMorphClass(),
@@ -587,7 +587,7 @@ class DemoCreator
                 ])
                 ->exists()
         ) {
-            return $widget;
+            return $element;
         }
 
         $relatedPages = $this->pageModel::query()
@@ -600,29 +600,29 @@ class DemoCreator
             ->get();
 
         if ($relatedPages->isEmpty()) {
-            return $widget;
+            return $element;
         }
 
         $relatedPages->each(
-            fn (Page $relatedPage): ElementAsset => $this->createPageElementAsset($widget, $page, $container, $occurrence, $relatedPage),
+            fn (Page $relatedPage): ElementAsset => $this->createPageElementAsset($element, $page, $container, $occurrence, $relatedPage),
         );
 
-        return $widget;
+        return $element;
     }
 
-    public function createFaqWidget(Collection $languages): Element
+    public function createFaqElement(Collection $languages): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', 'assets');
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'faq'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
                 'component' => ElementComponentEnum::AssetAccordion,
@@ -637,7 +637,7 @@ class DemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => __('capell-layout-builder::heading.faq'),
@@ -707,7 +707,7 @@ class DemoCreator
                 'blueprint_id' => $contentType->id,
             ]);
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $content->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
@@ -732,27 +732,27 @@ class DemoCreator
             }
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createMediaCarouselWidget(): Element
+    public function createMediaCarouselElement(): Element
     {
-        $widget = resolve(ElementCreator::class)->mediaCarouselElement();
+        $element = resolve(ElementCreator::class)->mediaCarouselElement();
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         for ($i = 1; $i <= 7; $i++) {
-            $this->createWidgetMedia($widget);
+            $this->createElementMedia($element);
         }
 
-        $this->createWidgetMedia($widget, type: 'video');
+        $this->createElementMedia($element, type: 'video');
 
-        return $widget;
+        return $element;
     }
 
-    public function createStaticNavigationWidget(Collection $languages, Site $site): Element
+    public function createStaticNavigationElement(Collection $languages, Site $site): Element
     {
         $model = Navigation::class;
 
@@ -779,7 +779,7 @@ class DemoCreator
             ->limit(4)
             ->get();
 
-        $widgetType = resolve(TypeCreator::class)->navigationElementType();
+        $elementType = resolve(TypeCreator::class)->navigationElementType();
 
         $navigationType = $this->typeModel::query()->navigationType()->default()->first();
         if ($navigationType === null) {
@@ -797,10 +797,10 @@ class DemoCreator
             ])
             : null;
 
-        // Create widget
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'example-navigation'], [
+        // Create element
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $key,
                 'margin' => ['lg'],
@@ -808,7 +808,7 @@ class DemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Navigation',
@@ -816,12 +816,12 @@ class DemoCreator
             );
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createContentsWidget(Element $widget, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
+    public function createContentsElement(Element $element, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
     {
-        $pageElementAssets = $widget->assets()->where([
+        $pageElementAssets = $element->assets()->where([
             'pageable_id' => $page->getKey(),
             'pageable_type' => $page->getMorphClass(),
             'container' => $container,
@@ -917,7 +917,7 @@ class DemoCreator
 
             $this->createMedia($content);
 
-            $widget->assets()->create([
+            $element->assets()->create([
                 'pageable_id' => $page->id,
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -928,9 +928,9 @@ class DemoCreator
         }
     }
 
-    public function createClientLogosWidget(Collection $languages): Element
+    public function createClientLogosElement(Collection $languages): Element
     {
-        $widget = Element::query()->firstOrCreate([
+        $element = Element::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
@@ -947,12 +947,12 @@ class DemoCreator
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
-        $languages->each(function (Language $language) use ($widget): void {
-            $widget->translations()->firstOrCreate([
+        $languages->each(function (Language $language) use ($element): void {
+            $element->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => 'Client Logos',
@@ -961,15 +961,15 @@ class DemoCreator
         });
 
         for ($i = 1; $i <= 12; $i++) {
-            $this->createWidgetMedia($widget);
+            $this->createElementMedia($element);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createBusinessFeaturesWidget(Site $site): Element
+    public function createBusinessFeaturesElement(Site $site): Element
     {
-        $widget = Element::query()->firstOrCreate([
+        $element = Element::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
@@ -977,17 +977,17 @@ class DemoCreator
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-layout-builder::components.widget.asset.features',
+                'view_file' => 'capell-foundation-theme::components.element.asset.features',
             ],
         ]);
 
-        $this->createMedia($widget);
+        $this->createMedia($element);
 
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
-        $site->languages->each(function (Language $language) use ($widget, $title, $content): void {
-            $widget->translations()->updateOrCreate([
+        $site->languages->each(function (Language $language) use ($element, $title, $content): void {
+            $element->translations()->updateOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => $title,
@@ -997,80 +997,80 @@ class DemoCreator
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($element): void {
+            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $widget->assets()->create([
+            $element->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $widget;
+        return $element;
     }
 
-    public function createBannersWidget(): Element
+    public function createBannersElement(): Element
     {
         $creator = resolve(ElementCreator::class);
-        $widget = $creator->bannerElement();
+        $element = $creator->bannerElement();
 
         $site = Site::getDefault();
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($element): void {
+            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $widget->assets()->create([
+            $element->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $widget;
+        return $element;
     }
 
-    public function createTestimonialsWidget(Collection $languages): Element
+    public function createTestimonialsElement(Collection $languages): Element
     {
-        $widgetCreator = resolve(ElementCreator::class);
-        $widget = $widgetCreator->testimonialsElement();
+        $elementCreator = resolve(ElementCreator::class);
+        $element = $elementCreator->testimonialsElement();
 
-        $this->createMedia($widget, collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($element, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Language $language) use ($widget): void {
-            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($element): void {
+            $element->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
         });
 
         $testimonials = $this->createTestimonials($languages);
 
-        $testimonials->each(function (Model $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
+        $testimonials->each(function (Model $content) use ($element): void {
+            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $widget->assets()->create([
+            $element->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $widget;
+        return $element;
     }
 
-    public function createStatisticsWidget(): Element
+    public function createStatisticsElement(): Element
     {
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'statistics'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
             'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Assets, 'type' => LayoutTypeEnum::Element])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
-                'view_file' => 'capell-layout-builder::components.widget.asset.blocks',
+                'view_file' => 'capell-foundation-theme::components.element.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 4,
                 'margin' => 'none',
@@ -1081,8 +1081,8 @@ class DemoCreator
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         $statistics = [
@@ -1132,16 +1132,16 @@ class DemoCreator
                 ]);
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $content->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createTeamPortfolioWidget(Collection $languages): Element
+    public function createTeamPortfolioElement(Collection $languages): Element
     {
         $type = $this->typeModel::query()
             ->where([
@@ -1154,7 +1154,7 @@ class DemoCreator
             $type = resolve(TypeCreator::class)->contentsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -1174,8 +1174,8 @@ class DemoCreator
             ],
         ]);
 
-        $languages->each(function (Language $language) use ($widget): void {
-            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($element): void {
+            $element->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Discover the talented individuals behind our success.</p>',
             ]);
@@ -1183,32 +1183,32 @@ class DemoCreator
 
         $teamMembers = $this->createTeamMembers($languages);
 
-        $teamMembers->each(function (Model $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
+        $teamMembers->each(function (Model $content) use ($element): void {
+            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $widget->assets()->create([
+            $element->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernFeatureListWidget(): Element
+    public function createModernFeatureListElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
             'name' => 'Modern Feature List',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApFeatureList,
                 'margin' => ['lg'],
@@ -1216,7 +1216,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Built for teams who need CMS control and engineering discipline',
@@ -1225,7 +1225,7 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $features = [
             ['icon' => 'heroicon-o-rocket-launch', 'title' => 'Static-first public pages', 'description' => 'Serve generated HTML and keep render-time cache work from making the frontend feel brittle.'],
@@ -1233,7 +1233,7 @@ class DemoCreator
             ['icon' => 'heroicon-o-globe-alt', 'title' => 'Multi-site and multi-language', 'description' => 'One install can support multiple domains, trees, languages, and layouts.'],
             ['icon' => 'heroicon-o-puzzle-piece', 'title' => 'Package-owned runtime', 'description' => 'Every package owns the frontend assets it needs and doctor verifies those builds exist.'],
             ['icon' => 'heroicon-o-code-bracket-square', 'title' => 'Laravel-native extension points', 'description' => 'Actions, DTOs, render hooks, schema extenders, and package manifests keep integrations maintainable.'],
-            ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Install health reporting', 'description' => 'A fresh demo ends with explicit checks for homepage, widgets, assets, users, and generated CSS.'],
+            ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Install health reporting', 'description' => 'A fresh demo ends with explicit checks for homepage, elements, assets, users, and generated CSS.'],
         ];
 
         foreach ($features as $feature) {
@@ -1248,27 +1248,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernTeamMembersWidget(): Element
+    public function createModernTeamMembersElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
             'name' => 'Modern Team Members',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApTeamMembers,
                 'columns' => 3,
@@ -1277,14 +1277,14 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Our Team'],
             );
         }
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         $members = [
@@ -1331,27 +1331,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernPricingTableWidget(): Element
+    public function createModernPricingTableElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
             'name' => 'Modern Pricing Table',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApPricingTable,
                 'currency' => '$',
@@ -1361,14 +1361,14 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Simple, Transparent Pricing'],
             );
         }
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         $plans = [
@@ -1380,7 +1380,7 @@ class DemoCreator
                 'featured' => false,
                 'cta_label' => 'Get Started',
                 'cta_url' => '#',
-                'features' => ['Up to 5 pages', '1 site', 'Email support', 'Basic widgets'],
+                'features' => ['Up to 5 pages', '1 site', 'Email support', 'Basic elements'],
             ],
             [
                 'name' => 'Professional',
@@ -1390,7 +1390,7 @@ class DemoCreator
                 'featured' => true,
                 'cta_label' => 'Start Free Trial',
                 'cta_url' => '#',
-                'features' => ['Unlimited pages', '5 sites', 'Priority support', 'All widgets', 'Multi-language'],
+                'features' => ['Unlimited pages', '5 sites', 'Priority support', 'All elements', 'Multi-language'],
             ],
             [
                 'name' => 'Enterprise',
@@ -1423,27 +1423,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernTestimonialsWidget(): Element
+    public function createModernTestimonialsElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
             'name' => 'Modern Testimonials',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApTestimonials,
                 'columns' => 2,
@@ -1452,7 +1452,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'What a release-ready Capell site should prove',
@@ -1461,7 +1461,7 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $testimonials = [
             ['icon' => 'heroicon-o-user-circle', 'author' => 'Content editor', 'position' => 'Homepage owner', 'quote' => 'I can change the hero, cards, media, and CTA from admin records without waiting on a template deployment.'],
@@ -1484,27 +1484,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernFaqWidget(): Element
+    public function createModernFaqElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-faq'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-faq'], [
             'name' => 'Modern FAQ Section',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApFaqSection,
                 'margin' => ['lg'],
@@ -1512,7 +1512,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Questions this demo answers',
@@ -1521,13 +1521,13 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $faqs = [
-            ['category' => 'Editing', 'question' => 'Can every visible homepage section be edited in admin?', 'answer' => 'Yes. The hero, cards, feature list, gallery, testimonials, FAQ, and CTA are backed by widget translations, widget meta, assets, and media records.'],
+            ['category' => 'Editing', 'question' => 'Can every visible homepage section be edited in admin?', 'answer' => 'Yes. The hero, cards, feature list, gallery, testimonials, FAQ, and CTA are backed by element translations, element meta, assets, and media records.'],
             ['category' => 'Frontend', 'question' => 'Does the public theme own its runtime styling and JavaScript?', 'answer' => 'Yes. Foundation registers and publishes its own frontend build assets instead of relying on another package runtime.'],
-            ['category' => 'Install', 'question' => 'How do I know the demo installed correctly?', 'answer' => 'Run capell:doctor --install-summary. It checks tables, packages, homepage data, widgets, runtime assets, generated CSS, and admin access.'],
-            ['category' => 'Architecture', 'question' => 'Is this just a landing page?', 'answer' => 'No. The default demo is a working CMS surface that demonstrates Capell page records, layout containers, widgets, media, and package renderers.'],
+            ['category' => 'Install', 'question' => 'How do I know the demo installed correctly?', 'answer' => 'Run capell:doctor --install-summary. It checks tables, packages, homepage data, elements, runtime assets, generated CSS, and admin access.'],
+            ['category' => 'Architecture', 'question' => 'Is this just a landing page?', 'answer' => 'No. The default demo is a working CMS surface that demonstrates Capell page records, layout containers, elements, media, and package renderers.'],
         ];
 
         foreach ($faqs as $faq) {
@@ -1542,27 +1542,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernStatsSectionWidget(): Element
+    public function createModernStatsSectionElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-stats'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-stats'], [
             'name' => 'Modern Stats Section',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApStatsSection,
                 'margin' => ['lg'],
@@ -1570,7 +1570,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Proof points for a healthier release',
@@ -1579,10 +1579,10 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $stats = [
-            ['icon' => 'heroicon-o-squares-2x2', 'label' => 'Homepage widgets', 'value' => '10'],
+            ['icon' => 'heroicon-o-squares-2x2', 'label' => 'Homepage elements', 'value' => '10'],
             ['icon' => 'heroicon-o-photo', 'label' => 'Demo media records', 'value' => '8+'],
             ['icon' => 'heroicon-o-bolt', 'label' => 'Runtime asset checks', 'value' => '2'],
             ['icon' => 'heroicon-o-check-badge', 'label' => 'Doctor summary', 'value' => 'Pass'],
@@ -1600,27 +1600,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernAlternatingContentWidget(): Element
+    public function createModernAlternatingContentElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
             'name' => 'Modern Alternating Content',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApAlternatingContent,
                 'margin' => ['lg'],
@@ -1628,7 +1628,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'From model to public page',
@@ -1637,11 +1637,11 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $steps = [
-            ['icon' => 'heroicon-o-circle-stack', 'position' => 'left', 'title' => 'Model the content', 'description' => 'Define page types, widgets, translations, and media so content stays structured instead of trapped in templates.'],
-            ['icon' => 'heroicon-o-rectangle-group', 'position' => 'right', 'title' => 'Compose the layout', 'description' => 'Place package-owned widgets into layout containers and keep every visible section editable from the admin.'],
+            ['icon' => 'heroicon-o-circle-stack', 'position' => 'left', 'title' => 'Model the content', 'description' => 'Define page types, elements, translations, and media so content stays structured instead of trapped in templates.'],
+            ['icon' => 'heroicon-o-rectangle-group', 'position' => 'right', 'title' => 'Compose the layout', 'description' => 'Place package-owned elements into layout containers and keep every visible section editable from the admin.'],
             ['icon' => 'heroicon-o-paper-airplane', 'position' => 'left', 'title' => 'Publish and verify', 'description' => 'Generate frontend resources, warm static output, and let doctor report missing homepage, asset, or fixture problems.'],
         ];
 
@@ -1657,27 +1657,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernProcessStepsWidget(): Element
+    public function createModernProcessStepsElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
             'name' => 'Modern Process Steps',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApProcessSteps,
                 'margin' => ['lg'],
@@ -1685,20 +1685,20 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'The publishing path Capell demonstrates',
-                    'content' => '<p>The demo homepage should show a real CMS workflow, not a pile of disconnected sample widgets.</p>',
+                    'content' => '<p>The demo homepage should show a real CMS workflow, not a pile of disconnected sample elements.</p>',
                 ],
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $steps = [
             ['icon' => 'heroicon-o-cog-6-tooth', 'title' => 'Install packages', 'description' => 'Core, frontend, Foundation theme, navigation, search, and content packages register their own setup and runtime surfaces.'],
-            ['icon' => 'heroicon-o-swatch', 'title' => 'Seed the showcase', 'description' => 'Demo fixtures create Capell-specific widgets, sections, media, and translations in the right homepage order.'],
+            ['icon' => 'heroicon-o-swatch', 'title' => 'Seed the showcase', 'description' => 'Demo fixtures create Capell-specific elements, sections, media, and translations in the right homepage order.'],
             ['icon' => 'heroicon-o-arrow-path', 'title' => 'Rebuild resources', 'description' => 'Tailwind input, published runtime manifests, and static frontend resources are generated after package demo steps.'],
             ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Run doctor', 'description' => 'The installer ends with a health summary that catches broken homepage, runtime, and fixture states immediately.'],
         ];
@@ -1715,27 +1715,27 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createModernImageGalleryWidget(): Element
+    public function createModernImageGalleryElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Assets);
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsElementType();
+        if ($elementType === null) {
+            $elementType = resolve(TypeCreator::class)->assetsElementType();
         }
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
             'name' => 'Modern Image Gallery',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApImageGallery,
                 'columns' => 3,
@@ -1744,7 +1744,7 @@ class DemoCreator
         ]);
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A curated media surface, still CMS-owned',
@@ -1753,98 +1753,91 @@ class DemoCreator
             );
         }
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         for ($i = 1; $i <= 6; $i++) {
-            $this->createWidgetMedia($widget);
+            $this->createElementMedia($element);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createHomepageHeroCommandCenterWidget(): Element
+    public function createHomepageHeroCommandCenterElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-hero-command-center',
             name: 'Capell Homepage Command Center Hero',
-            content: $this->homepageHeroCommandCenterHtml(),
         );
     }
 
-    public function createHomepageProofStripWidget(): Element
+    public function createHomepageProofStripElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-proof-strip',
             name: 'Capell Homepage Proof Strip',
-            content: $this->homepageProofStripHtml(),
         );
     }
 
-    public function createHomepageDemoShowcaseWidget(): Element
+    public function createHomepageDemoShowcaseElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-demo-showcase',
             name: 'Capell Homepage Demo Showcase',
-            content: $this->homepageDemoShowcaseHtml(),
         );
     }
 
-    public function createHomepageMarketplaceWidget(): Element
+    public function createHomepageMarketplaceElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-extension-marketplace-showcase',
             name: 'Extension Marketplace Showcase',
-            content: $this->homepageMarketplaceHtml(),
         );
     }
 
-    public function createHomepageTechnicalPipelineWidget(): Element
+    public function createHomepageTechnicalPipelineElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-technical-pipeline',
             name: 'Capell Homepage Technical Pipeline',
-            content: $this->homepageTechnicalPipelineHtml(),
         );
     }
 
-    public function createHomepageRouteSplitWidget(): Element
+    public function createHomepageRouteSplitElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-route-split',
             name: 'Capell Homepage Route Split',
-            content: $this->homepageRouteSplitHtml(),
         );
     }
 
-    public function createHomepageFinalCtaWidget(): Element
+    public function createHomepageFinalCtaElement(): Element
     {
-        return $this->createHomepageSnippetWidget(
+        return $this->createHomepageBladeElement(
             key: 'capell-home-final-cta',
             name: 'Capell Homepage Final CTA',
-            content: $this->homepageFinalCtaHtml(),
         );
     }
 
-    public function createApHeroBannerWidget(): Element
+    public function createApHeroBannerElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::HeroBanner)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApHeroBanner,
             ],
         ]);
 
-        $widget->forceFill([
+        $element->forceFill([
             'name' => 'Capell Product Hero',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApHeroBanner,
                 'primary_button_text' => 'Explore the demo',
@@ -1856,7 +1849,7 @@ class DemoCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Capell CMS',
@@ -1865,29 +1858,29 @@ class DemoCreator
             );
         }
 
-        $this->createMedia($widget, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($element, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
 
-        return $widget;
+        return $element;
     }
 
-    public function createApCardGridWidget(): Element
+    public function createApCardGridElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::CardGrid)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApCardGrid,
             ],
         ]);
 
-        $widget->forceFill([
+        $element->forceFill([
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApCardGrid,
                 'columns' => 3,
@@ -1896,7 +1889,7 @@ class DemoCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A complete CMS foundation, not a theme demo',
@@ -1905,11 +1898,11 @@ class DemoCreator
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $cards = [
-            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, widgets, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
-            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable widgets while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, elements, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable elements while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
             ['icon' => 'heroicon-o-bolt', 'title' => 'Static-fast delivery', 'description' => 'Generate frontend HTML, verify runtime assets, and keep public pages fast without giving up CMS control.', 'link_text' => 'Run doctor', 'link_url' => '/docs/installation'],
         ];
 
@@ -1929,33 +1922,33 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createApFeatureListWidget(): Element
+    public function createApFeatureListElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::FeatureList)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApFeatureList,
             ],
         ]);
 
-        $widget->forceFill([
+        $element->forceFill([
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApFeatureList,
                 'layout' => 'grid',
@@ -1964,22 +1957,22 @@ class DemoCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Everything visible is backed by editable records',
-                    'content' => '<p>The default homepage is deliberately assembled from Capell widgets, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
+                    'content' => '<p>The default homepage is deliberately assembled from Capell elements, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
                 ],
             );
         }
 
-        $widget->assets()->delete();
+        $element->assets()->delete();
 
         $features = [
             ['icon' => 'heroicon-o-language', 'title' => 'Page translations', 'description' => 'Hero titles, body copy, SEO fields, and language variants live in translation records.'],
             ['icon' => 'heroicon-o-photo', 'title' => 'Media-driven surfaces', 'description' => 'Hero backgrounds, gallery items, cards, and section imagery resolve through Capell media records.'],
             ['icon' => 'heroicon-o-pencil-square', 'title' => 'Editor-owned sections', 'description' => 'Homepage cards, feature rows, FAQs, testimonials, and CTAs are all admin-managed content.'],
-            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, widgets, runtime manifests, and generated frontend CSS.'],
+            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, elements, runtime manifests, and generated frontend CSS.'],
         ];
 
         foreach ($features as $feature) {
@@ -1994,28 +1987,28 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createFeatureListWidget(): Element
+    public function createFeatureListElement(): Element
     {
-        $widget = resolve(ElementCreator::class)->featuresElement();
+        $element = resolve(ElementCreator::class)->featuresElement();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->firstOrCreate(
+            $element->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
             );
         }
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         $features = [
@@ -2039,33 +2032,33 @@ class DemoCreator
                 );
             }
 
-            $widget->assets()->firstOrCreate([
+            $element->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createApCtaSectionWidget(): Element
+    public function createApCtaSectionElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::CTASection)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApCTASection,
             ],
         ]);
 
-        $widget->forceFill([
+        $element->forceFill([
             'name' => 'Capell Showcase CTA',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApCTASection,
                 'primary_button_text' => 'Open the admin',
@@ -2077,7 +2070,7 @@ class DemoCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A demo site that proves the CMS stack is wired',
@@ -2086,27 +2079,27 @@ class DemoCreator
             );
         }
 
-        return $widget;
+        return $element;
     }
 
-    public function createApImageGalleryWidget(): Element
+    public function createApImageGalleryElement(): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::ImageGallery)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
                 ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widget = $this->elementModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApImageGallery,
             ],
         ]);
 
-        $widget->forceFill([
+        $element->forceFill([
             'name' => 'Capell Media Gallery',
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
             'meta' => [
                 'component' => ElementComponentEnum::ApImageGallery,
                 'layout' => 'grid',
@@ -2117,7 +2110,7 @@ class DemoCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Media that stays editable',
@@ -2126,15 +2119,15 @@ class DemoCreator
             );
         }
 
-        if ($widget->assets()->exists()) {
-            return $widget;
+        if ($element->assets()->exists()) {
+            return $element;
         }
 
         for ($i = 1; $i <= 6; $i++) {
-            $this->createWidgetMedia($widget);
+            $this->createElementMedia($element);
         }
 
-        return $widget;
+        return $element;
     }
 
     public function addSplitTwoBackgroundMedia(Layout $layout): void
@@ -2225,9 +2218,35 @@ class DemoCreator
         );
     }
 
+    private function ensureDemoPageContentElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::PageContents);
+
+        $elementType ??= resolve(TypeCreator::class)->pageContentElementType();
+
+        $attributes = [
+            'name' => 'Demo Page Content',
+            'blueprint_id' => $elementType->id,
+            'component' => ElementComponentEnum::PageContent->value,
+            'meta' => [
+                'component' => ElementComponentEnum::PageContent->value,
+                'page_content' => ['content'],
+                'view_file' => 'capell-demo-kit::components.element.demo-page-content',
+            ],
+            'status' => true,
+        ];
+
+        $element = Element::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
+        $element->forceFill($attributes)->save();
+
+        return $element;
+    }
+
     private function layoutForDemoPage(string $name): ?Layout
     {
         $name = $this->canonicalDemoPageName($name);
+        $demoPageContentElement = $this->ensureDemoPageContentElement();
 
         $templateLayouts = [
             'About Us' => ['capell-demo-about', 'Capell Demo About', true],
@@ -2262,11 +2281,11 @@ class DemoCreator
                             ],
                             'elements' => [
                                 ['element_key' => 'breadcrumbs'],
-                                ['element_key' => 'page-content'],
+                                ['element_key' => $demoPageContentElement->key],
                             ],
                         ],
                     ],
-                    'elements' => ['breadcrumbs', 'page-content'],
+                    'elements' => ['breadcrumbs', $demoPageContentElement->key],
                     'meta' => [
                         'description' => 'A full-width editorial layout for shared footer pages.',
                     ],
@@ -2299,7 +2318,7 @@ class DemoCreator
                         'html_class' => 'capell-demo-contact-copy-column',
                     ],
                     'elements' => [
-                        ['element_key' => 'page-content'],
+                        ['element_key' => $demoPageContentElement->key],
                     ],
                 ],
                 'contact-form' => [
@@ -2316,7 +2335,7 @@ class DemoCreator
                     ],
                 ],
             ],
-            'elements' => ['breadcrumbs', 'page-content', 'contact-form'],
+            'elements' => ['breadcrumbs', $demoPageContentElement->key, 'contact-form'],
             'meta' => [
                 'description' => 'A standalone contact layout without child or latest-page rails.',
             ],
@@ -2332,11 +2351,13 @@ class DemoCreator
 
     private function demoPageLayout(string $key, string $name, bool $withBreadcrumbs): Layout
     {
+        $demoPageContentElement = $this->ensureDemoPageContentElement();
+
         $elements = $withBreadcrumbs
             ? [
                 ['element_key' => 'breadcrumbs'],
                 [
-                    'element_key' => 'page-content',
+                    'element_key' => $demoPageContentElement->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
@@ -2344,7 +2365,7 @@ class DemoCreator
             ]
             : [
                 [
-                    'element_key' => 'page-content',
+                    'element_key' => $demoPageContentElement->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
@@ -2450,14 +2471,14 @@ class DemoCreator
             ],
         );
 
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widgetType ??= $this->typeModel::query()
+        $elementType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Element->value)
             ->firstWhere('key', ElementTypeEnum::Default->value);
 
-        if (! $widgetType instanceof Blueprint) {
+        if (! $elementType instanceof Blueprint) {
             return;
         }
 
@@ -2465,7 +2486,7 @@ class DemoCreator
             ['key' => 'contact-form'],
             [
                 'name' => 'Contact form',
-                'blueprint_id' => $widgetType->getKey(),
+                'blueprint_id' => $elementType->getKey(),
                 'component' => 'capell-form-builder::element.form',
                 'is_livewire' => true,
                 'meta' => [
@@ -2477,209 +2498,42 @@ class DemoCreator
         );
     }
 
-    private function createHomepageSnippetWidget(string $key, string $name, string $content): Element
+    private function createHomepageBladeElement(string $key, string $name): Element
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
             ->firstWhere('key', ElementTypeEnum::Default);
 
-        $widgetType ??= $this->typeModel::query()
+        $elementType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Element->value)
             ->firstWhere('key', ElementTypeEnum::Default->value);
 
-        throw_unless($widgetType instanceof Blueprint, Exception::class, 'Unable to find default widget type.');
+        throw_unless($elementType instanceof Blueprint, Exception::class, 'Unable to find default element type.');
 
-        $widget = Element::query()->firstOrCreate(['key' => $key], [
+        $attributes = [
             'name' => $name,
-            'blueprint_id' => $widgetType->id,
+            'blueprint_id' => $elementType->id,
+            'component' => ElementComponentEnum::Default->value,
             'meta' => [
-                'component' => ElementComponentEnum::Snippet->value,
-                'heading_size' => 'h2',
-                'content_divider' => false,
+                'component' => ElementComponentEnum::Default->value,
+                'view_file' => 'capell-demo-kit::components.element.homepage-section',
                 'margin' => ['none'],
             ],
-        ]);
+        ];
 
-        $widget->forceFill([
-            'name' => $name,
-            'blueprint_id' => $widgetType->id,
-            'meta' => [
-                'component' => ElementComponentEnum::Snippet->value,
-                'heading_size' => 'h2',
-                'content_divider' => false,
-                'margin' => ['none'],
-            ],
-        ])->save();
+        $element = Element::query()->firstOrCreate(['key' => $key], $attributes);
+        $element->forceFill($attributes)->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
+            $element->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                ['title' => null, 'content' => $content],
+                [
+                    'title' => null,
+                    'content' => null,
+                ],
             );
         }
 
-        return $widget;
-    }
-
-    private function homepageHeroCommandCenterHtml(): string
-    {
-        return <<<'HTML_WRAP'
-        <div class="capell-home capell-home-hero">
-            <section class="capell-home-hero__copy">
-                <p class="capell-home-kicker">Capell CMS</p>
-                <h1>Composable content infrastructure for Laravel teams</h1>
-                <p>Ship multi-site CMS platforms without template sprawl: typed content, editor-owned layouts, package-owned rendering, static output, and diagnostics in one Laravel-native system.</p>
-                <div class="capell-home-actions">
-                    <a class="capell-home-button" href="/resources">Explore the demo</a>
-                    <a class="capell-home-button capell-home-button--secondary" href="/pricing">View pricing</a>
-                </div>
-            </section>
-            <section class="capell-home-command-board" aria-label="Capell system board">
-                <div class="capell-home-board-row is-active"><span>Page types</span><strong>Home, Resources, Services</strong><em>Typed</em></div>
-                <div class="capell-home-board-row"><span>Packages</span><strong>Layout Builder, SEO, Search, Publishing</strong><em>Installed</em></div>
-                <div class="capell-home-board-row"><span>Workflow</span><strong>Draft, preview, approve, publish</strong><em>Traceable</em></div>
-                <div class="capell-home-board-row"><span>Frontend</span><strong>Static HTML, Vite assets, cache checks</strong><em>Ready</em></div>
-                <div class="capell-home-board-footer">
-                    <div><strong>12+</strong><span>package surfaces</span></div>
-                    <div><strong>4</strong><span>release checks</span></div>
-                    <div><strong>0</strong><span>template leaks</span></div>
-                </div>
-            </section>
-        </div>
-        HTML_WRAP;
-    }
-
-    private function homepageProofStripHtml(): string
-    {
-        return <<<'HTML'
-<div class="capell-home capell-home-proof-strip" aria-label="Demo proof points">
-    <div><strong>38</strong><span>packages installed</span></div>
-    <div><strong>7</strong><span>custom homepage widgets</span></div>
-    <div><strong>120+</strong><span>static pages generated</span></div>
-    <div><strong>4</strong><span>discovery checks</span></div>
-</div>
-HTML;
-    }
-
-    private function homepageDemoShowcaseHtml(): string
-    {
-        return <<<'HTML'
-<div class="capell-home capell-home-showcase">
-    <div class="capell-home-section-head">
-        <p class="capell-home-kicker">What ships in the demo</p>
-        <h2>Custom layouts that prove the CMS can change shape</h2>
-        <p>Each homepage region uses a different composition so the demo feels like a real system, not a repeated stack of generic cards.</p>
-    </div>
-    <div class="capell-home-showcase-grid">
-        <article class="capell-home-console-panel">
-            <div>
-                <p class="capell-home-kicker">Editorial command center</p>
-                <h3>Operational content, not placeholder blocks</h3>
-                <p>Use widget translations, page types, layout containers, and package data to show how an editor-owned surface stays structured.</p>
-            </div>
-            <dl>
-                <div><dt>Owner</dt><dd>Publishing Studio</dd></div>
-                <div><dt>Surface</dt><dd>Homepage + public pages</dd></div>
-                <div><dt>Status</dt><dd>Editable</dd></div>
-            </dl>
-        </article>
-        <article class="capell-home-market-grid-preview">
-            <p class="capell-home-kicker">Package marketplace</p>
-            <h3>Extension evidence grid</h3>
-            <div>
-                <span>SEO Suite</span>
-                <span>Search</span>
-                <span>Forms</span>
-                <span>Access Gate</span>
-                <span>Newsletter</span>
-                <span>Insights</span>
-            </div>
-        </article>
-        <article class="capell-home-workflow-panel">
-            <p class="capell-home-kicker">Publishing workflow</p>
-            <h3>Timeline plus checklist</h3>
-            <ol>
-                <li><strong>Model</strong><span>Types and widgets</span></li>
-                <li><strong>Compose</strong><span>Layout containers</span></li>
-                <li><strong>Release</strong><span>Cache and sitemap</span></li>
-            </ol>
-        </article>
-    </div>
-</div>
-HTML;
-    }
-
-    private function homepageMarketplaceHtml(): string
-    {
-        return <<<'HTML'
-<div class="capell-home capell-home-marketplace capell-extension-marketplace-section">
-    <div>
-        <p class="capell-home-kicker capell-section-kicker">Marketplace extensions</p>
-        <h2>Extension pages that help teams decide</h2>
-        <p>Extension detail pages show the contract behind each package: install eligibility, licence state, surfaces, dependencies, frontend budget, health status, documentation, feedback controls, and screenshot galleries.</p>
-    </div>
-    <div class="capell-home-marketplace-grid capell-extension-marketplace-grid">
-        <div><strong>See the product before installing</strong><span>Large screenshots make admin pages, frontend components, settings screens, and workflows visible without leaving Capell.</span></div>
-        <div><strong>Keep extension boundaries explicit</strong><span>Surfaces, package dependencies, contribution counts, and performance budgets tell developers what the extension adds.</span></div>
-        <div><strong>Connect docs to the buying decision</strong><span>Public and entitled documentation sit beside licence status, access checks, version history, and Marketplace actions.</span></div>
-    </div>
-</div>
-HTML;
-    }
-
-    private function homepageTechnicalPipelineHtml(): string
-    {
-        return <<<'HTML_WRAP'
-        <div class="capell-home capell-home-pipeline">
-            <div class="capell-home-pipeline__intro">
-                <p class="capell-home-kicker">Release path</p>
-                <h2>From admin edits to verified frontend</h2>
-                <p>Capell keeps the editable CMS surface and the generated public output connected through explicit ownership and checks.</p>
-            </div>
-            <ol>
-                <li><span>01</span><strong>Model content</strong><p>Define typed pages, widgets, translations, media, and package fields.</p></li>
-                <li><span>02</span><strong>Compose layout</strong><p>Place widgets into containers that the public theme renders predictably.</p></li>
-                <li><span>03</span><strong>Publish safely</strong><p>Preview changes, approve releases, warm cache, and generate static HTML.</p></li>
-                <li><span>04</span><strong>Verify output</strong><p>Run doctor, discovery, sitemap, and runtime asset checks before handover.</p></li>
-            </ol>
-        </div>
-        HTML_WRAP;
-    }
-
-    private function homepageRouteSplitHtml(): string
-    {
-        return <<<'HTML'
-<div class="capell-home capell-home-route-split">
-    <a href="/resources">
-        <span>Resources hub</span>
-        <strong>Technical guides and launch checklists</strong>
-        <em>Read the CMS playbook</em>
-    </a>
-    <a href="/pricing">
-        <span>Pricing</span>
-        <strong>Licensing and support for production teams</strong>
-        <em>Plan the rollout</em>
-    </a>
-    <a href="/contact#scoping">
-        <span>Contact</span>
-        <strong>Architecture, migration, and package support</strong>
-        <em>Start scoping</em>
-    </a>
-</div>
-HTML;
-    }
-
-    private function homepageFinalCtaHtml(): string
-    {
-        return <<<'HTML'
-<div class="capell-home capell-home-final">
-    <div>
-        <p class="capell-home-kicker">Demo install</p>
-        <h2>Show a CMS that feels assembled, verified, and ready to extend.</h2>
-        <p>The homepage now demonstrates multiple layout shapes, custom widget compositions, package boundaries, and public-page discovery paths.</p>
-    </div>
-    <a class="capell-home-button" href="/contact#scoping">Start implementation scoping</a>
-</div>
-HTML;
+        return $element;
     }
 
     /**
@@ -2716,31 +2570,7 @@ HTML;
             return null;
         }
 
-        return match ($name) {
-            'About Us' => $this->showcaseAboutContent(),
-            'Homepage 2' => $this->showcaseHomepageTwoContent(),
-            'Contact' => $this->contactIndexContent(),
-            'Services' => $this->contactServicesContent(),
-            'Team' => $this->showcaseTeamContent(),
-            'FAQ' => $this->showcaseFaqContent(),
-            'Pricing' => $this->pricingIndexContent(),
-            'Testimonials' => $this->showcaseTestimonialsContent(),
-            'Projects' => $this->showcaseProjectsContent(),
-            'Project Detail' => $this->showcaseProjectDetailContent(),
-            'Blog' => $this->showcaseBlogContent(),
-            'Home, Buildings and Architecture' => $this->showcaseSinglePostContent(),
-            'Implementation' => $this->implementationPricingContent(),
-            'Resources' => $this->resourcesHubContent(),
-            'Integrations' => $this->integrationsIndexContent(),
-            'Locations' => $this->locationsIndexContent(),
-            'Compliance' => $this->complianceLocationContent(),
-            'Sustainability' => $this->sustainabilityLocationContent(),
-            'Partners' => $this->partnersIndexContent(),
-            'Roadmap' => $this->roadmapIndexContent(),
-            'Governance' => $this->governanceIndexContent(),
-            'Training' => $this->trainingIndexContent(),
-            default => null,
-        };
+        return $this->basicDemoPageContent($name);
     }
 
     private function demoPageSummary(string $name): ?string
@@ -2763,1141 +2593,89 @@ HTML;
         };
     }
 
-    private function contactIndexContent(): string
+    private function basicDemoPageContent(string $name): ?string
     {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-contact-gateway">
-    <section class="capell-demo-contact-intro">
-        <p class="capell-demo-kicker">Contact us</p>
-        <h2>Get in touch with the Capell team</h2>
-        <p>Send a message about your CMS project, migration, integration work, or support needs. A clear contact page keeps the next step simple without sending visitors through child pages.</p>
-    </section>
-
-    <section class="capell-demo-contact-layout" aria-label="Contact options">
-        <aside class="capell-demo-contact-details" aria-label="Contact details">
-            <section>
-                <h2>Contact details</h2>
-                <dl>
-                    <div><dt>Email</dt><dd><a href="mailto:hello@capell.app">hello@capell.app</a></dd></div>
-                    <div><dt>Phone</dt><dd><a href="tel:+442045712840">+44 20 4571 2840</a></dd></div>
-                    <div><dt>Response</dt><dd>Within 2 business days</dd></div>
-                </dl>
-            </section>
-
-            <section>
-                <h2>Address</h2>
-                <address>
-                    Capell Studio<br>
-                    London<br>
-                    United Kingdom
-                </address>
-            </section>
-
-            <section>
-                <h2>Office hours</h2>
-                <p>Monday to Friday, 9:00 to 17:30 UK time.</p>
-            </section>
-        </aside>
-    </section>
-</div>
-HTML;
-    }
-
-    private function contactServicesContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-services-atelier">
-    <section class="capell-demo-atelier">
-        <div class="capell-demo-atelier__copy">
-            <p class="capell-demo-kicker">Services</p>
-            <h1>Implementation services for complex Capell rollouts</h1>
-            <p>Use a technical service desk for content modelling, migration paths, layout architecture, package boundaries, and launch verification before production work starts.</p>
-            <div class="capell-demo-actions">
-                <a class="capell-demo-button" href="/contact#scoping">Book scoping call</a>
-                <a class="capell-demo-button capell-demo-button--secondary" href="/pricing">See pricing</a>
-            </div>
-        </div>
-        <aside class="capell-demo-audit-board" id="scoping">
-            <p class="capell-demo-brief__label">Audit board</p>
-            <ol>
-                <li><span>01</span><strong>Content inventory</strong><em>Types, media, redirects</em></li>
-                <li><span>02</span><strong>Editor workflow</strong><em>Roles, drafts, approvals</em></li>
-                <li><span>03</span><strong>Frontend ownership</strong><em>Layouts, tokens, cache</em></li>
-                <li><span>04</span><strong>Package surface</strong><em>Search, forms, SEO, auth</em></li>
-            </ol>
-        </aside>
-    </section>
-
-    <section class="capell-demo-workbench">
-        <div>
-            <span>Migration</span>
-            <h2>Legacy content imports</h2>
-            <p>Convert Blade pages, WordPress exports, spreadsheets, or database tables into typed Capell content with repeatable validation.</p>
-        </div>
-        <div>
-            <span>Theme systems</span>
-            <h2>Frontend architecture</h2>
-            <p>Build reusable public surfaces without letting admin concerns leak into package-owned rendering.</p>
-        </div>
-        <div>
-            <span>Workflow</span>
-            <h2>Editorial operations</h2>
-            <p>Define publishing rules, review states, preview paths, and release checks that editors can operate safely.</p>
-        </div>
-    </section>
-
-    <section class="capell-demo-service-strip">
-        <div><strong>2-6 weeks</strong><span>typical implementation window</span></div>
-        <div><strong>12+</strong><span>packages checked per rollout</span></div>
-        <div><strong>50k+</strong><span>records handled in migration fixtures</span></div>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseAboutContent(): string
-    {
-        return <<<'HTML_WRAP'
-        <div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--about mx-auto max-w-none p-0 text-[#111827]">
-            <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-                <p class="capell-demo-kicker">About Capell</p>
-                <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">A CMS architecture team with a layout-builder product mindset</h1>
-                <p class="max-w-[42rem] text-white/80">Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
-            </section>
-
-            <section class="capell-demo-showcase-split mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(1.5rem,4vw,4rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-                <div>
-                    <p class="capell-demo-kicker">Platform experience</p>
-                    <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">Experienced in flexible content systems</h2>
-                    <p class="max-w-[68ch] text-[#4b5563] leading-7">Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
-                    <p class="max-w-[68ch] text-[#4b5563] leading-7">Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
-                    <div class="capell-demo-showcase-stats my-[clamp(2rem,6vw,5rem)] grid grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-3">
-                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">12+</strong><span>Page types</span></div>
-                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">40+</strong><span>Widget elements</span></div>
-                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">100+</strong><span>Media assets</span></div>
-                    </div>
-                </div>
-                <aside class="capell-demo-showcase-collage grid grid-cols-2 gap-3 md:grid-cols-4 md:auto-rows-[minmax(9rem,18vw)]" aria-label="Capell content collage">
-                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center p-4 font-extrabold text-white md:col-span-2 md:row-span-2">Page</span>
-                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center p-4 font-extrabold text-white">Gallery</span>
-                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center p-4 font-extrabold text-white">Asset</span>
-                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center p-4 font-extrabold text-white">Navigation</span>
-                </aside>
-            </section>
-
-            <section class="capell-demo-showcase-process mx-auto my-[clamp(4rem,8vw,8rem)] w-[min(76rem,calc(100%_-_3rem))]">
-                <p class="capell-demo-kicker">How we work</p>
-                <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">From content model to public page</h2>
-                <ol class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">01</span><strong class="mt-3 block">Consultation</strong><p class="text-[#4b5563]">Audit content, routes, media, integrations, and editor ownership.</p></li>
-                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">02</span><strong class="mt-3 block">Builder design</strong><p class="text-[#4b5563]">Define reusable elements that editors can safely compose.</p></li>
-                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">03</span><strong class="mt-3 block">Migration and QA</strong><p class="text-[#4b5563]">Move content into Capell and verify the public output.</p></li>
-                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">04</span><strong class="mt-3 block">Publish</strong><p class="text-[#4b5563]">Generate cacheable HTML and hand over the workflow.</p></li>
-                </ol>
-            </section>
-
-            <section class="capell-demo-showcase-promo mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-center gap-8 bg-[linear-gradient(90deg,rgb(7_10_18_/_0.9),rgb(7_10_18_/_0.58)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center p-[clamp(2rem,5vw,4rem)] text-white md:grid-cols-[minmax(0,1fr)_auto]">
-                <div>
-                    <p class="capell-demo-kicker">Capell promotion</p>
-                    <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal text-white">Build a public site that editors can actually own</h2>
-                    <p class="max-w-[68ch] text-white/75">Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
-                </div>
-                <a class="capell-demo-button" href="/contact#scoping">Get the best route</a>
-            </section>
-        </div>
-        HTML_WRAP;
-    }
-
-    private function showcaseHomepageTwoContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--home-variant mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero relative isolate grid min-h-[min(78vh,46rem)] w-full max-w-none grid-cols-1 items-center gap-[clamp(2rem,5vw,5rem)] overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
-        <p class="capell-demo-kicker">Architecture &amp; content</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">A second homepage for service-led Capell builds</h1>
-        <p class="max-w-[42rem] text-white/80">This variation keeps the same Capell content but changes the rhythm: feature cards first, then services, team proof, project examples, pricing, and launch metrics.</p>
-        <a class="capell-demo-button" href="/projects">View portfolio</a>
-    </section>
-
-    <section class="capell-demo-showcase-feature-row mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-3">
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><span class="text-sm font-bold uppercase text-[#4b5563]">01</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Cost friendly</h2><p class="text-[#4b5563]">Reuse governed widgets rather than designing every page from scratch.</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><span class="text-sm font-bold uppercase text-[#4b5563]">02</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Communicative</h2><p class="text-[#4b5563]">Make page structure clear to editors, reviewers, and developers.</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><span class="text-sm font-bold uppercase text-[#4b5563]">03</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Responsive design</h2><p class="text-[#4b5563]">Tailwind-friendly element layouts keep the public surface adaptable.</p></article>
-    </section>
-
-    <section class="capell-demo-showcase-services mx-auto my-[clamp(4rem,8vw,8rem)] w-[min(76rem,calc(100%_-_3rem))]">
-        <div>
-            <p class="capell-demo-kicker">Our services</p>
-            <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">Best service from Capell</h2>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">Implementation support, frontend architecture, migration planning, editor workflow setup, and launch verification.</p>
-        </div>
-        <div class="capell-demo-showcase-card-grid mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Layout architecture</h3><p class="text-[#4b5563] leading-7">Reusable sections, galleries, cards, forms, and CTAs.</p></article>
-            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Content migration</h3><p class="text-[#4b5563] leading-7">Move existing pages, assets, redirects, and resource libraries safely.</p></article>
-            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Publishing workflow</h3><p class="text-[#4b5563] leading-7">Preview, approval, scheduling, cache generation, and release checks.</p></article>
-            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Package integration</h3><p class="text-[#4b5563] leading-7">Blog, search, forms, navigation, analytics, and access control.</p></article>
-        </div>
-    </section>
-
-    <section class="capell-demo-showcase-pricing-strip mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-3">
-        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Standard plan</span><strong class="block text-3xl">Developer</strong><p class="text-[#4b5563]">Evaluation and proof-of-concept builds.</p></article>
-        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Premium plan</span><strong class="block text-3xl">Agency</strong><p class="text-[#4b5563]">Production support for client delivery.</p></article>
-        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Ultimate plan</span><strong class="block text-3xl">Enterprise</strong><p class="text-[#4b5563]">Governed rollout, support, and procurement.</p></article>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseTeamContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--team mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-        <p class="capell-demo-kicker">Meet our team</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Implementation specialists for Capell websites</h1>
-        <p class="max-w-[42rem] text-white/80">A team page should prove capability, not just show profiles. These roles map to the actual work needed to build flexible Capell sites.</p>
-    </section>
-    <section class="capell-demo-showcase-team-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Strategy</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Mara Ellison</h2><p class="text-[#4b5563]">CMS architecture lead</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Frontend</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Jon Bell</h2><p class="text-[#4b5563]">Tailwind and public rendering</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Publishing</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Ada Morris</h2><p class="text-[#4b5563]">Filament workflow specialist</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Migration</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Cal Hart</h2><p class="text-[#4b5563]">Content import engineer</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">QA</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Nia Porter</h2><p class="text-[#4b5563]">Release and cache verification</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Support</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Eli Stone</h2><p class="text-[#4b5563]">Production support lead</p></article>
-    </section>
-    <section class="capell-demo-showcase-stats capell-demo-showcase-stats--band mx-auto my-[clamp(2rem,6vw,5rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-4">
-        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">8+</strong><span>Specialist roles</span></div>
-        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">45+</strong><span>Packages checked</span></div>
-        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">4</strong><span>Release gates</span></div>
-        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">1</strong><span>Clear owner model</span></div>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseFaqContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--faq mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-        <p class="capell-demo-kicker">FAQ</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">You have questions?</h1>
-        <p class="max-w-[42rem] text-white/80">This page intentionally works without a large hero image. It proves Capell can render dense support content in a calmer page template.</p>
-    </section>
-    <section class="capell-demo-showcase-faq mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-            <h2 class="text-[clamp(2rem,4vw,3.75rem)] leading-none">Capell architecture</h2>
-            <details class="border border-[#d8dee8] bg-white p-4" open><summary class="cursor-pointer font-extrabold">Can the header sit above the hero instead of overlaying it?</summary><p class="text-[#4b5563]">Yes. The theme now has a header-over-hero switch so teams can use either an overlay treatment or a normal document flow header.</p></details>
-            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can a page skip the hero entirely?</summary><p class="text-[#4b5563]">Yes. Pages can render directly into content, FAQ, article, pricing, or project layouts without needing a hero widget.</p></details>
-            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Does public output leak editor controls?</summary><p class="text-[#4b5563]">No. Public pages render clean frontend components while editor and Filament concerns stay private.</p></details>
-        </div>
-        <div>
-            <h2 class="text-[clamp(2rem,4vw,3.75rem)] leading-none">Builder services</h2>
-            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can we keep existing content?</summary><p class="text-[#4b5563]">Yes. The goal is to preserve content intent and improve layout, hierarchy, and reusable structure.</p></details>
-            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can we model project and blog pages?</summary><p class="text-[#4b5563]">Yes. This demo includes project listing, project detail, blog index, and single article page coverage.</p></details>
-        </div>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseTestimonialsContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--testimonials mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-        <p class="capell-demo-kicker">Testimonials</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">What Capell builders say</h1>
-        <p class="max-w-[42rem] text-white/80">Reusable testimonial sections can act as proof bands, card grids, carousel content, or supporting evidence beside service pages.</p>
-    </section>
-    <section class="capell-demo-showcase-testimonial-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">Capell replaced rigid templates with governed elements our editors can actually compose.</p><strong class="block">Mara Ellison</strong><span>Senior Laravel developer</span></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">The public output stays clean while the editorial workflow remains flexible.</p><strong class="block">Jon Bell</strong><span>Frontend lead</span></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><p class="text-[#4b5563]">We can build resource hubs, landing pages, and service pages from the same content system.</p><strong class="block">Ada Morris</strong><span>Publishing owner</span></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">The package boundaries make implementation work easier to estimate and support.</p><strong class="block">Cal Hart</strong><span>Migration engineer</span></article>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseProjectsContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--projects mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-        <p class="capell-demo-kicker">Latest project</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Capell implementation project library</h1>
-        <p class="max-w-[42rem] text-white/80">Project listings show that Capell can mix categories, galleries, cards, metadata, and detail routes without hard-coded portfolio templates.</p>
-    </section>
-    <nav class="capell-demo-showcase-filter mx-auto mt-[clamp(4rem,8vw,8rem)] flex w-[min(76rem,calc(100%_-_3rem))] flex-wrap gap-3" aria-label="Project filters"><a class="border border-[#111827] bg-[#111827] px-3 py-2 text-sm font-extrabold text-white" href="/projects">All</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Migration</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Layout Builder</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Publishing</a></nav>
-    <section class="capell-demo-showcase-project-grid mx-auto mb-[clamp(4rem,8vw,8rem)] mt-6 grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Layout Builder</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Flexible marketing site</h2><p class="text-[#4b5563]">Hero slideshow, galleries, proof, resource cards, and contact strip.</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Migration</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Content library rebuild</h2><p class="text-[#4b5563]">Resource hub, media assets, navigation trees, and search-ready pages.</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Publishing</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Governed multi-site estate</h2><p class="text-[#4b5563]">Domains, languages, approval workflows, and cache generation.</p></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Frontend</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Tailwind component system</h2><p class="text-[#4b5563]">Reusable section elements with crisp responsive behaviour.</p></article>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseProjectDetailContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--project-detail mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-article-layout mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(2rem,5vw,5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.36fr)]">
-        <article class="max-w-[46rem]">
-            <p class="capell-demo-kicker">Project detail</p>
-            <h1 class="max-w-[15ch] text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal">Layout builder redesign for a flexible Capell website</h1>
-            <p class="capell-demo-showcase-meta text-sm font-bold text-[#4b5563]">London | May 2026</p>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">The project detail page shows the long-form content pattern: narrative copy, project metadata, team ownership, recent project links, and a promotion section in one structured layout.</p>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">The implementation kept existing content intent but rebuilt the presentation around reusable Capell elements, asset-backed sections, and a clearer public route structure.</p>
-            <blockquote class="my-8 border-l-4 border-[#c6923d] py-4 pl-6 text-[clamp(1.35rem,3vw,2rem)] font-extrabold leading-tight">“The real win is not visual novelty. It is being able to rebuild each section in the CMS without losing frontend discipline.”</blockquote>
-        </article>
-        <aside class="border border-[#d8dee8] bg-white p-6 shadow-[0_1rem_3rem_rgb(17_24_39_/_0.06)]">
-            <h2>Project info</h2>
-            <dl><div><dt>Client project</dt><dd>Capell demo estate</dd></div><div><dt>Project date</dt><dd>May 2026</dd></div><div><dt>Location</dt><dd>United Kingdom</dd></div></dl>
-            <h2>Project head</h2>
-            <p>Mara Ellison<br><span>CMS architecture lead</span></p>
-        </aside>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseBlogContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--blog mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
-        <p class="capell-demo-kicker">Latest news</p>
-        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Our blog for Capell builders</h1>
-        <p class="max-w-[42rem] text-white/80">Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.</p>
-    </section>
-    <section class="capell-demo-showcase-blog-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-3">
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">News</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Home, buildings and architecture</h2><p class="text-[#4b5563]">How architecture-style page systems map to Capell layout builder websites.</p><a href="/home-buildings-and-architecture">Read more</a></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Guide</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Designing a better homepage flow</h2><p class="text-[#4b5563]">Turning mixed CMS objects into one coherent public page.</p><a href="/resources">Read more</a></article>
-        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Tips</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">How to avoid rigid templates</h2><p class="text-[#4b5563]">Use element boundaries, assets, and reusable sections to keep pages flexible.</p><a href="/resources">Read more</a></article>
-    </section>
-</div>
-HTML;
-    }
-
-    private function showcaseSinglePostContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--single-post mx-auto max-w-none p-0 text-[#111827]">
-    <section class="capell-demo-showcase-article-layout mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(2rem,5vw,5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.36fr)]">
-        <article class="max-w-[46rem]">
-            <p class="capell-demo-kicker">Single post</p>
-            <h1 class="max-w-[15ch] text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal">Home, buildings and architecture</h1>
-            <p class="capell-demo-showcase-meta text-sm font-bold text-[#4b5563]">By Capell Studio | May 16, 2026</p>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact. Capell can reproduce that structure with layout-builder elements instead of fixed page templates.</p>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">The important point is ownership. Editors should be able to change content, order, media, navigation, and resource cards. Developers should still own rendering, performance, cache generation, and package boundaries.</p>
-            <blockquote class="my-8 border-l-4 border-[#c6923d] py-4 pl-6 text-[clamp(1.35rem,3vw,2rem)] font-extrabold leading-tight">“A flexible CMS is not a free-for-all. It is a governed system with enough expressive range to build the whole site.”</blockquote>
-            <p class="max-w-[68ch] text-[#4b5563] leading-7">This page closes the loop by proving the article detail template can sit beside the same showcase-inspired site map without copying the original design or losing the Capell product story.</p>
-        </article>
-        <aside class="grid gap-3 border border-[#d8dee8] bg-white p-6 shadow-[0_1rem_3rem_rgb(17_24_39_/_0.06)]">
-            <h2>Recent posts</h2>
-            <a href="/blog">Designing a better homepage flow</a>
-            <a href="/blog">Avoiding rigid templates</a>
-            <a href="/resources">Publishing checklist</a>
-            <h2>Follow us</h2>
-            <p>Resources, release notes, and implementation guides for Capell builders.</p>
-        </aside>
-    </section>
-</div>
-HTML;
-    }
-
-    private function pricingIndexContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-pricing-matrix capell-pricing-template">
-    <section class="capell-pricing-hero">
-        <p class="capell-pricing-eyebrow">Licensing &amp; technical support</p>
-        <h1>Simple pricing for Capell CMS delivery</h1>
-        <p>Choose the access and support model that fits your team. Start with a developer plan for evaluation, move to agency support for production delivery, or scope an enterprise agreement when governance and response times matter.</p>
-        <div class="capell-pricing-actions">
-            <a class="capell-pricing-button" href="/contact#scoping">Talk to sales</a>
-            <a class="capell-pricing-button capell-pricing-button--secondary" href="/contact#scoping">Book pricing review</a>
-        </div>
-    </section>
-
-    <section class="capell-pricing-matrix" aria-labelledby="capell-pricing-matrix-heading">
-        <div class="capell-pricing-section-head">
-            <p class="capell-pricing-eyebrow">Pricing matrix</p>
-            <h2 id="capell-pricing-matrix-heading">Compare the commercial model</h2>
-            <p>Every plan keeps the same Capell foundation. The difference is production usage, support access, and the level of commercial governance around your rollout.</p>
-        </div>
-        <div class="capell-pricing-plan-cards" aria-label="Pricing plans">
-            <article>
-                <span>Developer</span>
-                <strong>GBP 0</strong>
-                <p>For local evaluation and proof of concept work.</p>
-                <ul>
-                    <li>Core API access</li>
-                    <li>Local projects</li>
-                    <li>Community support</li>
-                </ul>
-                <a href="/contact#developer">Get started</a>
-            </article>
-            <article class="is-featured">
-                <em>Popular</em>
-                <span>Agency</span>
-                <strong>GBP 99</strong>
-                <p>For production projects with commercial support.</p>
-                <ul>
-                    <li>1 production project</li>
-                    <li>Up to 5 custom domains</li>
-                    <li>Email support</li>
-                </ul>
-                <a href="/contact#agency">Start trial</a>
-            </article>
-            <article>
-                <span>Enterprise</span>
-                <strong>Custom</strong>
-                <p>For governed estates and dedicated support paths.</p>
-                <ul>
-                    <li>Unlimited projects</li>
-                    <li>Unlimited custom domains</li>
-                    <li>Dedicated support channel</li>
-                </ul>
-                <a href="/contact#enterprise">Contact sales</a>
-            </article>
-        </div>
-        <div class="capell-pricing-table-wrap">
-            <table class="capell-pricing-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Features</th>
-                        <th scope="col">
-                            <span>Developer</span>
-                            <strong>GBP 0</strong>
-                            <small>For local evaluation</small>
-                            <a href="/contact#developer">Get started</a>
-                        </th>
-                        <th scope="col" class="is-featured">
-                            <em>Popular</em>
-                            <span>Agency</span>
-                            <strong>GBP 99</strong>
-                            <small>Per production project</small>
-                            <a href="/contact#agency">Start trial</a>
-                        </th>
-                        <th scope="col">
-                            <span>Enterprise</span>
-                            <strong>Custom</strong>
-                            <small>For governed estates</small>
-                            <a href="/contact#enterprise">Contact sales</a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><th scope="row">Core API access</th><td>Included</td><td>Included</td><td>Included</td></tr>
-                    <tr><th scope="row">Production projects</th><td>Local only</td><td>1 project</td><td>Unlimited</td></tr>
-                    <tr><th scope="row">Custom domains</th><td>-</td><td>Up to 5</td><td>Unlimited</td></tr>
-                    <tr><th scope="row">Support tier</th><td>Community</td><td>Email support</td><td>Dedicated channel</td></tr>
-                    <tr><th scope="row">SLA guidance</th><td>-</td><td>99.9%</td><td>99.99%</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p class="capell-pricing-note">Need custom implementation? View technical pricing for scoped migrations, frontend integration, and handover.</p>
-    </section>
-
-    <section class="capell-pricing-addons" aria-label="Support options">
-        <article>
-            <span>Support</span>
-            <h2>Technical support</h2>
-            <p>Access our dedicated support team for troubleshooting, architecture reviews, and emergency incident response.</p>
-            <a href="/contact#support">Explore support plans</a>
-        </article>
-        <article>
-            <span>Enablement</span>
-            <h2>Team training</h2>
-            <p>Onboard engineering and editorial teams faster with specialised workshops, certification paths, and deep technical sessions.</p>
-            <a href="/training">View training catalogue</a>
-        </article>
-    </section>
-
-    <section class="capell-pricing-faq" aria-labelledby="capell-pricing-faq-heading">
-        <div class="capell-pricing-section-head">
-            <p class="capell-pricing-eyebrow">Commercial questions</p>
-            <h2 id="capell-pricing-faq-heading">Common pricing questions</h2>
-        </div>
-        <details>
-            <summary>Can we start on Developer and move to Agency later?</summary>
-            <p>Yes. Developer is intended for local evaluation and proof of concept work. Production projects should move to Agency or Enterprise before launch.</p>
-        </details>
-        <details>
-            <summary>Is implementation included in the monthly licence?</summary>
-            <p>No. Implementation is scoped separately so migration, theme integration, QA, and handover are priced around the actual delivery risk.</p>
-        </details>
-        <details>
-            <summary>Do Enterprise plans include custom governance?</summary>
-            <p>Yes. Enterprise plans can include security review, dedicated support paths, custom usage terms, and procurement documentation.</p>
-        </details>
-    </section>
-
-    <section class="capell-pricing-cta">
-        <div>
-            <p class="capell-pricing-eyebrow">Next step</p>
-            <h2>Ready for a technical deep dive?</h2>
-            <p>Bring your content model, launch requirements, and support expectations. We will recommend the right plan and implementation route.</p>
-        </div>
-        <a class="capell-pricing-button" href="/contact#scoping">Book pricing review</a>
-    </section>
-</div>
-HTML;
-    }
-
-    private function implementationPricingContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-implementation-plan">
-    <section class="capell-demo-ledger-hero">
-        <div>
-            <p class="capell-demo-kicker">Implementation pricing</p>
-            <h1>Implementation plan with commercial guardrails</h1>
-            <p>A productized Capell implementation for teams that need a production CMS foundation, migration confidence, and a clear handover path.</p>
-            <div class="capell-demo-price">from <strong>GBP 8,500</strong></div>
-            <div class="capell-demo-actions">
-                <a class="capell-demo-button" href="/contact#scoping">Schedule scoping</a>
-                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">Read launch guides</a>
-            </div>
-        </div>
-        <aside class="capell-demo-scope-panel">
-            <p class="capell-demo-brief__label">Scope confidence</p>
-            <div><span>Inputs received</span><strong>Content model, sample exports, launch date</strong></div>
-            <div><span>Pricing shape</span><strong>50% kickoff, 50% handover</strong></div>
-            <div><span>Owner model</span><strong>Lead engineer plus architect</strong></div>
-        </aside>
-    </section>
-
-    <section class="capell-demo-ledger">
-        <div class="capell-demo-ledger__phase"><span>Week 1</span><strong>Audit</strong><p>Content, package surface, roles, redirects, and operational constraints.</p></div>
-        <div class="capell-demo-ledger__phase"><span>Week 2-3</span><strong>Architecture</strong><p>Types, layouts, cache rules, preview paths, and package-owned rendering.</p></div>
-        <div class="capell-demo-ledger__phase"><span>Week 4-6</span><strong>Migration</strong><p>Imports, media handling, validation reports, and rejected-record review.</p></div>
-        <div class="capell-demo-ledger__phase"><span>Week 7-8</span><strong>Handover</strong><p>Editor training, developer notes, release checks, and post-launch ownership.</p></div>
-    </section>
-
-    <section class="capell-demo-inclusion-ledger">
-        <div>
-            <h2>Included</h2>
-            <ul>
-                <li>Content type and layout modelling</li>
-                <li>Migration scripts and validation reports</li>
-                <li>Theme integration and responsive QA</li>
-                <li>Editor training and launch checklist</li>
-            </ul>
-        </div>
-        <div>
-            <h2>Guardrails</h2>
-            <ul>
-                <li>Custom package builds are scoped separately</li>
-                <li>Third-party license fees stay outside delivery</li>
-                <li>Design-system rewrites need explicit approval</li>
-                <li>Retained support starts after handover</li>
-            </ul>
-        </div>
-        <aside>
-            <span>Commercial rule</span>
-            <strong>Every scope change gets priced before work starts.</strong>
-        </aside>
-    </section>
-</div>
-HTML;
-    }
-
-    private function resourcesHubContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-resources-library">
-    <section class="capell-demo-library-hero">
-        <div>
-            <p class="capell-demo-kicker">Resources</p>
-            <h1>Resource library for Capell builders</h1>
-            <p>Guides, architecture notes, launch checklists, and developer references for teams building Laravel and Filament CMS platforms with Capell.</p>
-        </div>
-        <form class="capell-demo-library-filter" action="/resources" method="get">
-            <label>
-                <span>Search resources</span>
-                <input name="q" type="search" placeholder="Migration, layouts, schema">
-            </label>
-            <div>
-                <button type="button">Guides</button>
-                <button type="button">Architecture</button>
-                <button type="button">Checklists</button>
-            </div>
-        </form>
-    </section>
-
-    <section class="capell-demo-library-grid">
-        <article class="capell-demo-lead-feature">
-            <p class="capell-demo-kicker">Featured guide</p>
-            <h2>Scaling Laravel CMS architecture for 1M+ records</h2>
-            <p>Structure page types, media, imports, search, cache, and static generation before content volume stops being theoretical.</p>
-            <span>Architecture note - 12 min read</span>
-        </article>
-        <aside class="capell-demo-category-rail">
-            <a href="/resources">Architecture<span>Models, packages, cache</span></a>
-            <a href="/resources">Patterns<span>Layouts, forms, editors</span></a>
-            <a href="/resources">Schema<span>SEO and AI discovery</span></a>
-            <a href="/resources">Case studies<span>Launch breakdowns</span></a>
-        </aside>
-    </section>
-
-    <section class="capell-demo-resource-index">
-        <div class="capell-demo-resource-index__heading">
-            <p class="capell-demo-kicker">Resource index</p>
-            <h2>Recent technical notes</h2>
-        </div>
-        <article><span>Migration</span><h3>Designing imports editors can trust</h3><p>Validate source rows, preserve redirects, and keep rejected records explainable.</p><em>9 min</em></article>
-        <article><span>Publishing</span><h3>Approval workflows without admin leakage</h3><p>Keep draft tooling private while public pages stay clean and cacheable.</p><em>7 min</em></article>
-        <article><span>Theme systems</span><h3>Package-owned frontend rendering</h3><p>Build reusable public surfaces without coupling them to Filament screens.</p><em>11 min</em></article>
-        <article><span>SEO</span><h3>Making CMS pages discoverable by default</h3><p>Use metadata, sitemap rules, AI discovery profiles, and explicit exclusions.</p><em>8 min</em></article>
-    </section>
-</div>
-HTML;
-    }
-
-    private function complianceLocationContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-location-detail">
-    <p>Compliance pages keep regional obligations, policy owners, review cadence, and evidence links close to the local publishing workflow.</p>
-    <p>Use this child page to prove location content is structured, governed, and reusable instead of being hand-coded into a single landing page.</p>
-</div>
-HTML;
-    }
-
-    private function sustainabilityLocationContent(): string
-    {
-        return <<<'HTML'
-<div class="capell-demo-page capell-demo-location-detail">
-    <p>Sustainability pages give each region room to publish local initiatives while keeping measurement language, media, and taxonomy consistent.</p>
-    <p>Editors can maintain local proof points without breaking the shared Capell page model or the wider site navigation.</p>
-</div>
-HTML;
-    }
-
-    private function integrationsIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Integrations');
-    }
-
-    private function locationsIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Locations');
-    }
-
-    private function partnersIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Partners');
-    }
-
-    private function roadmapIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Roadmap');
-    }
-
-    private function governanceIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Governance');
-    }
-
-    private function trainingIndexContent(): string
-    {
-        return $this->standardFooterPageContent('Training');
-    }
-
-    private function standardFooterPageContent(string $pageName): string
-    {
-        $page = $this->standardFooterPageConfigs()[$pageName];
-        $slug = Str::slug($pageName);
-
-        return sprintf(
-            <<<'HTML'
-<div class="capell-demo-page capell-demo-footer-page capell-demo-footer-page--%1$s">
-    <section class="capell-demo-footer-hero">
-        <div class="capell-demo-footer-hero__copy">
-            <p class="capell-demo-kicker">%2$s</p>
-            <h1>%3$s</h1>
-            <p>%4$s</p>
-            <div class="capell-demo-actions">
-                <a class="capell-demo-button" href="/contact#scoping">%5$s</a>
-                <a class="capell-demo-button capell-demo-button--secondary" href="/resources">%6$s</a>
-            </div>
-        </div>
-        <aside class="capell-demo-footer-artifact">
-            <p class="capell-demo-brief__label">%7$s</p>
-            <strong>%8$s</strong>
-            <div class="capell-demo-footer-artifact__steps" aria-hidden="true">%10$s</div>
-        </aside>
-    </section>
-
-    <nav class="capell-demo-footer-tabs" aria-label="Footer page variations">
-        %11$s
-    </nav>
-
-    <section class="capell-demo-footer-editorial">
-        <div class="capell-demo-footer-editorial__copy">
-            <p class="capell-demo-kicker">Shared layout system</p>
-            <h2>%12$s</h2>
-            <p>%13$s</p>
-            <p>%14$s</p>
-            <p>%17$s</p>
-        </div>
-        <aside class="capell-demo-footer-proof">
-            <span>%15$s</span>
-            <strong>%16$s</strong>
-            <dl>%9$s</dl>
-        </aside>
-    </section>
-
-    <section class="capell-demo-footer-section">
-        <div class="capell-demo-footer-section-head">
-            <p class="capell-demo-kicker">%2$s content modules</p>
-            <h2>Reusable sections with page-specific assets and deeper copy</h2>
-            <p>The layout stays consistent across footer pages, but the evidence, examples, labels, metrics, and calls to action change enough that each page feels intentionally written.</p>
-        </div>
-        <div class="capell-demo-footer-sections" aria-label="%2$s capabilities">%18$s</div>
-    </section>
-
-    <section class="capell-demo-footer-evidence">
-        <div class="capell-demo-footer-section-head">
-            <p class="capell-demo-kicker">%19$s</p>
-            <h2>%20$s</h2>
-            <p>%21$s</p>
-        </div>
-        <div class="capell-demo-footer-evidence__rows">%22$s</div>
-    </section>
-
-    <section class="capell-demo-footer-variations" aria-label="Reusable asset slots">
-        <div class="capell-demo-footer-section-head">
-            <p class="capell-demo-kicker">Asset slots</p>
-            <h2>Same elements, different page assets</h2>
-            <p>Each footer page uses the same shell, then swaps the hero metric, proof list, feature modules, evidence rows, testimonial, and CTA details.</p>
-        </div>
-        <div class="capell-demo-footer-variation-strip">%23$s</div>
-    </section>
-
-    <section class="capell-demo-footer-cta">
-        <div>
-            <p class="capell-demo-kicker">%24$s</p>
-            <h2>%25$s</h2>
-            <p>%26$s</p>
-        </div>
-        <a class="capell-demo-button" href="/contact#scoping">%27$s</a>
-    </section>
-</div>
-HTML,
-            $slug,
-            $pageName,
-            $page['headline'],
-            $page['intro'],
-            $page['primaryAction'],
-            $page['secondaryAction'],
-            $page['assetLabel'],
-            $page['assetMetric'],
-            $this->standardFooterDefinitionList($page['stats']),
-            $this->standardFooterVisual($page['visual']),
-            $this->standardFooterPageTabs($pageName),
-            $page['storyHeading'],
-            $page['storyLead'],
-            $page['storyDetail'],
-            $page['proofLabel'],
-            $page['proofTitle'],
-            $page['proofBody'],
-            $this->standardFooterFeatureCards($pageName, $page['features']),
-            $page['deepDiveKicker'],
-            $page['deepDiveHeading'],
-            $page['deepDiveIntro'],
-            $this->standardFooterRows($page['rows']),
-            $this->standardFooterAssetSlots($page['assetSlots']),
-            $page['ctaKicker'],
-            $page['ctaHeading'],
-            $page['ctaBody'],
-            $page['ctaAction'],
-        );
-    }
-
-    /**
-     * @param  array<string, string>  $items
-     */
-    private function standardFooterDefinitionList(array $items): string
-    {
-        return implode('', array_map(
-            fn (string $label, string $value): string => sprintf('<div><dt>%s</dt><dd>%s</dd></div>', $label, $value),
-            array_keys($items),
-            $items,
-        ));
-    }
-
-    /**
-     * @param  list<string>  $items
-     */
-    private function standardFooterVisual(array $items): string
-    {
-        return implode('', array_map(
-            fn (string $item, int $index): string => sprintf('<div><span>%02d</span><strong>%s</strong></div>', $index + 1, $item),
-            $items,
-            array_keys($items),
-        ));
-    }
-
-    private function standardFooterPageTabs(string $activeName): string
-    {
-        return implode('', array_map(
-            function (string $name, array $page) use ($activeName): string {
-                $current = $name === $activeName ? ' aria-current="page"' : '';
-                $activeClass = $name === $activeName ? ' is-active' : '';
-
-                return sprintf(
-                    '<a class="capell-demo-footer-tabs__item%1$s" href="/%7$s"%2$s><span>%3$s</span><strong>%4$s</strong><em>%6$s</em><p>%5$s</p></a>',
-                    $activeClass,
-                    $current,
-                    $page['tabCode'],
-                    $name,
-                    $page['tabCopy'],
-                    $page['tabMetric'],
-                    Str::slug($name),
-                );
-            },
-            array_keys($this->standardFooterPageConfigs()),
-            $this->standardFooterPageConfigs(),
-        ));
-    }
-
-    /**
-     * @param  list<array{label: string, title: string, body: string}>  $features
-     */
-    private function standardFooterFeatureCards(string $pageName, array $features): string
-    {
-        $details = $this->standardFooterFeatureDetails($pageName);
-
-        return implode('', array_map(
-            fn (array $feature, int $index): string => sprintf(
-                '<article><span>%s</span><h2>%s</h2><p>%s</p><p>%s</p></article>',
-                $feature['label'],
-                $feature['title'],
-                $feature['body'],
-                $details[$index],
-            ),
-            $features,
-            array_keys($features),
-        ));
-    }
-
-    /**
-     * @param  list<array{label: string, title: string, body: string}>  $rows
-     */
-    private function standardFooterRows(array $rows): string
-    {
-        return implode('', array_map(
-            fn (array $row, int $index): string => sprintf(
-                '<article><span>%02d</span><div><em>%s</em><strong>%s</strong></div><p>%s</p></article>',
-                $index + 1,
-                $row['label'],
-                $row['title'],
-                $row['body'],
-            ),
-            $rows,
-            array_keys($rows),
-        ));
-    }
-
-    /**
-     * @param  array<string, string>  $slots
-     */
-    private function standardFooterAssetSlots(array $slots): string
-    {
-        return implode('', array_map(
-            fn (string $label, string $value): string => sprintf('<div><span>%s</span><strong>%s</strong></div>', $label, $value),
-            array_keys($slots),
-            $slots,
-        ));
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function standardFooterFeatureDetails(string $pageName): array
-    {
-        return match ($pageName) {
-            'Integrations' => [
-                'Use the module for system diagrams, payload notes, authentication expectations, and support ownership so commercial readers understand the integration shape without needing a developer-only reference page.',
-                'Package and marketplace references can sit beside customer-facing value, making the page feel specific to Capell while keeping implementation details safely out of public templates.',
-                'Status, retry, and audit details turn the page into a credibility surface. The content can show how operators recover from failed syncs instead of only saying that integrations exist.',
+        $content = [
+            'About Us' => [
+                'Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.',
+                'Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.',
             ],
-            'Locations' => [
-                'The page can explain how local branches, child pages, translated paths, and media ownership work together without forcing every region into identical copy.',
-                'Regional examples, search metadata, and ownership notes give visitors useful local context while still showing that the CMS model is shared and maintainable.',
-                'Publishing discipline remains visible through cache coverage, redirects, translations, and editorial boundaries, which matters once the location network grows beyond a handful of pages.',
+            'Homepage 2' => [
+                'This service-led homepage variation keeps the same Capell content model while changing the public layout rhythm.',
+                'Use it to prove that page records can be rendered through different package-owned templates without storing designed markup in content.',
             ],
-            'Partners' => [
-                'Certification criteria, architecture review, and handover expectations can be written into the page so partnership feels like a delivery model rather than a directory.',
-                'Runbooks, demo assets, and package guidance give partner teams material they can reuse, while the public page still stays easy for prospects to scan.',
-                'Extension boundaries keep the ecosystem credible. Partners can see where they add value without implying they own the core product contract.',
+            'Contact' => [
+                'Send a message about your CMS project, migration, integration work, or support needs.',
+                'A clear contact page keeps the next step simple without sending visitors through child pages.',
             ],
-            'Roadmap' => [
-                'Release lanes help readers distinguish committed work from research, which makes the roadmap more trustworthy than a flat list of ambitions.',
-                'Feedback prompts can ask for the right evidence at the right point, so customer signal becomes part of the page rather than a separate product-board ritual.',
-                'Changelog links, shipped examples, and confidence labels keep older roadmap content honest by making it obvious what moved from promise to production.',
+            'Services' => [
+                'Implementation services cover content modelling, migration paths, layout architecture, package boundaries, and launch verification.',
+                'The public page is rendered by the demo page-content element while this saved content stays deliberately portable.',
             ],
-            'Governance' => [
-                'Workflow gates can be described in public language while the admin mechanics stay private, giving buyers confidence without exposing internal control details.',
-                'Audit references, reviewer roles, and publish evidence show that governance is part of the operating model, not a compliance paragraph added after the fact.',
-                'Role-aware copy helps separate editor permissions, emergency access, and preview behaviour from the public page output that visitors actually receive.',
+            'Team' => [
+                'A team page should prove capability, not just show profiles.',
+                'These roles map to the work needed to build flexible Capell sites.',
             ],
-            'Training' => [
-                'Editor, developer, and owner paths can each get their own module so training reads like a real handover plan instead of a generic onboarding promise.',
-                'Runbook assets make the page useful after launch because the same structure can point teams back to deployment, cache, package, and support routines.',
-                'Readiness checks, rehearsals, and module completion give the training page proof that the team can operate Capell once implementation support steps back.',
+            'FAQ' => [
+                'This page intentionally works without a large hero image.',
+                'It proves Capell can render dense support content in a calmer page template.',
             ],
-            default => ['', '', ''],
-        };
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private function standardFooterPageConfigs(): array
-    {
-        return [
-            'Integrations' => [
-                'tabCode' => 'API',
-                'tabCopy' => 'Connectors, webhooks, and extension health.',
-                'tabMetric' => '24 endpoints',
-                'headline' => 'Integration surfaces for teams that need traceable sync',
-                'intro' => 'Show the connector story with a shared editorial layout, then swap in API diagrams, webhook states, marketplace extension proof, and operational sync metrics.',
-                'primaryAction' => 'Plan an integration',
-                'secondaryAction' => 'Read API notes',
-                'assetLabel' => 'Connector map',
-                'assetMetric' => '24 monitored touchpoints',
-                'stats' => ['Surface' => 'Marketplace extensions, webhooks, API tokens', 'Reliability' => 'Retries, audit entries, health alerts', 'Owner' => 'Developer-led setup with editor-safe status'],
-                'visual' => ['Register connector', 'Map payload', 'Observe sync', 'Review failures'],
-                'storyHeading' => 'Make integrations feel operational, not decorative',
-                'storyLead' => 'The same footer-page shell can explain API work without becoming a docs page. The hero asset becomes a connector map, the proof panel becomes health telemetry, and the deep-dive rows become lifecycle steps.',
-                'storyDetail' => 'That keeps the public page persuasive for buyers while still signalling that Capell integrations are Laravel-native, observable, and owned by packages.',
-                'proofLabel' => 'Operational proof',
-                'proofTitle' => 'Every connector needs an owner, a retry path, and a public explanation.',
-                'proofBody' => 'The page assets show which systems connect, what Capell records, and how teams recover when a sync fails.',
-                'features' => [
-                    ['label' => 'Connect', 'title' => 'API and webhook entry points', 'body' => 'Describe inbound submissions, outbound notifications, and token-controlled integration access.'],
-                    ['label' => 'Extend', 'title' => 'Marketplace package surface', 'body' => 'Show how extension installs and health alerts sit beside the core CMS rather than inside page templates.'],
-                    ['label' => 'Observe', 'title' => 'Sync confidence signals', 'body' => 'Use health checks, recent events, and retry notes as assets that change per integration.'],
-                ],
-                'deepDiveKicker' => 'Lifecycle',
-                'deepDiveHeading' => 'From connector request to monitored production sync',
-                'deepDiveIntro' => 'The table module becomes an integration lifecycle without changing the surrounding layout.',
-                'rows' => [
-                    ['label' => 'Discovery', 'title' => 'Map source systems', 'body' => 'Confirm records, identifiers, auth flow, expected volume, and failure ownership.'],
-                    ['label' => 'Build', 'title' => 'Wire package-owned actions', 'body' => 'Keep connector logic in actions and package services, not in public content output.'],
-                    ['label' => 'Verify', 'title' => 'Publish health evidence', 'body' => 'Surface connection state, last sync, retry policy, and escalation paths for operators.'],
-                ],
-                'assetSlots' => ['Hero metric' => '24 touchpoints', 'Proof list' => 'Retries and health alerts', 'Feature cards' => 'API, extensions, observability', 'Process rows' => 'Discover, build, verify', 'Testimonial' => 'Developer owner quote', 'CTA' => 'Plan an integration'],
-                'ctaKicker' => 'Integration planning',
-                'ctaHeading' => 'Turn fragile sync work into an owned Capell surface',
-                'ctaBody' => 'Bring the systems, auth model, and failure rules. The implementation can stay boring when the ownership is clear.',
-                'ctaAction' => 'Start integration scoping',
+            'Pricing' => [
+                'Choose the access and support model that fits your team.',
+                'Start with a developer plan for evaluation, move to agency support for production delivery, or scope an enterprise agreement when governance and response times matter.',
             ],
-            'Locations' => [
-                'tabCode' => 'LOC',
-                'tabCopy' => 'Regional page trees and local ownership.',
-                'tabMetric' => '18 regions',
-                'headline' => 'Multi-site delivery without losing local context',
-                'intro' => 'Use location pages to show regional landing pages, local governance, routed child content, and shared CMS operations from one Laravel install.',
-                'primaryAction' => 'Plan a rollout',
-                'secondaryAction' => 'Read migration notes',
-                'assetLabel' => 'Network signal',
-                'assetMetric' => '18 publishable regions',
-                'stats' => ['Site model' => 'One CMS, many domains, shared package rules', 'Local ownership' => 'Regional editors with clear boundaries', 'Launch priority' => 'Redirects, translated slugs, media, cache coverage'],
-                'visual' => ['Global model', 'Regional tree', 'Local proof', 'Shared cache'],
-                'storyHeading' => 'Let every region vary without forking the system',
-                'storyLead' => 'The shared footer layout becomes a location hub by swapping in a coverage map, regional proof list, and local publishing cards.',
-                'storyDetail' => 'Visitors see a tailored local story while operators see the bigger point: Capell can run many page trees through one admin model.',
-                'proofLabel' => 'Operational proof',
-                'proofTitle' => 'Local pages should prove structure, not just list addresses.',
-                'proofBody' => 'The assets show regional ownership, routed child content, translated slugs, and shared infrastructure.',
-                'features' => [
-                    ['label' => 'Publish', 'title' => 'Regional page trees', 'body' => 'Give each location its own content branch while keeping reusable sections and global rules consistent.'],
-                    ['label' => 'Localize', 'title' => 'Language and slug control', 'body' => 'Use translation records and explicit paths for local search and editor confidence.'],
-                    ['label' => 'Govern', 'title' => 'Shared release discipline', 'body' => 'Keep redirects, media, cache generation, and page discovery in one operational workflow.'],
-                ],
-                'deepDiveKicker' => 'Coverage model',
-                'deepDiveHeading' => 'A repeatable path for location networks',
-                'deepDiveIntro' => 'The deep-dive module becomes a regional rollout ledger.',
-                'rows' => [
-                    ['label' => 'Model', 'title' => 'Define the region taxonomy', 'body' => 'Capture locations, service areas, languages, ownership, and page relationships.'],
-                    ['label' => 'Migrate', 'title' => 'Move local content safely', 'body' => 'Preserve media, redirects, search metadata, and legacy URL confidence.'],
-                    ['label' => 'Operate', 'title' => 'Give editors local guardrails', 'body' => 'Allow local updates while shared layouts, cache, and publishing checks stay central.'],
-                ],
-                'assetSlots' => ['Hero metric' => '18 regions', 'Proof list' => 'Ownership and routing', 'Feature cards' => 'Publish, localize, govern', 'Process rows' => 'Model, migrate, operate', 'Testimonial' => 'Regional editor quote', 'CTA' => 'Plan a rollout'],
-                'ctaKicker' => 'Location rollout',
-                'ctaHeading' => 'Make local pages manageable before the network grows',
-                'ctaBody' => 'Bring the regions, languages, legacy paths, and ownership model. Capell can keep the rollout structured from the first page.',
-                'ctaAction' => 'Scope location pages',
+            'Testimonials' => [
+                'Customer proof should connect outcomes to the delivery model behind them.',
+                'The demo template renders testimonials as a public proof surface without baking that layout into the page body.',
             ],
-            'Partners' => [
-                'tabCode' => 'PRT',
-                'tabCopy' => 'Certified delivery and extension partners.',
-                'tabMetric' => '4 tiers',
-                'headline' => 'Partner delivery paths with clear implementation boundaries',
-                'intro' => 'Show agencies, integration partners, and extension builders how Capell supports co-delivery without blurring who owns architecture, code, content, and launch.',
-                'primaryAction' => 'Discuss partnership',
-                'secondaryAction' => 'Read partner notes',
-                'assetLabel' => 'Partner ladder',
-                'assetMetric' => '4 enablement tiers',
-                'stats' => ['Partner types' => 'Agencies, implementers, extension builders', 'Enablement' => 'Runbooks, demos, architecture review', 'Delivery rule' => 'Named owner for every workstream'],
-                'visual' => ['Evaluate fit', 'Certify workflow', 'Co-deliver', 'Support launch'],
-                'storyHeading' => 'Show partnership as a delivery system',
-                'storyLead' => 'The same layout becomes a partner page by replacing product proof with enablement assets: tiers, review lanes, co-delivery roles, and extension ownership.',
-                'storyDetail' => 'The result reads like a serious implementation network rather than a logo wall.',
-                'proofLabel' => 'Partner proof',
-                'proofTitle' => 'A good partner page explains how work gets handed off.',
-                'proofBody' => 'Use the asset panel to show tier, review cadence, supported packages, and expected launch ownership.',
-                'features' => [
-                    ['label' => 'Certify', 'title' => 'Implementation standards', 'body' => 'Make architecture review, testing, cache checks, and editor handover part of the partner promise.'],
-                    ['label' => 'Enable', 'title' => 'Reusable partner assets', 'body' => 'Give partners demo pages, runbooks, migration notes, and package guidance they can use repeatedly.'],
-                    ['label' => 'Extend', 'title' => 'Package ecosystem fit', 'body' => 'Show where partners can build extensions without taking over the core CMS contract.'],
-                ],
-                'deepDiveKicker' => 'Enablement',
-                'deepDiveHeading' => 'A partner lane for each delivery shape',
-                'deepDiveIntro' => 'The table module becomes a partner tier model.',
-                'rows' => [
-                    ['label' => 'Referral', 'title' => 'Qualified introduction', 'body' => 'The partner receives project context, timing, and the Capell fit before scoping.'],
-                    ['label' => 'Certified', 'title' => 'Reviewed implementation', 'body' => 'Architecture and launch checks are reviewed against Capell standards.'],
-                    ['label' => 'Extension', 'title' => 'Package-owned delivery', 'body' => 'Partner code ships as a package surface with documentation and upgrade boundaries.'],
-                ],
-                'assetSlots' => ['Hero metric' => '4 tiers', 'Proof list' => 'Standards and review', 'Feature cards' => 'Certify, enable, extend', 'Process rows' => 'Referral, certified, extension', 'Testimonial' => 'Partner lead quote', 'CTA' => 'Discuss partnership'],
-                'ctaKicker' => 'Partner program',
-                'ctaHeading' => 'Make co-delivery legible before clients enter the process',
-                'ctaBody' => 'Define the partner lane, package surface, and review rules so delivery stays clear.',
-                'ctaAction' => 'Start partner scoping',
+            'Projects' => [
+                'Project listings show how Capell can present structured work, media, and calls to action from reusable public templates.',
+                'The saved content remains plain enough to survive editor and renderer changes.',
             ],
-            'Roadmap' => [
-                'tabCode' => 'MAP',
-                'tabCopy' => 'Release lanes, voting, and changelog proof.',
-                'tabMetric' => '6 lanes',
-                'headline' => 'A roadmap page that turns product direction into trust',
-                'intro' => 'Use the shared page system to show what is planned, what is shipping, what is open for feedback, and how releases are governed.',
-                'primaryAction' => 'Share feedback',
-                'secondaryAction' => 'Read release notes',
-                'assetLabel' => 'Release board',
-                'assetMetric' => '6 active lanes',
-                'stats' => ['Planning' => 'Now, next, later, research', 'Feedback' => 'Votes, comments, customer context', 'Confidence' => 'Changelog links and shipped proof'],
-                'visual' => ['Collect signal', 'Prioritize lane', 'Ship release', 'Close loop'],
-                'storyHeading' => 'Roadmaps need confidence, not a wish list',
-                'storyLead' => 'The reusable layout becomes a roadmap by swapping the proof panel for release lanes, vote counts, confidence labels, and shipped examples.',
-                'storyDetail' => 'It gives buyers and builders a reliable product-direction page without inventing a separate design pattern.',
-                'proofLabel' => 'Roadmap proof',
-                'proofTitle' => 'Every roadmap item should say why it matters and where it sits.',
-                'proofBody' => 'Use page assets for lane status, release confidence, and feedback prompts.',
-                'features' => [
-                    ['label' => 'Prioritize', 'title' => 'Release lanes', 'body' => 'Group work into now, next, later, research, partner, and platform lanes.'],
-                    ['label' => 'Listen', 'title' => 'Feedback loops', 'body' => 'Show which items accept input and what kind of customer evidence helps.'],
-                    ['label' => 'Prove', 'title' => 'Changelog confidence', 'body' => 'Link shipped work back to roadmap promises so the page stays credible.'],
-                ],
-                'deepDiveKicker' => 'Release lanes',
-                'deepDiveHeading' => 'A roadmap module that can become a public operating rhythm',
-                'deepDiveIntro' => 'The table module becomes a release lane tracker.',
-                'rows' => [
-                    ['label' => 'Now', 'title' => 'Committed delivery', 'body' => 'Work with owner, scope, acceptance criteria, and expected release window.'],
-                    ['label' => 'Next', 'title' => 'Validated direction', 'body' => 'High-confidence work waiting for final sequencing and implementation capacity.'],
-                    ['label' => 'Research', 'title' => 'Open product questions', 'body' => 'Ideas that need customer context before they become promises.'],
-                ],
-                'assetSlots' => ['Hero metric' => '6 lanes', 'Proof list' => 'Votes and confidence', 'Feature cards' => 'Prioritize, listen, prove', 'Process rows' => 'Now, next, research', 'Testimonial' => 'Product owner quote', 'CTA' => 'Share feedback'],
-                'ctaKicker' => 'Product direction',
-                'ctaHeading' => 'Show what is next without overpromising',
-                'ctaBody' => 'Use roadmap assets to make product direction specific, inspectable, and easier to trust.',
-                'ctaAction' => 'Discuss roadmap needs',
+            'Project Detail' => [
+                'A project detail page can explain scope, delivery, results, and ownership without hard-coding the case-study layout into CMS prose.',
+                'Capell keeps the rich visual treatment in Blade and the portable story in content.',
             ],
-            'Governance' => [
-                'tabCode' => 'GOV',
-                'tabCopy' => 'Approvals, audit logs, roles, and policy checks.',
-                'tabMetric' => '12 controls',
-                'headline' => 'Governance content for teams that publish with consequences',
-                'intro' => 'Use the shared footer layout to explain approvals, permissions, audit history, compliance readiness, and release control without turning the page into a legal document.',
-                'primaryAction' => 'Review governance',
-                'secondaryAction' => 'Read workflow notes',
-                'assetLabel' => 'Control panel',
-                'assetMetric' => '12 publishing controls',
-                'stats' => ['Workflow' => 'Draft, review, approve, publish', 'Traceability' => 'Audit logs and workspace comments', 'Access' => 'Roles, gates, and break-glass paths'],
-                'visual' => ['Draft change', 'Review owner', 'Approve release', 'Audit event'],
-                'storyHeading' => 'Governance should be visible before it is needed',
-                'storyLead' => 'The reusable shell becomes a governance page by swapping the hero asset for controls, proof rows for audit signals, and feature cards for publishing safety.',
-                'storyDetail' => 'This gives technical buyers confidence that Capell can support structured review without leaking admin workflow into public pages.',
-                'proofLabel' => 'Control proof',
-                'proofTitle' => 'Publishing confidence depends on roles, evidence, and recovery paths.',
-                'proofBody' => 'Use assets to show reviewers, audit entries, approval state, and escalation paths.',
-                'features' => [
-                    ['label' => 'Approve', 'title' => 'Workflow gates', 'body' => 'Make review, approval, and scheduled publish steps explicit for content teams.'],
-                    ['label' => 'Trace', 'title' => 'Audit-ready changes', 'body' => 'Show who changed what, when it moved, and how release owners verify it.'],
-                    ['label' => 'Protect', 'title' => 'Role-aware access', 'body' => 'Keep admin rights, preview links, and emergency controls separate from public rendering.'],
-                ],
-                'deepDiveKicker' => 'Control model',
-                'deepDiveHeading' => 'Governance checks that map to real publishing work',
-                'deepDiveIntro' => 'The table module becomes an approval and audit checklist.',
-                'rows' => [
-                    ['label' => 'Access', 'title' => 'Define role boundaries', 'body' => 'Name who can edit, review, publish, grant access, and recover during incidents.'],
-                    ['label' => 'Workflow', 'title' => 'Model approval gates', 'body' => 'Represent draft, review, approval, and publish states without exposing admin details publicly.'],
-                    ['label' => 'Evidence', 'title' => 'Keep audit trails useful', 'body' => 'Capture workspace comments, review assignments, publish events, and release evidence.'],
-                ],
-                'assetSlots' => ['Hero metric' => '12 controls', 'Proof list' => 'Roles and audit logs', 'Feature cards' => 'Approve, trace, protect', 'Process rows' => 'Access, workflow, evidence', 'Testimonial' => 'Release lead quote', 'CTA' => 'Review governance'],
-                'ctaKicker' => 'Publishing control',
-                'ctaHeading' => 'Treat governance as a product surface, not a footnote',
-                'ctaBody' => 'Bring your roles, review model, and compliance pressure. Capell can make the workflow legible.',
-                'ctaAction' => 'Scope governance',
+            'Blog' => [
+                'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
+                'This demo page keeps presentation in Blade and stores only simple page copy.',
             ],
-            'Training' => [
-                'tabCode' => 'TRN',
-                'tabCopy' => 'Editor onboarding and developer runbooks.',
-                'tabMetric' => '9 modules',
-                'headline' => 'Training pages that help teams actually own the CMS',
-                'intro' => 'Use the same content skeleton to show editor onboarding, developer runbooks, workshop formats, launch handover, and operational confidence.',
-                'primaryAction' => 'Plan training',
-                'secondaryAction' => 'Read launch guides',
-                'assetLabel' => 'Training map',
-                'assetMetric' => '9 handover modules',
-                'stats' => ['Audience' => 'Editors, developers, release owners', 'Format' => 'Workshops, runbooks, launch checklists', 'Outcome' => 'Confident ownership after handover'],
-                'visual' => ['Orient team', 'Practice workflow', 'Document runbook', 'Review launch'],
-                'storyHeading' => 'Handover is part of the product experience',
-                'storyLead' => 'The shared footer layout becomes training-focused by replacing the proof assets with modules, exercises, readiness checks, and owner-specific paths.',
-                'storyDetail' => 'It shows that Capell is not just installed. It is handed over in a way teams can operate.',
-                'proofLabel' => 'Readiness proof',
-                'proofTitle' => 'Training should leave evidence that the team can run the CMS.',
-                'proofBody' => 'Use assets for module completion, runbook ownership, launch rehearsal, and editor confidence.',
-                'features' => [
-                    ['label' => 'Onboard', 'title' => 'Editor workflow training', 'body' => 'Teach content owners how pages, media, previews, and approvals fit together.'],
-                    ['label' => 'Document', 'title' => 'Developer runbooks', 'body' => 'Give developers package, cache, deployment, and troubleshooting notes they can trust.'],
-                    ['label' => 'Rehearse', 'title' => 'Launch enablement', 'body' => 'Practice publish, rollback, cache, search, and support workflows before go-live.'],
-                ],
-                'deepDiveKicker' => 'Handover',
-                'deepDiveHeading' => 'A training module for each ownership group',
-                'deepDiveIntro' => 'The table module becomes a practical curriculum.',
-                'rows' => [
-                    ['label' => 'Editors', 'title' => 'Publishing workflow', 'body' => 'Pages, sections, media, SEO fields, previews, and approval expectations.'],
-                    ['label' => 'Developers', 'title' => 'Operational runbook', 'body' => 'Package updates, assets, cache generation, diagnostics, and extension boundaries.'],
-                    ['label' => 'Owners', 'title' => 'Launch readiness', 'body' => 'Handover checks, support model, release calendar, and escalation paths.'],
-                ],
-                'assetSlots' => ['Hero metric' => '9 modules', 'Proof list' => 'Readiness checks', 'Feature cards' => 'Onboard, document, rehearse', 'Process rows' => 'Editors, developers, owners', 'Testimonial' => 'Editor owner quote', 'CTA' => 'Plan training'],
-                'ctaKicker' => 'Training and handover',
-                'ctaHeading' => 'Make CMS ownership explicit before launch day',
-                'ctaBody' => 'Bring the team structure, release responsibilities, and support model. Training should map to real ownership.',
-                'ctaAction' => 'Scope training',
+            'Home, Buildings and Architecture' => [
+                'Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact.',
+                'Capell can reproduce that structure with layout-builder elements instead of fixed page templates.',
+            ],
+            'Implementation' => [
+                'A productized Capell implementation gives teams a production CMS foundation, migration confidence, and a clear handover path.',
+                'Every scope change gets priced before work starts.',
+            ],
+            'Resources' => [
+                'Guides, architecture notes, launch checklists, and developer references for teams building Laravel and Filament CMS platforms with Capell.',
+                'The resource library page uses a custom demo Blade surface instead of storing a designed index in the database.',
+            ],
+            'Compliance' => [
+                'Compliance pages keep regional obligations, policy owners, review cadence, and evidence links close to the local publishing workflow.',
+                'Use this child page to prove location content is structured, governed, and reusable.',
+            ],
+            'Sustainability' => [
+                'Sustainability pages give each region room to publish local initiatives while keeping measurement language, media, and taxonomy consistent.',
+                'Editors can maintain local proof points without breaking the shared Capell page model.',
             ],
         ];
-    }
 
-    private function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool
-    {
-        $model->unsetRelation('media');
+        if (in_array($name, self::StandardFooterPageNames, true)) {
+            $content[$name] = [
+                sprintf('%s content is rendered through the shared demo footer page Blade template.', $name),
+                'The database stores portable editorial copy while the package view owns the designed public presentation.',
+            ];
+        }
 
-        return $model->getMedia($this->mediaCollectionName($collection))->isNotEmpty();
-    }
+        if (! array_key_exists($name, $content)) {
+            return null;
+        }
 
-    private function mediaCollectionName(BackedEnum|string $collection): string
-    {
-        return $collection instanceof BackedEnum ? (string) $collection->value : $collection;
+        return collect($content[$name])
+            ->map(fn (string $paragraph): string => sprintf('<p>%s</p>', e($paragraph)))
+            ->implode("\n");
     }
 
     private function createFeatures(Site $site): Collection
@@ -4212,7 +2990,7 @@ HTML,
         return $teamMembersCollection;
     }
 
-    private function createWidgetMedia(Element $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    private function createElementMedia(Element $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
