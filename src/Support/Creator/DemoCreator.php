@@ -2335,10 +2335,20 @@ class DemoCreator
         $elements = $withBreadcrumbs
             ? [
                 ['element_key' => 'breadcrumbs'],
-                ['element_key' => 'page-content'],
+                [
+                    'element_key' => 'page-content',
+                    'meta' => [
+                        'page_content' => ['content'],
+                    ],
+                ],
             ]
             : [
-                ['element_key' => 'page-content'],
+                [
+                    'element_key' => 'page-content',
+                    'meta' => [
+                        'page_content' => ['content'],
+                    ],
+                ],
             ];
 
         $attributes = [
@@ -2707,18 +2717,18 @@ HTML;
         }
 
         return match ($name) {
-            'About Us' => $this->emporiumAboutContent(),
-            'Homepage 2' => $this->emporiumHomepageTwoContent(),
+            'About Us' => $this->showcaseAboutContent(),
+            'Homepage 2' => $this->showcaseHomepageTwoContent(),
             'Contact' => $this->contactIndexContent(),
             'Services' => $this->contactServicesContent(),
-            'Team' => $this->emporiumTeamContent(),
-            'FAQ' => $this->emporiumFaqContent(),
+            'Team' => $this->showcaseTeamContent(),
+            'FAQ' => $this->showcaseFaqContent(),
             'Pricing' => $this->pricingIndexContent(),
-            'Testimonials' => $this->emporiumTestimonialsContent(),
-            'Projects' => $this->emporiumProjectsContent(),
-            'Project Detail' => $this->emporiumProjectDetailContent(),
-            'Blog' => $this->emporiumBlogContent(),
-            'Home, Buildings and Architecture' => $this->emporiumSinglePostContent(),
+            'Testimonials' => $this->showcaseTestimonialsContent(),
+            'Projects' => $this->showcaseProjectsContent(),
+            'Project Detail' => $this->showcaseProjectDetailContent(),
+            'Blog' => $this->showcaseBlogContent(),
+            'Home, Buildings and Architecture' => $this->showcaseSinglePostContent(),
             'Implementation' => $this->implementationPricingContent(),
             'Resources' => $this->resourcesHubContent(),
             'Integrations' => $this->integrationsIndexContent(),
@@ -2845,49 +2855,52 @@ HTML;
 HTML;
     }
 
-    private function emporiumAboutContent(): string
+    private function showcaseAboutContent(): string
     {
         return <<<'HTML_WRAP'
-        <div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--about">
-            <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+        <div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--about mx-auto max-w-none p-0 text-[#111827]">
+            <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
                 <p class="capell-demo-kicker">About Capell</p>
-                <h1>A CMS architecture team with a layout-builder product mindset</h1>
-                <p>Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
+                <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">A CMS architecture team with a layout-builder product mindset</h1>
+                <p class="max-w-[42rem] text-white/80">Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.</p>
             </section>
 
-            <section class="capell-demo-emporium-split">
+            <section class="capell-demo-showcase-split mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(1.5rem,4vw,4rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                 <div>
                     <p class="capell-demo-kicker">Platform experience</p>
-                    <h2>Experienced in flexible content systems</h2>
-                    <p>Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
-                    <p>Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
-                    <div class="capell-demo-emporium-stats">
-                        <div><strong>12+</strong><span>Page types</span></div>
-                        <div><strong>40+</strong><span>Widget elements</span></div>
-                        <div><strong>100+</strong><span>Media assets</span></div>
+                    <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">Experienced in flexible content systems</h2>
+                    <p class="max-w-[68ch] text-[#4b5563] leading-7">Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.</p>
+                    <p class="max-w-[68ch] text-[#4b5563] leading-7">Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.</p>
+                    <div class="capell-demo-showcase-stats my-[clamp(2rem,6vw,5rem)] grid grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-3">
+                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">12+</strong><span>Page types</span></div>
+                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">40+</strong><span>Widget elements</span></div>
+                        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">100+</strong><span>Media assets</span></div>
                     </div>
                 </div>
-                <aside class="capell-demo-emporium-collage" aria-label="Capell content collage">
-                    <span>Page</span><span>Gallery</span><span>Asset</span><span>Navigation</span>
+                <aside class="capell-demo-showcase-collage grid grid-cols-2 gap-3 md:grid-cols-4 md:auto-rows-[minmax(9rem,18vw)]" aria-label="Capell content collage">
+                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center p-4 font-extrabold text-white md:col-span-2 md:row-span-2">Page</span>
+                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center p-4 font-extrabold text-white">Gallery</span>
+                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center p-4 font-extrabold text-white">Asset</span>
+                    <span class="flex min-h-40 items-end border border-[#d8dee8] bg-[linear-gradient(180deg,rgb(7_10_18_/_0.05),rgb(7_10_18_/_0.72)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center p-4 font-extrabold text-white">Navigation</span>
                 </aside>
             </section>
 
-            <section class="capell-demo-emporium-process">
+            <section class="capell-demo-showcase-process mx-auto my-[clamp(4rem,8vw,8rem)] w-[min(76rem,calc(100%_-_3rem))]">
                 <p class="capell-demo-kicker">How we work</p>
-                <h2>From content model to public page</h2>
-                <ol>
-                    <li><span>01</span><strong>Consultation</strong><p>Audit content, routes, media, integrations, and editor ownership.</p></li>
-                    <li><span>02</span><strong>Builder design</strong><p>Define reusable elements that editors can safely compose.</p></li>
-                    <li><span>03</span><strong>Migration and QA</strong><p>Move content into Capell and verify the public output.</p></li>
-                    <li><span>04</span><strong>Publish</strong><p>Generate cacheable HTML and hand over the workflow.</p></li>
+                <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">From content model to public page</h2>
+                <ol class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">01</span><strong class="mt-3 block">Consultation</strong><p class="text-[#4b5563]">Audit content, routes, media, integrations, and editor ownership.</p></li>
+                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">02</span><strong class="mt-3 block">Builder design</strong><p class="text-[#4b5563]">Define reusable elements that editors can safely compose.</p></li>
+                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">03</span><strong class="mt-3 block">Migration and QA</strong><p class="text-[#4b5563]">Move content into Capell and verify the public output.</p></li>
+                    <li class="border border-[#d8dee8] bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">04</span><strong class="mt-3 block">Publish</strong><p class="text-[#4b5563]">Generate cacheable HTML and hand over the workflow.</p></li>
                 </ol>
             </section>
 
-            <section class="capell-demo-emporium-promo">
+            <section class="capell-demo-showcase-promo mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-center gap-8 bg-[linear-gradient(90deg,rgb(7_10_18_/_0.9),rgb(7_10_18_/_0.58)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center p-[clamp(2rem,5vw,4rem)] text-white md:grid-cols-[minmax(0,1fr)_auto]">
                 <div>
                     <p class="capell-demo-kicker">Capell promotion</p>
-                    <h2>Build a public site that editors can actually own</h2>
-                    <p>Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
+                    <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal text-white">Build a public site that editors can actually own</h2>
+                    <p class="max-w-[68ch] text-white/75">Every major page section can be recreated with layout-builder elements, section assets, media, and navigation-aware content.</p>
                 </div>
                 <a class="capell-demo-button" href="/contact#scoping">Get the best route</a>
             </section>
@@ -2895,152 +2908,152 @@ HTML;
         HTML_WRAP;
     }
 
-    private function emporiumHomepageTwoContent(): string
+    private function showcaseHomepageTwoContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--home-variant">
-    <section class="capell-demo-emporium-hero">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--home-variant mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero relative isolate grid min-h-[min(78vh,46rem)] w-full max-w-none grid-cols-1 items-center gap-[clamp(2rem,5vw,5rem)] overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)]">
         <p class="capell-demo-kicker">Architecture &amp; content</p>
-        <h1>A second homepage for service-led Capell builds</h1>
-        <p>This variation keeps the same Capell content but changes the rhythm: feature cards first, then services, team proof, project examples, pricing, and launch metrics.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">A second homepage for service-led Capell builds</h1>
+        <p class="max-w-[42rem] text-white/80">This variation keeps the same Capell content but changes the rhythm: feature cards first, then services, team proof, project examples, pricing, and launch metrics.</p>
         <a class="capell-demo-button" href="/projects">View portfolio</a>
     </section>
 
-    <section class="capell-demo-emporium-feature-row">
-        <article><span>01</span><h2>Cost friendly</h2><p>Reuse governed widgets rather than designing every page from scratch.</p></article>
-        <article><span>02</span><h2>Communicative</h2><p>Make page structure clear to editors, reviewers, and developers.</p></article>
-        <article><span>03</span><h2>Responsive design</h2><p>Tailwind-friendly element layouts keep the public surface adaptable.</p></article>
+    <section class="capell-demo-showcase-feature-row mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-3">
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><span class="text-sm font-bold uppercase text-[#4b5563]">01</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Cost friendly</h2><p class="text-[#4b5563]">Reuse governed widgets rather than designing every page from scratch.</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><span class="text-sm font-bold uppercase text-[#4b5563]">02</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Communicative</h2><p class="text-[#4b5563]">Make page structure clear to editors, reviewers, and developers.</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><span class="text-sm font-bold uppercase text-[#4b5563]">03</span><h2 class="mt-4 text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Responsive design</h2><p class="text-[#4b5563]">Tailwind-friendly element layouts keep the public surface adaptable.</p></article>
     </section>
 
-    <section class="capell-demo-emporium-services">
+    <section class="capell-demo-showcase-services mx-auto my-[clamp(4rem,8vw,8rem)] w-[min(76rem,calc(100%_-_3rem))]">
         <div>
             <p class="capell-demo-kicker">Our services</p>
-            <h2>Best service from Capell</h2>
-            <p>Implementation support, frontend architecture, migration planning, editor workflow setup, and launch verification.</p>
+            <h2 class="max-w-[20ch] text-[clamp(2rem,4vw,3.75rem)] leading-none tracking-normal">Best service from Capell</h2>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">Implementation support, frontend architecture, migration planning, editor workflow setup, and launch verification.</p>
         </div>
-        <div class="capell-demo-emporium-card-grid">
-            <article><h3>Layout architecture</h3><p>Reusable sections, galleries, cards, forms, and CTAs.</p></article>
-            <article><h3>Content migration</h3><p>Move existing pages, assets, redirects, and resource libraries safely.</p></article>
-            <article><h3>Publishing workflow</h3><p>Preview, approval, scheduling, cache generation, and release checks.</p></article>
-            <article><h3>Package integration</h3><p>Blog, search, forms, navigation, analytics, and access control.</p></article>
+        <div class="capell-demo-showcase-card-grid mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Layout architecture</h3><p class="text-[#4b5563] leading-7">Reusable sections, galleries, cards, forms, and CTAs.</p></article>
+            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Content migration</h3><p class="text-[#4b5563] leading-7">Move existing pages, assets, redirects, and resource libraries safely.</p></article>
+            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Publishing workflow</h3><p class="text-[#4b5563] leading-7">Preview, approval, scheduling, cache generation, and release checks.</p></article>
+            <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><h3 class="text-[clamp(1.15rem,2vw,1.55rem)] leading-tight">Package integration</h3><p class="text-[#4b5563] leading-7">Blog, search, forms, navigation, analytics, and access control.</p></article>
         </div>
     </section>
 
-    <section class="capell-demo-emporium-pricing-strip">
-        <article><span>Standard plan</span><strong>Developer</strong><p>Evaluation and proof-of-concept builds.</p></article>
-        <article><span>Premium plan</span><strong>Agency</strong><p>Production support for client delivery.</p></article>
-        <article><span>Ultimate plan</span><strong>Enterprise</strong><p>Governed rollout, support, and procurement.</p></article>
+    <section class="capell-demo-showcase-pricing-strip mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-3">
+        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Standard plan</span><strong class="block text-3xl">Developer</strong><p class="text-[#4b5563]">Evaluation and proof-of-concept builds.</p></article>
+        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Premium plan</span><strong class="block text-3xl">Agency</strong><p class="text-[#4b5563]">Production support for client delivery.</p></article>
+        <article class="bg-white p-5"><span class="text-sm font-bold uppercase text-[#4b5563]">Ultimate plan</span><strong class="block text-3xl">Enterprise</strong><p class="text-[#4b5563]">Governed rollout, support, and procurement.</p></article>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumTeamContent(): string
+    private function showcaseTeamContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--team">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--team mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
         <p class="capell-demo-kicker">Meet our team</p>
-        <h1>Implementation specialists for Capell websites</h1>
-        <p>A team page should prove capability, not just show profiles. These roles map to the actual work needed to build flexible Capell sites.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Implementation specialists for Capell websites</h1>
+        <p class="max-w-[42rem] text-white/80">A team page should prove capability, not just show profiles. These roles map to the actual work needed to build flexible Capell sites.</p>
     </section>
-    <section class="capell-demo-emporium-team-grid">
-        <article><span>Strategy</span><h2>Mara Ellison</h2><p>CMS architecture lead</p></article>
-        <article><span>Frontend</span><h2>Jon Bell</h2><p>Tailwind and public rendering</p></article>
-        <article><span>Publishing</span><h2>Ada Morris</h2><p>Filament workflow specialist</p></article>
-        <article><span>Migration</span><h2>Cal Hart</h2><p>Content import engineer</p></article>
-        <article><span>QA</span><h2>Nia Porter</h2><p>Release and cache verification</p></article>
-        <article><span>Support</span><h2>Eli Stone</h2><p>Production support lead</p></article>
+    <section class="capell-demo-showcase-team-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Strategy</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Mara Ellison</h2><p class="text-[#4b5563]">CMS architecture lead</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Frontend</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Jon Bell</h2><p class="text-[#4b5563]">Tailwind and public rendering</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Publishing</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Ada Morris</h2><p class="text-[#4b5563]">Filament workflow specialist</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Migration</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Cal Hart</h2><p class="text-[#4b5563]">Content import engineer</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">QA</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Nia Porter</h2><p class="text-[#4b5563]">Release and cache verification</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Support</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Eli Stone</h2><p class="text-[#4b5563]">Production support lead</p></article>
     </section>
-    <section class="capell-demo-emporium-stats capell-demo-emporium-stats--band">
-        <div><strong>8+</strong><span>Specialist roles</span></div>
-        <div><strong>45+</strong><span>Packages checked</span></div>
-        <div><strong>4</strong><span>Release gates</span></div>
-        <div><strong>1</strong><span>Clear owner model</span></div>
+    <section class="capell-demo-showcase-stats capell-demo-showcase-stats--band mx-auto my-[clamp(2rem,6vw,5rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-px border border-[#d8dee8] bg-[#d8dee8] md:grid-cols-4">
+        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">8+</strong><span>Specialist roles</span></div>
+        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">45+</strong><span>Packages checked</span></div>
+        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">4</strong><span>Release gates</span></div>
+        <div class="min-h-36 bg-white p-5"><strong class="block text-[clamp(2rem,4vw,3.5rem)] leading-none">1</strong><span>Clear owner model</span></div>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumFaqContent(): string
+    private function showcaseFaqContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--faq">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--faq mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
         <p class="capell-demo-kicker">FAQ</p>
-        <h1>You have questions?</h1>
-        <p>This page intentionally works without a large hero image. It proves Capell can render dense support content in a calmer page template.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">You have questions?</h1>
+        <p class="max-w-[42rem] text-white/80">This page intentionally works without a large hero image. It proves Capell can render dense support content in a calmer page template.</p>
     </section>
-    <section class="capell-demo-emporium-faq">
+    <section class="capell-demo-showcase-faq mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-            <h2>Capell architecture</h2>
-            <details open><summary>Can the header sit above the hero instead of overlaying it?</summary><p>Yes. The theme now has a header-over-hero switch so teams can use either an overlay treatment or a normal document flow header.</p></details>
-            <details><summary>Can a page skip the hero entirely?</summary><p>Yes. Pages can render directly into content, FAQ, article, pricing, or project layouts without needing a hero widget.</p></details>
-            <details><summary>Does public output leak editor controls?</summary><p>No. Public pages render clean frontend components while editor and Filament concerns stay private.</p></details>
+            <h2 class="text-[clamp(2rem,4vw,3.75rem)] leading-none">Capell architecture</h2>
+            <details class="border border-[#d8dee8] bg-white p-4" open><summary class="cursor-pointer font-extrabold">Can the header sit above the hero instead of overlaying it?</summary><p class="text-[#4b5563]">Yes. The theme now has a header-over-hero switch so teams can use either an overlay treatment or a normal document flow header.</p></details>
+            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can a page skip the hero entirely?</summary><p class="text-[#4b5563]">Yes. Pages can render directly into content, FAQ, article, pricing, or project layouts without needing a hero widget.</p></details>
+            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Does public output leak editor controls?</summary><p class="text-[#4b5563]">No. Public pages render clean frontend components while editor and Filament concerns stay private.</p></details>
         </div>
         <div>
-            <h2>Builder services</h2>
-            <details><summary>Can we keep existing content?</summary><p>Yes. The goal is to preserve content intent and improve layout, hierarchy, and reusable structure.</p></details>
-            <details><summary>Can we model project and blog pages?</summary><p>Yes. This demo includes project listing, project detail, blog index, and single article page coverage.</p></details>
+            <h2 class="text-[clamp(2rem,4vw,3.75rem)] leading-none">Builder services</h2>
+            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can we keep existing content?</summary><p class="text-[#4b5563]">Yes. The goal is to preserve content intent and improve layout, hierarchy, and reusable structure.</p></details>
+            <details class="border border-[#d8dee8] bg-white p-4"><summary class="cursor-pointer font-extrabold">Can we model project and blog pages?</summary><p class="text-[#4b5563]">Yes. This demo includes project listing, project detail, blog index, and single article page coverage.</p></details>
         </div>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumTestimonialsContent(): string
+    private function showcaseTestimonialsContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--testimonials">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--testimonials mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
         <p class="capell-demo-kicker">Testimonials</p>
-        <h1>What Capell builders say</h1>
-        <p>Reusable testimonial sections can act as proof bands, card grids, carousel content, or supporting evidence beside service pages.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">What Capell builders say</h1>
+        <p class="max-w-[42rem] text-white/80">Reusable testimonial sections can act as proof bands, card grids, carousel content, or supporting evidence beside service pages.</p>
     </section>
-    <section class="capell-demo-emporium-testimonial-grid">
-        <article><p>Capell replaced rigid templates with governed elements our editors can actually compose.</p><strong>Mara Ellison</strong><span>Senior Laravel developer</span></article>
-        <article><p>The public output stays clean while the editorial workflow remains flexible.</p><strong>Jon Bell</strong><span>Frontend lead</span></article>
-        <article><p>We can build resource hubs, landing pages, and service pages from the same content system.</p><strong>Ada Morris</strong><span>Publishing owner</span></article>
-        <article><p>The package boundaries make implementation work easier to estimate and support.</p><strong>Cal Hart</strong><span>Migration engineer</span></article>
+    <section class="capell-demo-showcase-testimonial-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">Capell replaced rigid templates with governed elements our editors can actually compose.</p><strong class="block">Mara Ellison</strong><span>Senior Laravel developer</span></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">The public output stays clean while the editorial workflow remains flexible.</p><strong class="block">Jon Bell</strong><span>Frontend lead</span></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><p class="text-[#4b5563]">We can build resource hubs, landing pages, and service pages from the same content system.</p><strong class="block">Ada Morris</strong><span>Publishing owner</span></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><p class="text-[#4b5563]">The package boundaries make implementation work easier to estimate and support.</p><strong class="block">Cal Hart</strong><span>Migration engineer</span></article>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumProjectsContent(): string
+    private function showcaseProjectsContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--projects">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--projects mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
         <p class="capell-demo-kicker">Latest project</p>
-        <h1>Capell implementation project library</h1>
-        <p>Project listings show that Capell can mix categories, galleries, cards, metadata, and detail routes without hard-coded portfolio templates.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Capell implementation project library</h1>
+        <p class="max-w-[42rem] text-white/80">Project listings show that Capell can mix categories, galleries, cards, metadata, and detail routes without hard-coded portfolio templates.</p>
     </section>
-    <nav class="capell-demo-emporium-filter" aria-label="Project filters"><a href="/projects">All</a><a href="/projects">Migration</a><a href="/projects">Layout Builder</a><a href="/projects">Publishing</a></nav>
-    <section class="capell-demo-emporium-project-grid">
-        <article><span>Layout Builder</span><h2>Flexible marketing site</h2><p>Hero slideshow, galleries, proof, resource cards, and contact strip.</p></article>
-        <article><span>Migration</span><h2>Content library rebuild</h2><p>Resource hub, media assets, navigation trees, and search-ready pages.</p></article>
-        <article><span>Publishing</span><h2>Governed multi-site estate</h2><p>Domains, languages, approval workflows, and cache generation.</p></article>
-        <article><span>Frontend</span><h2>Tailwind component system</h2><p>Reusable section elements with crisp responsive behaviour.</p></article>
+    <nav class="capell-demo-showcase-filter mx-auto mt-[clamp(4rem,8vw,8rem)] flex w-[min(76rem,calc(100%_-_3rem))] flex-wrap gap-3" aria-label="Project filters"><a class="border border-[#111827] bg-[#111827] px-3 py-2 text-sm font-extrabold text-white" href="/projects">All</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Migration</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Layout Builder</a><a class="border border-[#d8dee8] bg-white px-3 py-2 text-sm font-extrabold text-[#4b5563]" href="/projects">Publishing</a></nav>
+    <section class="capell-demo-showcase-project-grid mx-auto mb-[clamp(4rem,8vw,8rem)] mt-6 grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Layout Builder</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Flexible marketing site</h2><p class="text-[#4b5563]">Hero slideshow, galleries, proof, resource cards, and contact strip.</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)] md:translate-y-6"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Migration</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Content library rebuild</h2><p class="text-[#4b5563]">Resource hub, media assets, navigation trees, and search-ready pages.</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Publishing</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Governed multi-site estate</h2><p class="text-[#4b5563]">Domains, languages, approval workflows, and cache generation.</p></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-brand-system.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Frontend</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Tailwind component system</h2><p class="text-[#4b5563]">Reusable section elements with crisp responsive behaviour.</p></article>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumProjectDetailContent(): string
+    private function showcaseProjectDetailContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--project-detail">
-    <section class="capell-demo-emporium-article-layout">
-        <article>
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--project-detail mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-article-layout mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(2rem,5vw,5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.36fr)]">
+        <article class="max-w-[46rem]">
             <p class="capell-demo-kicker">Project detail</p>
-            <h1>Layout builder redesign for a flexible Capell website</h1>
-            <p class="capell-demo-emporium-meta">London | May 2026</p>
-            <p>The project detail page shows the long-form content pattern: narrative copy, project metadata, team ownership, recent project links, and a promotion section in one structured layout.</p>
-            <p>The implementation kept existing content intent but rebuilt the presentation around reusable Capell elements, asset-backed sections, and a clearer public route structure.</p>
-            <blockquote>“The real win is not visual novelty. It is being able to rebuild each section in the CMS without losing frontend discipline.”</blockquote>
+            <h1 class="max-w-[15ch] text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal">Layout builder redesign for a flexible Capell website</h1>
+            <p class="capell-demo-showcase-meta text-sm font-bold text-[#4b5563]">London | May 2026</p>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">The project detail page shows the long-form content pattern: narrative copy, project metadata, team ownership, recent project links, and a promotion section in one structured layout.</p>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">The implementation kept existing content intent but rebuilt the presentation around reusable Capell elements, asset-backed sections, and a clearer public route structure.</p>
+            <blockquote class="my-8 border-l-4 border-[#c6923d] py-4 pl-6 text-[clamp(1.35rem,3vw,2rem)] font-extrabold leading-tight">“The real win is not visual novelty. It is being able to rebuild each section in the CMS without losing frontend discipline.”</blockquote>
         </article>
-        <aside>
+        <aside class="border border-[#d8dee8] bg-white p-6 shadow-[0_1rem_3rem_rgb(17_24_39_/_0.06)]">
             <h2>Project info</h2>
             <dl><div><dt>Client project</dt><dd>Capell demo estate</dd></div><div><dt>Project date</dt><dd>May 2026</dd></div><div><dt>Location</dt><dd>United Kingdom</dd></div></dl>
             <h2>Project head</h2>
@@ -3051,39 +3064,39 @@ HTML;
 HTML;
     }
 
-    private function emporiumBlogContent(): string
+    private function showcaseBlogContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--blog">
-    <section class="capell-demo-emporium-hero capell-demo-emporium-hero--compact">
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--blog mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-hero capell-demo-showcase-hero--compact relative isolate m-0 min-h-[min(64vh,40rem)] w-full max-w-none overflow-hidden bg-[linear-gradient(90deg,rgb(7_10_18_/_0.92),rgb(7_10_18_/_0.74),rgb(7_10_18_/_0.38)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center px-[max(1.5rem,calc((100vw_-_76rem)/2))] py-[clamp(4rem,8vw,8rem)] text-white">
         <p class="capell-demo-kicker">Latest news</p>
-        <h1>Our blog for Capell builders</h1>
-        <p>Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.</p>
+        <h1 class="max-w-[15ch] text-balance text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal text-white">Our blog for Capell builders</h1>
+        <p class="max-w-[42rem] text-white/80">Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.</p>
     </section>
-    <section class="capell-demo-emporium-blog-grid">
-        <article><span>News</span><h2>Home, buildings and architecture</h2><p>How architecture-style page systems map to Capell layout builder websites.</p><a href="/home-buildings-and-architecture">Read more</a></article>
-        <article><span>Guide</span><h2>Designing a better homepage flow</h2><p>Turning mixed CMS objects into one coherent public page.</p><a href="/resources">Read more</a></article>
-        <article><span>Tips</span><h2>How to avoid rigid templates</h2><p>Use element boundaries, assets, and reusable sections to keep pages flexible.</p><a href="/resources">Read more</a></article>
+    <section class="capell-demo-showcase-blog-grid mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 gap-4 md:grid-cols-3">
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.12),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-capture.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">News</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Home, buildings and architecture</h2><p class="text-[#4b5563]">How architecture-style page systems map to Capell layout builder websites.</p><a href="/home-buildings-and-architecture">Read more</a></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-installer.png')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Guide</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">Designing a better homepage flow</h2><p class="text-[#4b5563]">Turning mixed CMS objects into one coherent public page.</p><a href="/resources">Read more</a></article>
+        <article class="min-h-60 border border-[#d8dee8] bg-white p-[clamp(1.25rem,3vw,2rem)] shadow-[0_1.25rem_3.5rem_rgb(17_24_39_/_0.06)]"><div class="mb-5 min-h-44 bg-[linear-gradient(135deg,rgb(7_10_18_/_0.1),rgb(7_10_18_/_0.5)),url('/images/capell-demo/capell-site-layout-example.jpeg')] bg-cover bg-center"></div><span class="text-sm font-bold uppercase text-[#4b5563]">Tips</span><h2 class="text-[clamp(1.4rem,3vw,2.4rem)] leading-none">How to avoid rigid templates</h2><p class="text-[#4b5563]">Use element boundaries, assets, and reusable sections to keep pages flexible.</p><a href="/resources">Read more</a></article>
     </section>
 </div>
 HTML;
     }
 
-    private function emporiumSinglePostContent(): string
+    private function showcaseSinglePostContent(): string
     {
         return <<<'HTML'
-<div class="capell-demo-page capell-demo-emporium-page capell-demo-emporium-page--single-post">
-    <section class="capell-demo-emporium-article-layout">
-        <article>
+<div class="capell-demo-page capell-demo-showcase-page capell-demo-showcase-page--single-post mx-auto max-w-none p-0 text-[#111827]">
+    <section class="capell-demo-showcase-article-layout mx-auto my-[clamp(4rem,8vw,8rem)] grid w-[min(76rem,calc(100%_-_3rem))] grid-cols-1 items-start gap-[clamp(2rem,5vw,5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.36fr)]">
+        <article class="max-w-[46rem]">
             <p class="capell-demo-kicker">Single post</p>
-            <h1>Home, buildings and architecture</h1>
-            <p class="capell-demo-emporium-meta">By Capell Studio | May 16, 2026</p>
-            <p>Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact. Capell can reproduce that structure with layout-builder elements instead of fixed page templates.</p>
-            <p>The important point is ownership. Editors should be able to change content, order, media, navigation, and resource cards. Developers should still own rendering, performance, cache generation, and package boundaries.</p>
-            <blockquote>“A flexible CMS is not a free-for-all. It is a governed system with enough expressive range to build the whole site.”</blockquote>
-            <p>This page closes the loop by proving the article detail template can sit beside the same Emporium-inspired site map without copying the original design or losing the Capell product story.</p>
+            <h1 class="max-w-[15ch] text-[clamp(3rem,8vw,6.5rem)] leading-[0.92] tracking-normal">Home, buildings and architecture</h1>
+            <p class="capell-demo-showcase-meta text-sm font-bold text-[#4b5563]">By Capell Studio | May 16, 2026</p>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact. Capell can reproduce that structure with layout-builder elements instead of fixed page templates.</p>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">The important point is ownership. Editors should be able to change content, order, media, navigation, and resource cards. Developers should still own rendering, performance, cache generation, and package boundaries.</p>
+            <blockquote class="my-8 border-l-4 border-[#c6923d] py-4 pl-6 text-[clamp(1.35rem,3vw,2rem)] font-extrabold leading-tight">“A flexible CMS is not a free-for-all. It is a governed system with enough expressive range to build the whole site.”</blockquote>
+            <p class="max-w-[68ch] text-[#4b5563] leading-7">This page closes the loop by proving the article detail template can sit beside the same showcase-inspired site map without copying the original design or losing the Capell product story.</p>
         </article>
-        <aside>
+        <aside class="grid gap-3 border border-[#d8dee8] bg-white p-6 shadow-[0_1rem_3rem_rgb(17_24_39_/_0.06)]">
             <h2>Recent posts</h2>
             <a href="/blog">Designing a better homepage flow</a>
             <a href="/blog">Avoiding rigid templates</a>

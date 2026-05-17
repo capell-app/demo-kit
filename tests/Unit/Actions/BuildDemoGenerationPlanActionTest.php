@@ -41,6 +41,32 @@ it('exposes a stable fingerprint for idempotent demo generation', function (): v
         ->and($first->fingerprint())->toHaveLength(64);
 });
 
+it('changes demo generation fingerprints when meaningful plan inputs change', function (): void {
+    $baseline = BuildDemoGenerationPlanAction::run([
+        'site_count' => 2,
+        'pages' => 8,
+        'languages' => ['all'],
+        'seed' => 4321,
+    ]);
+
+    $differentPageCount = BuildDemoGenerationPlanAction::run([
+        'site_count' => 2,
+        'pages' => 9,
+        'languages' => ['all'],
+        'seed' => 4321,
+    ]);
+
+    $differentLanguages = BuildDemoGenerationPlanAction::run([
+        'site_count' => 2,
+        'pages' => 8,
+        'languages' => ['en'],
+        'seed' => 4321,
+    ]);
+
+    expect($differentPageCount->fingerprint())->not->toBe($baseline->fingerprint())
+        ->and($differentLanguages->fingerprint())->not->toBe($baseline->fingerprint());
+});
+
 it('builds generated plans within requested scale controls', function (): void {
     $plan = BuildDemoGenerationPlanAction::run([
         'site_count' => 4,
