@@ -7,8 +7,11 @@ namespace Capell\DemoKit\Providers;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
+use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
@@ -18,6 +21,8 @@ use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 {
+    public const DemoPageContentRenderable = 'capell.element.demo-page-content';
+
     public static string $name = 'capell-demo-kit';
 
     public static string $packageName = 'capell-app/demo-kit';
@@ -48,7 +53,21 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->registerRenderables();
         $this->registerAdminPanelExtensions();
+    }
+
+    private function registerRenderables(): void
+    {
+        if (! $this->app->bound(RenderableRegistry::class)) {
+            return;
+        }
+
+        $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
+            key: self::DemoPageContentRenderable,
+            type: RenderableTypeEnum::Element,
+            blade: 'capell-demo-kit::element.demo-page-content',
+        ));
     }
 
     private function registerAdminPanelExtensions(): void

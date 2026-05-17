@@ -20,11 +20,11 @@ class DummyContentGeneratorAction
     public function handle(string $languageCode = 'en'): string
     {
         $samples = [
-            'en' => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
-            'fr' => "Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500.",
-            'de' => 'Lorem Ipsum ist ein einfacher Demo-Text für die Print- und Schriftindustrie. Lorem Ipsum ist in der Industrie bereits der Standard Demo-Text seit 1500.',
-            'it' => 'Lorem Ipsum è un testo segnaposto utilizzato nel settore della tipografia e della stampa. Lorem Ipsum è considerato il testo segnaposto standard sin dal sedicesimo secolo.',
-            'es' => 'Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500.',
+            'en' => 'Capell demo content is written to exercise real publishing surfaces: reusable sections, structured summaries, layout elements, and editorial workflows. It gives teams practical copy that can be reviewed without relying on placeholder filler.',
+            'fr' => 'Le contenu de démonstration Capell présente des surfaces de publication réelles: sections réutilisables, résumés structurés, éléments de mise en page et flux éditoriaux. Il donne aux équipes un texte utile à examiner sans texte de remplissage.',
+            'de' => 'Capell-Demoinhalte zeigen reale Veröffentlichungsbereiche: wiederverwendbare Abschnitte, strukturierte Zusammenfassungen, Layout-Elemente und redaktionelle Abläufe. Teams erhalten prüfbare Inhalte ohne Platzhaltertext.',
+            'it' => 'I contenuti demo di Capell mostrano superfici editoriali reali: sezioni riutilizzabili, riepiloghi strutturati, elementi di layout e flussi di lavoro redazionali. Offrono testo utile da verificare senza contenuti segnaposto.',
+            'es' => 'El contenido demo de Capell muestra superficies de publicación reales: secciones reutilizables, resúmenes estructurados, elementos de diseño y flujos editoriales. Ofrece texto práctico para revisar sin contenido de relleno.',
         ];
 
         $base = $samples[$languageCode] ?? $samples['en'];

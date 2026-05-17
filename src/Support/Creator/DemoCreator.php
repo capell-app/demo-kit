@@ -21,7 +21,9 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
+use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\DemoContentPool;
+use Capell\LayoutBuilder\Actions\CreateHeroElementAction;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\ElementComponentEnum;
@@ -260,7 +262,8 @@ class DemoCreator
         }
 
         $languages->each(function (Language $language) use (&$pageData, $name, $data): void {
-            $title = Str::title($data['name'][$language->code]);
+            $localizedName = $data['name'][$language->code] ?? $name;
+            $title = Str::title($this->canonicalDemoPageName($localizedName));
 
             $slug = Str::slug($title);
 
@@ -273,8 +276,10 @@ class DemoCreator
                 'summary' => $this->demoPageSummary($name),
                 'meta' => [
                     'description' => str($desc_content)->stripTags()->limit(160),
+                    'hero' => $this->demoPageHeroContent($name, $desc_content),
+                    'hero_title' => $title,
                     'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
-                    'label' => Str::title($data['name'][$language->code] ?? $name),
+                    'label' => $title,
                     'link_text' => $this->randomItem([
                         'Learn More',
                         'Read More',
@@ -2242,9 +2247,9 @@ class DemoCreator
         $attributes = [
             'name' => 'Demo Page Content',
             'blueprint_id' => $elementType->id,
-            'component' => ElementComponentEnum::PageContent->value,
+            'component' => DemoKitServiceProvider::DemoPageContentRenderable,
             'meta' => [
-                'component' => ElementComponentEnum::PageContent->value,
+                'component' => DemoKitServiceProvider::DemoPageContentRenderable,
                 'page_content' => ['content'],
                 'view_file' => 'capell-demo-kit::components.element.demo-page-content',
             ],
@@ -2273,13 +2278,18 @@ class DemoCreator
             'Projects' => ['capell-demo-projects', 'Capell Demo Projects', true],
             'Project Detail' => ['capell-demo-project-detail', 'Capell Demo Project Detail', true],
             'Blog' => ['capell-demo-blog', 'Capell Demo Blog', true],
-            'Home, Buildings and Architecture' => ['capell-demo-article-no-hero', 'Capell Demo Article Without Hero', true],
+            'Platform Architecture' => ['capell-demo-platform-architecture', 'Capell Demo Platform Architecture', true],
         ];
 
         if (array_key_exists($name, $templateLayouts)) {
             [$key, $layoutName, $withBreadcrumbs] = $templateLayouts[$name];
 
-            return $this->demoPageLayout($key, $layoutName, $withBreadcrumbs);
+            return $this->demoPageLayout(
+                $key,
+                $layoutName,
+                $withBreadcrumbs,
+                ! in_array($name, ['FAQ', 'Pricing', 'Project Detail'], true),
+            );
         }
 
         if (in_array($name, self::StandardFooterPageNames, true)) {
@@ -2363,12 +2373,14 @@ class DemoCreator
         return $layout;
     }
 
-    private function demoPageLayout(string $key, string $name, bool $withBreadcrumbs): Layout
+    private function demoPageLayout(string $key, string $name, bool $withBreadcrumbs, bool $withHero): Layout
     {
         $demoPageContentElement = $this->ensureDemoPageContentElement();
+        $heroElement = $withHero ? CreateHeroElementAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
 
         $elements = $withBreadcrumbs
             ? [
+                ...($heroElement ? [['element_key' => $heroElement->key]] : []),
                 ['element_key' => 'breadcrumbs'],
                 [
                     'element_key' => $demoPageContentElement->key,
@@ -2378,6 +2390,7 @@ class DemoCreator
                 ],
             ]
             : [
+                ...($heroElement ? [['element_key' => $heroElement->key]] : []),
                 [
                     'element_key' => $demoPageContentElement->key,
                     'meta' => [
@@ -2561,7 +2574,6 @@ class DemoCreator
             'FAQ',
             'Pricing',
             'Project Detail',
-            'Home, Buildings and Architecture',
         ], true);
 
         return [
@@ -2587,6 +2599,21 @@ class DemoCreator
         return $this->basicDemoPageContent($name);
     }
 
+    private function demoPageHeroContent(string $name, string $content): ?string
+    {
+        $name = $this->canonicalDemoPageName($name);
+
+        if (in_array($name, [
+            'FAQ',
+            'Pricing',
+            'Project Detail',
+        ], true)) {
+            return null;
+        }
+
+        return '<p>' . e((string) str($content)->stripTags()->before('.')->append('.')->limit(170)) . '</p>';
+    }
+
     private function demoPageSummary(string $name): ?string
     {
         $name = $this->canonicalDemoPageName($name);
@@ -2602,7 +2629,7 @@ class DemoCreator
     {
         return match (Str::lower($name)) {
             'faq' => 'FAQ',
-            'home, buildings and architecture' => 'Home, Buildings and Architecture',
+            'home, buildings and architecture', 'platform architecture' => 'Platform Architecture',
             default => $name,
         };
     }
@@ -2654,9 +2681,9 @@ class DemoCreator
                 'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
                 'This demo page keeps presentation in Blade and stores only simple page copy.',
             ],
-            'Home, Buildings and Architecture' => [
-                'Architecture sites work because the page flow is deliberate: hero, proof, gallery, process, team, promotion, news, and contact.',
-                'Capell can reproduce that structure with layout-builder elements instead of fixed page templates.',
+            'Platform Architecture' => [
+                'Platform architecture pages explain how Capell separates content records, layouts, render data, public components, and package extension points.',
+                'The demo keeps the designed surface in package-owned Blade while the saved page body stays portable and reviewable.',
             ],
             'Implementation' => [
                 'A productized Capell implementation gives teams a production CMS foundation, migration confidence, and a clear handover path.',

@@ -173,7 +173,7 @@ final class BuildDemoGenerationPlanAction
             'Projects',
             'Project Detail',
             'Blog',
-            'Home, Buildings and Architecture',
+            'Platform Architecture',
             'Implementation',
             'Resources',
             'Integrations',
@@ -249,7 +249,7 @@ final class BuildDemoGenerationPlanAction
                 mediaCount: 3,
             ),
             new DemoPagePlanData(
-                name: $this->translatedName('Home, Buildings and Architecture'),
+                name: $this->translatedName('Platform Architecture'),
                 mediaCount: 2,
             ),
             new DemoPagePlanData(

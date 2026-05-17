@@ -44,7 +44,7 @@ final class DemoProfileData extends Data
             placeholderLabels: [
                 'AP Card Grid',
                 'AP Feature List',
-                'Lorem Ipsum',
+                'Editorial Workflow',
                 'Our Work',
                 'Meet Our Team',
                 'Client Logos',

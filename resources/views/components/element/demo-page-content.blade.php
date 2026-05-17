@@ -1,4 +1,5 @@
 @php
+    use Capell\Frontend\Facades\Frontend;
     use Illuminate\Support\Str;
 @endphp
 
@@ -13,6 +14,7 @@
 ])
 
 @php
+    $pageRecord ??= Frontend::page();
     $pageName = (string) ($pageRecord?->name ?? '');
     $pageSlug = Str::slug($pageName);
     $content = $pageRecord?->translation?->content;
@@ -35,7 +37,9 @@
         />
     @endif
 
-    <div class="capell-demo-page capell-demo-page--{{ $pageSlug }}">
+    <div
+        class="capell-demo-page capell-demo-page--{{ $pageSlug }} px-[6%] xl:container"
+    >
         @switch($pageName)
             @case('Contact')
                 <section
@@ -154,26 +158,52 @@
 
                 @break
             @default
-                <section class="capell-demo-showcase-grid">
-                    <article>
-                        <span>01</span>
-                        <h2>Model content</h2>
-                        <p>
+                <section
+                    class="capell-demo-showcase-grid grid gap-4 md:grid-cols-3"
+                >
+                    <article
+                        class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                    >
+                        <span
+                            class="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600"
+                        >
+                            01
+                        </span>
+                        <h2 class="mt-4 text-xl font-semibold text-slate-950">
+                            Model content
+                        </h2>
+                        <p class="mt-3 text-base leading-7 text-slate-600">
                             Store the durable page story as simple CMS content.
                         </p>
                     </article>
-                    <article>
-                        <span>02</span>
-                        <h2>Render in Blade</h2>
-                        <p>
+                    <article
+                        class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                    >
+                        <span
+                            class="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600"
+                        >
+                            02
+                        </span>
+                        <h2 class="mt-4 text-xl font-semibold text-slate-950">
+                            Render in Blade
+                        </h2>
+                        <p class="mt-3 text-base leading-7 text-slate-600">
                             Keep the designed public surface inside
                             package-owned views.
                         </p>
                     </article>
-                    <article>
-                        <span>03</span>
-                        <h2>Verify output</h2>
-                        <p>
+                    <article
+                        class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                    >
+                        <span
+                            class="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600"
+                        >
+                            03
+                        </span>
+                        <h2 class="mt-4 text-xl font-semibold text-slate-950">
+                            Verify output
+                        </h2>
+                        <p class="mt-3 text-base leading-7 text-slate-600">
                             Use Capell layouts and elements to connect admin
                             records to frontend rendering.
                         </p>
