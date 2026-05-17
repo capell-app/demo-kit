@@ -119,11 +119,11 @@ final class AssertDefaultDemoInstallHealthAction
     {
         $count = $this->homepageElementCount();
 
-        if ($count < $this->profile->minimumWidgetCount) {
+        if ($count < $this->profile->minimumElementCount) {
             return new DoctorCheckResultData(
                 label: 'Default demo element count',
                 passed: false,
-                message: sprintf('Homepage has %d element(s); expected at least %d.', $count, $this->profile->minimumWidgetCount),
+                message: sprintf('Homepage has %d element(s); expected at least %d.', $count, $this->profile->minimumElementCount),
                 remediation: 'Rerun the demo package step and confirm the demo package runs after setup packages.',
             );
         }
@@ -139,16 +139,16 @@ final class AssertDefaultDemoInstallHealthAction
     {
         $layout = $this->homepageLayout();
         $elements = $this->layoutElementKeys($layout);
-        $actual = array_slice($elements, 0, count($this->profile->showcaseWidgetOrder));
+        $actual = array_slice($elements, 0, count($this->profile->showcaseElementOrder));
 
-        if ($actual !== $this->profile->showcaseWidgetOrder) {
+        if ($actual !== $this->profile->showcaseElementOrder) {
             return new DoctorCheckResultData(
                 label: 'Default demo showcase element order',
                 passed: false,
                 message: sprintf(
                     'Homepage starts with [%s]; expected [%s].',
                     implode(', ', $actual),
-                    implode(', ', $this->profile->showcaseWidgetOrder),
+                    implode(', ', $this->profile->showcaseElementOrder),
                 ),
                 remediation: 'Rerun the demo package step so the curated Foundation showcase homepage layout is rebuilt.',
             );
@@ -165,7 +165,7 @@ final class AssertDefaultDemoInstallHealthAction
     {
         $elementModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
 
-        foreach ($this->profile->widgetAssetMinimums as $elementKey => $minimum) {
+        foreach ($this->profile->elementAssetMinimums as $elementKey => $minimum) {
             $element = $elementModel::query()
                 ->where('key', $elementKey)
                 ->withCount('assets')

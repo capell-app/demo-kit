@@ -2203,6 +2203,20 @@ class DemoCreator
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
     }
 
+    private function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool
+    {
+        return $model->getMedia($this->mediaCollectionName($collection))->isNotEmpty();
+    }
+
+    private function mediaCollectionName(BackedEnum|string $collection): string
+    {
+        if ($collection instanceof BackedEnum) {
+            return (string) $collection->value;
+        }
+
+        return $collection;
+    }
+
     private function createPageElementAsset(Element $element, Pageable $page, string $container, int $occurrence, Model $asset): ElementAsset
     {
         return DB::transaction(

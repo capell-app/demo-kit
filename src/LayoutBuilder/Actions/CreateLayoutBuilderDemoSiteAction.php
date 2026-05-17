@@ -82,7 +82,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         $orderedContainers = [];
         $remainingContainers = array_diff_key($containers, array_flip([
-            'ap-widgets',
+            'ap-elements',
             'main',
             'faq-main',
             'faq-col',
@@ -90,7 +90,7 @@ class CreateLayoutBuilderDemoSiteAction
             'split-two',
         ]));
 
-        $this->populateAPWidgetsContainer($orderedContainers);
+        $this->populateAPElementsContainer($orderedContainers);
 
         $containers = [
             ...$orderedContainers,
@@ -103,17 +103,17 @@ class CreateLayoutBuilderDemoSiteAction
         ]);
     }
 
-    private function populateAPWidgetsContainer(array &$containers): void
+    private function populateAPElementsContainer(array &$containers): void
     {
-        $heroElement = $this->demoCreator->createHomepageHeroCommandCenterWidget();
-        $proofElement = $this->demoCreator->createHomepageProofStripWidget();
-        $showcaseElement = $this->demoCreator->createHomepageDemoShowcaseWidget();
-        $marketplaceElement = $this->demoCreator->createHomepageMarketplaceWidget();
-        $pipelineElement = $this->demoCreator->createHomepageTechnicalPipelineWidget();
-        $routeSplitElement = $this->demoCreator->createHomepageRouteSplitWidget();
-        $finalCtaElement = $this->demoCreator->createHomepageFinalCtaWidget();
+        $heroElement = $this->demoCreator->createHomepageHeroCommandCenterElement();
+        $proofElement = $this->demoCreator->createHomepageProofStripElement();
+        $showcaseElement = $this->demoCreator->createHomepageDemoShowcaseElement();
+        $marketplaceElement = $this->demoCreator->createHomepageMarketplaceElement();
+        $pipelineElement = $this->demoCreator->createHomepageTechnicalPipelineElement();
+        $routeSplitElement = $this->demoCreator->createHomepageRouteSplitElement();
+        $finalCtaElement = $this->demoCreator->createHomepageFinalCtaElement();
 
-        $containers['ap-widgets'] = [
+        $containers['ap-elements'] = [
             'meta' => [
                 'colspan' => 12,
             ],

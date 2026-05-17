@@ -95,7 +95,7 @@ function createDemoHealthLayout(Site $site, array $elementKeys): Layout
         ->create([
             'key' => 'home',
             'containers' => [
-                'ap-widgets' => [
+                'ap-elements' => [
                     'meta' => ['colspan' => 12],
                     'elements' => array_map(
                         fn (string $elementKey): array => ['element_key' => $elementKey],
