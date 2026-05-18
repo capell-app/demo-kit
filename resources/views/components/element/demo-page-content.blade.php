@@ -26,7 +26,7 @@
     :$containerWidth
     :index="$loop->index"
     :$element
-    class="capell-demo-page-content"
+    class="capell-element-demo-page-content capell-demo-page-content"
     tag="article"
 >
     @if ($content)

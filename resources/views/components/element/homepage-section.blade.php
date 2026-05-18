@@ -12,7 +12,7 @@
     :$containerWidth
     :index="$loop->index"
     :$element
-    class="capell-home-section"
+    class="capell-element-homepage-section capell-home-section"
 >
     @switch($element->key)
         @case('capell-home-hero-command-center')

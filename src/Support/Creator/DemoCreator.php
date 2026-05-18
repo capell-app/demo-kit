@@ -2380,7 +2380,7 @@ class DemoCreator
 
         $elements = $withBreadcrumbs
             ? [
-                ...($heroElement ? [['element_key' => $heroElement->key]] : []),
+                ...($heroElement !== null ? [['element_key' => $heroElement->key]] : []),
                 ['element_key' => 'breadcrumbs'],
                 [
                     'element_key' => $demoPageContentElement->key,
@@ -2390,7 +2390,7 @@ class DemoCreator
                 ],
             ]
             : [
-                ...($heroElement ? [['element_key' => $heroElement->key]] : []),
+                ...($heroElement !== null ? [['element_key' => $heroElement->key]] : []),
                 [
                     'element_key' => $demoPageContentElement->key,
                     'meta' => [
