@@ -44,7 +44,7 @@ This package makes its Composer dependencies visible because they are part of th
 | Area      | Path                              | Purpose                                                           |
 | --------- | --------------------------------- | ----------------------------------------------------------------- |
 | Actions   | `packages/demo-kit/src/Actions`   | Domain operations. Test these directly where possible.            |
-| Filament  | `packages/demo-kit/src/Filament`  | Admin resources, pages, elements, and settings UI.                |
+| Filament  | `packages/demo-kit/src/Filament`  | Admin resources, pages, blocks, and settings UI.                  |
 | Providers | `packages/demo-kit/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
 | Resources | `packages/demo-kit/resources`     | Views, translations, assets, and package resources.               |
 | Config    | `packages/demo-kit/config`        | Package configuration and publishable config.                     |
@@ -76,21 +76,21 @@ Omit `--seed` for a fresh random demo on each run.
 
 ## Content Rendering Boundary
 
-Demo Kit must keep saved CMS content portable. `DemoCreator` should only persist minimal editable copy in content fields: simple paragraphs, headings, lists, links, and light emphasis are fine. Do not store designed HTML, utility classes, component classes, layout wrappers, tables, cards, pricing grids, hero sections, or other presentation structures in page or element translations.
+Demo Kit must keep saved CMS content portable. `DemoCreator` should only persist minimal editable copy in content fields: simple paragraphs, headings, lists, links, and light emphasis are fine. Do not store designed HTML, utility classes, component classes, layout wrappers, tables, cards, pricing grids, hero sections, or other presentation structures in page or block translations.
 
-When demo content needs a designed public surface, create or reuse a Capell Layout Builder element and render it from package Blade under `packages/demo-kit/resources/views`. The seeded database record should point at that element or view through Capell metadata, while the Blade view owns the markup and classes.
+When demo content needs a designed public surface, create or reuse a Capell Layout Builder block and render it from package Blade under `packages/demo-kit/resources/views`. The seeded database record should point at that block or view through Capell metadata, while the Blade view owns the markup and classes.
 
 Current examples:
 
-- `demo-page-content` renders designed demo pages through `capell-demo-kit::components.element.demo-page-content`.
-- Homepage demo sections render through `capell-demo-kit::components.element.homepage-section`.
+- `demo-page-content` renders designed demo pages through `capell-demo-kit::components.block.demo-page-content`.
+- Homepage demo sections render through `capell-demo-kit::components.block.homepage-section`.
 
 ## Data And Persistence
 
 - Config: `packages/demo-kit/config/capell-demo-kit.php`.
 - Content pools: `packages/demo-kit/src/Support/DemoContentPool.php`.
 - Generated plan: `packages/demo-kit/src/Actions/BuildDemoGenerationPlanAction.php`.
-- Designed public markup: `packages/demo-kit/resources/views/components/element`.
+- Designed public markup: `packages/demo-kit/resources/views/components/block`.
 
 ## Extension Points
 

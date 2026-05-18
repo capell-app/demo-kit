@@ -15,13 +15,13 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\DemoKit\Support\DemoContentPool;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 
-class DemoCreator extends ApDemoElementCreator
+class DemoCreator extends ApDemoBlockCreator
 {
     use Macroable;
 
@@ -38,7 +38,7 @@ class DemoCreator extends ApDemoElementCreator
         $this->pageModel = Page::class;
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
-        $this->elementModel = Element::class;
+        $this->blockModel = Block::class;
         $this->contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;

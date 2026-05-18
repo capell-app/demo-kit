@@ -4,61 +4,61 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Support\Creator;
 
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 
-abstract class HomepageDemoElementCreator extends ModernDemoElementCreator
+abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
 {
-    public function createHomepageHeroCommandCenterElement(): Element
+    public function createHomepageHeroCommandCenterBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-hero-command-center',
             name: 'Capell Homepage Command Center Hero',
         );
     }
 
-    public function createHomepageProofStripElement(): Element
+    public function createHomepageProofStripBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-proof-strip',
             name: 'Capell Homepage Proof Strip',
         );
     }
 
-    public function createHomepageDemoShowcaseElement(): Element
+    public function createHomepageDemoShowcaseBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-demo-showcase',
             name: 'Capell Homepage Demo Showcase',
         );
     }
 
-    public function createHomepageMarketplaceElement(): Element
+    public function createHomepageMarketplaceBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-extension-marketplace-showcase',
             name: 'Extension Marketplace Showcase',
         );
     }
 
-    public function createHomepageTechnicalPipelineElement(): Element
+    public function createHomepageTechnicalPipelineBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-technical-pipeline',
             name: 'Capell Homepage Technical Pipeline',
         );
     }
 
-    public function createHomepageRouteSplitElement(): Element
+    public function createHomepageRouteSplitBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-route-split',
             name: 'Capell Homepage Route Split',
         );
     }
 
-    public function createHomepageFinalCtaElement(): Element
+    public function createHomepageFinalCtaBlock(): Block
     {
-        return $this->createHomepageBladeElement(
+        return $this->createHomepageBladeBlock(
             key: 'capell-home-final-cta',
             name: 'Capell Homepage Final CTA',
         );

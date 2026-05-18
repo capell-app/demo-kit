@@ -16,11 +16,11 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
-use Capell\LayoutBuilder\Actions\CreateHeroElementAction;
-use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Actions\CreateHeroBlockAction;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Error;
@@ -85,8 +85,8 @@ abstract class BaseDemoCreator
     /** @var class-string<Model&HasMedia> */
     protected string $contentModel;
 
-    /** @var class-string<Element> */
-    protected string $elementModel;
+    /** @var class-string<Block> */
+    protected string $blockModel;
 
     public static function getDemoResourcePath(?string $folder): string
     {
@@ -288,10 +288,10 @@ abstract class BaseDemoCreator
         return $model->translations();
     }
 
-    protected function createPageElementAsset(Element $element, Pageable $page, string $container, int $occurrence, Model $asset): ElementAsset
+    protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
     {
         return DB::transaction(
-            fn (): ElementAsset => $element->assets()->createOrFirst([
+            fn (): BlockAsset => $block->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -303,16 +303,16 @@ abstract class BaseDemoCreator
         );
     }
 
-    protected function ensureDemoPageContentElement(): Element
+    protected function ensureDemoPageContentBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::PageContents);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::PageContents);
 
-        $elementType ??= resolve(TypeCreator::class)->pageContentElementType();
+        $blockType ??= resolve(TypeCreator::class)->pageContentBlockType();
 
         $attributes = [
             'name' => 'Demo Page Content',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'component' => DemoKitServiceProvider::DemoPageContentRenderable,
             'view_file' => null,
             'meta' => [
@@ -322,16 +322,16 @@ abstract class BaseDemoCreator
             'status' => true,
         ];
 
-        $element = Element::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
-        $element->forceFill($attributes)->save();
+        $block = Block::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
+        $block->forceFill($attributes)->save();
 
-        return $element;
+        return $block;
     }
 
     protected function layoutForDemoPage(string $name): ?Layout
     {
         $name = $this->canonicalDemoPageName($name);
-        $demoPageContentElement = $this->ensureDemoPageContentElement();
+        $demoPageContentBlock = $this->ensureDemoPageContentBlock();
 
         $templateLayouts = [
             'About Us' => ['capell-demo-about', 'Capell Demo About', true],
@@ -370,13 +370,13 @@ abstract class BaseDemoCreator
                             'meta' => [
                                 'colspan' => 12,
                             ],
-                            'elements' => [
-                                ['element_key' => 'breadcrumbs'],
-                                ['element_key' => $demoPageContentElement->key],
+                            'blocks' => [
+                                ['block_key' => 'breadcrumbs'],
+                                ['block_key' => $demoPageContentBlock->key],
                             ],
                         ],
                     ],
-                    'elements' => ['breadcrumbs', $demoPageContentElement->key],
+                    'blocks' => ['breadcrumbs', $demoPageContentBlock->key],
                     'meta' => [
                         'description' => 'A full-width editorial layout for shared footer pages.',
                     ],
@@ -398,8 +398,8 @@ abstract class BaseDemoCreator
                     'meta' => [
                         'colspan' => 12,
                     ],
-                    'elements' => [
-                        ['element_key' => 'breadcrumbs'],
+                    'blocks' => [
+                        ['block_key' => 'breadcrumbs'],
                     ],
                 ],
                 'contact-copy' => [
@@ -408,8 +408,8 @@ abstract class BaseDemoCreator
                         'spacing' => 'lg',
                         'html_class' => 'capell-demo-contact-copy-column',
                     ],
-                    'elements' => [
-                        ['element_key' => $demoPageContentElement->key],
+                    'blocks' => [
+                        ['block_key' => $demoPageContentBlock->key],
                     ],
                 ],
                 'contact-form' => [
@@ -418,15 +418,15 @@ abstract class BaseDemoCreator
                         'spacing' => 'lg',
                         'html_class' => 'capell-demo-contact-form-column',
                     ],
-                    'elements' => [
+                    'blocks' => [
                         [
-                            'element_key' => 'contact-form',
+                            'block_key' => 'contact-form',
                             'form_handle' => 'contact',
                         ],
                     ],
                 ],
             ],
-            'elements' => ['breadcrumbs', $demoPageContentElement->key, 'contact-form'],
+            'blocks' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form'],
             'meta' => [
                 'description' => 'A standalone contact layout without child or latest-page rails.',
             ],
@@ -442,24 +442,24 @@ abstract class BaseDemoCreator
 
     protected function demoPageLayout(string $key, string $name, bool $withBreadcrumbs, bool $withHero): Layout
     {
-        $demoPageContentElement = $this->ensureDemoPageContentElement();
-        $heroElement = $withHero ? CreateHeroElementAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
+        $demoPageContentBlock = $this->ensureDemoPageContentBlock();
+        $heroBlock = $withHero ? CreateHeroBlockAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
 
-        $elements = $withBreadcrumbs
+        $blocks = $withBreadcrumbs
             ? [
-                ...($heroElement !== null ? [['element_key' => $heroElement->key]] : []),
-                ['element_key' => 'breadcrumbs'],
+                ...($heroBlock !== null ? [['block_key' => $heroBlock->key]] : []),
+                ['block_key' => 'breadcrumbs'],
                 [
-                    'element_key' => $demoPageContentElement->key,
+                    'block_key' => $demoPageContentBlock->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
                 ],
             ]
             : [
-                ...($heroElement !== null ? [['element_key' => $heroElement->key]] : []),
+                ...($heroBlock !== null ? [['block_key' => $heroBlock->key]] : []),
                 [
-                    'element_key' => $demoPageContentElement->key,
+                    'block_key' => $demoPageContentBlock->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
@@ -475,15 +475,15 @@ abstract class BaseDemoCreator
                         'colspan' => 12,
                         'spacing' => 'lg',
                     ],
-                    'elements' => $elements,
+                    'blocks' => $blocks,
                 ],
             ],
-            'elements' => collect($elements)
-                ->pluck('element_key')
+            'blocks' => collect($blocks)
+                ->pluck('block_key')
                 ->values()
                 ->all(),
             'meta' => [
-                'description' => 'A Capell demo page template rendered through reusable page-content layout elements.',
+                'description' => 'A Capell demo page template rendered through reusable page-content layout blocks.',
             ],
             'default' => false,
             'status' => true,
@@ -565,26 +565,26 @@ abstract class BaseDemoCreator
             ],
         );
 
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::Default);
 
-        $elementType ??= $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Element->value)
-            ->firstWhere('key', ElementTypeEnum::Default->value);
+        $blockType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Block->value)
+            ->firstWhere('key', BlockTypeEnum::Default->value);
 
-        if (! $elementType instanceof Blueprint) {
+        if (! $blockType instanceof Blueprint) {
             return;
         }
 
-        Element::query()->updateOrCreate(
+        Block::query()->updateOrCreate(
             ['key' => 'contact-form'],
             [
                 'name' => 'Contact form',
-                'blueprint_id' => $elementType->getKey(),
-                'component' => 'capell-form-builder::element.form',
+                'blueprint_id' => $blockType->getKey(),
+                'component' => 'capell-form-builder::block.form',
                 'is_livewire' => true,
                 'meta' => [
-                    'component' => 'capell-form-builder::element.form',
+                    'component' => 'capell-form-builder::block.form',
                     'form_handle' => 'contact',
                 ],
                 'status' => true,
@@ -592,20 +592,20 @@ abstract class BaseDemoCreator
         );
     }
 
-    protected function createHomepageBladeElement(string $key, string $name): Element
+    protected function createHomepageBladeBlock(string $key, string $name): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::Default);
 
-        $elementType ??= $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Element->value)
-            ->firstWhere('key', ElementTypeEnum::Default->value);
+        $blockType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Block->value)
+            ->firstWhere('key', BlockTypeEnum::Default->value);
 
-        throw_unless($elementType instanceof Blueprint, Exception::class, 'Unable to find default element type.');
+        throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
 
         $attributes = [
             'name' => $name,
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'component' => DemoKitServiceProvider::HomepageSectionRenderable,
             'view_file' => null,
             'meta' => [
@@ -614,11 +614,11 @@ abstract class BaseDemoCreator
             ],
         ];
 
-        $element = Element::query()->firstOrCreate(['key' => $key], $attributes);
-        $element->forceFill($attributes)->save();
+        $block = Block::query()->firstOrCreate(['key' => $key], $attributes);
+        $block->forceFill($attributes)->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => null,
@@ -627,7 +627,7 @@ abstract class BaseDemoCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
     /**
@@ -705,7 +705,7 @@ abstract class BaseDemoCreator
     {
         $content = [
             'About Us' => [
-                'Capell combines Laravel package discipline, Filament editorial workflows, reusable public elements, and static delivery into one maintainable publishing platform.',
+                'Capell combines Laravel package discipline, Filament editorial workflows, reusable public blocks, and static delivery into one maintainable publishing platform.',
                 'Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.',
             ],
             'Homepage 2' => [
@@ -718,7 +718,7 @@ abstract class BaseDemoCreator
             ],
             'Services' => [
                 'Implementation services cover content modelling, migration paths, layout architecture, package boundaries, and launch verification.',
-                'The public page is rendered by the demo page-content element while this saved content stays deliberately portable.',
+                'The public page is rendered by the demo page-content block while this saved content stays deliberately portable.',
             ],
             'Team' => [
                 'A team page should prove capability, not just show profiles.',
@@ -1098,7 +1098,7 @@ abstract class BaseDemoCreator
         return $teamMembersCollection;
     }
 
-    protected function createElementMedia(Element $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -1154,7 +1154,7 @@ abstract class BaseDemoCreator
             }
         }
 
-        // Create content and link via ElementAsset
+        // Create content and link via BlockAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);

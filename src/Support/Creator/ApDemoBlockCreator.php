@@ -7,35 +7,35 @@ namespace Capell\DemoKit\Support\Creator;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Enums\ElementComponentEnum;
-use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Support\Creator\ElementCreator;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Illuminate\Database\Eloquent\Collection;
 
-abstract class ApDemoElementCreator extends HomepageDemoElementCreator
+abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 {
-    public function createApHeroBannerElement(): Element
+    public function createApHeroBannerBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::HeroBanner)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-                ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::HeroBanner)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+                ->firstWhere('key', BlockTypeEnum::Default);
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApHeroBanner,
+                'component' => BlockComponentEnum::ApHeroBanner,
             ],
         ]);
 
-        $element->forceFill([
+        $block->forceFill([
             'name' => 'Capell Product Hero',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApHeroBanner,
+                'component' => BlockComponentEnum::ApHeroBanner,
                 'primary_button_text' => 'Explore the demo',
                 'primary_button_url' => '/admin',
                 'secondary_button_text' => 'Read the docs',
@@ -45,7 +45,7 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Capell CMS',
@@ -54,38 +54,38 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
             );
         }
 
-        $this->createMedia($element, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($block, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
 
-        return $element;
+        return $block;
     }
 
-    public function createApCardGridElement(): Element
+    public function createApCardGridBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::CardGrid)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-                ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::CardGrid)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+                ->firstWhere('key', BlockTypeEnum::Default);
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApCardGrid,
+                'component' => BlockComponentEnum::ApCardGrid,
             ],
         ]);
 
-        $element->forceFill([
+        $block->forceFill([
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApCardGrid,
+                'component' => BlockComponentEnum::ApCardGrid,
                 'columns' => 3,
                 'margin' => ['none'],
             ],
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A complete CMS foundation, not a theme demo',
@@ -94,11 +94,11 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
             );
         }
 
-        $element->assets()->delete();
+        $block->assets()->delete();
 
         $cards = [
-            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, elements, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
-            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable elements while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, blocks, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable blocks while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
             ['icon' => 'heroicon-o-bolt', 'title' => 'Static-fast delivery', 'description' => 'Generate frontend HTML, verify runtime assets, and keep public pages fast without giving up CMS control.', 'link_text' => 'Run doctor', 'link_url' => '/docs/installation'],
         ];
 
@@ -118,57 +118,57 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
                 );
             }
 
-            $element->assets()->firstOrCreate([
+            $block->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createApFeatureListElement(): Element
+    public function createApFeatureListBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::FeatureList)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-                ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::FeatureList)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+                ->firstWhere('key', BlockTypeEnum::Default);
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApFeatureList,
+                'component' => BlockComponentEnum::ApFeatureList,
             ],
         ]);
 
-        $element->forceFill([
+        $block->forceFill([
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApFeatureList,
+                'component' => BlockComponentEnum::ApFeatureList,
                 'layout' => 'grid',
                 'margin' => ['none'],
             ],
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Everything visible is backed by editable records',
-                    'content' => '<p>The default homepage is deliberately assembled from Capell elements, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
+                    'content' => '<p>The default homepage is deliberately assembled from Capell blocks, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
                 ],
             );
         }
 
-        $element->assets()->delete();
+        $block->assets()->delete();
 
         $features = [
             ['icon' => 'heroicon-o-language', 'title' => 'Page translations', 'description' => 'Hero titles, body copy, SEO fields, and language variants live in translation records.'],
             ['icon' => 'heroicon-o-photo', 'title' => 'Media-driven surfaces', 'description' => 'Hero backgrounds, gallery items, cards, and section imagery resolve through Capell media records.'],
             ['icon' => 'heroicon-o-pencil-square', 'title' => 'Editor-owned sections', 'description' => 'Homepage cards, feature rows, FAQs, testimonials, and CTAs are all admin-managed content.'],
-            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, elements, runtime manifests, and generated frontend CSS.'],
+            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, blocks, runtime manifests, and generated frontend CSS.'],
         ];
 
         foreach ($features as $feature) {
@@ -183,28 +183,28 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
                 );
             }
 
-            $element->assets()->firstOrCreate([
+            $block->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createFeatureListElement(): Element
+    public function createFeatureListBlock(): Block
     {
-        $element = resolve(ElementCreator::class)->featuresElement();
+        $block = resolve(BlockCreator::class)->featuresBlock();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->firstOrCreate(
+            $block->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
             );
         }
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
         $features = [
@@ -228,35 +228,35 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
                 );
             }
 
-            $element->assets()->firstOrCreate([
+            $block->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createApCtaSectionElement(): Element
+    public function createApCtaSectionBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::CTASection)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-                ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::CTASection)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+                ->firstWhere('key', BlockTypeEnum::Default);
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApCTASection,
+                'component' => BlockComponentEnum::ApCTASection,
             ],
         ]);
 
-        $element->forceFill([
+        $block->forceFill([
             'name' => 'Capell Showcase CTA',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApCTASection,
+                'component' => BlockComponentEnum::ApCTASection,
                 'primary_button_text' => 'Open the admin',
                 'primary_button_url' => '/admin',
                 'secondary_button_text' => 'Run install doctor',
@@ -266,7 +266,7 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A demo site that proves the CMS stack is wired',
@@ -275,29 +275,29 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createApImageGalleryElement(): Element
+    public function createApImageGalleryBlock(): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-            ->firstWhere('key', ElementTypeEnum::ImageGallery)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
-                ->firstWhere('key', ElementTypeEnum::Default);
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ->firstWhere('key', BlockTypeEnum::ImageGallery)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+                ->firstWhere('key', BlockTypeEnum::Default);
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApImageGallery,
+                'component' => BlockComponentEnum::ApImageGallery,
             ],
         ]);
 
-        $element->forceFill([
+        $block->forceFill([
             'name' => 'Capell Media Gallery',
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
-                'component' => ElementComponentEnum::ApImageGallery,
+                'component' => BlockComponentEnum::ApImageGallery,
                 'layout' => 'grid',
                 'columns' => 3,
                 'lightbox' => true,
@@ -306,7 +306,7 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
         ])->save();
 
         foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Media that stays editable',
@@ -315,15 +315,15 @@ abstract class ApDemoElementCreator extends HomepageDemoElementCreator
             );
         }
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
         for ($i = 1; $i <= 6; $i++) {
-            $this->createElementMedia($element);
+            $this->createBlockMedia($block);
         }
 
-        return $element;
+        return $block;
     }
 
     public function addSplitTwoBackgroundMedia(Layout $layout): void

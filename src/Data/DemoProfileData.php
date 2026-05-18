@@ -10,17 +10,17 @@ final class DemoProfileData extends Data
 {
     /**
      * @param  array{sites: int, pages_per_site: array{0: int, 1: int}, languages_per_site: array{0: int, 1: int}, page_depth: array{0: int, 1: int}, media_per_page: array{0: int, 1: int}}  $counts
-     * @param  list<string>  $showcaseElementOrder
-     * @param  array<string, int>  $elementAssetMinimums
+     * @param  list<string>  $showcaseBlockOrder
+     * @param  array<string, int>  $blockAssetMinimums
      * @param  list<string>  $placeholderLabels
      */
     public function __construct(
         public readonly ?int $seed,
         public readonly array $counts,
-        public readonly int $minimumElementCount,
+        public readonly int $minimumBlockCount,
         public readonly int $minimumMediaCount,
-        public readonly array $showcaseElementOrder,
-        public readonly array $elementAssetMinimums,
+        public readonly array $showcaseBlockOrder,
+        public readonly array $blockAssetMinimums,
         public readonly array $placeholderLabels,
     ) {}
 
@@ -29,9 +29,9 @@ final class DemoProfileData extends Data
         return new self(
             seed: config('capell-demo-kit.seed'),
             counts: config('capell-demo-kit.counts'),
-            minimumElementCount: 7,
+            minimumBlockCount: 7,
             minimumMediaCount: 8,
-            showcaseElementOrder: [
+            showcaseBlockOrder: [
                 'capell-home-hero-command-center',
                 'capell-home-proof-strip',
                 'capell-home-demo-showcase',
@@ -40,7 +40,7 @@ final class DemoProfileData extends Data
                 'capell-home-route-split',
                 'capell-home-final-cta',
             ],
-            elementAssetMinimums: [],
+            blockAssetMinimums: [],
             placeholderLabels: [
                 'AP Card Grid',
                 'AP Feature List',

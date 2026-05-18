@@ -20,11 +20,11 @@ class DummyContentGeneratorAction
     public function handle(string $languageCode = 'en'): string
     {
         $samples = [
-            'en' => 'Capell demo content is written to exercise real publishing surfaces: reusable sections, structured summaries, layout elements, and editorial workflows. It gives teams practical copy that can be reviewed without relying on placeholder filler.',
+            'en' => 'Capell demo content is written to exercise real publishing surfaces: reusable sections, structured summaries, layout blocks, and editorial workflows. It gives teams practical copy that can be reviewed without relying on placeholder filler.',
             'fr' => 'Le contenu de démonstration Capell présente des surfaces de publication réelles: sections réutilisables, résumés structurés, éléments de mise en page et flux éditoriaux. Il donne aux équipes un texte utile à examiner sans texte de remplissage.',
-            'de' => 'Capell-Demoinhalte zeigen reale Veröffentlichungsbereiche: wiederverwendbare Abschnitte, strukturierte Zusammenfassungen, Layout-Elemente und redaktionelle Abläufe. Teams erhalten prüfbare Inhalte ohne Platzhaltertext.',
-            'it' => 'I contenuti demo di Capell mostrano superfici editoriali reali: sezioni riutilizzabili, riepiloghi strutturati, elementi di layout e flussi di lavoro redazionali. Offrono testo utile da verificare senza contenuti segnaposto.',
-            'es' => 'El contenido demo de Capell muestra superficies de publicación reales: secciones reutilizables, resúmenes estructurados, elementos de diseño y flujos editoriales. Ofrece texto práctico para revisar sin contenido de relleno.',
+            'de' => 'Capell-Demoinhalte zeigen reale Veröffentlichungsbereiche: wiederverwendbare Abschnitte, strukturierte Zusammenfassungen, Layout-Blocke und redaktionelle Abläufe. Teams erhalten prüfbare Inhalte ohne Platzhaltertext.',
+            'it' => 'I contenuti demo di Capell mostrano superfici editoriali reali: sezioni riutilizzabili, riepiloghi strutturati, blocki di layout e flussi di lavoro redazionali. Offrono testo utile da verificare senza contenuti segnaposto.',
+            'es' => 'El contenido demo de Capell muestra superficies de publicación reales: secciones reutilizables, resúmenes estructurados, blockos de diseño y flujos editoriales. Ofrece texto práctico para revisar sin contenido de relleno.',
         ];
 
         $base = $samples[$languageCode] ?? $samples['en'];

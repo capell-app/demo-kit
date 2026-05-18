@@ -21,9 +21,9 @@ use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 {
-    public const string DemoPageContentRenderable = 'capell.element.demo-page-content';
+    public const string DemoPageContentRenderable = 'capell.block.demo-page-content';
 
-    public const string HomepageSectionRenderable = 'capell.element.homepage-section';
+    public const string HomepageSectionRenderable = 'capell.block.homepage-section';
 
     public static string $name = 'capell-demo-kit';
 
@@ -67,14 +67,14 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::DemoPageContentRenderable,
-            type: RenderableTypeEnum::Element,
-            blade: 'capell-demo-kit::element.demo-page-content',
+            type: RenderableTypeEnum::Block,
+            blade: 'capell-demo-kit::block.demo-page-content',
         ));
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::HomepageSectionRenderable,
-            type: RenderableTypeEnum::Element,
-            blade: 'capell-demo-kit::element.homepage-section',
+            type: RenderableTypeEnum::Block,
+            blade: 'capell-demo-kit::block.homepage-section',
         ));
     }
 

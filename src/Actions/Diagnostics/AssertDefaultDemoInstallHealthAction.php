@@ -12,7 +12,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\DemoKit\Data\DemoProfileData;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -25,7 +25,7 @@ final class AssertDefaultDemoInstallHealthAction
 {
     use AsObject;
 
-    private const string LAYOUT_BUILDER_ELEMENT_MODEL = Element::class;
+    private const string LAYOUT_BUILDER_ELEMENT_MODEL = Block::class;
 
     private DemoProfileData $profile;
 
@@ -34,14 +34,14 @@ final class AssertDefaultDemoInstallHealthAction
         $this->profile = DemoProfileData::default();
 
         $checks = collect([
-            $this->layoutBuilderElementModelExists(),
+            $this->layoutBuilderBlockModelExists(),
             $this->homepageExists(),
-            $this->homepageLayoutHasElements(),
+            $this->homepageLayoutHasBlocks(),
             $this->homepageStartsWithHero(),
             $this->homepageUsesShowcaseOrder(),
-            $this->minimumElementCount(),
-            ...($this->hasLayoutBuilderElementModel() ? [
-                $this->apElementsHaveAssets(),
+            $this->minimumBlockCount(),
+            ...($this->hasLayoutBuilderBlockModel() ? [
+                $this->apBlocksHaveAssets(),
                 $this->placeholderLabelsAreAbsent(),
             ] : []),
             $this->minimumMediaCount(),
@@ -51,13 +51,13 @@ final class AssertDefaultDemoInstallHealthAction
         return new DemoInstallHealthData($checks);
     }
 
-    private function layoutBuilderElementModelExists(): DoctorCheckResultData
+    private function layoutBuilderBlockModelExists(): DoctorCheckResultData
     {
-        if ($this->hasLayoutBuilderElementModel()) {
+        if ($this->hasLayoutBuilderBlockModel()) {
             return new DoctorCheckResultData(
                 label: 'Layout Builder demo dependency',
                 passed: true,
-                message: 'Layout Builder element model is available.',
+                message: 'Layout Builder block model is available.',
             );
         }
 
@@ -94,121 +94,121 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageLayoutHasElements(): DoctorCheckResultData
+    private function homepageLayoutHasBlocks(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $elements = $this->layoutElementKeys($layout);
+        $blocks = $this->layoutBlockKeys($layout);
 
-        if ($elements === []) {
+        if ($blocks === []) {
             return new DoctorCheckResultData(
-                label: 'Homepage layout has elements',
+                label: 'Homepage layout has blocks',
                 passed: false,
-                message: 'The homepage layout does not contain any element keys.',
+                message: 'The homepage layout does not contain any block keys.',
                 remediation: 'Run the selected theme setup/demo command after package setup has completed.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage layout has elements',
+            label: 'Homepage layout has blocks',
             passed: true,
-            message: sprintf('Homepage layout references %d element occurrence(s).', count($elements)),
+            message: sprintf('Homepage layout references %d block occurrence(s).', count($blocks)),
         );
     }
 
-    private function minimumElementCount(): DoctorCheckResultData
+    private function minimumBlockCount(): DoctorCheckResultData
     {
-        $count = $this->homepageElementCount();
+        $count = $this->homepageBlockCount();
 
-        if ($count < $this->profile->minimumElementCount) {
+        if ($count < $this->profile->minimumBlockCount) {
             return new DoctorCheckResultData(
-                label: 'Default demo element count',
+                label: 'Default demo block count',
                 passed: false,
-                message: sprintf('Homepage has %d element(s); expected at least %d.', $count, $this->profile->minimumElementCount),
+                message: sprintf('Homepage has %d block(s); expected at least %d.', $count, $this->profile->minimumBlockCount),
                 remediation: 'Rerun the demo package step and confirm the demo package runs after setup packages.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo element count',
+            label: 'Default demo block count',
             passed: true,
-            message: sprintf('Homepage has %d element(s).', $count),
+            message: sprintf('Homepage has %d block(s).', $count),
         );
     }
 
     private function homepageUsesShowcaseOrder(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $elements = $this->layoutElementKeys($layout);
-        $actual = array_slice($elements, 0, count($this->profile->showcaseElementOrder));
+        $blocks = $this->layoutBlockKeys($layout);
+        $actual = array_slice($blocks, 0, count($this->profile->showcaseBlockOrder));
 
-        if ($actual !== $this->profile->showcaseElementOrder) {
+        if ($actual !== $this->profile->showcaseBlockOrder) {
             return new DoctorCheckResultData(
-                label: 'Default demo showcase element order',
+                label: 'Default demo showcase block order',
                 passed: false,
                 message: sprintf(
                     'Homepage starts with [%s]; expected [%s].',
                     implode(', ', $actual),
-                    implode(', ', $this->profile->showcaseElementOrder),
+                    implode(', ', $this->profile->showcaseBlockOrder),
                 ),
                 remediation: 'Rerun the demo package step so the curated Foundation showcase homepage layout is rebuilt.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo showcase element order',
+            label: 'Default demo showcase block order',
             passed: true,
-            message: 'Homepage uses the curated Foundation showcase element order.',
+            message: 'Homepage uses the curated Foundation showcase block order.',
         );
     }
 
-    private function apElementsHaveAssets(): DoctorCheckResultData
+    private function apBlocksHaveAssets(): DoctorCheckResultData
     {
-        $elementModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+        $blockModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
 
-        foreach ($this->profile->elementAssetMinimums as $elementKey => $minimum) {
-            $element = $elementModel::query()
-                ->where('key', $elementKey)
+        foreach ($this->profile->blockAssetMinimums as $blockKey => $minimum) {
+            $block = $blockModel::query()
+                ->where('key', $blockKey)
                 ->withCount('assets')
                 ->first();
 
-            $assetCount = $element instanceof $elementModel ? (int) $element->getAttribute('assets_count') : 0;
+            $assetCount = $block instanceof $blockModel ? (int) $block->getAttribute('assets_count') : 0;
 
             if ($assetCount < $minimum) {
                 return new DoctorCheckResultData(
-                    label: 'Default demo AP element assets',
+                    label: 'Default demo AP block assets',
                     passed: false,
-                    message: sprintf('Element "%s" has %d asset(s); expected at least %d.', $elementKey, $assetCount, $minimum),
-                    remediation: 'Rerun the default demo fixtures so AP elements receive their editable content and media assets.',
+                    message: sprintf('Block "%s" has %d asset(s); expected at least %d.', $blockKey, $assetCount, $minimum),
+                    remediation: 'Rerun the default demo fixtures so AP blocks receive their editable content and media assets.',
                 );
             }
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo AP element assets',
+            label: 'Default demo AP block assets',
             passed: true,
-            message: 'AP showcase elements have the expected editable assets.',
+            message: 'AP showcase blocks have the expected editable assets.',
         );
     }
 
     private function homepageStartsWithHero(): DoctorCheckResultData
     {
-        $firstElementKey = $this->firstHomepageElementKey();
+        $firstBlockKey = $this->firstHomepageBlockKey();
 
-        if ($firstElementKey === null || ! str_contains($firstElementKey, 'hero')) {
+        if ($firstBlockKey === null || ! str_contains($firstBlockKey, 'hero')) {
             return new DoctorCheckResultData(
-                label: 'Homepage starts with a hero element',
+                label: 'Homepage starts with a hero block',
                 passed: false,
-                message: $firstElementKey === null
-                    ? 'The homepage layout has no first element.'
-                    : sprintf('The homepage starts with "%s", not a hero element.', $firstElementKey),
+                message: $firstBlockKey === null
+                    ? 'The homepage layout has no first block.'
+                    : sprintf('The homepage starts with "%s", not a hero block.', $firstBlockKey),
                 remediation: 'Rerun the demo package step after the selected theme setup so the homepage layout order is rebuilt.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage starts with a hero element',
+            label: 'Homepage starts with a hero block',
             passed: true,
-            message: sprintf('Homepage starts with "%s".', $firstElementKey),
+            message: sprintf('Homepage starts with "%s".', $firstBlockKey),
         );
     }
 
@@ -243,15 +243,15 @@ final class AssertDefaultDemoInstallHealthAction
 
     private function placeholderLabelsAreAbsent(): DoctorCheckResultData
     {
-        $elementModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+        $blockModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
 
-        $homepageElementIds = $elementModel::query()
-            ->whereIn('key', $this->layoutElementKeys($this->homepageLayout()))
+        $homepageBlockIds = $blockModel::query()
+            ->whereIn('key', $this->layoutBlockKeys($this->homepageLayout()))
             ->pluck('id');
 
         $found = Translation::query()
-            ->where('translatable_type', resolve($elementModel)->getMorphClass())
-            ->whereIn('translatable_id', $homepageElementIds)
+            ->where('translatable_type', resolve($blockModel)->getMorphClass())
+            ->whereIn('translatable_id', $homepageBlockIds)
             ->where(function ($query): void {
                 foreach ($this->profile->placeholderLabels as $label) {
                     $query->orWhere('title', 'like', sprintf('%%%s%%', $label))
@@ -299,14 +299,14 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageElementCount(): int
+    private function homepageBlockCount(): int
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
             return 0;
         }
 
-        return count(array_unique($this->layoutElementKeys($layout)));
+        return count(array_unique($this->layoutBlockKeys($layout)));
     }
 
     private function homepageLayout(): ?Layout
@@ -321,7 +321,7 @@ final class AssertDefaultDemoInstallHealthAction
         }
     }
 
-    private function firstHomepageElementKey(): ?string
+    private function firstHomepageBlockKey(): ?string
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
@@ -333,13 +333,13 @@ final class AssertDefaultDemoInstallHealthAction
                 continue;
             }
 
-            $element = collect($container['elements'] ?? [])->first();
+            $block = collect($container['blocks'] ?? [])->first();
 
-            if (! is_array($element)) {
+            if (! is_array($block)) {
                 continue;
             }
 
-            $key = (string) ($element['element_key'] ?? $element['key'] ?? '');
+            $key = (string) ($block['block_key'] ?? $block['key'] ?? '');
 
             return $key !== '' ? $key : null;
         }
@@ -350,7 +350,7 @@ final class AssertDefaultDemoInstallHealthAction
     /**
      * @return array<int, string>
      */
-    private function layoutElementKeys(?Layout $layout): array
+    private function layoutBlockKeys(?Layout $layout): array
     {
         if (! $layout instanceof Layout) {
             return [];
@@ -362,19 +362,19 @@ final class AssertDefaultDemoInstallHealthAction
                     return [];
                 }
 
-                $elements = $container['elements'] ?? [];
+                $blocks = $container['blocks'] ?? [];
 
-                return is_array($elements) ? $elements : [];
+                return is_array($blocks) ? $blocks : [];
             })
-            ->map(fn (mixed $element): ?string => is_array($element)
-                ? (string) ($element['element_key'] ?? $element['key'] ?? '')
-                : (is_string($element) ? $element : null))
+            ->map(fn (mixed $block): ?string => is_array($block)
+                ? (string) ($block['block_key'] ?? $block['key'] ?? '')
+                : (is_string($block) ? $block : null))
             ->filter(fn (?string $key): bool => $key !== null && $key !== '')
             ->values()
             ->all();
     }
 
-    private function hasLayoutBuilderElementModel(): bool
+    private function hasLayoutBuilderBlockModel(): bool
     {
         return class_exists(self::LAYOUT_BUILDER_ELEMENT_MODEL);
     }

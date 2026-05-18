@@ -16,14 +16,14 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
+use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
-use Capell\LayoutBuilder\Enums\ElementComponentEnum;
-use Capell\LayoutBuilder\Enums\ElementTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
-use Capell\LayoutBuilder\Support\Creator\ElementCreator;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -31,15 +31,15 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-abstract class StandardDemoElementCreator extends BaseDemoCreator
+abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
-    public function createContentElement(Collection $languages): Element
+    public function createContentBlock(Collection $languages): Block
     {
         $siteId = Site::query()->default()?->value('id');
 
-        $type = resolve(TypeCreator::class)->contentBuilderElementType();
+        $type = resolve(TypeCreator::class)->contentBuilderBlockType();
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-content'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -66,10 +66,10 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ],
         ]);
 
-        $this->createElementMedia($element);
+        $this->createBlockMedia($block);
 
         foreach ($languages as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -85,16 +85,16 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createSplitContentElement(Collection $languages): Element
+    public function createSplitContentBlock(Collection $languages): Block
     {
         $siteId = Site::query()->default()?->value('id');
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-split-content'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Element])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Block])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -119,10 +119,10 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ],
         ]);
 
-        $this->createElementMedia($element);
+        $this->createBlockMedia($block);
 
         foreach ($languages as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -138,24 +138,24 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createBannerImageElement(Collection $languages): Element
+    public function createBannerImageBlock(Collection $languages): Block
     {
-        $element = resolve(ElementCreator::class)->bannerImageElement();
+        $block = resolve(BlockCreator::class)->bannerImageBlock();
 
-        $media = $this->createElementMedia($element);
+        $media = $this->createBlockMedia($block);
 
-        $meta = $element->meta;
+        $meta = $block->meta;
 
         $meta['background_color'] = 'light-gray';
         $meta['background_image'] = $media->getFullUrl(MediaConversionEnum::Medium->value);
 
-        $element->meta = $meta;
+        $block->meta = $meta;
 
         foreach ($languages as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Banner',
@@ -164,30 +164,30 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createGalleryElement(): Element
+    public function createGalleryBlock(): Block
     {
-        $element = resolve(ElementCreator::class)->galleryElement();
+        $block = resolve(BlockCreator::class)->galleryBlock();
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $this->createElementMedia($element);
+            $this->createBlockMedia($block);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createPageCardsElement(Pageable $page, string $container = 'main', int $occurrence = 1): Element
+    public function createPageCardsBlock(Pageable $page, string $container = 'main', int $occurrence = 1): Block
     {
-        $element = resolve(ElementCreator::class)->pagesCardElement();
+        $block = resolve(BlockCreator::class)->pagesCardBlock();
 
         if (
-            $element->assets()
+            $block->assets()
                 ->where([
                     'pageable_id' => $page->getKey(),
                     'pageable_type' => $page->getMorphClass(),
@@ -196,7 +196,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
                 ])
                 ->exists()
         ) {
-            return $element;
+            return $block;
         }
 
         $relatedPages = $this->pageModel::query()
@@ -209,32 +209,32 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ->get();
 
         if ($relatedPages->isEmpty()) {
-            return $element;
+            return $block;
         }
 
         $relatedPages->each(
-            fn (Page $relatedPage): ElementAsset => $this->createPageElementAsset($element, $page, $container, $occurrence, $relatedPage),
+            fn (Page $relatedPage): BlockAsset => $this->createPageBlockAsset($block, $page, $container, $occurrence, $relatedPage),
         );
 
-        return $element;
+        return $block;
     }
 
-    public function createFaqElement(Collection $languages): Element
+    public function createFaqBlock(Collection $languages): Block
     {
-        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
             ->firstWhere('key', 'assets');
 
-        if ($elementType === null) {
-            $elementType = resolve(TypeCreator::class)->assetsElementType();
+        if ($blockType === null) {
+            $blockType = resolve(TypeCreator::class)->assetsBlockType();
         }
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'faq'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
-                'component' => ElementComponentEnum::AssetAccordion,
+                'component' => BlockComponentEnum::AssetAccordion,
                 'margin' => ['lg'],
                 'align' => 'center',
             ],
@@ -246,7 +246,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => __('capell-layout-builder::heading.faq'),
@@ -316,7 +316,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
                 'blueprint_id' => $contentType->id,
             ]);
 
-            $element->assets()->firstOrCreate([
+            $block->assets()->firstOrCreate([
                 'asset_id' => $content->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
@@ -341,27 +341,27 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             }
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createMediaCarouselElement(): Element
+    public function createMediaCarouselBlock(): Block
     {
-        $element = resolve(ElementCreator::class)->mediaCarouselElement();
+        $block = resolve(BlockCreator::class)->mediaCarouselBlock();
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
         for ($i = 1; $i <= 7; $i++) {
-            $this->createElementMedia($element);
+            $this->createBlockMedia($block);
         }
 
-        $this->createElementMedia($element, type: 'video');
+        $this->createBlockMedia($block, type: 'video');
 
-        return $element;
+        return $block;
     }
 
-    public function createStaticNavigationElement(Collection $languages, Site $site): Element
+    public function createStaticNavigationBlock(Collection $languages, Site $site): Block
     {
         $model = Navigation::class;
 
@@ -388,7 +388,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ->limit(4)
             ->get();
 
-        $elementType = resolve(TypeCreator::class)->navigationElementType();
+        $blockType = resolve(TypeCreator::class)->navigationBlockType();
 
         $navigationType = $this->typeModel::query()->navigationType()->default()->first();
         if ($navigationType === null) {
@@ -406,10 +406,10 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ])
             : null;
 
-        // Create element
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'example-navigation'], [
+        // Create block
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'blueprint_id' => $elementType->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $key,
                 'margin' => ['lg'],
@@ -417,7 +417,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $element->translations()->updateOrCreate(
+            $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Navigation',
@@ -425,12 +425,12 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             );
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createContentsElement(Element $element, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
+    public function createContentsBlock(Block $block, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
     {
-        $pageElementAssets = $element->assets()->where([
+        $pageBlockAssets = $block->assets()->where([
             'pageable_id' => $page->getKey(),
             'pageable_type' => $page->getMorphClass(),
             'container' => $container,
@@ -438,7 +438,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
         ])
             ->exists();
 
-        if ($pageElementAssets) {
+        if ($pageBlockAssets) {
             return;
         }
 
@@ -526,7 +526,7 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
 
             $this->createMedia($content);
 
-            $element->assets()->create([
+            $block->assets()->create([
                 'pageable_id' => $page->id,
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -537,13 +537,13 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
         }
     }
 
-    public function createClientLogosElement(Collection $languages): Element
+    public function createClientLogosBlock(Collection $languages): Block
     {
-        $element = Element::query()->firstOrCreate([
+        $block = Block::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Assets, 'type' => LayoutTypeEnum::Element])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Block])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -556,12 +556,12 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ],
         ]);
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
-        $languages->each(function (Language $language) use ($element): void {
-            $element->translations()->firstOrCreate([
+        $languages->each(function (Language $language) use ($block): void {
+            $block->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => 'Client Logos',
@@ -570,33 +570,33 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
         });
 
         for ($i = 1; $i <= 12; $i++) {
-            $this->createElementMedia($element);
+            $this->createBlockMedia($block);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createBusinessFeaturesElement(Site $site): Element
+    public function createBusinessFeaturesBlock(Site $site): Block
     {
-        $element = Element::query()->firstOrCreate([
+        $block = Block::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Sections, 'type' => LayoutTypeEnum::Element])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections, 'type' => LayoutTypeEnum::Block])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-foundation-theme::components.element.asset.features',
+                'view_file' => 'capell-foundation-theme::components.block.asset.features',
             ],
         ]);
 
-        $this->createMedia($element);
+        $this->createMedia($block);
 
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
-        $site->languages->each(function (Language $language) use ($element, $title, $content): void {
-            $element->translations()->updateOrCreate([
+        $site->languages->each(function (Language $language) use ($block, $title, $content): void {
+            $block->translations()->updateOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => $title,
@@ -606,80 +606,80 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($element): void {
-            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($block): void {
+            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $element->assets()->create([
+            $block->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $element;
+        return $block;
     }
 
-    public function createBannersElement(): Element
+    public function createBannersBlock(): Block
     {
-        $creator = resolve(ElementCreator::class);
-        $element = $creator->bannerElement();
+        $creator = resolve(BlockCreator::class);
+        $block = $creator->bannerBlock();
 
         $site = Site::getDefault();
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($element): void {
-            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($block): void {
+            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $element->assets()->create([
+            $block->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $element;
+        return $block;
     }
 
-    public function createTestimonialsElement(Collection $languages): Element
+    public function createTestimonialsBlock(Collection $languages): Block
     {
-        $elementCreator = resolve(ElementCreator::class);
-        $element = $elementCreator->testimonialsElement();
+        $blockCreator = resolve(BlockCreator::class);
+        $block = $blockCreator->testimonialsBlock();
 
-        $this->createMedia($element, collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($block, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Language $language) use ($element): void {
-            $element->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($block): void {
+            $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
         });
 
         $testimonials = $this->createTestimonials($languages);
 
-        $testimonials->each(function (Model $content) use ($element): void {
-            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
+        $testimonials->each(function (Model $content) use ($block): void {
+            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $element->assets()->create([
+            $block->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $element;
+        return $block;
     }
 
-    public function createStatisticsElement(): Element
+    public function createStatisticsBlock(): Block
     {
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'statistics'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Assets, 'type' => LayoutTypeEnum::Element])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Block])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
-                'view_file' => 'capell-foundation-theme::components.element.asset.blocks',
+                'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 4,
                 'margin' => 'none',
@@ -690,8 +690,8 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ],
         ]);
 
-        if ($element->assets()->exists()) {
-            return $element;
+        if ($block->assets()->exists()) {
+            return $block;
         }
 
         $statistics = [
@@ -741,29 +741,29 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
                 ]);
             }
 
-            $element->assets()->firstOrCreate([
+            $block->assets()->firstOrCreate([
                 'asset_id' => $content->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $element;
+        return $block;
     }
 
-    public function createTeamPortfolioElement(Collection $languages): Element
+    public function createTeamPortfolioBlock(Collection $languages): Block
     {
         $type = $this->typeModel::query()
             ->where([
-                'key' => ElementTypeEnum::Sections,
-                'type' => LayoutTypeEnum::Element,
+                'key' => BlockTypeEnum::Sections,
+                'type' => LayoutTypeEnum::Block,
             ])
             ->first();
 
         if ($type === null) {
-            $type = resolve(TypeCreator::class)->contentsElementType();
+            $type = resolve(TypeCreator::class)->contentsBlockType();
         }
 
-        $element = $this->elementModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
+        $block = $this->blockModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -783,8 +783,8 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
             ],
         ]);
 
-        $languages->each(function (Language $language) use ($element): void {
-            $element->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($block): void {
+            $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Discover the talented individuals behind our success.</p>',
             ]);
@@ -792,17 +792,17 @@ abstract class StandardDemoElementCreator extends BaseDemoCreator
 
         $teamMembers = $this->createTeamMembers($languages);
 
-        $teamMembers->each(function (Model $content) use ($element): void {
-            if ($element->assets()->where('asset_id', $content->getKey())->exists()) {
+        $teamMembers->each(function (Model $content) use ($block): void {
+            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $element->assets()->create([
+            $block->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $element;
+        return $block;
     }
 }

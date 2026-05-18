@@ -56,14 +56,14 @@ That keeps Demo Kit generic: packages own their demo content, while Demo Kit own
 
 ## Rendering Boundary
 
-Demo Kit seeds CMS records, but it should not seed designed frontend markup into content columns. Keep page and element translations portable: simple paragraphs, headings, lists, links, and emphasis are acceptable because editors and themes can preserve them.
+Demo Kit seeds CMS records, but it should not seed designed frontend markup into content columns. Keep page and block translations portable: simple paragraphs, headings, lists, links, and emphasis are acceptable because editors and themes can preserve them.
 
 Put public presentation in Capell rendering surfaces instead:
 
-- use Layout Builder elements for page regions;
+- use Layout Builder blocks for page regions;
 - put designed markup and classes in package Blade files under `packages/demo-kit/resources/views`;
-- store only the element key, component, `view_file`, and simple editable copy in the database;
-- add a focused test when a demo layout switches from stored content to a Blade-backed element.
+- store only the block key, component, `view_file`, and simple editable copy in the database;
+- add a focused test when a demo layout switches from stored content to a Blade-backed block.
 
 `DemoCreator` currently uses `demo-page-content` for designed demo pages and `homepage-section` for homepage-specific sections. Follow that pattern for future demos instead of adding heredoc HTML to `DemoCreator`.
 

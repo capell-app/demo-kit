@@ -9,8 +9,8 @@
     'containerWidth' => null,
     'loop',
     'pageRecord' => null,
-    'element',
-    'elementData' => [],
+    'block',
+    'blockData' => [],
 ])
 
 @php
@@ -35,7 +35,7 @@
             'intro' => 'Content modelling, migration paths, layout architecture, package boundaries, and launch verification stay connected in one delivery path.',
             'items' => [
                 ['label' => 'Audit', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
-                ['label' => 'Build', 'title' => 'Layout architecture', 'copy' => 'Create reusable elements that editors can compose without breaking public output.'],
+                ['label' => 'Build', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks that editors can compose without breaking public output.'],
                 ['label' => 'Launch', 'title' => 'Release checks', 'copy' => 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.'],
             ],
         ],
@@ -54,7 +54,7 @@
             'title' => 'What Capell builders say',
             'intro' => 'Customer proof should connect outcomes to the delivery model behind them.',
             'items' => [
-                ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable elements reduced one-off template work across the site.'],
+                ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable blocks reduced one-off template work across the site.'],
                 ['label' => 'Editor', 'title' => 'Clear ownership', 'copy' => 'Teams can update copy and media without touching implementation details.'],
                 ['label' => 'Engineering', 'title' => 'Cleaner releases', 'copy' => 'Public output remains cacheable and separate from admin tooling.'],
             ],
@@ -86,7 +86,7 @@
             'items' => [
                 ['label' => 'News', 'title' => 'Home, buildings and architecture', 'copy' => 'How architecture-style page systems map to Capell layout builder websites.'],
                 ['label' => 'Guide', 'title' => 'Designing a better homepage flow', 'copy' => 'Turning mixed CMS objects into one coherent public page.'],
-                ['label' => 'Tips', 'title' => 'How to avoid rigid templates', 'copy' => 'Use element boundaries, assets, and reusable sections to keep pages flexible.'],
+                ['label' => 'Tips', 'title' => 'How to avoid rigid templates', 'copy' => 'Use block boundaries, assets, and reusable sections to keep pages flexible.'],
             ],
         ],
         'Platform Architecture' => [
@@ -103,13 +103,13 @@
     $showcase = $showcaseContent[$pageName] ?? null;
 @endphp
 
-<x-capell-foundation-theme::element.wrapper
+<x-capell-foundation-theme::block.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
-    :$element
-    class="capell-element-demo-page-content capell-demo-page-content"
+    :$block
+    class="capell-block-demo-page-content capell-demo-page-content"
     tag="article"
 >
     @if ($content)
@@ -223,13 +223,13 @@
                         <p>
                             Yes. Pages can render directly into support,
                             article, pricing, or project layouts without needing
-                            a hero element.
+                            a hero block.
                         </p>
                     </details>
                     <details>
                         <summary>Where does the designed markup live?</summary>
                         <p>
-                            The demo page-content element owns the Blade
+                            The demo page-content block owns the Blade
                             presentation. The database stores portable content
                             only.
                         </p>
@@ -296,4 +296,4 @@
                 @endif
         @endswitch
     </div>
-</x-capell-foundation-theme::element.wrapper>
+</x-capell-foundation-theme::block.wrapper>

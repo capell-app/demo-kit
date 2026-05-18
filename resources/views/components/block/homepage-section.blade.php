@@ -3,18 +3,18 @@
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'element',
+    'block',
 ])
 
-<x-capell-foundation-theme::element.wrapper
+<x-capell-foundation-theme::block.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
-    :$element
-    class="capell-element-homepage-section capell-home-section"
+    :$block
+    class="capell-block-homepage-section capell-home-section"
 >
-    @switch($element->key)
+    @switch($block->key)
         @case('capell-home-hero-command-center')
             <div class="capell-home capell-home-hero">
                 <section class="capell-home-hero__copy">
@@ -77,7 +77,7 @@
                 </div>
                 <div>
                     <strong>7</strong>
-                    <span>custom homepage elements</span>
+                    <span>custom homepage blocks</span>
                 </div>
                 <div>
                     <strong>120+</strong>
@@ -108,7 +108,7 @@
                         </p>
                         <h3>Operational content, not placeholder blocks</h3>
                         <p>
-                            Use element translations, page types, layout
+                            Use block translations, page types, layout
                             containers, and package data to show how an
                             editor-owned surface stays structured.
                         </p>
@@ -131,7 +131,7 @@
                         <ol>
                             <li>
                                 <strong>Model</strong>
-                                <span>Types and elements</span>
+                                <span>Types and blocks</span>
                             </li>
                             <li>
                                 <strong>Compose</strong>
@@ -211,15 +211,15 @@
                         <span>01</span>
                         <strong>Model content</strong>
                         <p>
-                            Define typed pages, elements, translations, media,
-                            and package fields.
+                            Define typed pages, blocks, translations, media, and
+                            package fields.
                         </p>
                     </li>
                     <li>
                         <span>02</span>
                         <strong>Compose layout</strong>
                         <p>
-                            Place elements into containers that the public theme
+                            Place blocks into containers that the public theme
                             renders predictably.
                         </p>
                     </li>
@@ -274,7 +274,7 @@
                         extend.
                     </h2>
                     <p>
-                        The homepage demonstrates layout shapes, custom element
+                        The homepage demonstrates layout shapes, custom block
                         compositions, package boundaries, and public-page
                         discovery paths.
                     </p>
@@ -286,4 +286,4 @@
 
             @break
     @endswitch
-</x-capell-foundation-theme::element.wrapper>
+</x-capell-foundation-theme::block.wrapper>

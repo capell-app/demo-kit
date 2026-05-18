@@ -41,7 +41,7 @@ class CreateLayoutBuilderDemoSiteAction
         $typeCreator = resolve(TypeCreator::class);
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
-        $typeCreator->createElementTypes();
+        $typeCreator->createBlockTypes();
 
         /** @var ContentCreator $contentCreator */
         $contentCreator = resolve(ContentCreator::class);
@@ -82,7 +82,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         $orderedContainers = [];
         $remainingContainers = array_diff_key($containers, array_flip([
-            'ap-elements',
+            'ap-blocks',
             'main',
             'faq-main',
             'faq-col',
@@ -90,7 +90,7 @@ class CreateLayoutBuilderDemoSiteAction
             'split-two',
         ]));
 
-        $this->populateAPElementsContainer($orderedContainers);
+        $this->populateAPBlocksContainer($orderedContainers);
 
         $containers = [
             ...$orderedContainers,
@@ -99,32 +99,32 @@ class CreateLayoutBuilderDemoSiteAction
 
         $layout->update([
             'containers' => $containers,
-            'elements' => $this->layoutElementKeys($containers),
+            'blocks' => $this->layoutBlockKeys($containers),
         ]);
     }
 
-    private function populateAPElementsContainer(array &$containers): void
+    private function populateAPBlocksContainer(array &$containers): void
     {
-        $heroElement = $this->demoCreator->createHomepageHeroCommandCenterElement();
-        $proofElement = $this->demoCreator->createHomepageProofStripElement();
-        $showcaseElement = $this->demoCreator->createHomepageDemoShowcaseElement();
-        $marketplaceElement = $this->demoCreator->createHomepageMarketplaceElement();
-        $pipelineElement = $this->demoCreator->createHomepageTechnicalPipelineElement();
-        $routeSplitElement = $this->demoCreator->createHomepageRouteSplitElement();
-        $finalCtaElement = $this->demoCreator->createHomepageFinalCtaElement();
+        $heroBlock = $this->demoCreator->createHomepageHeroCommandCenterBlock();
+        $proofBlock = $this->demoCreator->createHomepageProofStripBlock();
+        $showcaseBlock = $this->demoCreator->createHomepageDemoShowcaseBlock();
+        $marketplaceBlock = $this->demoCreator->createHomepageMarketplaceBlock();
+        $pipelineBlock = $this->demoCreator->createHomepageTechnicalPipelineBlock();
+        $routeSplitBlock = $this->demoCreator->createHomepageRouteSplitBlock();
+        $finalCtaBlock = $this->demoCreator->createHomepageFinalCtaBlock();
 
-        $containers['ap-elements'] = [
+        $containers['ap-blocks'] = [
             'meta' => [
                 'colspan' => 12,
             ],
-            'elements' => [
-                ['element_key' => $heroElement->key],
-                ['element_key' => $proofElement->key],
-                ['element_key' => $showcaseElement->key],
-                ['element_key' => $marketplaceElement->key],
-                ['element_key' => $pipelineElement->key],
-                ['element_key' => $routeSplitElement->key],
-                ['element_key' => $finalCtaElement->key],
+            'blocks' => [
+                ['block_key' => $heroBlock->key],
+                ['block_key' => $proofBlock->key],
+                ['block_key' => $showcaseBlock->key],
+                ['block_key' => $marketplaceBlock->key],
+                ['block_key' => $pipelineBlock->key],
+                ['block_key' => $routeSplitBlock->key],
+                ['block_key' => $finalCtaBlock->key],
             ],
         ];
     }
@@ -133,7 +133,7 @@ class CreateLayoutBuilderDemoSiteAction
      * @param  array<string, mixed>  $containers
      * @return list<string>
      */
-    private function layoutElementKeys(array $containers): array
+    private function layoutBlockKeys(array $containers): array
     {
         return collect($containers)
             ->flatMap(function (mixed $container): array {
@@ -141,12 +141,12 @@ class CreateLayoutBuilderDemoSiteAction
                     return [];
                 }
 
-                $elements = $container['elements'] ?? [];
+                $blocks = $container['blocks'] ?? [];
 
-                return is_array($elements) ? $elements : [];
+                return is_array($blocks) ? $blocks : [];
             })
-            ->map(fn (mixed $element): ?string => is_array($element) ? ($element['element_key'] ?? null) : null)
-            ->filter(fn (?string $elementKey): bool => is_string($elementKey) && $elementKey !== '')
+            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['block_key'] ?? null) : null)
+            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
             ->unique()
             ->values()
             ->all();

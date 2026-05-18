@@ -14,9 +14,9 @@ use Capell\Core\Models\SiteDomain;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\FormBuilder\Models\Form;
-use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -320,8 +320,8 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
     File::spy();
 
     Blueprint::factory()->create([
-        'key' => ElementTypeEnum::Default->value,
-        'type' => LayoutTypeEnum::Element->value,
+        'key' => BlockTypeEnum::Default->value,
+        'type' => LayoutTypeEnum::Block->value,
     ]);
 
     $demoCreator = new DemoCreator;
@@ -343,7 +343,7 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
         ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
-        ->and(Element::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::element.form')->exists())->toBeTrue();
+        ->and(Block::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
 });
 
 it('skips contact form integration when form builder is not installed', function (): void {
@@ -361,7 +361,7 @@ it('skips contact form integration when form builder is not installed', function
 
     expect($contactPage->layout?->key)->toBe('contact-standalone')
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeFalse()
-        ->and(Element::query()->where('key', 'contact-form')->exists())->toBeFalse();
+        ->and(Block::query()->where('key', 'contact-form')->exists())->toBeFalse();
 
     CapellCore::forcePackageInstalled('capell-app/form-builder');
 });

@@ -7,7 +7,7 @@ use Capell\Core\Models\Site;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
@@ -21,20 +21,20 @@ beforeEach(function (): void {
     LayoutBuilderInstallPackageAction::run();
 });
 
-it('creates homepage demo snippets as layout builder elements', function (): void {
-    resolve(TypeCreator::class)->createElementTypes();
+it('creates homepage demo snippets as layout builder blocks', function (): void {
+    resolve(TypeCreator::class)->createBlockTypes();
 
-    $element = resolve(DemoCreator::class)->createHomepageHeroCommandCenterElement();
+    $block = resolve(DemoCreator::class)->createHomepageHeroCommandCenterBlock();
 
-    expect($element)->toBeInstanceOf(Element::class)
-        ->and($element->getTable())->toBe('elements')
-        ->and($element->key)->toBe('capell-home-hero-command-center')
-        ->and($element->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
-        ->and($element->getViewFile())->toBeNull();
+    expect($block)->toBeInstanceOf(Block::class)
+        ->and($block->getTable())->toBe('blocks')
+        ->and($block->key)->toBe('capell-home-hero-command-center')
+        ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($block->getViewFile())->toBeNull();
 });
 
-it('uses a blade-backed demo page content element for designed demo pages', function (): void {
-    resolve(TypeCreator::class)->createElementTypes();
+it('uses a blade-backed demo page content block for designed demo pages', function (): void {
+    resolve(TypeCreator::class)->createBlockTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -46,16 +46,16 @@ it('uses a blade-backed demo page content element for designed demo pages', func
 
     $page->refresh();
 
-    expect($page->layout?->elements)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
-        ->and(Element::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.element.demo-page-content')
-        ->and(Element::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
-        ->and(Element::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.element.hero')
+    expect($page->layout?->blocks)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
+        ->and(Block::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.block.demo-page-content')
+        ->and(Block::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
+        ->and(Block::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero')
         ->and($page->translation?->content)->toContain('<p>Capell combines Laravel package discipline')
         ->and($page->translation?->content)->not->toContain('class=');
 });
 
 it('canonicalizes the old architecture demo page into the platform architecture layout', function (): void {
-    resolve(TypeCreator::class)->createElementTypes();
+    resolve(TypeCreator::class)->createBlockTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -69,19 +69,19 @@ it('canonicalizes the old architecture demo page into the platform architecture 
 
     expect($page->name)->toBe('Platform Architecture')
         ->and($page->layout?->key)->toBe('capell-demo-platform-architecture')
-        ->and($page->layout?->elements)->toContain('demo-page-hero')
-        ->and($page->layout?->elements)->toContain('demo-page-content')
+        ->and($page->layout?->blocks)->toContain('demo-page-hero')
+        ->and($page->layout?->blocks)->toContain('demo-page-content')
         ->and($page->translation?->title)->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('label'))->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('slug'))->toBe('platform-architecture')
         ->and($page->translation?->getMeta('hero_title'))->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('hero'))->toBeString()
         ->and($page->translation?->getMeta('hero'))->toStartWith('<p>')
-        ->and(Element::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.element.hero');
+        ->and(Block::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero');
 });
 
 it('keeps demo pages without heroes on content-only layouts', function (): void {
-    resolve(TypeCreator::class)->createElementTypes();
+    resolve(TypeCreator::class)->createBlockTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -94,8 +94,8 @@ it('keeps demo pages without heroes on content-only layouts', function (): void 
     $page->refresh()->loadMissing(['layout', 'translation']);
 
     expect($page->layout?->key)->toBe('capell-demo-pricing-no-hero')
-        ->and($page->layout?->elements)->not->toContain('hero')
-        ->and($page->layout?->elements)->toContain('demo-page-content')
+        ->and($page->layout?->blocks)->not->toContain('hero')
+        ->and($page->layout?->blocks)->toContain('demo-page-content')
         ->and($page->translation?->getMeta('hero'))->toBeNull()
         ->and($page->translation?->getMeta('hero_title'))->toBe('Pricing');
 });
