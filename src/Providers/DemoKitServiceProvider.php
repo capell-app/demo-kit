@@ -8,7 +8,6 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Data\RenderableDefinitionData;
-use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Renderables\RenderableRegistry;
@@ -67,13 +66,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::DemoPageContentRenderable,
-            type: RenderableTypeEnum::Block,
+            type: 'layout-block',
             blade: 'capell-demo-kit::block.demo-page-content',
         ));
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::HomepageSectionRenderable,
-            type: RenderableTypeEnum::Block,
+            type: 'layout-block',
             blade: 'capell-demo-kit::block.homepage-section',
         ));
     }
