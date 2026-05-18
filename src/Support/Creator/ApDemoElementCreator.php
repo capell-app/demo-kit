@@ -1,0 +1,341 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\DemoKit\Support\Creator;
+
+use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Enums\ElementComponentEnum;
+use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Support\Creator\ElementCreator;
+use Illuminate\Database\Eloquent\Collection;
+
+abstract class ApDemoElementCreator extends HomepageDemoElementCreator
+{
+    public function createApHeroBannerElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::HeroBanner)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+                ->firstWhere('key', ElementTypeEnum::Default);
+
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+            'name' => 'AP Hero Banner',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApHeroBanner,
+            ],
+        ]);
+
+        $element->forceFill([
+            'name' => 'Capell Product Hero',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApHeroBanner,
+                'primary_button_text' => 'Explore the demo',
+                'primary_button_url' => '/admin',
+                'secondary_button_text' => 'Read the docs',
+                'secondary_button_url' => '/docs/installation',
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => 'Capell CMS',
+                    'content' => '<p>The Laravel and Filament CMS operating system for multi-site publishing, visual layout building, package-owned frontends, and static-fast delivery.</p>',
+                ],
+            );
+        }
+
+        $this->createMedia($element, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
+
+        return $element;
+    }
+
+    public function createApCardGridElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::CardGrid)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+                ->firstWhere('key', ElementTypeEnum::Default);
+
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+            'name' => 'Capell Capability Cards',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApCardGrid,
+            ],
+        ]);
+
+        $element->forceFill([
+            'name' => 'Capell Capability Cards',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApCardGrid,
+                'columns' => 3,
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => 'A complete CMS foundation, not a theme demo',
+                    'content' => '<p>Capell brings the content model, admin workflow, frontend runtime, and release checks together so teams can ship production sites without stitching every layer by hand.</p>',
+                ],
+            );
+        }
+
+        $element->assets()->delete();
+
+        $cards = [
+            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, elements, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable elements while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-bolt', 'title' => 'Static-fast delivery', 'description' => 'Generate frontend HTML, verify runtime assets, and keep public pages fast without giving up CMS control.', 'link_text' => 'Run doctor', 'link_url' => '/docs/installation'],
+        ];
+
+        foreach ($cards as $card) {
+            $section = $this->contentModel::query()->updateOrCreate(['name' => $card['title']], [
+                'meta' => [
+                    'icon' => $card['icon'],
+                    'link_text' => $card['link_text'],
+                    'link_url' => $card['link_url'],
+                ],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $this->translationsFor($section)->updateOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $card['title'], 'content' => sprintf('<p>%s</p>', $card['description'])],
+                );
+            }
+
+            $element->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
+        }
+
+        return $element;
+    }
+
+    public function createApFeatureListElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::FeatureList)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+                ->firstWhere('key', ElementTypeEnum::Default);
+
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+            'name' => 'Capell Workflow Feature List',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApFeatureList,
+            ],
+        ]);
+
+        $element->forceFill([
+            'name' => 'Capell Workflow Feature List',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApFeatureList,
+                'layout' => 'grid',
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => 'Everything visible is backed by editable records',
+                    'content' => '<p>The default homepage is deliberately assembled from Capell elements, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
+                ],
+            );
+        }
+
+        $element->assets()->delete();
+
+        $features = [
+            ['icon' => 'heroicon-o-language', 'title' => 'Page translations', 'description' => 'Hero titles, body copy, SEO fields, and language variants live in translation records.'],
+            ['icon' => 'heroicon-o-photo', 'title' => 'Media-driven surfaces', 'description' => 'Hero backgrounds, gallery items, cards, and section imagery resolve through Capell media records.'],
+            ['icon' => 'heroicon-o-pencil-square', 'title' => 'Editor-owned sections', 'description' => 'Homepage cards, feature rows, FAQs, testimonials, and CTAs are all admin-managed content.'],
+            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, elements, runtime manifests, and generated frontend CSS.'],
+        ];
+
+        foreach ($features as $feature) {
+            $section = $this->contentModel::query()->updateOrCreate(['name' => $feature['title']], [
+                'meta' => ['icon' => $feature['icon']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $this->translationsFor($section)->updateOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
+                );
+            }
+
+            $element->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
+        }
+
+        return $element;
+    }
+
+    public function createFeatureListElement(): Element
+    {
+        $element = resolve(ElementCreator::class)->featuresElement();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->firstOrCreate(
+                ['language_id' => $language->id],
+                ['title' => 'Features'],
+            );
+        }
+
+        if ($element->assets()->exists()) {
+            return $element;
+        }
+
+        $features = [
+            ['icon' => 'heroicon-o-light-bulb', 'title' => 'Innovative Solutions', 'description' => 'We leverage cutting-edge technology to create innovative solutions that drive success.'],
+            ['icon' => 'heroicon-o-academic-cap', 'title' => 'Deep Expertise', 'description' => 'Our team brings deep industry knowledge and experience to every project.'],
+            ['icon' => 'heroicon-o-user-group', 'title' => 'Client-Centric Approach', 'description' => "We prioritize our clients' needs and work collaboratively to achieve their goals."],
+            ['icon' => 'heroicon-o-chart-bar', 'title' => 'Measurable Results', 'description' => 'We focus on delivering measurable results that drive growth and success.'],
+            ['icon' => 'heroicon-o-sparkles', 'title' => 'Sustainable Practices', 'description' => 'We are committed to sustainable practices that benefit our clients and the environment.'],
+            ['icon' => 'heroicon-o-globe-alt', 'title' => 'Global Reach', 'description' => 'Our global presence allows us to serve clients across diverse markets and industries.'],
+        ];
+
+        foreach ($features as $feature) {
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $feature['title']], [
+                'meta' => ['icon' => $feature['icon']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $this->translationsFor($section)->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
+                );
+            }
+
+            $element->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
+        }
+
+        return $element;
+    }
+
+    public function createApCtaSectionElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::CTASection)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+                ->firstWhere('key', ElementTypeEnum::Default);
+
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+            'name' => 'AP CTA Section',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApCTASection,
+            ],
+        ]);
+
+        $element->forceFill([
+            'name' => 'Capell Showcase CTA',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApCTASection,
+                'primary_button_text' => 'Open the admin',
+                'primary_button_url' => '/admin',
+                'secondary_button_text' => 'Run install doctor',
+                'secondary_button_url' => '/docs/installation',
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => 'A demo site that proves the CMS stack is wired',
+                    'content' => '<p>Change the homepage in Filament, regenerate the frontend, and use Capell doctor to confirm content, assets, runtime JavaScript, and layouts are all healthy.</p>',
+                ],
+            );
+        }
+
+        return $element;
+    }
+
+    public function createApImageGalleryElement(): Element
+    {
+        $elementType = $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+            ->firstWhere('key', ElementTypeEnum::ImageGallery)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Element)
+                ->firstWhere('key', ElementTypeEnum::Default);
+
+        $element = $this->elementModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+            'name' => 'AP Image Gallery',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApImageGallery,
+            ],
+        ]);
+
+        $element->forceFill([
+            'name' => 'Capell Media Gallery',
+            'blueprint_id' => $elementType->id,
+            'meta' => [
+                'component' => ElementComponentEnum::ApImageGallery,
+                'layout' => 'grid',
+                'columns' => 3,
+                'lightbox' => true,
+                'margin' => ['none'],
+            ],
+        ])->save();
+
+        foreach (Site::getDefault()?->languages ?? [] as $language) {
+            $element->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => 'Media that stays editable',
+                    'content' => '<p>Use the gallery to verify image records, captions, crops, and frontend rendering stay connected from admin to public page.</p>',
+                ],
+            );
+        }
+
+        if ($element->assets()->exists()) {
+            return $element;
+        }
+
+        for ($i = 1; $i <= 6; $i++) {
+            $this->createElementMedia($element);
+        }
+
+        return $element;
+    }
+
+    public function addSplitTwoBackgroundMedia(Layout $layout): void
+    {
+        if ($layout->getMedia('split-two-background')->isNotEmpty()) {
+            return;
+        }
+
+        $this->createMedia($layout, collection: 'split-two-background');
+    }
+
+    /**
+     * @param  Collection<int, Site>  $sites
+     */
+}
