@@ -41,11 +41,11 @@ class AdminDemoCommand extends Command
     use HasSitesOption;
     use PromptsWithOptionFallback;
 
-    private const PROGRESS_MESSAGE_WIDTH = 32;
+    private const int PROGRESS_MESSAGE_WIDTH = 32;
 
-    private const CONTENT_SECTIONS_PACKAGE = 'capell-app/content-sections';
+    private const string CONTENT_SECTIONS_PACKAGE = 'capell-app/content-sections';
 
-    private const LAYOUT_BUILDER_PACKAGE = 'capell-app/layout-builder';
+    private const string LAYOUT_BUILDER_PACKAGE = 'capell-app/layout-builder';
 
     /**
      * The console command description.

@@ -21,7 +21,7 @@ use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 {
-    public const DemoPageContentRenderable = 'capell.element.demo-page-content';
+    public const string DemoPageContentRenderable = 'capell.element.demo-page-content';
 
     public static string $name = 'capell-demo-kit';
 

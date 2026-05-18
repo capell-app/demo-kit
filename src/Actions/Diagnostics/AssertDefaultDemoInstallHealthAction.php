@@ -25,7 +25,7 @@ final class AssertDefaultDemoInstallHealthAction
 {
     use AsObject;
 
-    private const LAYOUT_BUILDER_ELEMENT_MODEL = Element::class;
+    private const string LAYOUT_BUILDER_ELEMENT_MODEL = Element::class;
 
     private DemoProfileData $profile;
 

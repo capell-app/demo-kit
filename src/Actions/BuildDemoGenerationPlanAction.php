@@ -19,9 +19,9 @@ final class BuildDemoGenerationPlanAction
 {
     use AsObject;
 
-    public const MAX_SITE_COUNT = 25;
+    public const int MAX_SITE_COUNT = 25;
 
-    public const MAX_PAGE_COUNT = 250;
+    public const int MAX_PAGE_COUNT = 250;
 
     public function __construct(
         private readonly DemoContentPool $contentPool = new DemoContentPool,

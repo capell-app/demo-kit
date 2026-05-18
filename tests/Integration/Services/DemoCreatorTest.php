@@ -566,9 +566,9 @@ function useTinyDemoResources(): void
         File::deleteDirectory($demoDirectory);
     });
 
-    app()->instance(DemoResourceResolver::class, new class($demoDirectory)
+    app()->instance(DemoResourceResolver::class, new readonly class($demoDirectory)
     {
-        public function __construct(private readonly string $demoDirectory) {}
+        public function __construct(private string $demoDirectory) {}
 
         public function resolve(?string $folder): string
         {

@@ -60,11 +60,11 @@ class DemoCreator
 {
     use Macroable;
 
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
-    private const FormBuilderPackage = 'capell-app/form-builder';
+    private const string FormBuilderPackage = 'capell-app/form-builder';
 
-    private const StandardFooterPageNames = [
+    private const array StandardFooterPageNames = [
         'Integrations',
         'Locations',
         'Partners',
