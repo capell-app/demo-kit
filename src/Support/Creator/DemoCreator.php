@@ -2248,10 +2248,10 @@ class DemoCreator
             'name' => 'Demo Page Content',
             'blueprint_id' => $elementType->id,
             'component' => DemoKitServiceProvider::DemoPageContentRenderable,
+            'view_file' => null,
             'meta' => [
                 'component' => DemoKitServiceProvider::DemoPageContentRenderable,
                 'page_content' => ['content'],
-                'view_file' => 'capell-demo-kit::components.element.demo-page-content',
             ],
             'status' => true,
         ];
@@ -2278,6 +2278,7 @@ class DemoCreator
             'Projects' => ['capell-demo-projects', 'Capell Demo Projects', true],
             'Project Detail' => ['capell-demo-project-detail', 'Capell Demo Project Detail', true],
             'Blog' => ['capell-demo-blog', 'Capell Demo Blog', true],
+            'Resources' => ['capell-demo-resources', 'Capell Demo Resources', true],
             'Platform Architecture' => ['capell-demo-platform-architecture', 'Capell Demo Platform Architecture', true],
         ];
 
@@ -2539,10 +2540,10 @@ class DemoCreator
         $attributes = [
             'name' => $name,
             'blueprint_id' => $elementType->id,
-            'component' => ElementComponentEnum::Default->value,
+            'component' => DemoKitServiceProvider::HomepageSectionRenderable,
+            'view_file' => null,
             'meta' => [
-                'component' => ElementComponentEnum::Default->value,
-                'view_file' => 'capell-demo-kit::components.element.homepage-section',
+                'component' => DemoKitServiceProvider::HomepageSectionRenderable,
                 'margin' => ['none'],
             ],
         ];
@@ -2580,7 +2581,7 @@ class DemoCreator
             'show_hero' => ! $withoutHero,
             'hero_style' => match ($name) {
                 'Homepage 2' => 'immersive',
-                'About Us', 'Services', 'Team', 'Testimonials', 'Projects', 'Blog' => 'compact',
+                'About Us', 'Services', 'Team', 'Testimonials', 'Projects', 'Blog', 'Resources' => 'compact',
                 default => 'default',
             },
             'hero_asset_source' => 'mixed',

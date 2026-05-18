@@ -23,6 +23,8 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 {
     public const string DemoPageContentRenderable = 'capell.element.demo-page-content';
 
+    public const string HomepageSectionRenderable = 'capell.element.homepage-section';
+
     public static string $name = 'capell-demo-kit';
 
     public static string $packageName = 'capell-app/demo-kit';
@@ -67,6 +69,12 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             key: self::DemoPageContentRenderable,
             type: RenderableTypeEnum::Element,
             blade: 'capell-demo-kit::element.demo-page-content',
+        ));
+
+        $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
+            key: self::HomepageSectionRenderable,
+            type: RenderableTypeEnum::Element,
+            blade: 'capell-demo-kit::element.homepage-section',
         ));
     }
 

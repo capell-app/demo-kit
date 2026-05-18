@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 use Capell\LayoutBuilder\Models\Element;
@@ -28,8 +29,8 @@ it('creates homepage demo snippets as layout builder elements', function (): voi
     expect($element)->toBeInstanceOf(Element::class)
         ->and($element->getTable())->toBe('elements')
         ->and($element->key)->toBe('capell-home-hero-command-center')
-        ->and($element->component)->toBe('capell.element.default')
-        ->and($element->getViewFile())->toBe('capell-demo-kit::components.element.homepage-section');
+        ->and($element->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($element->getViewFile())->toBeNull();
 });
 
 it('uses a blade-backed demo page content element for designed demo pages', function (): void {
@@ -47,6 +48,7 @@ it('uses a blade-backed demo page content element for designed demo pages', func
 
     expect($page->layout?->elements)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
         ->and(Element::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.element.demo-page-content')
+        ->and(Element::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
         ->and(Element::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.element.hero')
         ->and($page->translation?->content)->toContain('<p>Capell combines Laravel package discipline')
         ->and($page->translation?->content)->not->toContain('class=');
