@@ -88,6 +88,8 @@ abstract class BaseDemoCreator
     /** @var class-string<Block> */
     protected string $blockModel;
 
+    protected ?Block $demoPageContentBlock = null;
+
     public static function getDemoResourcePath(?string $folder): string
     {
         return resolve(DemoResourceResolver::class)->resolve($folder);
@@ -305,6 +307,10 @@ abstract class BaseDemoCreator
 
     protected function ensureDemoPageContentBlock(): Block
     {
+        if ($this->demoPageContentBlock instanceof Block) {
+            return $this->demoPageContentBlock;
+        }
+
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
             ->firstWhere('key', BlockTypeEnum::PageContents);
 
@@ -323,9 +329,13 @@ abstract class BaseDemoCreator
         ];
 
         $block = Block::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
-        $block->forceFill($attributes)->save();
+        $block->forceFill($attributes);
 
-        return $block;
+        if ($block->isDirty()) {
+            $block->save();
+        }
+
+        return $this->demoPageContentBlock = $block;
     }
 
     protected function layoutForDemoPage(string $name): ?Layout
@@ -642,6 +652,7 @@ abstract class BaseDemoCreator
         $name = $this->canonicalDemoPageName($name);
 
         $withoutHero = in_array($name, [
+            'Contact',
             'FAQ',
             'Pricing',
             'Implementation',
@@ -649,7 +660,7 @@ abstract class BaseDemoCreator
             'Home, Buildings and Architecture',
             'Compliance',
             'Sustainability',
-        ], true);
+        ], true) || in_array($name, self::StandardFooterPageNames, true);
 
         return [
             'show_hero' => ! $withoutHero,
@@ -708,7 +719,7 @@ abstract class BaseDemoCreator
     {
         return match (Str::lower($name)) {
             'faq' => 'FAQ',
-            'home, buildings and architecture' => 'Platform Architecture',
+            'home, buildings and architecture' => 'Home, Buildings and Architecture',
             'platform architecture' => 'Platform Architecture',
             default => $name,
         };
@@ -719,39 +730,39 @@ abstract class BaseDemoCreator
         $content = [
             'About Us' => [
                 'Capell combines Laravel package discipline, Filament editorial workflows, reusable public blocks, and static delivery into one maintainable publishing platform.',
-                'Editors get flexible composition. Developers keep clear boundaries. Visitors receive clean, fast public output.',
+                'This page pairs portable CMS copy with a reusable public page block so editors can learn where content stops and presentation begins.',
             ],
             'Homepage 2' => [
                 'This service-led homepage variation keeps the same Capell content model while changing the public layout rhythm.',
-                'Use it to prove that page records can be rendered through different package-owned templates without storing designed markup in content.',
+                'Use it to see how a hero, proof modules, route links, and service calls to action can be rearranged without storing designed markup in content.',
             ],
             'Contact' => [
                 'Send a message about your CMS project, migration, integration work, or support needs.',
-                'A clear contact page keeps the next step simple without sending visitors through child pages.',
+                'The layout separates introduction copy, routing cards, and form fields so qualification can change without rebuilding the template.',
             ],
             'Services' => [
                 'Implementation services cover content modelling, migration paths, layout architecture, package boundaries, and launch verification.',
-                'The public page is rendered by the demo page-content block while this saved content stays deliberately portable.',
+                'The public page combines a split intro, service cards, proof metrics, and a process timeline while this saved content stays deliberately portable.',
             ],
             'Team' => [
                 'A team page should prove capability, not just show profiles.',
-                'These roles map to the work needed to build flexible Capell sites.',
+                'The profile cards are a reusable block pattern: role, focus area, and proof copy can move between team, services, and case-study pages.',
             ],
             'FAQ' => [
                 'This page intentionally works without a large hero image.',
-                'It proves Capell can render dense support content in a calmer page template.',
+                'It proves Capell can render saved page copy, accordion content, and support guidance in a calmer page template.',
             ],
             'Pricing' => [
                 'Choose the access and support model that fits your team.',
-                'Start with a developer plan for evaluation, move to agency support for production delivery, or scope an enterprise agreement when governance and response times matter.',
+                'Plan cards, support notes, and implementation scoping stay on this route so the homepage can remain compact and focused.',
             ],
             'Testimonials' => [
                 'Customer proof should connect outcomes to the delivery model behind them.',
-                'The demo template renders testimonials as a public proof surface without baking that layout into the page body.',
+                'The testimonial cards show how quote, role, and outcome data can be reused as proof blocks without baking that layout into the page body.',
             ],
             'Projects' => [
                 'Project listings show how Capell can present structured work, media, and calls to action from reusable public templates.',
-                'The saved content remains plain enough to survive editor and renderer changes.',
+                'The index layout teaches the pattern: a portable page body first, then project cards, filters, and calls to action from the public block.',
             ],
             'Project Detail' => [
                 'A project detail page can explain scope, delivery, results, and ownership without hard-coding the case-study layout into CMS prose.',
@@ -759,11 +770,11 @@ abstract class BaseDemoCreator
             ],
             'Blog' => [
                 'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
-                'This demo page keeps presentation in Blade and stores only simple page copy.',
+                'The page demonstrates a resource-style listing block while storing only simple page copy in the database.',
             ],
             'Home, Buildings and Architecture' => [
                 'Blog notes for teams building structured, maintainable Capell websites.',
-                'The article page demonstrates a focused editorial layout without homepage or pricing widgets leaking into the post.',
+                'The article page demonstrates metadata, body copy, and editorial chrome without homepage or pricing widgets leaking into the post.',
             ],
             'Platform Architecture' => [
                 'Platform architecture pages explain how Capell separates content records, layouts, render data, public components, and package extension points.',
@@ -771,11 +782,11 @@ abstract class BaseDemoCreator
             ],
             'Implementation' => [
                 'A productized Capell implementation gives teams a production CMS foundation, migration confidence, and a clear handover path.',
-                'Every scope change gets priced before work starts.',
+                'This child page shows how scope, timeline, risk, and pricing evidence can sit under the main Pricing page as a dedicated layout block.',
             ],
             'Resources' => [
                 'Guides, architecture notes, launch checklists, and developer references for teams building Laravel and Filament CMS platforms with Capell.',
-                'The resource library page uses a custom demo Blade surface instead of storing a designed index in the database.',
+                'The resource hub teaches the CMS pattern: featured content, filters, category cards, latest resources, and toolkit CTA are separate sections.',
             ],
             'Compliance' => [
                 'Compliance pages keep regional obligations, policy owners, review cadence, and evidence links close to the local publishing workflow.',
@@ -790,7 +801,7 @@ abstract class BaseDemoCreator
         if (in_array($name, self::StandardFooterPageNames, true)) {
             $content[$name] = [
                 sprintf('%s content is rendered through the shared demo footer page Blade template.', $name),
-                'The database stores portable editorial copy while the package view owns the designed public presentation.',
+                'The shared layout teaches a reusable footer-page pattern: portable editorial copy, local proof cards, and consistent navigation structure.',
             ];
         }
 
@@ -801,348 +812,6 @@ abstract class BaseDemoCreator
         return collect($content[$name])
             ->map(fn (string $paragraph): string => sprintf('<p>%s</p>', e($paragraph)))
             ->implode("\n");
-    }
-
-    protected function contactIndexContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-contact-gateway">
-    <p class="capell-demo-eyebrow">Contact gateway</p>
-    <h2>Send a message about your Capell build</h2>
-    <p>Route implementation, migration, package, and support enquiries through one clear public surface.</p>
-    <div class="capell-demo-contact-grid">
-        <article><span>Address</span><strong>Capell Studio, London</strong><p>Remote-first delivery with UK timezone handover.</p></article>
-        <article><span>Response</span><strong>Two business days</strong><p>Enough context to qualify the right delivery path.</p></article>
-        <article><span>Routing</span><strong>Project, support, migration</strong><p>Contact topics map to the same governed CMS model.</p></article>
-    </div>
-</section>
-HTML;
-    }
-
-    protected function showcaseAboutContent(): string
-    {
-        return $this->showcasePageContent(
-            'about',
-            'Platform experience',
-            'Experienced in flexible content systems',
-            'Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.',
-            [
-                ['01', 'Model content', 'Store durable page stories as simple CMS content that can move between renderers.'],
-                ['02', 'Render in Blade', 'Keep the designed public surface inside package-owned views.'],
-                ['03', 'Verify output', 'Connect admin records to frontend rendering without exposing editor concerns.'],
-            ],
-        );
-    }
-
-    protected function showcaseHomepageTwoContent(): string
-    {
-        return $this->showcasePageContent(
-            'home-variant',
-            'Homepage variant',
-            'A second homepage for service-led Capell builds',
-            'This page proves the same content system can support a different homepage rhythm: stronger service positioning, proof modules, and route-specific calls to action.',
-            [
-                ['Hero', 'Service-led opening', 'A compact proposition for teams evaluating implementation support.'],
-                ['Proof', 'Capability modules', 'Reusable proof cards make the page feel distinct without another template stack.'],
-                ['Routes', 'Next-step links', 'Pricing, contact, resources, and services stay connected from the variant.'],
-            ],
-        );
-    }
-
-    protected function contactServicesContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-services-atelier">
-    <p class="capell-demo-eyebrow">Services atelier</p>
-    <h2>Implementation services for complex Capell rollouts</h2>
-    <p>Content modelling, migration paths, layout architecture, package boundaries, and launch verification stay connected in one delivery path.</p>
-    <div class="capell-demo-service-board">
-        <article><span>Audit board</span><strong>Content model review</strong><p>Map pages, assets, routes, redirects, and ownership before implementation starts.</p></article>
-        <article><span>Build board</span><strong>Layout architecture</strong><p>Create reusable blocks that editors can compose without breaking public output.</p></article>
-        <article><span>Launch board</span><strong>Release checks</strong><p>Verify cache, navigation, search, SEO, and anonymous page safety before handover.</p></article>
-    </div>
-</section>
-HTML;
-    }
-
-    protected function showcaseTeamContent(): string
-    {
-        return $this->showcasePageContent(
-            'team',
-            'Delivery team',
-            'Implementation specialists for Capell websites',
-            'A team page should prove capability, not just show profiles. These roles map to the work needed to build flexible Capell sites.',
-            [
-                ['Strategy', 'CMS architecture', 'Owns page models, routes, package boundaries, and release shape.'],
-                ['Frontend', 'Public rendering', 'Builds Tailwind and Blade surfaces that stay clean for visitors.'],
-                ['Publishing', 'Workflow setup', 'Connects Filament editing, preview, approval, and handover.'],
-            ],
-        );
-    }
-
-    protected function showcaseFaqContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-showcase-page capell-demo-showcase-page--faq">
-    <p class="capell-demo-eyebrow">Support layout</p>
-    <h2>FAQ content without a hero dependency</h2>
-    <details open><summary>Can a page skip the hero entirely?</summary><p>Yes. Pages can render directly into support, article, pricing, or project layouts without needing a hero block.</p></details>
-    <details><summary>Where does the designed markup live?</summary><p>The demo page-content block owns the Blade presentation. The database stores portable content only.</p></details>
-    <details><summary>Can editors still update the copy?</summary><p>Yes. The saved page content renders before the template-specific proof modules.</p></details>
-</section>
-HTML;
-    }
-
-    protected function pricingIndexContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-pricing-matrix">
-    <p class="capell-demo-eyebrow">Pricing matrix</p>
-    <h2>Simple pricing for Capell CMS delivery</h2>
-    <p>Compare the commercial model without making the homepage carry the full pricing table.</p>
-    <div class="capell-demo-pricing-grid">
-        <article><span>Developer</span><strong>GBP 0</strong><p>For evaluation, prototypes, and local proof-of-concept work.</p><em>Self-guided</em></article>
-        <article class="is-featured"><span>Agency</span><strong>GBP 99</strong><p>For production delivery with commercial support and implementation confidence.</p><em>Popular</em></article>
-        <article><span>Enterprise</span><strong>Custom</strong><p>For governed estates, multi-site publishing, and dedicated support paths.</p><em>Scoped</em></article>
-    </div>
-    <section class="capell-demo-pricing-questions"><h3>Common pricing questions</h3><p>Support level, response time, migration help, and implementation depth are separated so teams can pick the right path.</p></section>
-</section>
-HTML;
-    }
-
-    protected function showcaseTestimonialsContent(): string
-    {
-        return $this->showcasePageContent(
-            'testimonials',
-            'Customer proof',
-            'What Capell builders say',
-            'Customer proof should connect outcomes to the delivery model behind them.',
-            [
-                ['Agency', 'Faster rebuilds', 'Reusable blocks reduced one-off template work across the site.'],
-                ['Editor', 'Clear ownership', 'Teams can update copy and media without touching implementation details.'],
-                ['Engineering', 'Cleaner releases', 'Public output remains cacheable and separate from admin tooling.'],
-            ],
-        );
-    }
-
-    protected function showcaseProjectsContent(): string
-    {
-        return $this->showcasePageContent(
-            'projects',
-            'Project library',
-            'Capell implementation project library',
-            'Project listings show how Capell can present structured work, media, and calls to action from reusable public templates.',
-            [
-                ['Case study', 'Layout builder redesign', 'A flexible page system rebuilt around reusable sections and assets.'],
-                ['Migration', 'Resource library import', 'Structured content and redirects moved into a governed CMS workflow.'],
-                ['Launch', 'Static delivery rollout', 'Cache generation and public verification before handover.'],
-            ],
-        );
-    }
-
-    protected function showcaseProjectDetailContent(): string
-    {
-        return $this->showcasePageContent(
-            'project-detail',
-            'Project detail',
-            'Layout builder redesign for a flexible Capell website',
-            'A project detail page can explain scope, delivery, results, and ownership without hard-coding the case-study layout into CMS prose.',
-            [
-                ['Scope', 'Reusable page sections', 'The implementation kept existing content intent while improving layout ownership.'],
-                ['Result', 'Cleaner publishing', 'Editors gained safer composition and developers kept package-owned rendering.'],
-                ['Handover', 'Documented release path', 'QA, cache, and frontend checks are part of the delivery.'],
-            ],
-        );
-    }
-
-    protected function showcaseBlogContent(): string
-    {
-        return $this->showcasePageContent(
-            'blog',
-            'Latest news',
-            'Our blog for Capell builders',
-            'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
-            [
-                ['News', 'Home, buildings and architecture', 'How architecture-style page systems map to Capell layout builder websites.'],
-                ['Guide', 'Designing a better homepage flow', 'Turning mixed CMS objects into one coherent public page.'],
-                ['Tips', 'How to avoid rigid templates', 'Use block boundaries, assets, and reusable sections to keep pages flexible.'],
-            ],
-        );
-    }
-
-    protected function showcaseSinglePostContent(): string
-    {
-        return <<<'HTML'
-<article class="capell-demo-showcase-page capell-demo-showcase-page--single-post">
-    <p class="capell-demo-eyebrow">Article template</p>
-    <h2>Home, buildings and architecture</h2>
-    <p>Blog notes for teams building structured, maintainable Capell websites.</p>
-    <aside><strong>Article chrome</strong><span>Author metadata, body copy, related resources, and clean public rendering.</span></aside>
-</article>
-HTML;
-    }
-
-    protected function implementationPricingContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-implementation-plan">
-    <p class="capell-demo-eyebrow">Implementation scoping</p>
-    <h2>Implementation plan with commercial guardrails</h2>
-    <p>Turn scope, timeline, risk, and price confidence into a visible delivery surface.</p>
-    <div class="capell-demo-implementation-grid">
-        <article><span>Scope confidence</span><strong>High</strong><p>Known page types, content model, integrations, and launch criteria.</p></article>
-        <article><span>Delivery rhythm</span><strong>4 phases</strong><p>Audit, build, migrate, verify.</p></article>
-        <article><span>Guardrails</span><strong>Change controlled</strong><p>Commercial changes are priced before implementation work starts.</p></article>
-    </div>
-</section>
-HTML;
-    }
-
-    protected function locationsIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'locations',
-            'Locations',
-            'Multi-site delivery without losing local context',
-            'Network signal',
-            'Operational proof',
-            'Regional teams can publish local obligations, evidence, and support details while sharing the same Capell rendering system.',
-        );
-    }
-
-    protected function integrationsIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'integrations',
-            'Integrations',
-            'Integration surfaces for teams that need traceable sync',
-            'Connector map',
-            'Sync health',
-            'Show how package integration status, connector ownership, and data movement are explained to visitors.',
-        );
-    }
-
-    protected function partnersIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'partners',
-            'Partners',
-            'Partner delivery paths with clear implementation boundaries',
-            'Partner ladder',
-            'Delivery proof',
-            'Partner pages explain routes to market, support ownership, and when a project moves from referral to implementation.',
-        );
-    }
-
-    protected function roadmapIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'roadmap',
-            'Roadmap',
-            'A roadmap page that turns product direction into trust',
-            'Release board',
-            'Decision log',
-            'Roadmap content keeps upcoming platform work, delivery confidence, and constraints visible without promising vague features.',
-        );
-    }
-
-    protected function governanceIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'governance',
-            'Governance',
-            'Governance content for teams that publish with consequences',
-            'Control panel',
-            'Audit trail',
-            'Governance pages make permissions, approval flow, content ownership, and release responsibilities explicit.',
-        );
-    }
-
-    protected function trainingIndexContent(): string
-    {
-        return $this->footerPageContent(
-            'training',
-            'Training',
-            'Training pages that help teams actually own the CMS',
-            'Training map',
-            'Handover proof',
-            'Training content turns editor onboarding, support paths, and repeatable publishing habits into a visible page.',
-        );
-    }
-
-    protected function complianceLocationContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-location-detail">
-    <p class="capell-demo-eyebrow">Location detail</p>
-    <h2>Compliance content for regional obligations</h2>
-    <p>Local teams can explain regional obligations, review cadence, policy ownership, and evidence without changing the shared footer template.</p>
-</section>
-HTML;
-    }
-
-    protected function sustainabilityLocationContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-location-detail">
-    <p class="capell-demo-eyebrow">Location detail</p>
-    <h2>Sustainability content for local initiatives</h2>
-    <p>Local initiatives, measurements, and proof points stay consistent across the network while remaining editable by regional owners.</p>
-</section>
-HTML;
-    }
-
-    protected function resourcesHubContent(): string
-    {
-        return <<<'HTML'
-<section class="capell-demo-resources-library">
-    <p class="capell-demo-eyebrow">Resource library</p>
-    <h2>Resource library for Capell builders</h2>
-    <p>Resource index pages need dense but readable cards, filters, article metadata, and implementation references.</p>
-    <div class="capell-demo-resource-index">
-        <article><span>Migration</span><h3>Designing imports editors can trust</h3><p>Validate source rows, preserve redirects, and keep rejected records explainable.</p><em>9 min</em></article>
-        <article><span>Publishing</span><h3>Approval workflows without admin leakage</h3><p>Keep draft tooling private while public pages stay clean and cacheable.</p><em>7 min</em></article>
-        <article><span>Theme systems</span><h3>Package-owned frontend rendering</h3><p>Build reusable public surfaces without coupling them to Filament screens.</p><em>11 min</em></article>
-    </div>
-</section>
-HTML;
-    }
-
-    /**
-     * @param  list<array{0: string, 1: string, 2: string}>  $items
-     */
-    protected function showcasePageContent(string $slug, string $eyebrow, string $title, string $intro, array $items): string
-    {
-        $cards = collect($items)
-            ->map(fn (array $item): string => sprintf(
-                '<article><span>%s</span><h3>%s</h3><p>%s</p></article>',
-                e($item[0]),
-                e($item[1]),
-                e($item[2]),
-            ))
-            ->implode('');
-
-        return sprintf(
-            '<section class="capell-demo-showcase-page capell-demo-showcase-page--%s"><p class="capell-demo-eyebrow">%s</p><h2>%s</h2><p>%s</p><div class="capell-demo-showcase-grid">%s</div></section>',
-            e($slug),
-            e($eyebrow),
-            e($title),
-            e($intro),
-            $cards,
-        );
-    }
-
-    protected function footerPageContent(string $slug, string $eyebrow, string $title, string $signalLabel, string $proofLabel, string $copy): string
-    {
-        return sprintf(
-            '<section class="capell-demo-footer-page capell-demo-footer-page--%s"><div class="capell-demo-footer-editorial"><p class="capell-demo-eyebrow">%s</p><h2>%s</h2><p>%s</p></div><div class="capell-demo-footer-evidence"><article><span>%s</span><strong>Mapped</strong><p>Content, routes, and ownership are visible.</p></article><article><span>%s</span><strong>Verified</strong><p>Public output can be checked before handover.</p></article></div><div class="capell-demo-footer-variation-strip"><span>Footer route</span><span>Shared template</span><span>Local content</span></div></section>',
-            e($slug),
-            e($eyebrow),
-            e($title),
-            e($copy),
-            e($signalLabel),
-            e($proofLabel),
-        );
     }
 
     protected function createFeatures(Site $site): Collection

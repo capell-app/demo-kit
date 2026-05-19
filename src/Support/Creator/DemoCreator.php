@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Support\Creator;
 
+use Capell\Core\Actions\SetupPageUrlsAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCreatable;
 use Capell\Core\Facades\CapellCore;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use InvalidArgumentException;
 
 class DemoCreator extends ApDemoBlockCreator
 {
@@ -214,6 +216,57 @@ class DemoCreator extends ApDemoBlockCreator
         }
 
         return $page;
+    }
+
+    public function refreshDemoPage(Page $page, Collection $languages, bool $refreshUrls = true): Page
+    {
+        $name = $this->canonicalDemoPageName($page->name);
+        $layout = $this->layoutForDemoPage($name);
+
+        if (! $layout instanceof Layout) {
+            throw new InvalidArgumentException(sprintf('Unable to resolve a demo layout for [%s].', $name));
+        }
+
+        if ($name === 'Contact') {
+            $this->ensureContactFormIntegration($page->site);
+        }
+
+        $page->forceFill([
+            'name' => $name,
+            'layout_id' => $layout->getKey(),
+            'meta' => $this->demoPageMeta($name),
+            'visible_from' => $page->visible_from ?? now()->subDay()->format('Y-m-d'),
+        ])->save();
+
+        $languages->each(function (Language $language) use ($page, $name): void {
+            $title = Str::title($name);
+            $content = $this->demoPageContent($name, $language->code)
+                ?? DummyContentGeneratorAction::run($language->code);
+
+            $page->translations()->updateOrCreate(
+                ['language_id' => $language->getKey()],
+                [
+                    'title' => $title,
+                    'content' => $content,
+                    'summary' => $this->demoPageSummary($name),
+                    'meta' => [
+                        'description' => str($content)->stripTags()->limit(160),
+                        'hero' => $this->demoPageHeroContent($name, $content),
+                        'hero_title' => $title,
+                        'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
+                        'label' => $title,
+                        'link_text' => 'Learn More',
+                        'slug' => Str::slug($title),
+                    ],
+                ],
+            );
+        });
+
+        if ($refreshUrls) {
+            SetupPageUrlsAction::run($page);
+        }
+
+        return $page->refresh();
     }
 
     public function setupRelatedSites(): void

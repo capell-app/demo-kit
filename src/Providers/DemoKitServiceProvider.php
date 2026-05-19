@@ -15,6 +15,7 @@ use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
+use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Spatie\LaravelPackageTools\Package;
 
@@ -39,6 +40,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 AdminDemoCommand::class,
                 FullDemoCommand::class,
                 DemoKitDoctorCommand::class,
+                RefreshDemoStitchPagesCommand::class,
             ]);
     }
 
