@@ -719,7 +719,7 @@ abstract class BaseDemoCreator
     {
         return match (Str::lower($name)) {
             'faq' => 'FAQ',
-            'home, buildings and architecture' => 'Home, Buildings and Architecture',
+            'home, buildings and architecture' => 'Platform Architecture',
             'platform architecture' => 'Platform Architecture',
             default => $name,
         };
