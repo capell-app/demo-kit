@@ -101,6 +101,7 @@
         ],
     ];
     $showcase = $showcaseContent[$pageName] ?? null;
+    $hasDesignedDemoContent = is_string($content) && Str::contains($content, 'capell-demo-');
 @endphp
 
 <x-capell-foundation-theme::block.wrapper
@@ -124,176 +125,194 @@
         @class([
             'capell-demo-page px-[6%] xl:container',
             'capell-demo-page--' . $pageSlug,
-            'capell-demo-showcase-page capell-demo-showcase-page--' . $pageSlug => $showcase !== null,
+            'capell-demo-page--fallback' => ! $hasDesignedDemoContent,
+            'capell-demo-showcase-page capell-demo-showcase-page--' . $pageSlug => $showcase !== null && ! $hasDesignedDemoContent,
         ])
     >
-        @switch($pageName)
-            @case('Contact')
-                <section
-                    class="capell-demo-contact-details"
-                    aria-label="Contact details"
-                >
-                    <h2>Contact details</h2>
-                    <dl>
-                        <div>
-                            <dt>Email</dt>
-                            <dd>
-                                <a href="mailto:hello@capell.app">
-                                    hello@capell.app
-                                </a>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>Phone</dt>
-                            <dd>
-                                <a href="tel:+442045712840">+44 20 4571 2840</a>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>Response</dt>
-                            <dd>Within 2 business days</dd>
-                        </div>
-                    </dl>
-                </section>
-
-                @break
-            @case('Pricing')
-                <section
-                    class="capell-pricing-plan-cards"
-                    aria-label="Pricing plans"
-                >
-                    <article>
-                        <span>Developer</span>
-                        <strong>GBP 0</strong>
-                        <p>For local evaluation and proof of concept work.</p>
-                        <a href="/contact#developer">Get started</a>
-                    </article>
-                    <article class="is-featured">
-                        <em>Popular</em>
-                        <span>Agency</span>
-                        <strong>GBP 99</strong>
-                        <p>For production projects with commercial support.</p>
-                        <a href="/contact#agency">Start trial</a>
-                    </article>
-                    <article>
-                        <span>Enterprise</span>
-                        <strong>Custom</strong>
-                        <p>For governed estates and dedicated support paths.</p>
-                        <a href="/contact#enterprise">Contact sales</a>
-                    </article>
-                </section>
-
-                @break
-            @case('Resources')
-                <section class="capell-demo-resource-index">
-                    <article>
-                        <span>Migration</span>
-                        <h3>Designing imports editors can trust</h3>
-                        <p>
-                            Validate source rows, preserve redirects, and keep
-                            rejected records explainable.
-                        </p>
-                        <em>9 min</em>
-                    </article>
-                    <article>
-                        <span>Publishing</span>
-                        <h3>Approval workflows without admin leakage</h3>
-                        <p>
-                            Keep draft tooling private while public pages stay
-                            clean and cacheable.
-                        </p>
-                        <em>7 min</em>
-                    </article>
-                    <article>
-                        <span>Theme systems</span>
-                        <h3>Package-owned frontend rendering</h3>
-                        <p>
-                            Build reusable public surfaces without coupling them
-                            to Filament screens.
-                        </p>
-                        <em>11 min</em>
-                    </article>
-                </section>
-
-                @break
-            @case('FAQ')
-                <section class="capell-demo-faq-list">
-                    <details>
-                        <summary>Can a page skip the hero entirely?</summary>
-                        <p>
-                            Yes. Pages can render directly into support,
-                            article, pricing, or project layouts without needing
-                            a hero block.
-                        </p>
-                    </details>
-                    <details>
-                        <summary>Where does the designed markup live?</summary>
-                        <p>
-                            The demo page-content block owns the Blade
-                            presentation. The database stores portable content
-                            only.
-                        </p>
-                    </details>
-                    <details>
-                        <summary>Can editors still update the copy?</summary>
-                        <p>
-                            Yes. The saved page content renders before the
-                            template-specific proof modules.
-                        </p>
-                    </details>
-                </section>
-
-                @break
-            @default
-                @if ($showcase)
+        @unless ($hasDesignedDemoContent)
+            @switch($pageName)
+                @case('Contact')
                     <section
-                        class="grid gap-8 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16"
+                        class="capell-demo-contact-details"
+                        aria-label="Contact details"
                     >
-                        <div>
-                            <p
-                                class="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600"
-                            >
-                                {{ $showcase['eyebrow'] }}
-                            </p>
-                            <h2
-                                class="mt-4 max-w-2xl text-balance text-3xl font-semibold leading-tight text-slate-950 md:text-5xl"
-                            >
-                                {{ $showcase['title'] }}
-                            </h2>
-                            <p
-                                class="mt-5 max-w-2xl text-base leading-8 text-slate-600"
-                            >
-                                {{ $showcase['intro'] }}
-                            </p>
-                        </div>
-
-                        <div
-                            class="capell-demo-showcase-grid grid gap-4 md:grid-cols-3"
-                        >
-                            @foreach ($showcase['items'] as $item)
-                                <article
-                                    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-                                >
-                                    <span
-                                        class="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600"
-                                    >
-                                        {{ $item['label'] }}
-                                    </span>
-                                    <h3
-                                        class="mt-4 text-xl font-semibold text-slate-950"
-                                    >
-                                        {{ $item['title'] }}
-                                    </h3>
-                                    <p
-                                        class="mt-3 text-base leading-7 text-slate-600"
-                                    >
-                                        {{ $item['copy'] }}
-                                    </p>
-                                </article>
-                            @endforeach
-                        </div>
+                        <h2>Contact details</h2>
+                        <dl>
+                            <div>
+                                <dt>Email</dt>
+                                <dd>
+                                    <a href="mailto:hello@capell.app">
+                                        hello@capell.app
+                                    </a>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Phone</dt>
+                                <dd>
+                                    <a href="tel:+442045712840">
+                                        +44 20 4571 2840
+                                    </a>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Response</dt>
+                                <dd>Within 2 business days</dd>
+                            </div>
+                        </dl>
                     </section>
-                @endif
-        @endswitch
+
+                    @break
+                @case('Pricing')
+                    <section
+                        class="capell-pricing-plan-cards"
+                        aria-label="Pricing plans"
+                    >
+                        <article>
+                            <span>Developer</span>
+                            <strong>GBP 0</strong>
+                            <p>
+                                For local evaluation and proof of concept work.
+                            </p>
+                            <a href="/contact#developer">Get started</a>
+                        </article>
+                        <article class="is-featured">
+                            <em>Popular</em>
+                            <span>Agency</span>
+                            <strong>GBP 99</strong>
+                            <p>
+                                For production projects with commercial support.
+                            </p>
+                            <a href="/contact#agency">Start trial</a>
+                        </article>
+                        <article>
+                            <span>Enterprise</span>
+                            <strong>Custom</strong>
+                            <p>
+                                For governed estates and dedicated support
+                                paths.
+                            </p>
+                            <a href="/contact#enterprise">Contact sales</a>
+                        </article>
+                    </section>
+
+                    @break
+                @case('Resources')
+                    <section class="capell-demo-resource-index">
+                        <article>
+                            <span>Migration</span>
+                            <h3>Designing imports editors can trust</h3>
+                            <p>
+                                Validate source rows, preserve redirects, and
+                                keep rejected records explainable.
+                            </p>
+                            <em>9 min</em>
+                        </article>
+                        <article>
+                            <span>Publishing</span>
+                            <h3>Approval workflows without admin leakage</h3>
+                            <p>
+                                Keep draft tooling private while public pages
+                                stay clean and cacheable.
+                            </p>
+                            <em>7 min</em>
+                        </article>
+                        <article>
+                            <span>Theme systems</span>
+                            <h3>Package-owned frontend rendering</h3>
+                            <p>
+                                Build reusable public surfaces without coupling
+                                them to Filament screens.
+                            </p>
+                            <em>11 min</em>
+                        </article>
+                    </section>
+
+                    @break
+                @case('FAQ')
+                    <section class="capell-demo-faq-list">
+                        <details>
+                            <summary>
+                                Can a page skip the hero entirely?
+                            </summary>
+                            <p>
+                                Yes. Pages can render directly into support,
+                                article, pricing, or project layouts without
+                                needing a hero block.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>
+                                Where does the designed markup live?
+                            </summary>
+                            <p>
+                                The demo page-content block owns the Blade
+                                presentation. The database stores portable
+                                content only.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>
+                                Can editors still update the copy?
+                            </summary>
+                            <p>
+                                Yes. The saved page content renders before the
+                                template-specific proof modules.
+                            </p>
+                        </details>
+                    </section>
+
+                    @break
+                @default
+                    @if ($showcase)
+                        <section
+                            class="grid gap-8 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-16"
+                        >
+                            <div>
+                                <p
+                                    class="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600"
+                                >
+                                    {{ $showcase['eyebrow'] }}
+                                </p>
+                                <h2
+                                    class="mt-4 max-w-2xl text-balance text-3xl font-semibold leading-tight text-slate-950 md:text-5xl"
+                                >
+                                    {{ $showcase['title'] }}
+                                </h2>
+                                <p
+                                    class="mt-5 max-w-2xl text-base leading-8 text-slate-600"
+                                >
+                                    {{ $showcase['intro'] }}
+                                </p>
+                            </div>
+
+                            <div
+                                class="capell-demo-showcase-grid grid gap-4 md:grid-cols-3"
+                            >
+                                @foreach ($showcase['items'] as $item)
+                                    <article
+                                        class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                                    >
+                                        <span
+                                            class="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600"
+                                        >
+                                            {{ $item['label'] }}
+                                        </span>
+                                        <h3
+                                            class="mt-4 text-xl font-semibold text-slate-950"
+                                        >
+                                            {{ $item['title'] }}
+                                        </h3>
+                                        <p
+                                            class="mt-3 text-base leading-7 text-slate-600"
+                                        >
+                                            {{ $item['copy'] }}
+                                        </p>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </section>
+                    @endif
+            @endswitch
+        @endunless
     </div>
 </x-capell-foundation-theme::block.wrapper>

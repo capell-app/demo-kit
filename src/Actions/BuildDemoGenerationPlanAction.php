@@ -134,7 +134,7 @@ final class BuildDemoGenerationPlanAction
      */
     private function buildPages(int $count, DemoProfileData $profile): array
     {
-        $specialPages = array_slice($this->specialDemoPages(), 0, $count);
+        $specialPages = $this->specialDemoPagesForCount($count);
         $remainingCount = max(0, $count - $this->countPages($specialPages));
         $availableNames = $this->availablePageNames($remainingCount);
         $pages = [];
@@ -173,6 +173,7 @@ final class BuildDemoGenerationPlanAction
             'Projects',
             'Project Detail',
             'Blog',
+            'Home, Buildings and Architecture',
             'Platform Architecture',
             'Implementation',
             'Resources',
@@ -182,6 +183,8 @@ final class BuildDemoGenerationPlanAction
             'Roadmap',
             'Governance',
             'Training',
+            'Compliance',
+            'Sustainability',
         ];
         $requestedCount = $count + count($excluded);
         $names = [];
@@ -197,6 +200,47 @@ final class BuildDemoGenerationPlanAction
     /**
      * @return list<DemoPagePlanData>
      */
+    private function specialDemoPagesForCount(int $count): array
+    {
+        $reservedPages = [];
+        $deferredChildren = [];
+
+        foreach ($this->specialDemoPages() as $page) {
+            if ($this->countPages($reservedPages) >= $count) {
+                break;
+            }
+
+            $reservedPages[] = new DemoPagePlanData(
+                name: $page->name,
+                mediaCount: $page->mediaCount,
+            );
+
+            if ($page->children !== []) {
+                $deferredChildren[array_key_last($reservedPages)] = $page->children;
+            }
+        }
+
+        foreach ($deferredChildren as $pageIndex => $children) {
+            $availableCount = $count - $this->countPages($reservedPages);
+
+            if ($availableCount <= 0) {
+                break;
+            }
+
+            $page = $reservedPages[$pageIndex];
+            $reservedPages[$pageIndex] = new DemoPagePlanData(
+                name: $page->name,
+                mediaCount: $page->mediaCount,
+                children: array_slice($children, 0, $availableCount),
+            );
+        }
+
+        return $reservedPages;
+    }
+
+    /**
+     * @return list<DemoPagePlanData>
+     */
     private function specialDemoPages(): array
     {
         return [
@@ -207,6 +251,12 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('Pricing'),
                 mediaCount: 0,
+                children: [
+                    new DemoPagePlanData(
+                        name: $this->translatedName('Implementation'),
+                        mediaCount: 0,
+                    ),
+                ],
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Resources'),
@@ -249,6 +299,10 @@ final class BuildDemoGenerationPlanAction
                 mediaCount: 3,
             ),
             new DemoPagePlanData(
+                name: $this->translatedName('Home, Buildings and Architecture'),
+                mediaCount: 2,
+            ),
+            new DemoPagePlanData(
                 name: $this->translatedName('Platform Architecture'),
                 mediaCount: 2,
             ),
@@ -259,6 +313,16 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('Locations'),
                 mediaCount: 0,
+                children: [
+                    new DemoPagePlanData(
+                        name: $this->translatedName('Compliance'),
+                        mediaCount: 0,
+                    ),
+                    new DemoPagePlanData(
+                        name: $this->translatedName('Sustainability'),
+                        mediaCount: 0,
+                    ),
+                ],
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Partners'),
