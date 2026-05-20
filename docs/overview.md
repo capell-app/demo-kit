@@ -16,6 +16,21 @@ Use it when a developer needs a populated Capell install quickly without committ
 - Repeatable generation through a numeric seed.
 - A package demo dispatcher that calls installed packages with the options they declare in their manifest.
 - Health checks for validating generated demo installs.
+- A `DemoKitPage` Filament page for admin-triggered demo generation workflows.
+- Package-owned Blade block views for designed demo page content.
+
+## Admin Surface
+
+Demo Kit registers `DemoKitPage` at the `demo-kit` admin slug in the system navigation group. Access is limited to users allowed to manage demo generation.
+
+## Frontend Surface
+
+Demo Kit does not add standalone public routes. Its frontend surface appears through seeded Capell content that references package-owned block views:
+
+- `capell-demo-kit::components.block.demo-page-content`
+- `capell-demo-kit::components.block.homepage-section`
+
+Those views keep presentation markup in Blade while database records keep only portable editable copy and render metadata.
 
 ## Commands
 
@@ -66,6 +81,10 @@ Put public presentation in Capell rendering surfaces instead:
 - add a focused test when a demo layout switches from stored content to a Blade-backed block.
 
 `DemoCreator` currently uses `demo-page-content` for designed demo pages and `homepage-section` for homepage-specific sections. Follow that pattern for future demos instead of adding heredoc HTML to `DemoCreator`.
+
+## Screenshot Coverage
+
+The screenshot contract is stored in [screenshots.json](screenshots.json). Final capture should include the Demo Kit admin page and at least one generated public demo page using each package-owned block view.
 
 ## Maintenance Notes
 
