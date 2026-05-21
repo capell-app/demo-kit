@@ -202,7 +202,7 @@ class DemoCreator extends ApDemoBlockCreator
                         'Read More',
                         'Get Started',
                         'More information',
-                        'Unlock the Full Story',
+                        'View the full notes',
                     ]),
                     'slug' => $slug,
                 ],
