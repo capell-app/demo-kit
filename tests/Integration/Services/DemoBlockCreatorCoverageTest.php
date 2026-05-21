@@ -213,6 +213,7 @@ it('creates the remaining standard section-backed demo blocks idempotently', fun
     $contentsBlock = $creator->createFeatureListBlock();
     $creator->createContentsBlock($contentsBlock, $page, 'main', 3);
     $creator->createContentsBlock($contentsBlock, $page, 'main', 3);
+
     $businessFeatures = $creator->createBusinessFeaturesBlock($site);
     $banners = $creator->createBannersBlock();
     $testimonials = $creator->createTestimonialsBlock($site->languages);
