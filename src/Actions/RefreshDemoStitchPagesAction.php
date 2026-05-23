@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsObject;
+use RuntimeException;
 
 /**
  * @method static Collection<int, Page> run(?string $siteName = null, ?string $languageCode = null, bool $force = false)
@@ -180,6 +181,8 @@ final class RefreshDemoStitchPagesAction
                 createMedia: false,
             );
         }
+
+        throw_unless($page instanceof Page, RuntimeException::class, 'Demo page creator must return a page model.');
 
         if ($page->parent_id !== $expectedParentId) {
             $page->forceFill(['parent_id' => $expectedParentId])->save();

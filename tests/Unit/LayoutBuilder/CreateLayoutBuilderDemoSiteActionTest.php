@@ -75,6 +75,10 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
                 'meta' => ['colspan' => 4],
                 'blocks' => [['block_key' => 'existing-secondary']],
             ],
+            'hero' => [
+                'meta' => ['colspan' => 12],
+                'blocks' => [['block_key' => 'hero']],
+            ],
             'loose' => [
                 'meta' => ['colspan' => 12],
                 'blocks' => 'not-a-block-list',
@@ -108,12 +112,13 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
             'capell-home-hero-command-center',
             'capell-home-proof-strip',
             'capell-home-demo-showcase',
+            'capell-home-demo-widgets-carousel',
             'capell-extension-marketplace-showcase',
             'capell-home-technical-pipeline',
             'capell-home-route-split',
             'capell-home-final-cta',
         ])
-        ->and(Block::query()->whereIn('key', $layout->blocks)->count())->toBe(7)
+        ->and(Block::query()->whereIn('key', $layout->blocks)->count())->toBe(8)
         ->and($childContent->parent_id)->toBe($rootContent->getKey());
 });
 

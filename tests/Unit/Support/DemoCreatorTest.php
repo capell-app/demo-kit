@@ -33,6 +33,23 @@ it('creates homepage demo snippets as layout builder blocks', function (): void 
         ->and($block->getViewFile())->toBeNull();
 });
 
+it('creates the interactive homepage widgets carousel block', function (): void {
+    resolve(TypeCreator::class)->createBlockTypes();
+
+    $block = resolve(DemoCreator::class)->createHomepageDemoWidgetsCarouselBlock();
+    $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/block/homepage-section.blade.php');
+
+    expect($block)->toBeInstanceOf(Block::class)
+        ->and($block->key)->toBe('capell-home-demo-widgets-carousel')
+        ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($view)->toContain('window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1')
+        ->and($view)->toContain('pageCount()')
+        ->and($view)->toContain('x-on:touchstart.passive="swipeStart($event)"')
+        ->and($view)->toContain('x-on:touchend.passive="swipeEnd($event)"')
+        ->and($view)->toContain('Editorial workflow')
+        ->and($view)->toContain('Translation queue');
+});
+
 it('uses a blade-backed demo page content block for designed demo pages', function (): void {
     resolve(TypeCreator::class)->createBlockTypes();
 

@@ -83,6 +83,7 @@ class CreateLayoutBuilderDemoSiteAction
         $orderedContainers = [];
         $remainingContainers = array_diff_key($containers, array_flip([
             'ap-blocks',
+            'hero',
             'main',
             'faq-main',
             'faq-col',
@@ -108,6 +109,7 @@ class CreateLayoutBuilderDemoSiteAction
         $heroBlock = $this->demoCreator->createHomepageHeroCommandCenterBlock();
         $proofBlock = $this->demoCreator->createHomepageProofStripBlock();
         $showcaseBlock = $this->demoCreator->createHomepageDemoShowcaseBlock();
+        $widgetsCarouselBlock = $this->demoCreator->createHomepageDemoWidgetsCarouselBlock();
         $marketplaceBlock = $this->demoCreator->createHomepageMarketplaceBlock();
         $pipelineBlock = $this->demoCreator->createHomepageTechnicalPipelineBlock();
         $routeSplitBlock = $this->demoCreator->createHomepageRouteSplitBlock();
@@ -121,6 +123,7 @@ class CreateLayoutBuilderDemoSiteAction
                 ['block_key' => $heroBlock->key],
                 ['block_key' => $proofBlock->key],
                 ['block_key' => $showcaseBlock->key],
+                ['block_key' => $widgetsCarouselBlock->key],
                 ['block_key' => $marketplaceBlock->key],
                 ['block_key' => $pipelineBlock->key],
                 ['block_key' => $routeSplitBlock->key],

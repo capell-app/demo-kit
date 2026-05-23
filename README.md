@@ -10,6 +10,18 @@ Demo content and media kit for Capell.
 - Service providers: `packages/demo-kit/src/Providers/DemoKitServiceProvider.php`
 - Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
 
+## Why It Helps Your Capell Workflow
+
+- Creates repeatable demo content and media so package demos, sales reviews, screenshots, and QA runs start from known data.
+- Helps owners and stakeholders see a realistic Capell site without hand-building fixture pages every time.
+- Keeps demo creation in package Actions and setup flows so production content boundaries stay separate from presentation examples.
+
+## Best Used With
+
+- [Foundation Theme](../foundation-theme/README.md)
+- [Layout Builder](../layout-builder/README.md)
+- [Content Sections](../content-sections/README.md)
+
 ## What It Adds
 
 Generated demo content and media kit for Capell.
@@ -103,6 +115,7 @@ Current examples:
 
 ## Docs
 
+- [docs index](docs/README.md)
 - [overview.md](docs/overview.md)
 - [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
 
