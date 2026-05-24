@@ -6,7 +6,6 @@ namespace Capell\DemoKit\Console\Commands;
 
 use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
-use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -336,7 +335,7 @@ class AdminDemoCommand extends Command
         Site $site,
         Collection $languages,
         Language $defaultLanguage,
-        Pageable|bool|null $parent = null,
+        ?Page $parent = null,
         ?string $parentName = '',
         ?ProgressBar $bar = null,
     ): void {
@@ -355,6 +354,8 @@ class AdminDemoCommand extends Command
             $parent,
             createMedia: $pageData->mediaCount > 0,
         );
+
+        throw_unless($parent instanceof Page);
 
         if ($bar instanceof ProgressBar) {
             $bar->advance();

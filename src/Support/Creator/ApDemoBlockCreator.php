@@ -44,7 +44,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ],
         ])->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -84,7 +84,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ],
         ])->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -111,7 +111,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 ],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->updateOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $card['title'], 'content' => sprintf('<p>%s</p>', $card['description'])],
@@ -152,7 +152,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ],
         ])->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -176,7 +176,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->updateOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -196,7 +196,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
     {
         $block = resolve(BlockCreator::class)->featuresBlock();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
@@ -221,7 +221,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -265,7 +265,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ],
         ])->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -305,7 +305,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ],
         ])->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [

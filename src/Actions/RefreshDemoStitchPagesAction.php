@@ -11,6 +11,7 @@ use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -200,7 +201,11 @@ final class RefreshDemoStitchPagesAction
             $page->pageUrls()
                 ->where('status', true)
                 ->get()
-                ->each(function (PageUrl $pageUrl): void {
+                ->each(function (Model $pageUrl): void {
+                    if (! $pageUrl instanceof PageUrl) {
+                        return;
+                    }
+
                     PageUrl::query()
                         ->where('site_id', $pageUrl->site_id)
                         ->where('language_id', $pageUrl->language_id)

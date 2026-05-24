@@ -35,7 +35,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
     public function createContentBlock(Collection $languages): Block
     {
-        $siteId = Site::query()->default()?->value('id');
+        $siteId = Site::query()->default()->value('id');
 
         $type = resolve(TypeCreator::class)->contentBuilderBlockType();
 
@@ -90,7 +90,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
     public function createSplitContentBlock(Collection $languages): Block
     {
-        $siteId = Site::query()->default()?->value('id');
+        $siteId = Site::query()->default()->value('id');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
@@ -395,14 +395,16 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             $navigationType = resolve(BlueprintCreator::class)->createNavigationType();
         }
 
-        $navigation = CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($model)
+        $language = $languages->first();
+
+        $navigation = $language instanceof Language && CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($model)
             ? $model::query()->updateOrCreate([
                 'key' => $key,
                 'site_id' => $site->id,
                 'blueprint_id' => $navigationType->id,
             ], [
                 'name' => $name,
-                'items' => $this->navigationPageItems($pages, $languages->first()),
+                'items' => $this->navigationPageItems($pages, $language),
             ])
             : null;
 
@@ -560,7 +562,11 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             return $block;
         }
 
-        $languages->each(function (Language $language) use ($block): void {
+        $languages->each(function (Model $language) use ($block): void {
+            if (! $language instanceof Language) {
+                return;
+            }
+
             $block->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -650,7 +656,11 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $this->createMedia($block, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Language $language) use ($block): void {
+        $languages->each(function (Model $language) use ($block): void {
+            if (! $language instanceof Language) {
+                return;
+            }
+
             $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
@@ -783,7 +793,11 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        $languages->each(function (Language $language) use ($block): void {
+        $languages->each(function (Model $language) use ($block): void {
+            if (! $language instanceof Language) {
+                return;
+            }
+
             $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Meet the people represented in the sample team directory.</p>',

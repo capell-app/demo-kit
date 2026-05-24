@@ -136,8 +136,12 @@ abstract class BaseDemoCreator
      * @throws FileDoesNotExist
      * @throws Exception
      */
-    public function createMedia(Model&HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
+    public function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
+        if (! $model instanceof HasMedia) {
+            return;
+        }
+
         if (! $model->exists || $this->hasExistingMedia($model, $collection)) {
             return;
         }
@@ -247,6 +251,10 @@ abstract class BaseDemoCreator
         $items = [];
 
         foreach ($siteTree as $page) {
+            if (! $page instanceof Page) {
+                continue;
+            }
+
             $items[(string) Str::uuid()] = [
                 'label' => $this->getPageNavigationLabel($page, $language),
                 'type' => 'page',
@@ -265,11 +273,11 @@ abstract class BaseDemoCreator
     {
         $navigationCreator = NavigationCreator::class;
 
-        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator) && method_exists($navigationCreator, 'getPageNavigationLabel')) {
+        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator)) {
             return $navigationCreator::getPageNavigationLabel($page, $language);
         }
 
-        return $page->translation?->title ?? $page->name;
+        return $page->translation->title ?? $page->name;
     }
 
     protected function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool
@@ -637,7 +645,7 @@ abstract class BaseDemoCreator
         $block = Block::query()->firstOrCreate(['key' => $key], $attributes);
         $block->forceFill($attributes)->save();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -997,16 +1005,21 @@ abstract class BaseDemoCreator
 
             $this->createMedia($content);
 
-            $this->translationsFor($content)->createMany(
-                $languages
-                    ->reject(fn (Language $language): bool => $content->translations->contains('language_id', $language->id))
-                    ->map(fn (Language $language): array => [
-                        'language_id' => $language->id,
-                        'title' => $testimonial['name'],
-                        'content' => sprintf('<p>%s</p>', $testimonial['content']),
-                    ])
-                    ->all(),
-            );
+            $translations = [];
+
+            foreach ($languages as $language) {
+                if (! $language instanceof Language || $content->translations->contains('language_id', $language->id)) {
+                    continue;
+                }
+
+                $translations[] = [
+                    'language_id' => $language->id,
+                    'title' => $testimonial['name'],
+                    'content' => sprintf('<p>%s</p>', $testimonial['content']),
+                ];
+            }
+
+            $this->translationsFor($content)->createMany($translations);
 
             $testimonialsCollection->push($content);
         }
@@ -1123,16 +1136,21 @@ abstract class BaseDemoCreator
 
             $this->createMedia($content);
 
-            $this->translationsFor($content)->createMany(
-                $languages
-                    ->reject(fn (Language $language): bool => $content->translations->contains('language_id', $language->id))
-                    ->map(fn (Language $language): array => [
-                        'language_id' => $language->id,
-                        'title' => $member['name'],
-                        'content' => $member['bio'],
-                    ])
-                    ->all(),
-            );
+            $translations = [];
+
+            foreach ($languages as $language) {
+                if (! $language instanceof Language || $content->translations->contains('language_id', $language->id)) {
+                    continue;
+                }
+
+                $translations[] = [
+                    'language_id' => $language->id,
+                    'title' => $member['name'],
+                    'content' => $member['bio'],
+                ];
+            }
+
+            $this->translationsFor($content)->createMany($translations);
 
             $teamMembersCollection->push($content);
         }

@@ -52,8 +52,6 @@ trait HasLanguagesOption
             required: true,
         );
 
-        return is_array($selectedLanguages)
-            ? $selectedLanguages
-            : (is_string($selectedLanguages) ? explode(',', $selectedLanguages) : null);
+        return $selectedLanguages;
     }
 }

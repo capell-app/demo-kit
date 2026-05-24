@@ -13,25 +13,20 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\DemoKit",
-    "surfaces": [
-        "admin",
-        "frontend"
-    ],
+    "surfaces": ["admin", "frontend"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
             "capell-app/core",
             "capell-app/frontend"
         ],
-        "optional": [],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": [
-            "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
-        ],
+        "runtime": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"],
         "admin": [],
         "frontend": []
     },
@@ -53,15 +48,10 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 40,
-        "cacheTags": [
-            "demo-kit"
-        ],
+        "cacheTags": ["demo-kit"],
         "cacheSafety": {
             "cacheable": false,
-            "variesBy": [
-                "site",
-                "locale"
-            ],
+            "variesBy": ["site", "locale"],
             "sensitiveOutput": false,
             "invalidationSources": [],
             "queueInvalidation": true
@@ -91,15 +81,9 @@
                 "caption": "Demo Kit extension preview"
             }
         ],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "admin-page"
-        ]
+        "deferredContributions": ["admin-page"]
     }
 }

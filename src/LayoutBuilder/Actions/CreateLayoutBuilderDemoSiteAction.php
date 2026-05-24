@@ -207,7 +207,11 @@ class CreateLayoutBuilderDemoSiteAction
 
         $navigationDemoCreator = resolve($navigationDemoCreatorClass);
 
-        $languages->each(function (Language $language) use ($navigationDemoCreator, $site, $homePage): void {
+        $languages->each(function (Model $language) use ($navigationDemoCreator, $site, $homePage): void {
+            if (! $language instanceof Language) {
+                return;
+            }
+
             $navigationDemoCreator->setupMainNavigation($site, $language, $homePage);
             $navigationDemoCreator->setupFooterNavigation($site, $language);
             $navigationDemoCreator->setupSubFooterNavigation($site, $language);

@@ -62,7 +62,7 @@ class DummyContentGeneratorAction
         // - Pick one reasonable token at random and wrap its first occurrence
         // This keeps the logic simple, language-agnostic, and does not affect
         // sentence selection because wrapping happens after selection.
-        if (preg_match_all('/\p{L}[\p{L}\p{Mn}\p{Pd}\'’]*/u', $content, $matches) && isset($matches[0]) && filled($matches[0])) {
+        if (preg_match_all('/\p{L}[\p{L}\p{Mn}\p{Pd}\'’]*/u', $content, $matches) && filled($matches[0])) {
             $tokens = $matches[0];
 
             // Prefer tokens longer than one character where possible

@@ -211,7 +211,7 @@ class DemoCreator extends ApDemoBlockCreator
 
         $page = $pageCreator->createPage($pageData, $site, $languages);
 
-        if ($createMedia) {
+        if ($createMedia && $page instanceof Model) {
             $this->createMedia($page, $name);
         }
 
@@ -238,7 +238,11 @@ class DemoCreator extends ApDemoBlockCreator
             'visible_from' => $page->visible_from ?? now()->subDay()->format('Y-m-d'),
         ])->save();
 
-        $languages->each(function (Language $language) use ($page, $name): void {
+        $languages->each(function (Model $language) use ($page, $name): void {
+            if (! $language instanceof Language) {
+                return;
+            }
+
             $title = Str::title($name);
             $content = $this->demoPageContent($name, $language->code)
                 ?? DummyContentGeneratorAction::run($language->code);

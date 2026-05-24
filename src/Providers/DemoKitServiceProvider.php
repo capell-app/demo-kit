@@ -120,9 +120,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         }
 
         $registerExtensionPage = static function (CapellAdminManager $capellAdminManager): void {
-            if (! method_exists($capellAdminManager, 'registerExtensionPage')) {
-                return;
-            }
 
             $capellAdminManager->registerExtensionPage(self::$packageName, DemoKitPage::class);
         };
