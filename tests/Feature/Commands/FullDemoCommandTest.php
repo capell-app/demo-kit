@@ -72,7 +72,7 @@ it('creates full multi site and language demo data and runs package demos', func
         '--force' => true,
     ])->assertExitCode(0);
 
-    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
 });
 
 it('requires force when running non interactively', function (): void {
@@ -85,15 +85,15 @@ it('requires force when running non interactively', function (): void {
 it('registers its package owned extension page', function (): void {
     fakeDemoKitCurrentRouteName(DemoKitPage::getRouteName());
 
-    $expectation = expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
-        ->and(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class)
-        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
+    capell_expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class);
+    capell_expect(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class);
+    capell_expect(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
 
     if (! class_exists(ExtensionBreadcrumbDecorator::class)) {
         return;
     }
 
-    $expectation->and(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
+    capell_expect(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
         ExtensionsPage::getUrl() => __('capell-admin::navigation.extensions'),
         resolve(DemoKitPage::class)->getTitle(),
     ]);
@@ -102,7 +102,7 @@ it('registers its package owned extension page', function (): void {
 it('builds the insert example site data schema', function (): void {
     $schema = resolve(ExampleSiteDataActionSchema::class)->schema();
 
-    expect($schema)
+    capell_expect($schema)
         ->toHaveCount(3)
         ->and($schema[0])->toBeInstanceOf(TextInput::class)
         ->and($schema[1])->toBeInstanceOf(LanguageSelect::class)
@@ -124,5 +124,5 @@ it('inserts example site data through the registered demo command', function ():
         'sites' => ['Main Site'],
     ]);
 
-    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:insert-example-site-data']);
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:insert-example-site-data']);
 });

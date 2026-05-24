@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
+use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
@@ -50,6 +51,7 @@ class DemoKitTestCase extends AbstractTestCase
             ...parent::getPackageProviders($app),
             AdminPanelProvider::class,
             AdminServiceProvider::class,
+            ContentSectionsServiceProvider::class,
             FrontendServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             FormBuilderServiceProvider::class,
@@ -67,6 +69,7 @@ class DemoKitTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FormBuilderServiceProvider::$packageName);

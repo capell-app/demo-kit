@@ -333,7 +333,12 @@ final class AssertDefaultDemoInstallHealthAction
                 continue;
             }
 
-            $block = collect($container['blocks'] ?? [])->first();
+            $blocks = $container['blocks'] ?? [];
+            if (! is_array($blocks)) {
+                continue;
+            }
+
+            $block = $blocks[array_key_first($blocks)] ?? null;
 
             if (! is_array($block)) {
                 continue;

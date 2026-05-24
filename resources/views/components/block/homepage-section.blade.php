@@ -26,6 +26,123 @@
                 max-width: 18ch;
             }
 
+            .capell-home-hero-carousel {
+                --swiper-pagination-bullet-horizontal-gap: 0.2rem;
+            }
+
+            @property --capell-home-hero-progress {
+                syntax: '<angle>';
+                inherits: false;
+                initial-value: 0deg;
+            }
+
+            .capell-home-hero-carousel .swiper-slide {
+                height: auto;
+            }
+
+            .capell-home-hero-carousel-image {
+                border: 0;
+                border-radius: 0;
+                height: 16rem;
+                object-fit: cover;
+                width: 100%;
+            }
+
+            .capell-home-hero-carousel-controls .swiper-pagination {
+                align-items: center;
+                display: flex;
+                gap: 0.45rem;
+                justify-content: center;
+                position: static;
+            }
+
+            .capell-home-hero-carousel-controls .swiper-pagination-bullet {
+                background: transparent;
+                border: 0;
+                border-radius: 999px;
+                box-shadow: inset 0 0 0 1px #9aa6b5;
+                cursor: pointer;
+                height: 1rem;
+                margin: 0;
+                opacity: 1;
+                padding: 0;
+                position: relative;
+                transition:
+                    box-shadow 160ms ease,
+                    transform 160ms ease;
+                width: 1rem;
+            }
+
+            .capell-home-hero-carousel-controls
+                .swiper-pagination-bullet::before {
+                background: conic-gradient(
+                    #315f8f var(--capell-home-hero-progress),
+                    transparent 0
+                );
+                border-radius: inherit;
+                content: '';
+                inset: -0.22rem;
+                opacity: 0;
+                position: absolute;
+                transform-origin: center;
+            }
+
+            .capell-home-hero-carousel-controls
+                .swiper-pagination-bullet::after {
+                background: #9aa6b5;
+                border-radius: inherit;
+                content: '';
+                inset: 0.28rem;
+                position: absolute;
+            }
+
+            .capell-home-hero-carousel-controls
+                .swiper-pagination-bullet-active {
+                animation: capellHomeHeroProgress 4200ms linear forwards;
+                box-shadow: inset 0 0 0 1px #315f8f;
+                transform: scale(1.05);
+            }
+
+            .capell-home-hero-carousel-controls
+                .swiper-pagination-bullet-active::before {
+                animation: capellHomeHeroSpin 900ms linear infinite;
+                opacity: 1;
+            }
+
+            .capell-home-hero-carousel-controls
+                .swiper-pagination-bullet-active::after {
+                background: #315f8f;
+            }
+
+            @keyframes capellHomeHeroProgress {
+                from {
+                    --capell-home-hero-progress: 0deg;
+                }
+
+                to {
+                    --capell-home-hero-progress: 360deg;
+                }
+            }
+
+            @keyframes capellHomeHeroSpin {
+                to {
+                    transform: rotate(1turn);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .capell-home-hero-carousel-controls
+                    .swiper-pagination-bullet-active {
+                    animation: none;
+                }
+
+                .capell-home-hero-carousel-controls
+                    .swiper-pagination-bullet-active::before {
+                    animation: none;
+                    background: #315f8f;
+                }
+            }
+
             @media (min-width: 1024px) {
                 .capell-home-hero-grid {
                     align-items: center;
@@ -39,12 +156,53 @@
                 .capell-home-hero-title {
                     max-width: 19ch;
                 }
+
+                .capell-home-hero-carousel-image {
+                    height: 20rem;
+                }
             }
         </style>
     @endonce
 
     @switch($block->key)
         @case('capell-home-hero-command-center')
+            @php
+                $heroCarouselId = 'capell-home-hero-carousel-' . ($block->id ?? $loop->index);
+                $heroSlides = $block->getMeta('hero_slides', []);
+
+                if (! is_array($heroSlides) || $heroSlides === []) {
+                    $heroSlides = [
+                        [
+                            'image' => $block->getMeta('image_source'),
+                            'alt' => 'Capell CMS workspace preview',
+                            'label' => 'Page types',
+                            'value' => 'Home, Resources, Services',
+                            'status' => 'Typed',
+                        ],
+                        [
+                            'image' => [
+                                'type' => 'url',
+                                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+                            ],
+                            'alt' => 'Capell content package dashboard preview',
+                            'label' => 'Packages',
+                            'value' => 'Layout Builder, SEO, Search, Publishing',
+                            'status' => 'Installed',
+                        ],
+                        [
+                            'image' => [
+                                'type' => 'url',
+                                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+                            ],
+                            'alt' => 'Capell publishing workflow preview',
+                            'label' => 'Workflow',
+                            'value' => 'Draft, preview, approve, publish',
+                            'status' => 'Traceable',
+                        ],
+                    ];
+                }
+            @endphp
+
             <div class="capell-home-hero-grid">
                 <section class="grid gap-5">
                     <p
@@ -82,39 +240,59 @@
                     class="overflow-hidden rounded-md border border-[#d9dee6] bg-white shadow-[0_18px_44px_rgb(26_28_27_/_0.08)]"
                     aria-label="Capell system board"
                 >
-                    <x-capell::image-source
-                        :image="$block->getMeta('image_source')"
-                        alt="Capell CMS workspace preview"
-                        class="h-64 w-full border-b border-[#e1e5eb] object-cover md:h-80"
-                        loading="eager"
-                        fetchpriority="high"
-                    />
                     <div
-                        class="grid divide-y divide-[#e1e5eb] border-t border-[#e1e5eb]"
+                        class="capell-home-hero-carousel swiper"
+                        data-carousel="1"
+                        data-carousel-autoplay="1"
+                        data-carousel-autoplay-delay="4200"
+                        data-carousel-disable-on-interaction="0"
+                        data-carousel-effect="fade"
+                        data-carousel-id="{{ $heroCarouselId }}"
+                        data-carousel-loop="1"
+                        data-carousel-pagination="1"
+                        data-carousel-pause-on-hover="1"
+                        data-carousel-speed="600"
+                        data-carousel-watch-overflow="1"
                     >
-                        @foreach ([
-                                      ['label' => 'Page types', 'value' => 'Home, Resources, Services', 'status' => 'Typed'],
-                                      ['label' => 'Packages', 'value' => 'Layout Builder, SEO, Search, Publishing', 'status' => 'Installed'],
-                                      ['label' => 'Workflow', 'value' => 'Draft, preview, approve, publish', 'status' => 'Traceable'],
-                                  ] as $item)
-                            <div
-                                class="grid gap-1 bg-[#fbfaf7] p-3.5 sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center"
-                            >
-                                <span
-                                    class="text-xs font-extrabold uppercase text-[#315f8f]"
-                                >
-                                    {{ $item['label'] }}
-                                </span>
-                                <strong class="text-[#1a1c1b]">
-                                    {{ $item['value'] }}
-                                </strong>
-                                <em
-                                    class="text-xs font-bold not-italic text-[#5f6670]"
-                                >
-                                    {{ $item['status'] }}
-                                </em>
-                            </div>
-                        @endforeach
+                        <div class="swiper-wrapper">
+                            @foreach ($heroSlides as $slide)
+                                <div class="swiper-slide">
+                                    <x-capell::image-source
+                                        :image="$slide['image'] ?? null"
+                                        :alt="$slide['alt'] ?? ''"
+                                        class="capell-home-hero-carousel-image border-b border-[#e1e5eb]"
+                                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                        fetchpriority="{{ $loop->first ? 'high' : null }}"
+                                    />
+                                    <div
+                                        class="grid gap-1 border-t border-[#e1e5eb] bg-[#fbfaf7] p-3.5 sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center"
+                                    >
+                                        <span
+                                            class="text-xs font-extrabold uppercase text-[#315f8f]"
+                                        >
+                                            {{ $slide['label'] ?? '' }}
+                                        </span>
+                                        <strong class="text-[#1a1c1b]">
+                                            {{ $slide['value'] ?? '' }}
+                                        </strong>
+                                        <em
+                                            class="text-xs font-bold not-italic text-[#5f6670]"
+                                        >
+                                            {{ $slide['status'] ?? '' }}
+                                        </em>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div
+                        class="capell-home-hero-carousel-controls border-t border-[#e1e5eb] bg-[#fbfaf7] px-4 py-3"
+                        data-carousel-controls="{{ $heroCarouselId }}"
+                    >
+                        <div
+                            class="swiper-pagination"
+                            aria-label="Capell system board pagination"
+                        ></div>
                     </div>
                 </section>
             </div>

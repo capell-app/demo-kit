@@ -25,7 +25,6 @@ use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -324,7 +323,7 @@ class AdminDemoCommand extends Command
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     private function setupSite(
         DemoSiteGenerationPlanData $demoData,
@@ -341,7 +340,7 @@ class AdminDemoCommand extends Command
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     private function createPagesWithProgress(
         DemoPagePlanData $pageData,

@@ -47,11 +47,14 @@ class DemoCreator extends ApDemoBlockCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>|null  $languages
      */
     public function setupSite(Site $site, ?Collection $languages = null): void
     {
-        $languages ??= $site->languages;
+        $languages ??= Language::query()
+            ->whereKey($site->languages->modelKeys())
+            ->get();
+
         $title = ctype_digit($site->name[0]) ? $site->name : Str::title($site->name);
 
         $meta = $site->meta;
@@ -222,6 +225,10 @@ class DemoCreator extends ApDemoBlockCreator
             $this->createMedia($page, $name);
         }
 
+        if ($page instanceof Page) {
+            $this->syncDemoPageContentAssets($page, $name);
+        }
+
         return $page;
     }
 
@@ -248,11 +255,7 @@ class DemoCreator extends ApDemoBlockCreator
             'visible_from' => $page->visible_from ?? now()->subDay()->format('Y-m-d'),
         ])->save();
 
-        $languages->each(function (Model $language) use ($page, $name): void {
-            if (! $language instanceof Language) {
-                return;
-            }
-
+        $languages->each(function (Language $language) use ($page, $name): void {
             $title = Str::title($name);
             $content = $this->demoPageContent($name, $language->code)
                 ?? DummyContentGeneratorAction::run($language->code);
@@ -279,6 +282,8 @@ class DemoCreator extends ApDemoBlockCreator
         if ($refreshUrls) {
             SetupPageUrlsAction::run($page);
         }
+
+        $this->syncDemoPageContentAssets($page, $name);
 
         return $page->refresh();
     }

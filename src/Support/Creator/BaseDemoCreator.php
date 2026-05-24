@@ -8,13 +8,13 @@ use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\LayoutBuilder\Actions\CreateHeroBlockAction;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
@@ -30,7 +30,6 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -70,7 +69,7 @@ abstract class BaseDemoCreator
     /** @var class-string<Page> */
     public string $pageModel;
 
-    /** @var class-string<Models\Translation> */
+    /** @var class-string<Translation> */
     public string $translationModel;
 
     /** @var class-string<Layout> */
@@ -304,10 +303,10 @@ abstract class BaseDemoCreator
         return $collection;
     }
 
-    protected function translationsFor(Model $model): HasMany|MorphMany
+    /** @return MorphMany<Translation, Model> */
+    protected function translationsFor(Model $model): MorphMany
     {
-        /** @phpstan-ignore-next-line method.notFound */
-        return $model->translations();
+        return $model->morphMany(Translation::class, 'translatable');
     }
 
     protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
@@ -360,6 +359,308 @@ abstract class BaseDemoCreator
         }
 
         return $this->demoPageContentBlock = $block;
+    }
+
+    protected function syncDemoPageContentAssets(Page $page, string $name): void
+    {
+        if (! CapellCore::hasAsset('Section') || ! Schema::hasTable(resolve($this->contentModel)->getTable())) {
+            return;
+        }
+
+        $definitions = $this->demoPageAssetDefinitions($name);
+
+        if ($definitions === []) {
+            return;
+        }
+
+        $block = $this->ensureDemoPageContentBlock();
+        $assetType = resolve($this->contentModel)->getMorphClass();
+        $activeKeys = array_column($definitions, 'key');
+
+        DB::transaction(function () use ($activeKeys, $assetType, $block, $definitions, $page): void {
+            $existingSeededAssets = $block->assets()
+                ->where([
+                    'pageable_id' => $page->getKey(),
+                    'pageable_type' => $page->getMorphClass(),
+                    'container' => 'main',
+                    'occurrence' => 1,
+                ])
+                ->get()
+                ->filter(fn (BlockAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true);
+
+            $existingSeededAssets
+                ->reject(fn (BlockAsset $asset): bool => in_array($asset->meta['demo_page_asset_key'] ?? null, $activeKeys, true))
+                ->each(fn (BlockAsset $asset): ?bool => $asset->delete());
+
+            foreach ($definitions as $order => $definition) {
+                $asset = $this->createDemoPageContentAsset($page, $definition);
+
+                $block->assets()->updateOrCreate(
+                    [
+                        'pageable_id' => $page->getKey(),
+                        'pageable_type' => $page->getMorphClass(),
+                        'container' => 'main',
+                        'occurrence' => 1,
+                        'asset_type' => $assetType,
+                        'asset_id' => $asset->getKey(),
+                        'workspace_id' => 0,
+                    ],
+                    [
+                        'order' => $order,
+                        'meta' => [
+                            'demo_kit_seed' => true,
+                            'demo_page_asset_key' => $definition['key'],
+                            'variant' => $definition['variant'],
+                            'layout' => $definition['layout'],
+                            'eyebrow' => $definition['eyebrow'],
+                            'title' => $definition['title'],
+                            'intro' => $definition['intro'],
+                            'items' => $definition['items'] ?? [],
+                            'metrics' => $definition['metrics'] ?? [],
+                            'steps' => $definition['steps'] ?? [],
+                            'filters' => $definition['filters'] ?? [],
+                            'cta' => $definition['cta'] ?? [],
+                        ],
+                    ],
+                );
+            }
+        }, attempts: 5);
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    protected function createDemoPageContentAsset(Page $page, array $definition): Model
+    {
+        $sectionType = Blueprint::query()->firstOrCreate(
+            [
+                'type' => 'section',
+                'key' => 'demo-page-content-asset',
+            ],
+            [
+                'name' => 'Demo Page Content Asset',
+                'group' => 'demo',
+                'status' => true,
+            ],
+        );
+
+        $asset = $this->contentModel::query()->updateOrCreate(
+            [
+                'name' => sprintf('Demo page asset: %s: %s', $page->name, $definition['key']),
+                'blueprint_id' => $sectionType->getKey(),
+            ],
+            [
+                'site_id' => $page->site_id,
+                'order' => (int) ($definition['order'] ?? 0),
+                'meta' => [
+                    'demo_kit_seed' => true,
+                    'demo_page_asset_key' => $definition['key'],
+                    'variant' => $definition['variant'],
+                ],
+                'visible_from' => now()->subDay(),
+            ],
+        );
+
+        throw_unless($asset instanceof Model, RuntimeException::class, 'Demo page content asset creation must return a model.');
+
+        return $asset;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function demoPageAssetDefinitions(string $name): array
+    {
+        $name = $this->canonicalDemoPageName($name);
+
+        $definitions = [
+            'Services' => [
+                'variant' => 'services-workbench',
+                'layout' => 'services-workbench',
+                'eyebrow' => 'Services atelier',
+                'title' => 'Implementation services for complex Capell rollouts',
+                'intro' => 'A delivery workbench for content modelling, migration paths, layout architecture, package boundaries, and launch verification.',
+                'items' => [
+                    ['label' => 'Audit lane', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
+                    ['label' => 'Build lane', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks editors can compose without breaking public output.'],
+                    ['label' => 'Launch lane', 'title' => 'Release checks', 'copy' => 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.'],
+                ],
+                'metrics' => [
+                    ['value' => '6 wk', 'label' => 'typical build sprint'],
+                    ['value' => '12+', 'label' => 'page shapes mapped'],
+                    ['value' => '0', 'label' => 'admin metadata leaks'],
+                    ['value' => '4', 'label' => 'handover checkpoints'],
+                ],
+                'steps' => [
+                    ['label' => '01', 'title' => 'Audit the content model', 'copy' => 'Inventory pages, media, routes, redirects, permissions, integrations, and editorial risks.'],
+                    ['label' => '02', 'title' => 'Shape reusable layouts', 'copy' => 'Turn page intent into governed sections instead of another stack of bespoke templates.'],
+                    ['label' => '03', 'title' => 'Build package-owned surfaces', 'copy' => 'Keep Blade, render data, cache, and tests close to the package that owns the behaviour.'],
+                    ['label' => '04', 'title' => 'Verify public output', 'copy' => 'Check anonymous rendering, navigation, search, SEO, and visual regressions before handover.'],
+                ],
+            ],
+            'Pricing' => [
+                'variant' => 'pricing-matrix',
+                'layout' => 'pricing-matrix',
+                'eyebrow' => 'Pricing matrix',
+                'title' => 'Simple pricing for Capell CMS delivery',
+                'intro' => 'A commercial comparison surface with plan cards, scope notes, and implementation guardrails.',
+                'items' => [
+                    ['label' => 'Developer', 'title' => 'GBP 0', 'copy' => 'For evaluation, prototypes, and local proof-of-concept work.'],
+                    ['label' => 'Agency', 'title' => 'GBP 99', 'copy' => 'For production delivery with commercial support and implementation confidence.'],
+                    ['label' => 'Enterprise', 'title' => 'Custom', 'copy' => 'For governed estates, multi-site publishing, and dedicated support paths.'],
+                ],
+                'steps' => [
+                    ['label' => 'Support', 'title' => 'Response model', 'copy' => 'Pick a support level separately from implementation scope.'],
+                    ['label' => 'Migration', 'title' => 'Import confidence', 'copy' => 'Add migration help when source data and redirects need proof.'],
+                    ['label' => 'Delivery', 'title' => 'Scoped change', 'copy' => 'Commercial changes are priced before implementation work starts.'],
+                ],
+            ],
+            'Resources' => [
+                'variant' => 'resources-library',
+                'layout' => 'resources-library',
+                'eyebrow' => 'Resource library',
+                'title' => 'Resource library for Capell builders',
+                'intro' => 'A dense editorial library with featured guidance, category filters, implementation references, and a toolkit CTA.',
+                'filters' => ['All resources', 'Architecture', 'Migration', 'Publishing', 'Theme systems'],
+                'items' => [
+                    ['label' => 'Featured guide', 'title' => 'Scaling Laravel CMS architecture for 1M+ records', 'copy' => 'A dense implementation note on content modelling, search, cache invalidation, and public rendering at scale.'],
+                    ['label' => 'Migration', 'title' => 'Designing imports editors can trust', 'copy' => 'Validate source rows, preserve redirects, and keep rejected records explainable.'],
+                    ['label' => 'Publishing', 'title' => 'Approval workflows without admin leakage', 'copy' => 'Keep draft tooling private while public pages stay clean and cacheable.'],
+                    ['label' => 'Theme systems', 'title' => 'Package-owned frontend rendering', 'copy' => 'Build reusable public surfaces without coupling them to Filament screens.'],
+                ],
+                'cta' => ['label' => 'Plan a rollout', 'href' => '/contact'],
+            ],
+            'Team' => [
+                'variant' => 'team-capability',
+                'layout' => 'proof-board',
+                'eyebrow' => 'Delivery team',
+                'title' => 'Implementation specialists for Capell websites',
+                'intro' => 'A capability-led profile board that maps roles to the work needed for flexible Capell sites.',
+                'items' => [
+                    ['label' => 'Strategy', 'title' => 'CMS architecture', 'copy' => 'Owns page models, routes, package boundaries, and release shape.'],
+                    ['label' => 'Frontend', 'title' => 'Public rendering', 'copy' => 'Builds Tailwind and Blade surfaces that stay clean for visitors.'],
+                    ['label' => 'Publishing', 'title' => 'Workflow setup', 'copy' => 'Connects Filament editing, preview, approval, and handover.'],
+                ],
+            ],
+            'Testimonials' => [
+                'variant' => 'testimonial-proof',
+                'layout' => 'quote-board',
+                'eyebrow' => 'Customer proof',
+                'title' => 'What Capell builders say',
+                'intro' => 'Outcome proof grouped by the people who need the CMS to work every day.',
+                'items' => [
+                    ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable blocks reduced one-off template work across the site.'],
+                    ['label' => 'Editor', 'title' => 'Clear ownership', 'copy' => 'Teams can update copy and media without touching implementation details.'],
+                    ['label' => 'Engineering', 'title' => 'Cleaner releases', 'copy' => 'Public output remains cacheable and separate from admin tooling.'],
+                ],
+            ],
+            'Projects' => [
+                'variant' => 'project-index',
+                'layout' => 'project-index',
+                'eyebrow' => 'Project library',
+                'title' => 'Capell implementation project library',
+                'intro' => 'Structured project cards that pair scope, outcome, and delivery evidence.',
+                'items' => [
+                    ['label' => 'Case study', 'title' => 'Layout builder redesign', 'copy' => 'A flexible page system rebuilt around reusable sections and assets.'],
+                    ['label' => 'Migration', 'title' => 'Resource library import', 'copy' => 'Structured content and redirects moved into a governed CMS workflow.'],
+                    ['label' => 'Launch', 'title' => 'Static delivery rollout', 'copy' => 'Cache generation and public verification before handover.'],
+                ],
+            ],
+            'Project Detail' => [
+                'variant' => 'project-detail',
+                'layout' => 'case-study',
+                'eyebrow' => 'Project detail',
+                'title' => 'Layout builder redesign for a flexible Capell website',
+                'intro' => 'A case-study narrative that explains brief, scope, solution, and outcome without hard-coding that story into CMS prose.',
+                'steps' => [
+                    ['label' => 'Brief', 'title' => 'Reusable page sections', 'copy' => 'Keep existing content intent while improving layout ownership.'],
+                    ['label' => 'Solution', 'title' => 'Package-owned rendering', 'copy' => 'Editors compose sections while developers keep the public surface in Blade.'],
+                    ['label' => 'Outcome', 'title' => 'Cleaner publishing', 'copy' => 'Safer composition, clearer QA, and a documented release path.'],
+                ],
+            ],
+            'Platform Architecture' => [
+                'variant' => 'platform-architecture',
+                'layout' => 'architecture-layers',
+                'eyebrow' => 'Architecture',
+                'title' => 'Platform architecture for maintainable CMS delivery',
+                'intro' => 'A layered technical page that separates content records, layouts, render data, public components, and package extension points.',
+                'items' => [
+                    ['label' => 'Core', 'title' => 'Content records', 'copy' => 'Pages, translations, media, layouts, and URLs stay structured.'],
+                    ['label' => 'Theme', 'title' => 'Public rendering', 'copy' => 'Blade components own the frontend surface and cacheable output.'],
+                    ['label' => 'Package', 'title' => 'Extension points', 'copy' => 'Packages add behaviour without leaking admin concerns to visitors.'],
+                ],
+            ],
+            'FAQ' => [
+                'variant' => 'faq-support',
+                'layout' => 'faq-support',
+                'eyebrow' => 'Support layout',
+                'title' => 'FAQ content without a hero dependency',
+                'intro' => 'A calm support page with native disclosure sections and clear next-step guidance.',
+                'items' => [
+                    ['label' => 'Question', 'title' => 'Can a page skip the hero entirely?', 'copy' => 'Yes. Pages can render directly into support, article, pricing, or project layouts.'],
+                    ['label' => 'Question', 'title' => 'Where does the designed markup live?', 'copy' => 'The demo page-content block owns the Blade presentation. The database stores portable content only.'],
+                    ['label' => 'Question', 'title' => 'Can editors still update the copy?', 'copy' => 'Yes. Saved page content renders before the template-specific proof modules.'],
+                ],
+            ],
+            'Contact' => [
+                'variant' => 'contact-routing',
+                'layout' => 'contact-routing',
+                'eyebrow' => 'Contact gateway',
+                'title' => 'Send a message about your Capell build',
+                'intro' => 'Route implementation, migration, package, and support enquiries through one clear public surface.',
+                'items' => [
+                    ['label' => 'Address', 'title' => 'Capell Studio, London', 'copy' => 'Remote-first delivery with UK timezone handover.'],
+                    ['label' => 'Response', 'title' => 'Two business days', 'copy' => 'Enough context to qualify the right delivery path.'],
+                    ['label' => 'Routing', 'title' => 'Project, support, migration', 'copy' => 'Contact topics map to the same governed CMS model.'],
+                ],
+                'cta' => ['label' => 'Use the contact form', 'href' => '#contact-form-contact-form-0'],
+            ],
+        ];
+
+        if (in_array($name, self::StandardFooterPageNames, true)) {
+            return [[
+                'key' => Str::slug($name) . '-footer-route',
+                'variant' => 'compact-footer-route',
+                'layout' => 'compact-route',
+                'eyebrow' => $name,
+                'title' => sprintf('%s content with local proof and reusable route structure', $name),
+                'intro' => 'A compact footer-page pattern with portable editorial copy, local proof cards, and consistent navigation structure.',
+                'items' => [
+                    ['label' => 'Route signal', 'title' => 'Mapped', 'copy' => 'Content, routes, and ownership are visible.'],
+                    ['label' => 'Public proof', 'title' => 'Verified', 'copy' => 'Output can be checked before handover.'],
+                ],
+            ]];
+        }
+
+        if (in_array($name, ['Compliance', 'Sustainability'], true)) {
+            return [[
+                'key' => Str::slug($name) . '-location-detail',
+                'variant' => Str::slug($name) . '-location-detail',
+                'layout' => 'compact-route',
+                'eyebrow' => 'Location detail',
+                'title' => $name === 'Compliance'
+                    ? 'Compliance content for regional obligations'
+                    : 'Sustainability content for local initiatives',
+                'intro' => $name === 'Compliance'
+                    ? 'Local teams can explain regional obligations, review cadence, policy ownership, and evidence without changing the shared location model.'
+                    : 'Local initiatives, measurements, and proof points stay consistent across the network while remaining editable by regional owners.',
+                'items' => [
+                    ['label' => 'Owner', 'title' => 'Local editor', 'copy' => 'Regional teams maintain evidence without changing the shared rendering system.'],
+                    ['label' => 'Cadence', 'title' => 'Reviewed quarterly', 'copy' => 'Governed proof stays close to the local publishing workflow.'],
+                ],
+            ]];
+        }
+
+        if (! array_key_exists($name, $definitions)) {
+            return [];
+        }
+
+        $definition = $definitions[$name];
+
+        return [[
+            'key' => Str::slug($name) . '-' . $definition['variant'],
+            ...$definition,
+        ]];
     }
 
     protected function layoutForDemoPage(string $name): ?Layout

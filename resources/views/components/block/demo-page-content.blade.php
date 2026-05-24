@@ -1,4 +1,5 @@
 @php
+    use Capell\DemoKit\Support\DemoPageContentAssetSections;
     use Capell\Frontend\Facades\Frontend;
     use Illuminate\Support\Str;
 @endphp
@@ -28,6 +29,9 @@
     $hasVisibleHero = ($pageMeta['show_hero'] ?? true) !== false;
     $content = $pageTranslation?->content;
     $contentStructure = $pageType?->content_structure;
+    $occurrence = (int) ($blockData['occurrence'] ?? 1);
+    $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($block, $pageRecord, $containerKey, $occurrence);
+    $hasAssetSections = $assetSections !== [];
 
     $eyebrowClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
     $headingClass = 'max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] tracking-normal text-[#131b2e] md:text-5xl';
@@ -185,7 +189,23 @@
             </h1>
         @endif
 
-        @if ($lesson)
+        @if ($hasAssetSections)
+            @include('capell-demo-kit::components.block.demo-page-content-assets', [
+                'sections' => $assetSections,
+                'sectionClass' => $sectionClass,
+                'splitSectionClass' => $splitSectionClass,
+                'carouselClass' => $carouselClass,
+                'compactCarouselClass' => $compactCarouselClass,
+                'carouselItemClass' => $carouselItemClass,
+                'cardClass' => $cardClass,
+                'eyebrowClass' => $eyebrowClass,
+                'headingClass' => $headingClass,
+                'introClass' => $introClass,
+                'labelClass' => $labelClass,
+                'cardTitleClass' => $cardTitleClass,
+                'cardCopyClass' => $cardCopyClass,
+            ])
+        @elseif ($lesson)
             <section
                 class="grid gap-4 border-b border-slate-200/70 py-8 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] md:items-start md:py-10"
             >

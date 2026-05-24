@@ -13,7 +13,6 @@ use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 beforeEach(function (): void {
     foreach (CapellLayoutBuilderManager::getMigrations() as $migration) {
@@ -103,7 +102,7 @@ it('falls back to page names for navigation labels when navigation is not instal
     $creator = new class extends DemoCreator
     {
         /**
-         * @param  Collection<int, Model>  $pages
+         * @param  Collection<int, Page>  $pages
          * @return array<string, mixed>
          */
         public function itemsFor(Collection $pages, Language $language): array
@@ -117,10 +116,14 @@ it('falls back to page names for navigation labels when navigation is not instal
     $page = Page::factory()->site($site)->withTranslations($language, ['title' => 'Translated Label'])->create(['name' => 'Fallback Label']);
     $child = Page::factory()->site($site)->parent($page)->withTranslations($language, ['title' => 'Child Label'])->create(['name' => 'Child']);
 
-    $page->setRelation('translation', null);
-    $page->setRelation('children', new Collection([$child]));
+    $siteTree = Page::query()->whereKey($page->getKey())->get();
+    $siteTreePage = $siteTree->first();
+    throw_unless($siteTreePage instanceof Page);
 
-    $items = $creator->itemsFor(new Collection([$page]), $language);
+    $siteTreePage->setRelation('translation', null);
+    $siteTreePage->setRelation('children', new Collection([$child]));
+
+    $items = $creator->itemsFor($siteTree, $language);
     $item = array_values($items)[0];
 
     expect($item['label'])->toBe('Fallback Label')

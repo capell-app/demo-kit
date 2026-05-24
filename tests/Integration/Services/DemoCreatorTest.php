@@ -17,7 +17,6 @@ use Capell\FormBuilder\Models\Form;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Block;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -109,7 +108,7 @@ it('sets up site translations and domains for languages', function (): void {
     $demoCreator = new DemoCreator(url: 'https://example.com');
     $demoCreator->createDefaultLanguages();
 
-    $languages = Language::all();
+    $languages = Language::query()->get();
 
     $site = Site::factory()->default()->create(['name' => 'Demo']);
     $demoCreator->setupSite($site, $languages);
@@ -136,7 +135,7 @@ it('keeps an existing null-domain fallback instead of creating a host-specific d
         'default' => true,
     ]);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$language]));
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey($language->getKey())->get());
 
     expect($site->siteDomains()->count())->toBe(1)
         ->and($site->siteDomains()->first()->domain)->toBeNull()
@@ -148,7 +147,7 @@ it('creates null-domain fallback domains when demo setup owns initial domain cre
     $french = Language::factory()->create(['code' => 'fr', 'default' => false]);
     $site = Site::factory()->language($english)->default()->create(['name' => 'Demo']);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$english, $french]));
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey([$english->getKey(), $french->getKey()])->get());
 
     $siteDomains = $site->siteDomains()->orderBy('language_id')->get();
 
