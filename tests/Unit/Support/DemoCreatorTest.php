@@ -174,7 +174,7 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
 
         $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
         $assets = BlockAsset::query()
-            ->where('block_id', $block->getKey())
+            ->where('widget_id', $block->getKey())
             ->where('pageable_type', $page->getMorphClass())
             ->where('pageable_id', $page->getKey())
             ->where('container', 'main')
@@ -192,7 +192,7 @@ it('seeds uniform contact routing content for designed contact pages', function 
     $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
 
     $asset = BlockAsset::query()
-        ->where('block_id', $block->getKey())
+        ->where('widget_id', $block->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
         ->where('container', 'main')
@@ -241,7 +241,7 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
     $method->invoke($creator, $page, 'Services');
 
     $pageAssets = BlockAsset::query()
-        ->where('block_id', $block->getKey())
+        ->where('widget_id', $block->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
         ->where('container', 'main')
