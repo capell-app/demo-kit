@@ -25,6 +25,7 @@ use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -120,6 +121,9 @@ class AdminDemoCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function resolveSites(): array
     {
         if ($this->option('sites') !== null) {
@@ -136,6 +140,9 @@ class AdminDemoCommand extends Command
         return $this->getDemoSites();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function resolveLanguages(): array
     {
         if ($this->hasOption('languages') && $this->option('languages') !== null) {
@@ -246,7 +253,7 @@ class AdminDemoCommand extends Command
         foreach ($plan->sites as $siteIndex => $sitePlan) {
             $siteNumber++;
 
-            /** @var Collection<int, Language> $siteLanguages */
+            /** @var \Illuminate\Support\Collection<int, Language> $siteLanguages */
             $siteLanguages = Language::query()
                 ->whereIn('code', $sitePlan->languageCodes)
                 ->get();
@@ -316,6 +323,9 @@ class AdminDemoCommand extends Command
         $bar->advance();
     }
 
+    /**
+     * @param  Collection<int, Model>  $languages
+     */
     private function setupSite(
         DemoSiteGenerationPlanData $demoData,
         Site $site,
@@ -330,6 +340,9 @@ class AdminDemoCommand extends Command
         }
     }
 
+    /**
+     * @param  Collection<int, Model>  $languages
+     */
     private function createPagesWithProgress(
         DemoPagePlanData $pageData,
         Site $site,

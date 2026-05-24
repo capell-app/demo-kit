@@ -225,6 +225,9 @@ abstract class BaseDemoCreator
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
     }
 
+    /**
+     * @param  Collection<int, Site>  $sites
+     */
     protected function attachRelatedSites(Site $defaultSite, Collection $sites): void
     {
         $defaultSite->related()
@@ -232,6 +235,9 @@ abstract class BaseDemoCreator
             ->save();
     }
 
+    /**
+     * @return Collection<int, Site>
+     */
     protected function findRelatedSites(Site $site): Collection
     {
         $language_ids = $site->translations->pluck('language_id');
@@ -246,6 +252,10 @@ abstract class BaseDemoCreator
             ->get();
     }
 
+    /**
+     * @param  Collection<int, Page>  $siteTree
+     * @return array<array-key, mixed>
+     */
     protected function navigationPageItems(Collection $siteTree, Language $language): array
     {
         $items = [];
@@ -659,7 +669,7 @@ abstract class BaseDemoCreator
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     protected function demoPageMeta(string $name): array
     {
@@ -828,6 +838,9 @@ abstract class BaseDemoCreator
             ->implode("\n");
     }
 
+    /**
+     * @return Collection<int, Model>
+     */
     protected function createFeatures(Site $site): Collection
     {
         $features = [
@@ -949,6 +962,10 @@ abstract class BaseDemoCreator
         return $contentFeatures;
     }
 
+    /**
+     * @param  Collection<int, Model>  $languages
+     * @return Collection<int, Model>
+     */
     protected function createTestimonials(Collection $languages): Collection
     {
         $testimonialContent = $this->contentModel::query()->firstOrCreate([
@@ -1027,6 +1044,10 @@ abstract class BaseDemoCreator
         return $testimonialsCollection;
     }
 
+    /**
+     * @param  Collection<int, Model>  $languages
+     * @return Collection<int, Model>
+     */
     protected function createTeamMembers(Collection $languages): Collection
     {
         $teamMembers = [

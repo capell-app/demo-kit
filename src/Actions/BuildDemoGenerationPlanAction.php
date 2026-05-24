@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static DemoGenerationPlanData run(array $options = [])
+ * @method static DemoGenerationPlanData run(array{sites?: list<string>, site_count?: int, pages?: int, languages?: list<string>, seed?: int|null} $options = [])
  */
 final class BuildDemoGenerationPlanAction
 {

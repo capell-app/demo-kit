@@ -118,6 +118,10 @@ class DemoCommand extends Command
 
     /**
      * Install demo data for selected packages.
+     *
+     * @param  array<array-key, mixed>|null  $languages
+     * @param  array<array-key, mixed>|null  $sites
+     * @param  Collection<array-key, mixed>  $packages
      */
     private function installDemoPackages(Collection $packages, string $siteUrl, bool $user, ?array $languages, ?array $sites): void
     {

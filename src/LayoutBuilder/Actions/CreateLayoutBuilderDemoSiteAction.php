@@ -104,6 +104,9 @@ class CreateLayoutBuilderDemoSiteAction
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateAPBlocksContainer(array &$containers): void
     {
         $heroBlock = $this->demoCreator->createHomepageHeroCommandCenterBlock();
@@ -133,7 +136,7 @@ class CreateLayoutBuilderDemoSiteAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<array-key, mixed>  $containers
      * @return list<string>
      */
     private function layoutBlockKeys(array $containers): array
@@ -155,6 +158,10 @@ class CreateLayoutBuilderDemoSiteAction
             ->all();
     }
 
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     * @param  array<array-key, mixed>  $contentNode
+     */
     private function createSiteContents(
         ContentCreator $contentCreator,
         array $contentNode,
@@ -197,6 +204,9 @@ class CreateLayoutBuilderDemoSiteAction
         }
     }
 
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
         $navigationDemoCreatorClass = NavigationDemoCreator::class;

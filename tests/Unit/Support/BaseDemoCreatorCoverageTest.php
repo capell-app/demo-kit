@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 beforeEach(function (): void {
     foreach (CapellLayoutBuilderManager::getMigrations() as $migration) {
@@ -102,6 +103,7 @@ it('falls back to page names for navigation labels when navigation is not instal
     $creator = new class extends DemoCreator
     {
         /**
+         * @param  Collection<int, Model>  $pages
          * @return array<string, mixed>
          */
         public function itemsFor(Collection $pages, Language $language): array
