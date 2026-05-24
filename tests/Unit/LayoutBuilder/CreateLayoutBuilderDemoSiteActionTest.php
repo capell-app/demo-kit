@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\AssetData;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
@@ -107,7 +108,15 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
 
     expect($created)->toBeTrue()
         ->and($homePage->refresh()->layout_id)->toBe($layout->getKey())
-        ->and(array_keys($layout->containers))->toBe(['ap-blocks', 'loose'])
+        ->and(array_keys($layout->containers))->toBe(['hero', 'ap-blocks', 'final-cta', 'loose'])
+        ->and($layout->containers['hero']['meta']['container'])->toBe(ContainerWidthEnum::Full)
+        ->and($layout->containers['hero']['widgets'])->toBe([
+            ['widget_key' => 'capell-home-hero-command-center'],
+        ])
+        ->and($layout->containers['final-cta']['meta']['container'])->toBe(ContainerWidthEnum::Full)
+        ->and($layout->containers['final-cta']['widgets'])->toBe([
+            ['widget_key' => 'capell-home-final-cta'],
+        ])
         ->and($layout->blocks)->toBe([
             'capell-home-hero-command-center',
             'capell-home-proof-strip',

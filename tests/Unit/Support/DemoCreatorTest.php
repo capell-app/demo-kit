@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\ContentSections\Models\Section;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -63,6 +64,9 @@ it('creates homepage demo snippets as layout builder blocks', function (): void 
         ->and($block->getTable())->toBe('blocks')
         ->and($block->key)->toBe('capell-home-hero-command-center')
         ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($block->getMeta('container'))->toBe(ContainerWidthEnum::Default->value)
+        ->and($block->getMeta('margin'))->toBe(['none'])
+        ->and($block->getMeta('padding'))->toBe(['none'])
         ->and($block->getViewFile())->toBeNull();
 });
 

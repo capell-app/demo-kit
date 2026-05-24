@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Support\Creator;
 
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\LayoutBuilder\Models\Block;
 
 abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
@@ -54,7 +55,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
             name: 'Capell Homepage Command Center Hero',
         );
 
-        return $this->withHomepageHeroSlides($this->withHomepageImageSource($block));
+        return $this->withHomepageHeroLayout($this->withHomepageHeroSlides($this->withHomepageImageSource($block)));
     }
 
     public function createHomepageProofStripBlock(): Block
@@ -107,10 +108,12 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
 
     public function createHomepageFinalCtaBlock(): Block
     {
-        return $this->createHomepageBladeBlock(
+        $block = $this->createHomepageBladeBlock(
             key: 'capell-home-final-cta',
             name: 'Capell Homepage Final CTA',
         );
+
+        return $this->withContainedFullBleedSectionLayout($block);
     }
 
     private function withHomepageImageSource(Block $block): Block
@@ -136,6 +139,23 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
     {
         $meta = is_array($block->meta) ? $block->meta : [];
         $meta['hero_slides'] = self::HOMEPAGE_HERO_SLIDES;
+
+        $block->forceFill(['meta' => $meta])->save();
+
+        return $block;
+    }
+
+    private function withHomepageHeroLayout(Block $block): Block
+    {
+        return $this->withContainedFullBleedSectionLayout($block);
+    }
+
+    private function withContainedFullBleedSectionLayout(Block $block): Block
+    {
+        $meta = is_array($block->meta) ? $block->meta : [];
+        $meta['container'] = ContainerWidthEnum::Default->value;
+        $meta['margin'] = ['none'];
+        $meta['padding'] = ['none'];
 
         $block->forceFill(['meta' => $meta])->save();
 

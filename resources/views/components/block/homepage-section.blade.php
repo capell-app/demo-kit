@@ -24,7 +24,11 @@
     :$containerWidth
     :index="$loop->index"
     :$block
-    class="capell-block-homepage-section relative overflow-hidden bg-[#faf9f7] text-[#1a1c1b]"
+    @class([
+        'capell-block-homepage-section relative overflow-hidden text-[#1a1c1b]',
+        'bg-[#faf9f7]' => $block->key !== 'capell-home-final-cta',
+        'bg-transparent' => $block->key === 'capell-home-final-cta',
+    ])
 >
     @once
         <style>
@@ -32,6 +36,13 @@
                 display: grid;
                 gap: 2.5rem;
                 padding-block: 3.5rem;
+            }
+
+            .block-capell-home-hero-command-center .capell-hero-background {
+                left: 50%;
+                right: auto;
+                width: 100vw;
+                transform: translateX(-50%);
             }
 
             .capell-home-hero-title {
@@ -211,12 +222,12 @@
             <div class="capell-home-hero-grid relative z-10">
                 <section class="grid gap-5">
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Capell CMS
                     </p>
                     <h1
-                        class="capell-home-hero-title text-balance font-[Manrope] text-4xl font-extrabold leading-[1.06] tracking-normal text-[#1a1c1b] md:text-6xl"
+                        class="capell-home-hero-title font-[Manrope] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-6xl"
                     >
                         Composable content infrastructure for Laravel teams
                     </h1>
@@ -274,7 +285,7 @@
                                         class="grid gap-1 border-t border-[#e1e5eb] bg-[#fbfaf7] p-3.5 sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center"
                                     >
                                         <span
-                                            class="text-xs font-extrabold uppercase text-[#315f8f]"
+                                            class="text-xs font-extrabold text-[#315f8f] uppercase"
                                         >
                                             {{ $slide['label'] ?? '' }}
                                         </span>
@@ -282,7 +293,7 @@
                                             {{ $slide['value'] ?? '' }}
                                         </strong>
                                         <em
-                                            class="text-xs font-bold not-italic text-[#5f6670]"
+                                            class="text-xs font-bold text-[#5f6670] not-italic"
                                         >
                                             {{ $slide['status'] ?? '' }}
                                         </em>
@@ -306,14 +317,14 @@
             @break
         @case('capell-home-proof-strip')
             <div
-                class="flex snap-x gap-4 overflow-x-auto py-4 [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
                 aria-label="Demo proof points"
             >
                 <div
                     class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                 >
                     <strong
-                        class="block font-[Manrope] text-4xl font-extrabold leading-none text-[#315f8f]"
+                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
                     >
                         38
                     </strong>
@@ -325,7 +336,7 @@
                     class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                 >
                     <strong
-                        class="block font-[Manrope] text-4xl font-extrabold leading-none text-[#315f8f]"
+                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
                     >
                         7
                     </strong>
@@ -337,7 +348,7 @@
                     class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                 >
                     <strong
-                        class="block font-[Manrope] text-4xl font-extrabold leading-none text-[#315f8f]"
+                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
                     >
                         120+
                     </strong>
@@ -349,7 +360,7 @@
                     class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                 >
                     <strong
-                        class="block font-[Manrope] text-4xl font-extrabold leading-none text-[#315f8f]"
+                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
                     >
                         4
                     </strong>
@@ -364,12 +375,12 @@
             <div class="grid gap-6 py-10 md:py-14">
                 <div class="max-w-3xl">
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         What ships in the demo
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         Custom layouts that prove the CMS can change shape
                     </h2>
@@ -390,18 +401,18 @@
                     />
                 </div>
                 <div
-                    class="flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:grid-cols-3 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
+                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
                 >
                     <article
                         class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                     >
                         <p
-                            class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                         >
                             Editorial command center
                         </p>
                         <h3
-                            class="mt-3 text-xl font-extrabold leading-tight text-slate-950"
+                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
                         >
                             Operational content, not placeholder blocks
                         </h3>
@@ -415,12 +426,12 @@
                         class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                     >
                         <p
-                            class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                         >
                             Package marketplace
                         </p>
                         <h3
-                            class="mt-3 text-xl font-extrabold leading-tight text-slate-950"
+                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
                         >
                             Extension evidence grid
                         </h3>
@@ -461,12 +472,12 @@
                         class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                     >
                         <p
-                            class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                         >
                             Publishing workflow
                         </p>
                         <h3
-                            class="mt-3 text-xl font-extrabold leading-tight text-slate-950"
+                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
                         >
                             Timeline plus checklist
                         </h3>
@@ -623,13 +634,13 @@
                 >
                     <div class="max-w-3xl">
                         <p
-                            class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                         >
                             Demo widgets
                         </p>
                         <h2
                             id="capell-demo-widgets-title"
-                            class="mt-3 max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] text-slate-950 md:text-5xl"
+                            class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                         >
                             Small interactive blocks that feel like a real CMS
                         </h2>
@@ -684,14 +695,14 @@
                                                 {{ $widget['code'] }}
                                             </span>
                                             <span
-                                                class="text-xs font-extrabold uppercase tracking-[0.08em] text-slate-500"
+                                                class="text-xs font-extrabold tracking-[0.08em] text-slate-500 uppercase"
                                             >
                                                 {{ $widget['label'] }}
                                             </span>
                                         </div>
                                         <div>
                                             <h3
-                                                class="text-xl font-extrabold leading-tight text-slate-950"
+                                                class="text-xl leading-tight font-extrabold text-slate-950"
                                             >
                                                 {{ $widget['title'] }}
                                             </h3>
@@ -750,12 +761,12 @@
             >
                 <div>
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Marketplace extensions
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         Extension pages that help teams decide
                     </h2>
@@ -778,7 +789,7 @@
                     </div>
                 </div>
                 <div
-                    class="flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
+                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
                 >
                     <div
                         class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
@@ -820,12 +831,12 @@
             >
                 <div>
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Release path
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         From admin edits to verified frontend
                     </h2>
@@ -836,10 +847,10 @@
                     </p>
                 </div>
                 <ol
-                    class="flex snap-x gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
                 >
                     <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-b-0 md:border-r"
+                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
                     >
                         <span class="text-sm font-black text-[#315f8f]">
                             01
@@ -851,7 +862,7 @@
                         </p>
                     </li>
                     <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-b-0 md:border-r"
+                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
                     >
                         <span class="text-sm font-black text-[#315f8f]">
                             02
@@ -863,7 +874,7 @@
                         </p>
                     </li>
                     <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-b-0 md:border-r"
+                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
                     >
                         <span class="text-sm font-black text-[#315f8f]">
                             03
@@ -890,24 +901,24 @@
             @break
         @case('capell-home-route-split')
             <div
-                class="flex snap-x gap-4 overflow-x-auto py-10 [scrollbar-width:none] md:grid md:grid-cols-3 md:overflow-visible md:py-14 [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-10 md:grid md:grid-cols-3 md:overflow-visible md:py-14 [&::-webkit-scrollbar]:hidden"
             >
                 <a
                     class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 text-slate-950 no-underline md:min-w-0 md:p-6"
                     href="/resources"
                 >
                     <span
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Resources hub
                     </span>
                     <strong
-                        class="mt-3 block text-xl font-extrabold leading-tight"
+                        class="mt-3 block text-xl leading-tight font-extrabold"
                     >
                         Technical guides and launch checklists
                     </strong>
                     <em
-                        class="mt-4 block text-sm font-bold not-italic text-slate-600"
+                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
                     >
                         Read the CMS playbook
                     </em>
@@ -917,17 +928,17 @@
                     href="/pricing"
                 >
                     <span
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Pricing
                     </span>
                     <strong
-                        class="mt-3 block text-xl font-extrabold leading-tight"
+                        class="mt-3 block text-xl leading-tight font-extrabold"
                     >
                         Licensing and support for production teams
                     </strong>
                     <em
-                        class="mt-4 block text-sm font-bold not-italic text-slate-600"
+                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
                     >
                         Plan the rollout
                     </em>
@@ -937,17 +948,17 @@
                     href="/contact#scoping"
                 >
                     <span
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
+                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
                         Contact
                     </span>
                     <strong
-                        class="mt-3 block text-xl font-extrabold leading-tight"
+                        class="mt-3 block text-xl leading-tight font-extrabold"
                     >
                         Architecture, migration, and package support
                     </strong>
                     <em
-                        class="mt-4 block text-sm font-bold not-italic text-slate-600"
+                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
                     >
                         Start scoping
                     </em>
@@ -957,17 +968,16 @@
             @break
         @case('capell-home-final-cta')
             <div
-                class="relative left-1/2 mt-10 grid w-screen -translate-x-1/2 gap-8 bg-slate-950 px-[6%] py-20 md:mt-14 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:py-28"
-                style="margin-bottom: -2.5rem"
+                class="grid gap-8 py-20 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:py-28"
             >
                 <div>
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-slate-100"
+                        class="text-xs font-extrabold tracking-[0.08em] text-slate-100 uppercase"
                     >
                         Demo install
                     </p>
                     <h2
-                        class="mt-3 max-w-2xl text-balance font-[Manrope] text-3xl font-extrabold leading-tight text-white md:text-5xl"
+                        class="mt-3 max-w-2xl font-[Manrope] text-3xl leading-tight font-extrabold text-balance text-white md:text-5xl"
                     >
                         Show a CMS that feels assembled, verified, and ready to
                         extend.

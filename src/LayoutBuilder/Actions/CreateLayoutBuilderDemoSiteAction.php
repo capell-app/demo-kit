@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\LayoutBuilder\Actions;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
@@ -118,18 +119,37 @@ class CreateLayoutBuilderDemoSiteAction
         $routeSplitBlock = $this->demoCreator->createHomepageRouteSplitBlock();
         $finalCtaBlock = $this->demoCreator->createHomepageFinalCtaBlock();
 
+        $containers['hero'] = [
+            'meta' => [
+                'colspan' => 12,
+                'container' => ContainerWidthEnum::Full,
+            ],
+            'widgets' => [
+                ['widget_key' => $heroBlock->key],
+            ],
+        ];
+
         $containers['ap-blocks'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $heroBlock->key],
                 ['widget_key' => $proofBlock->key],
                 ['widget_key' => $showcaseBlock->key],
                 ['widget_key' => $widgetsCarouselBlock->key],
                 ['widget_key' => $marketplaceBlock->key],
                 ['widget_key' => $pipelineBlock->key],
                 ['widget_key' => $routeSplitBlock->key],
+            ],
+        ];
+
+        $containers['final-cta'] = [
+            'meta' => [
+                'colspan' => 12,
+                'container' => ContainerWidthEnum::Full,
+                'html_class' => 'bg-slate-950',
+            ],
+            'widgets' => [
                 ['widget_key' => $finalCtaBlock->key],
             ],
         ];
