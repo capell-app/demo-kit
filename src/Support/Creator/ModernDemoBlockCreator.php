@@ -15,7 +15,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 {
     public function createModernFeatureListBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -75,7 +75,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernTeamMembersBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -158,7 +158,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernPricingTableBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -250,7 +250,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernTestimonialsBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -311,7 +311,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernFaqBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -369,7 +369,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernStatsSectionBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -427,7 +427,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernAlternatingContentBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -484,7 +484,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernProcessStepsBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {
@@ -542,7 +542,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 
     public function createModernImageGalleryBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
 
         if ($blockType === null) {

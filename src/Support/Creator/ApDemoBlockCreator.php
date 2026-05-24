@@ -18,9 +18,9 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 {
     public function createApHeroBannerBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::HeroBanner)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
@@ -61,9 +61,9 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 
     public function createApCardGridBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::CardGrid)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
@@ -129,9 +129,9 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 
     public function createApFeatureListBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::FeatureList)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
@@ -239,9 +239,9 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 
     public function createApCtaSectionBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::CTASection)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
@@ -280,9 +280,9 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
 
     public function createApImageGalleryBlock(): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::ImageGallery)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [

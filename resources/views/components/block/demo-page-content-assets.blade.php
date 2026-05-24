@@ -316,12 +316,22 @@
     @elseif ($layout === 'contact-routing')
         <section
             id="scoping"
-            class="capell-demo-contact-gateway contact-routing-board {{ $splitSectionClass }}"
+            class="capell-demo-contact-gateway contact-routing-board grid gap-6 border-b border-slate-200/70 py-8 md:py-12"
         >
-            <div class="grid gap-5">
+            <div
+                class="grid gap-4 rounded-lg border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgb(15_23_42_/_0.08)] md:p-8"
+            >
                 <p class="{{ $eyebrowClass }}">{{ $section['eyebrow'] }}</p>
-                <h2 class="{{ $headingClass }}">{{ $section['title'] }}</h2>
-                <p class="{{ $introClass }}">{{ $section['intro'] }}</p>
+                <h2
+                    class="max-w-[11ch] text-balance font-[Manrope] text-4xl font-extrabold leading-[1.02] tracking-normal text-[#131b2e] md:text-6xl"
+                >
+                    {{ $section['title'] }}
+                </h2>
+                <p
+                    class="max-w-2xl text-pretty text-base leading-8 text-slate-600 md:text-lg"
+                >
+                    {{ $section['intro'] }}
+                </p>
                 @if (($cta['label'] ?? '') !== '' && ($cta['href'] ?? '') !== '')
                     <a
                         class="inline-flex min-h-12 items-center justify-center justify-self-start rounded-lg border border-slate-200 bg-slate-950 px-5 font-extrabold text-white no-underline hover:bg-[#0f766e]"
@@ -334,7 +344,9 @@
 
             <div class="capell-demo-contact-grid grid gap-4 sm:grid-cols-2">
                 @foreach ($items as $item)
-                    <article class="{{ $cardClass }}">
+                    <article
+                        class="grid min-h-40 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)]"
+                    >
                         <span class="{{ $labelClass }}">
                             {{ $item['label'] }}
                         </span>
@@ -347,6 +359,24 @@
                     </article>
                 @endforeach
             </div>
+        </section>
+
+        <section
+            class="grid gap-4 border-y border-slate-200 bg-white py-5 md:grid-cols-3 md:gap-0 md:py-0"
+            aria-label="Contact expectations"
+        >
+            @foreach ([['Response', 'Within 4 business hours'], ['Location', 'London, UK and remote-first'], ['Handover', 'Directly routed to the right team']] as [$label, $value])
+                <div
+                    class="border-slate-200 px-5 md:border-l md:px-6 md:py-5 md:first:border-l-0"
+                >
+                    <span class="{{ $labelClass }}">{{ $label }}</span>
+                    <strong
+                        class="mt-1 block text-base font-extrabold text-slate-950"
+                    >
+                        {{ $value }}
+                    </strong>
+                </div>
+            @endforeach
         </section>
     @elseif ($layout === 'case-study')
         <section

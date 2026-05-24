@@ -39,7 +39,17 @@
     "commands": {
         "install": null,
         "setup": null,
-        "demo": null,
+        "demo": "capell:demo-kit-full-demo",
+        "demoParams": [
+            "url",
+            "user",
+            "languages",
+            "sites",
+            "site-count",
+            "page-count",
+            "seed",
+            "force"
+        ],
         "doctor": "capell:demo-kit-doctor"
     },
     "settings": [],

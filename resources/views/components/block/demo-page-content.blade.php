@@ -31,7 +31,8 @@
     $contentStructure = $pageType?->content_structure;
     $occurrence = (int) ($blockData['occurrence'] ?? 1);
     $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($block, $pageRecord, $containerKey, $occurrence);
-    $hasAssetSections = $assetSections !== [];
+    $hasAssetSections = $pageName !== 'Blog' && $assetSections !== [];
+    $isContactPage = $pageName === 'Contact';
 
     $eyebrowClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
     $headingClass = 'max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] tracking-normal text-[#131b2e] md:text-5xl';
@@ -45,7 +46,6 @@
     $labelClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
     $cardTitleClass = 'text-xl font-extrabold leading-tight tracking-normal text-slate-950';
     $cardCopyClass = 'text-pretty text-base leading-7 text-slate-600';
-
     $showcaseContent = [
         'About Us' => [
             'eyebrow' => 'Platform experience',
@@ -107,16 +107,6 @@
                 ['label' => 'Handover', 'title' => 'Documented release path', 'copy' => 'QA, cache, and frontend checks are part of the delivery.'],
             ],
         ],
-        'Blog' => [
-            'eyebrow' => 'Latest news',
-            'title' => 'Our blog for Capell builders',
-            'intro' => 'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
-            'items' => [
-                ['label' => 'News', 'title' => 'Home, buildings and architecture', 'copy' => 'How architecture-style page systems map to Capell layout builder websites.'],
-                ['label' => 'Guide', 'title' => 'Designing a better homepage flow', 'copy' => 'Turning mixed CMS objects into one coherent public page.'],
-                ['label' => 'Tips', 'title' => 'How to avoid rigid templates', 'copy' => 'Use block boundaries, assets, and reusable sections to keep pages flexible.'],
-            ],
-        ],
         'Platform Architecture' => [
             'eyebrow' => 'Architecture',
             'title' => 'Platform architecture for maintainable CMS delivery',
@@ -168,7 +158,7 @@
     class="capell-block-demo-page-content capell-demo-page-content overflow-x-clip bg-[#faf8ff] text-[#131b2e] [container-type:inline-size] [text-rendering:optimizeLegibility]"
     tag="section"
 >
-    @if ($content)
+    @if ($content && ! $isContactPage)
         <div class="mx-auto max-w-4xl px-[6%] py-8 xl:px-0">
             <x-capell::content
                 class="prose-p:text-pretty prose-p:text-slate-600 prose-p:leading-8"
@@ -205,7 +195,7 @@
                 'cardTitleClass' => $cardTitleClass,
                 'cardCopyClass' => $cardCopyClass,
             ])
-        @elseif ($lesson)
+        @elseif ($lesson && ! $isContactPage && $pageName !== 'Blog')
             <section
                 class="grid gap-4 border-b border-slate-200/70 py-8 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] md:items-start md:py-10"
             >
@@ -259,63 +249,219 @@
                 </div>
             </section>
         @elseif ($pageName === 'Contact')
+            @once
+                <style>
+                    @media (min-width: 1024px) {
+                        .capell-demo-contact-gateway {
+                            grid-template-columns: minmax(0, 1fr) minmax(
+                                    22rem,
+                                    0.72fr
+                                );
+                        }
+                    }
+                </style>
+            @endonce
+
             <section
                 id="scoping"
-                class="capell-demo-contact-gateway {{ $splitSectionClass }}"
+                class="capell-demo-contact-gateway grid gap-8 border-b border-slate-200/70 py-10 md:py-16 lg:grid-cols-2 lg:items-start"
             >
-                <div class="grid gap-5">
-                    <p class="{{ $eyebrowClass }}">Contact gateway</p>
-                    <h2 class="{{ $headingClass }}">
-                        Send a message about your Capell build
-                    </h2>
-                    <p class="{{ $introClass }}">
-                        Route implementation, migration, package, and support
-                        enquiries through one clear public surface.
-                    </p>
-                </div>
-
-                <div class="capell-demo-contact-routing grid gap-6">
-                    <div
-                        class="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-none md:p-6"
-                    >
-                        <span class="{{ $labelClass }}">Routing model</span>
-                        <h3 class="{{ $cardTitleClass }}">
-                            One gateway, clear handoff
-                        </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            The real contact form renders in the adjacent form
-                            block. This panel explains how enquiries are routed
-                            before the CMS hands the request to the form
-                            builder.
-                        </p>
-                        <a
-                            class="inline-flex min-h-12 items-center justify-center justify-self-start rounded-lg border border-slate-200 bg-slate-50 px-5 font-extrabold text-slate-950 no-underline hover:border-[#0f766e] hover:text-[#0f766e]"
-                            href="#contact-form-contact-form-0"
+                <div class="grid gap-8">
+                    <div class="grid gap-5">
+                        <p
+                            class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0f766e]"
                         >
-                            Use the contact form
-                        </a>
+                            Contact
+                        </p>
+                        <h2
+                            class="max-w-[10ch] text-balance font-[Manrope] text-5xl font-extrabold leading-[0.98] tracking-normal text-[#131b2e] md:text-7xl"
+                        >
+                            Start the right conversation
+                        </h2>
+                        <p
+                            class="max-w-2xl text-pretty text-lg leading-8 text-slate-600 md:text-xl md:leading-9"
+                        >
+                            Tell us what you are planning, fixing, moving, or
+                            partnering on. One governed contact page routes
+                            project scoping, technical support, migrations, and
+                            partnerships to the right Capell team.
+                        </p>
                     </div>
 
                     <div
-                        class="capell-demo-contact-grid {{ $compactCarouselClass }}"
+                        class="grid gap-4 border-y border-slate-300 py-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-start"
                     >
-                        @foreach ([['Address', 'Capell Studio, London', 'Remote-first delivery with UK timezone handover.'], ['Response', 'Two business days', 'Enough context to qualify the right delivery path.'], ['Routing', 'Project, support, migration', 'Contact topics map to the same governed CMS model.']] as [$label, $title, $copy])
-                            <article
-                                class="{{ $carouselItemClass }} {{ $cardClass }}"
+                        <div class="grid gap-2">
+                            <span class="{{ $labelClass }}">
+                                Contact details
+                            </span>
+                            <h3
+                                class="text-2xl font-extrabold leading-tight tracking-normal text-slate-950"
                             >
-                                <span class="{{ $labelClass }}">
+                                Capell Studio, London
+                            </h3>
+                        </div>
+
+                        <div class="grid gap-5">
+                            <p
+                                class="text-pretty text-base leading-7 text-slate-600"
+                            >
+                                Remote-first delivery with UK timezone handover.
+                                Send an enquiry and the form builder passes it
+                                into the right follow-up path.
+                            </p>
+                            <dl
+                                class="grid gap-3 text-sm font-bold text-slate-700 sm:grid-cols-2"
+                            >
+                                <div>
+                                    <dt
+                                        class="text-xs uppercase tracking-[0.12em] text-slate-500"
+                                    >
+                                        Email
+                                    </dt>
+                                    <dd class="mt-1 text-slate-950">
+                                        hello@capell.test
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt
+                                        class="text-xs uppercase tracking-[0.12em] text-slate-500"
+                                    >
+                                        Typical response
+                                    </dt>
+                                    <dd class="mt-1 text-slate-950">
+                                        Within 4 business hours
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-0 border-t border-slate-200">
+                        @foreach ([['Project scoping', 'New implementations', 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'], ['Support', 'Existing site help', 'Route production issues, editor workflow questions, and package troubleshooting to the right owner.'], ['Migration planning', 'Move from legacy CMSs', 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'], ['Partnerships', 'Agency and technology work', 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.']] as [$label, $title, $copy])
+                            <article
+                                class="grid gap-3 border-b border-slate-200 py-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6"
+                            >
+                                <span
+                                    class="text-xs font-extrabold uppercase tracking-[0.12em] text-[#0f766e]"
+                                >
                                     {{ $label }}
                                 </span>
-                                <h3 class="{{ $cardTitleClass }}">
-                                    {{ $title }}
-                                </h3>
-                                <p class="{{ $cardCopyClass }}">
-                                    {{ $copy }}
-                                </p>
+                                <div class="grid gap-2">
+                                    <h3
+                                        class="text-xl font-extrabold leading-tight tracking-normal text-slate-950"
+                                    >
+                                        {{ $title }}
+                                    </h3>
+                                    <p
+                                        class="text-pretty text-base leading-7 text-slate-600"
+                                    >
+                                        {{ $copy }}
+                                    </p>
+                                </div>
                             </article>
                         @endforeach
                     </div>
                 </div>
+
+                <aside
+                    class="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_24px_80px_rgb(15_23_42_/_0.08)] md:sticky md:top-24 md:p-7"
+                    aria-labelledby="contact-static-form-title"
+                >
+                    <div class="grid gap-2">
+                        <p class="{{ $labelClass }}">Contact form</p>
+                        <h2
+                            id="contact-static-form-title"
+                            class="text-2xl font-black leading-tight text-slate-950"
+                        >
+                            Send an enquiry
+                        </h2>
+                        <p class="text-sm leading-6 text-slate-600">
+                            Share the context once. We will route it to the
+                            right delivery, support, migration, or partnership
+                            lead.
+                        </p>
+                    </div>
+
+                    <form class="mt-6 grid gap-4" method="post" action="#">
+                        @foreach ([['contact-name', 'name', 'text', 'Name', 'name'], ['contact-email', 'email', 'email', 'Work email', 'email'], ['contact-company', 'company', 'text', 'Company', 'organization']] as [$id, $name, $type, $label, $autocomplete])
+                            <div class="grid gap-2">
+                                <label
+                                    class="text-sm font-bold text-slate-800"
+                                    for="{{ $id }}"
+                                >
+                                    {{ $label }}
+                                </label>
+                                <input
+                                    id="{{ $id }}"
+                                    name="{{ $name }}"
+                                    type="{{ $type }}"
+                                    autocomplete="{{ $autocomplete }}"
+                                    class="min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-950"
+                                />
+                            </div>
+                        @endforeach
+
+                        <div class="grid gap-2">
+                            <label
+                                class="text-sm font-bold text-slate-800"
+                                for="contact-topic"
+                            >
+                                Topic
+                            </label>
+                            <select
+                                id="contact-topic"
+                                name="topic"
+                                class="min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-950"
+                            >
+                                <option>Project scoping</option>
+                                <option>Support</option>
+                                <option>Migration planning</option>
+                                <option>Partnerships</option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <label
+                                class="text-sm font-bold text-slate-800"
+                                for="contact-message"
+                            >
+                                Message
+                            </label>
+                            <textarea
+                                id="contact-message"
+                                name="message"
+                                rows="5"
+                                class="min-h-32 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-950"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#0f766e] px-5 font-extrabold text-white transition hover:bg-[#115e59]"
+                        >
+                            Send enquiry
+                        </button>
+                    </form>
+                </aside>
+            </section>
+
+            <section
+                class="grid gap-4 border-y border-slate-200 bg-white py-5 md:grid-cols-3 md:gap-0 md:py-0"
+                aria-label="Contact expectations"
+            >
+                @foreach ([['Response', 'Within 4 business hours'], ['Location', 'London, UK and remote-first'], ['Handover', 'Directly routed to the right team']] as [$label, $value])
+                    <div
+                        class="border-slate-200 px-5 md:border-l md:px-6 md:py-5 md:first:border-l-0"
+                    >
+                        <span class="{{ $labelClass }}">{{ $label }}</span>
+                        <strong
+                            class="mt-1 block text-base font-extrabold text-slate-950"
+                        >
+                            {{ $value }}
+                        </strong>
+                    </div>
+                @endforeach
             </section>
         @elseif ($pageName === 'Services')
             <section

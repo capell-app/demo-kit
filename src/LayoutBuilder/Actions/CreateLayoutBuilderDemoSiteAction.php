@@ -100,7 +100,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         $layout->update([
             'containers' => $containers,
-            'blocks' => $this->layoutBlockKeys($containers),
+            'widgets' => $this->layoutBlockKeys($containers),
         ]);
     }
 
@@ -122,15 +122,15 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $heroBlock->key],
-                ['block_key' => $proofBlock->key],
-                ['block_key' => $showcaseBlock->key],
-                ['block_key' => $widgetsCarouselBlock->key],
-                ['block_key' => $marketplaceBlock->key],
-                ['block_key' => $pipelineBlock->key],
-                ['block_key' => $routeSplitBlock->key],
-                ['block_key' => $finalCtaBlock->key],
+            'widgets' => [
+                ['widget_key' => $heroBlock->key],
+                ['widget_key' => $proofBlock->key],
+                ['widget_key' => $showcaseBlock->key],
+                ['widget_key' => $widgetsCarouselBlock->key],
+                ['widget_key' => $marketplaceBlock->key],
+                ['widget_key' => $pipelineBlock->key],
+                ['widget_key' => $routeSplitBlock->key],
+                ['widget_key' => $finalCtaBlock->key],
             ],
         ];
     }
@@ -147,11 +147,11 @@ class CreateLayoutBuilderDemoSiteAction
                     return [];
                 }
 
-                $blocks = $container['blocks'] ?? [];
+                $blocks = $container['widgets'] ?? [];
 
                 return is_array($blocks) ? $blocks : [];
             })
-            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['block_key'] ?? null) : null)
+            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['widget_key'] ?? null) : null)
             ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
             ->unique()
             ->values()

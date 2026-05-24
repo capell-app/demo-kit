@@ -334,7 +334,7 @@ abstract class BaseDemoCreator
             return $this->demoPageContentBlock;
         }
 
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::PageContents);
 
         $blockType ??= resolve(TypeCreator::class)->pageContentBlockType();
@@ -605,13 +605,14 @@ abstract class BaseDemoCreator
             'Contact' => [
                 'variant' => 'contact-routing',
                 'layout' => 'contact-routing',
-                'eyebrow' => 'Contact gateway',
-                'title' => 'Send a message about your Capell build',
-                'intro' => 'Route implementation, migration, package, and support enquiries through one clear public surface.',
+                'eyebrow' => 'Contact',
+                'title' => 'Start the right conversation',
+                'intro' => 'Tell us what you are planning, fixing, moving, or partnering on. One governed contact page routes project scoping, technical support, migrations, and partnerships to the right Capell team.',
                 'items' => [
-                    ['label' => 'Address', 'title' => 'Capell Studio, London', 'copy' => 'Remote-first delivery with UK timezone handover.'],
-                    ['label' => 'Response', 'title' => 'Two business days', 'copy' => 'Enough context to qualify the right delivery path.'],
-                    ['label' => 'Routing', 'title' => 'Project, support, migration', 'copy' => 'Contact topics map to the same governed CMS model.'],
+                    ['label' => 'Project scoping', 'title' => 'New implementations', 'copy' => 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'],
+                    ['label' => 'Support', 'title' => 'Existing site help', 'copy' => 'Route production issues, editor workflow questions, and package troubleshooting to the right owner.'],
+                    ['label' => 'Migration planning', 'title' => 'Move from legacy CMSs', 'copy' => 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'],
+                    ['label' => 'Partnerships', 'title' => 'Agency and technology work', 'copy' => 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.'],
                 ],
                 'cta' => ['label' => 'Use the contact form', 'href' => '#contact-form-contact-form-0'],
             ],
@@ -709,13 +710,13 @@ abstract class BaseDemoCreator
                             'meta' => [
                                 'colspan' => 12,
                             ],
-                            'blocks' => [
-                                ['block_key' => 'breadcrumbs'],
-                                ['block_key' => $demoPageContentBlock->key],
+                            'widgets' => [
+                                ['widget_key' => 'breadcrumbs'],
+                                ['widget_key' => $demoPageContentBlock->key],
                             ],
                         ],
                     ],
-                    'blocks' => ['breadcrumbs', $demoPageContentBlock->key],
+                    'widgets' => ['breadcrumbs', $demoPageContentBlock->key],
                     'meta' => [
                         'description' => 'A full-width editorial layout for shared footer pages.',
                     ],
@@ -737,18 +738,18 @@ abstract class BaseDemoCreator
                     'meta' => [
                         'colspan' => 12,
                     ],
-                    'blocks' => [
-                        ['block_key' => 'breadcrumbs'],
+                    'widgets' => [
+                        ['widget_key' => 'breadcrumbs'],
                     ],
                 ],
                 'contact-copy' => [
                     'meta' => [
-                        'colspan' => 7,
+                        'colspan' => 12,
                         'spacing' => 'lg',
                         'html_class' => 'capell-demo-contact-copy-column',
                     ],
-                    'blocks' => [
-                        ['block_key' => $demoPageContentBlock->key],
+                    'widgets' => [
+                        ['widget_key' => $demoPageContentBlock->key],
                     ],
                 ],
                 'contact-form' => [
@@ -757,15 +758,15 @@ abstract class BaseDemoCreator
                         'spacing' => 'lg',
                         'html_class' => 'capell-demo-contact-form-column',
                     ],
-                    'blocks' => [
+                    'widgets' => [
                         [
-                            'block_key' => 'contact-form',
+                            'widget_key' => 'contact-form',
                             'form_handle' => 'contact',
                         ],
                     ],
                 ],
             ],
-            'blocks' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form'],
+            'widgets' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form'],
             'meta' => [
                 'description' => 'A standalone contact layout without child or latest-page rails.',
             ],
@@ -786,19 +787,19 @@ abstract class BaseDemoCreator
 
         $blocks = $withBreadcrumbs
             ? [
-                ...($heroBlock !== null ? [['block_key' => $heroBlock->key]] : []),
-                ['block_key' => 'breadcrumbs'],
+                ...($heroBlock !== null ? [['widget_key' => $heroBlock->key]] : []),
+                ['widget_key' => 'breadcrumbs'],
                 [
-                    'block_key' => $demoPageContentBlock->key,
+                    'widget_key' => $demoPageContentBlock->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
                 ],
             ]
             : [
-                ...($heroBlock !== null ? [['block_key' => $heroBlock->key]] : []),
+                ...($heroBlock !== null ? [['widget_key' => $heroBlock->key]] : []),
                 [
-                    'block_key' => $demoPageContentBlock->key,
+                    'widget_key' => $demoPageContentBlock->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
@@ -814,11 +815,11 @@ abstract class BaseDemoCreator
                         'colspan' => 12,
                         'spacing' => 'lg',
                     ],
-                    'blocks' => $blocks,
+                    'widgets' => $blocks,
                 ],
             ],
-            'blocks' => collect($blocks)
-                ->pluck('block_key')
+            'widgets' => collect($blocks)
+                ->pluck('widget_key')
                 ->values()
                 ->all(),
             'meta' => [
@@ -904,11 +905,11 @@ abstract class BaseDemoCreator
             ],
         );
 
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Default);
 
         $blockType ??= $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Block->value)
+            ->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', BlockTypeEnum::Default->value);
 
         if (! $blockType instanceof Blueprint) {
@@ -933,11 +934,11 @@ abstract class BaseDemoCreator
 
     protected function createHomepageBladeBlock(string $key, string $name): Block
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Default);
 
         $blockType ??= $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Block->value)
+            ->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', BlockTypeEnum::Default->value);
 
         throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');

@@ -320,7 +320,7 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
 
     Blueprint::factory()->create([
         'key' => BlockTypeEnum::Default->value,
-        'type' => LayoutTypeEnum::Block->value,
+        'type' => LayoutTypeEnum::Widget->value,
     ]);
 
     $demoCreator = new DemoCreator;

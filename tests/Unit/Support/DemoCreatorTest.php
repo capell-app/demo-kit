@@ -187,6 +187,26 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
     }
 });
 
+it('seeds uniform contact routing content for designed contact pages', function (): void {
+    $page = createDemoAssetPage('Contact');
+    $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
+
+    $asset = BlockAsset::query()
+        ->where('block_id', $block->getKey())
+        ->where('pageable_type', $page->getMorphClass())
+        ->where('pageable_id', $page->getKey())
+        ->where('container', 'main')
+        ->where('occurrence', 1)
+        ->firstOrFail();
+
+    expect($asset->meta['variant'])->toBe('contact-routing')
+        ->and($asset->asset)->toBeInstanceOf(Section::class)
+        ->and($asset->meta['title'])->toBe('Start the right conversation')
+        ->and($asset->meta['items'])->toContain(['label' => 'Project scoping', 'title' => 'New implementations', 'copy' => 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'])
+        ->and($asset->meta['items'])->toContain(['label' => 'Migration planning', 'title' => 'Move from legacy CMSs', 'copy' => 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'])
+        ->and($asset->meta['items'])->toContain(['label' => 'Partnerships', 'title' => 'Agency and technology work', 'copy' => 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.']);
+});
+
 it('keeps seeded demo page assets idempotent and preserves editor assets', function (): void {
     $page = createDemoAssetPage('Services');
     $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();

@@ -11,7 +11,7 @@ use Capell\Core\Models\Translation;
 use Capell\DemoKit\Actions\Diagnostics\AssertDefaultDemoInstallHealthAction;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget as Block;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Str;
@@ -110,7 +110,7 @@ function createDemoHealthLayout(Site $site, array $blockKeys): Layout
 function createDemoHealthBlock(string $key, string $title): Block
 {
     $type = Blueprint::factory()->create([
-        'type' => LayoutTypeEnum::Block->value,
+        'type' => LayoutTypeEnum::Widget->value,
     ]);
 
     $block = Block::factory()

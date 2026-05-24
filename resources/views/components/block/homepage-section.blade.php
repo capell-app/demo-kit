@@ -6,13 +6,25 @@
     'block',
 ])
 
+@php
+    use Capell\Frontend\Facades\Frontend;
+    use Capell\Hero\Actions\ResolveHeroBackgroundDataAction;
+
+    $capellHeroBackground = null;
+    $capellHeroBackgroundResolver = ResolveHeroBackgroundDataAction::class;
+
+    if (class_exists($capellHeroBackgroundResolver) && view()->exists('capell-hero::components.hero.background')) {
+        $capellHeroBackground = $capellHeroBackgroundResolver::run(Frontend::theme(), $block);
+    }
+@endphp
+
 <x-capell-foundation-theme::block.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
     :$block
-    class="capell-block-homepage-section bg-[#faf9f7] text-[#1a1c1b]"
+    class="capell-block-homepage-section relative overflow-hidden bg-[#faf9f7] text-[#1a1c1b]"
 >
     @once
         <style>
@@ -67,24 +79,21 @@
                 opacity: 1;
                 padding: 0;
                 position: relative;
-                transition:
-                    box-shadow 160ms ease,
-                    transform 160ms ease;
+                transition: box-shadow 160ms ease;
                 width: 1rem;
             }
 
             .capell-home-hero-carousel-controls
                 .swiper-pagination-bullet::before {
                 background: conic-gradient(
-                    #315f8f var(--capell-home-hero-progress),
-                    transparent 0
+                    rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
+                    rgb(154 166 181 / 0.12) 0
                 );
                 border-radius: inherit;
                 content: '';
-                inset: -0.22rem;
+                inset: -0.2rem;
                 opacity: 0;
                 position: absolute;
-                transform-origin: center;
             }
 
             .capell-home-hero-carousel-controls
@@ -92,21 +101,19 @@
                 background: #9aa6b5;
                 border-radius: inherit;
                 content: '';
-                inset: 0.28rem;
+                inset: 0.34rem;
                 position: absolute;
             }
 
             .capell-home-hero-carousel-controls
                 .swiper-pagination-bullet-active {
-                animation: capellHomeHeroProgress 4200ms linear forwards;
                 box-shadow: inset 0 0 0 1px #315f8f;
-                transform: scale(1.05);
             }
 
             .capell-home-hero-carousel-controls
                 .swiper-pagination-bullet-active::before {
-                animation: capellHomeHeroSpin 900ms linear infinite;
-                opacity: 1;
+                animation: capellHomeHeroProgress 4200ms linear forwards;
+                opacity: 0.55;
             }
 
             .capell-home-hero-carousel-controls
@@ -124,22 +131,14 @@
                 }
             }
 
-            @keyframes capellHomeHeroSpin {
-                to {
-                    transform: rotate(1turn);
-                }
-            }
-
             @media (prefers-reduced-motion: reduce) {
-                .capell-home-hero-carousel-controls
-                    .swiper-pagination-bullet-active {
-                    animation: none;
-                }
-
                 .capell-home-hero-carousel-controls
                     .swiper-pagination-bullet-active::before {
                     animation: none;
-                    background: #315f8f;
+                    background: conic-gradient(
+                        rgb(49 95 143 / 0.38) 360deg,
+                        rgb(154 166 181 / 0.12) 0
+                    );
                 }
             }
 
@@ -203,7 +202,13 @@
                 }
             @endphp
 
-            <div class="capell-home-hero-grid">
+            @if ($capellHeroBackground?->enabled)
+                <x-capell-hero::hero.background
+                    :background="$capellHeroBackground"
+                />
+            @endif
+
+            <div class="capell-home-hero-grid relative z-10">
                 <section class="grid gap-5">
                     <p
                         class="text-xs font-extrabold uppercase tracking-[0.08em] text-[#315f8f]"
@@ -248,9 +253,10 @@
                         data-carousel-disable-on-interaction="0"
                         data-carousel-effect="fade"
                         data-carousel-id="{{ $heroCarouselId }}"
-                        data-carousel-loop="1"
+                        data-carousel-loop="0"
                         data-carousel-pagination="1"
-                        data-carousel-pause-on-hover="1"
+                        data-carousel-pause-on-hover="0"
+                        data-carousel-rewind="1"
                         data-carousel-speed="600"
                         data-carousel-watch-overflow="1"
                     >
@@ -951,7 +957,8 @@
             @break
         @case('capell-home-final-cta')
             <div
-                class="my-10 grid gap-6 rounded-lg bg-slate-950 p-6 md:my-14 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:p-10"
+                class="relative left-1/2 mt-10 grid w-screen -translate-x-1/2 gap-8 bg-slate-950 px-[6%] py-20 md:mt-14 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:py-28"
+                style="margin-bottom: -2.5rem"
             >
                 <div>
                     <p
