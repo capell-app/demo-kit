@@ -34,18 +34,18 @@
     $hasAssetSections = $pageName !== 'Blog' && $assetSections !== [];
     $isContactPage = $pageName === 'Contact';
 
-    $eyebrowClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
-    $headingClass = 'max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] tracking-normal text-[#131b2e] md:text-5xl';
-    $introClass = 'max-w-3xl text-pretty text-base leading-8 text-slate-600 md:text-lg';
+    $eyebrowClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
+    $headingClass = 'max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
+    $introClass = 'max-w-3xl text-base leading-8 text-pretty text-slate-600 md:text-lg';
     $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16';
     $splitSectionClass = $sectionClass . ' lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:items-start';
-    $carouselClass = 'flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:overflow-visible md:pb-0 md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] [&::-webkit-scrollbar]:hidden';
-    $compactCarouselClass = 'flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:overflow-visible md:pb-0 md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))] [&::-webkit-scrollbar]:hidden';
+    $carouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
+    $compactCarouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
     $carouselItemClass = 'min-w-full snap-start md:min-w-0';
     $cardClass = 'grid min-h-44 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)] md:p-6';
-    $labelClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
-    $cardTitleClass = 'text-xl font-extrabold leading-tight tracking-normal text-slate-950';
-    $cardCopyClass = 'text-pretty text-base leading-7 text-slate-600';
+    $labelClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
+    $cardTitleClass = 'text-xl leading-tight font-extrabold tracking-normal text-slate-950';
+    $cardCopyClass = 'text-base leading-7 text-pretty text-slate-600';
     $showcaseContent = [
         'About Us' => [
             'eyebrow' => 'Platform experience',
@@ -155,7 +155,7 @@
     :$containerWidth
     :index="$loop->index"
     :$block
-    class="capell-block-demo-page-content capell-demo-page-content overflow-x-clip bg-[#faf8ff] text-[#131b2e] [container-type:inline-size] [text-rendering:optimizeLegibility]"
+    class="capell-block-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility]"
     tag="section"
 >
     @if ($content && ! $isContactPage)
@@ -204,14 +204,14 @@
                         How this page is assembled
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-2xl font-extrabold leading-tight tracking-normal text-slate-950 md:text-3xl"
+                        class="mt-3 max-w-[18ch] font-[Manrope] text-2xl leading-tight font-extrabold tracking-normal text-slate-950 md:text-3xl"
                     >
                         {{ $lesson[0] }}
                     </h2>
                 </div>
 
                 <p
-                    class="max-w-3xl text-pretty text-base leading-8 text-slate-600"
+                    class="max-w-3xl text-base leading-8 text-pretty text-slate-600"
                 >
                     {{ $lesson[1] }}
                 </p>
@@ -269,17 +269,17 @@
                 <div class="grid gap-8">
                     <div class="grid gap-5">
                         <p
-                            class="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0f766e]"
+                            class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase"
                         >
                             Contact
                         </p>
                         <h2
-                            class="max-w-[10ch] text-balance font-[Manrope] text-5xl font-extrabold leading-[0.98] tracking-normal text-[#131b2e] md:text-7xl"
+                            class="max-w-[10ch] font-[Manrope] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
                         >
                             Start the right conversation
                         </h2>
                         <p
-                            class="max-w-2xl text-pretty text-lg leading-8 text-slate-600 md:text-xl md:leading-9"
+                            class="max-w-2xl text-lg leading-8 text-pretty text-slate-600 md:text-xl md:leading-9"
                         >
                             Tell us what you are planning, fixing, moving, or
                             partnering on. One governed contact page routes
@@ -296,7 +296,7 @@
                                 Contact details
                             </span>
                             <h3
-                                class="text-2xl font-extrabold leading-tight tracking-normal text-slate-950"
+                                class="text-2xl leading-tight font-extrabold tracking-normal text-slate-950"
                             >
                                 Capell Studio, London
                             </h3>
@@ -304,7 +304,7 @@
 
                         <div class="grid gap-5">
                             <p
-                                class="text-pretty text-base leading-7 text-slate-600"
+                                class="text-base leading-7 text-pretty text-slate-600"
                             >
                                 Remote-first delivery with UK timezone handover.
                                 Send an enquiry and the form builder passes it
@@ -315,7 +315,7 @@
                             >
                                 <div>
                                     <dt
-                                        class="text-xs uppercase tracking-[0.12em] text-slate-500"
+                                        class="text-xs tracking-[0.12em] text-slate-500 uppercase"
                                     >
                                         Email
                                     </dt>
@@ -325,7 +325,7 @@
                                 </div>
                                 <div>
                                     <dt
-                                        class="text-xs uppercase tracking-[0.12em] text-slate-500"
+                                        class="text-xs tracking-[0.12em] text-slate-500 uppercase"
                                     >
                                         Typical response
                                     </dt>
@@ -343,18 +343,18 @@
                                 class="grid gap-3 border-b border-slate-200 py-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6"
                             >
                                 <span
-                                    class="text-xs font-extrabold uppercase tracking-[0.12em] text-[#0f766e]"
+                                    class="text-xs font-extrabold tracking-[0.12em] text-[#0f766e] uppercase"
                                 >
                                     {{ $label }}
                                 </span>
                                 <div class="grid gap-2">
                                     <h3
-                                        class="text-xl font-extrabold leading-tight tracking-normal text-slate-950"
+                                        class="text-xl leading-tight font-extrabold tracking-normal text-slate-950"
                                     >
                                         {{ $title }}
                                     </h3>
                                     <p
-                                        class="text-pretty text-base leading-7 text-slate-600"
+                                        class="text-base leading-7 text-pretty text-slate-600"
                                     >
                                         {{ $copy }}
                                     </p>
@@ -372,7 +372,7 @@
                         <p class="{{ $labelClass }}">Contact form</p>
                         <h2
                             id="contact-static-form-title"
-                            class="text-2xl font-black leading-tight text-slate-950"
+                            class="text-2xl leading-tight font-black text-slate-950"
                         >
                             Send an enquiry
                         </h2>
@@ -488,7 +488,7 @@
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-2xl font-black leading-none text-slate-950"
+                                class="text-2xl leading-none font-black text-slate-950"
                             >
                                 {{ $title }}
                             </h3>
@@ -499,7 +499,7 @@
             </section>
 
             <section
-                class="flex snap-x gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0 [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0 [&::-webkit-scrollbar]:hidden"
                 aria-label="Service proof points"
             >
                 @foreach ([['6 wk', 'typical build sprint'], ['12+', 'page shapes mapped'], ['0', 'admin metadata leaks'], ['4', 'handover checkpoints']] as [$value, $label])
@@ -507,7 +507,7 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e] md:text-4xl"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $value }}
                         </strong>
@@ -535,17 +535,17 @@
                     </p>
                 </div>
                 <ol
-                    class="flex snap-x gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
                 >
                     @foreach ([['01', 'Audit the content model', 'Inventory pages, media, routes, redirects, permissions, integrations, and editorial risks.'], ['02', 'Shape reusable layouts', 'Turn page intent into governed sections instead of another stack of bespoke templates.'], ['03', 'Build package-owned surfaces', 'Keep Blade, render data, cache, and tests close to the package that owns the behaviour.'], ['04', 'Verify public output', 'Check anonymous rendering, navigation, search, SEO, and visual regressions before handover.']] as [$step, $title, $copy])
                         <li
-                            class="grid min-w-full snap-start content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:min-w-0 md:border-b-0 md:border-r md:last:border-r-0"
+                            class="grid min-w-full snap-start content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:min-w-0 md:border-r md:border-b-0 md:last:border-r-0"
                         >
                             <span class="text-sm font-black text-[#0f766e]">
                                 {{ $step }}
                             </span>
                             <strong
-                                class="text-lg font-extrabold leading-snug text-slate-950"
+                                class="text-lg leading-snug font-extrabold text-slate-950"
                             >
                                 {{ $title }}
                             </strong>
@@ -574,7 +574,7 @@
                             @if ($loop->first) open @endif
                         >
                             <summary
-                                class="cursor-pointer text-lg font-extrabold leading-snug text-slate-950"
+                                class="cursor-pointer text-lg leading-snug font-extrabold text-slate-950"
                             >
                                 {{ $question }}
                             </summary>
@@ -609,18 +609,18 @@
                             ])
                         >
                             <span
-                                class="{{ $featured ? 'text-xs font-black uppercase tracking-normal text-green-700' : $labelClass }}"
+                                class="{{ $featured ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
                             >
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-4xl font-black leading-none text-slate-950"
+                                class="text-4xl leading-none font-black text-slate-950"
                             >
                                 {{ $price }}
                             </h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             <em
-                                class="mt-auto justify-self-start rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-extrabold not-italic text-slate-950"
+                                class="mt-auto justify-self-start rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-extrabold text-slate-950 not-italic"
                             >
                                 {{ $badge }}
                             </em>
@@ -635,7 +635,7 @@
                         Common pricing questions
                     </h3>
                     <p
-                        class="mt-3 max-w-3xl text-pretty text-base leading-8 text-slate-200"
+                        class="mt-3 max-w-3xl text-base leading-8 text-pretty text-slate-200"
                     >
                         Support level, response time, migration help, and
                         implementation depth are separated so teams can pick the
@@ -645,21 +645,21 @@
             </section>
         @elseif ($pageName === 'Implementation')
             <section
-                class="capell-demo-implementation-plan bg-linear-to-br my-10 grid gap-8 rounded-2xl from-slate-950 to-blue-900 p-6 shadow-2xl md:my-16 md:p-10"
+                class="capell-demo-implementation-plan my-10 grid gap-8 rounded-2xl bg-linear-to-br from-slate-950 to-blue-900 p-6 shadow-2xl md:my-16 md:p-10"
             >
                 <div class="grid gap-5">
                     <p
-                        class="text-xs font-black uppercase tracking-normal text-blue-200"
+                        class="text-xs font-black tracking-normal text-blue-200 uppercase"
                     >
                         Implementation scoping
                     </p>
                     <h2
-                        class="max-w-[16ch] text-balance text-3xl font-black leading-[1.02] tracking-normal text-white md:text-5xl xl:text-6xl"
+                        class="max-w-[16ch] text-3xl leading-[1.02] font-black tracking-normal text-balance text-white md:text-5xl xl:text-6xl"
                     >
                         Implementation plan with commercial guardrails
                     </h2>
                     <p
-                        class="max-w-3xl text-pretty text-base leading-8 text-blue-100 md:text-lg"
+                        class="max-w-3xl text-base leading-8 text-pretty text-blue-100 md:text-lg"
                     >
                         Turn scope, timeline, risk, and price confidence into a
                         visible delivery surface.
@@ -674,17 +674,17 @@
                             class="{{ $carouselItemClass }} grid min-h-44 content-start gap-3 rounded-lg border border-blue-200/30 bg-white/10 p-5 text-white shadow-none md:p-6"
                         >
                             <span
-                                class="text-xs font-black uppercase tracking-normal text-blue-100"
+                                class="text-xs font-black tracking-normal text-blue-100 uppercase"
                             >
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-3xl font-black leading-none text-white"
+                                class="text-3xl leading-none font-black text-white"
                             >
                                 {{ $title }}
                             </h3>
                             <p
-                                class="text-pretty text-base leading-7 text-blue-50"
+                                class="text-base leading-7 text-pretty text-blue-50"
                             >
                                 {{ $copy }}
                             </p>
@@ -714,7 +714,7 @@
                     <div>
                         <span class="{{ $labelClass }}">Featured guide</span>
                         <h3
-                            class="mt-3 font-[Manrope] text-2xl font-extrabold leading-tight text-slate-950 md:text-4xl"
+                            class="mt-3 font-[Manrope] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
                         >
                             Scaling Laravel CMS architecture for 1M+ records
                         </h3>
@@ -726,7 +726,7 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e] md:text-4xl"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             18 min
                         </strong>
@@ -738,7 +738,7 @@
             </section>
 
             <section
-                class="flex gap-2 overflow-x-auto border-b border-slate-200 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                class="flex [scrollbar-width:none] gap-2 overflow-x-auto border-b border-slate-200 py-5 [&::-webkit-scrollbar]:hidden"
                 aria-label="Resource categories"
             >
                 @foreach (['All resources', 'Architecture', 'Migration', 'Publishing', 'Theme systems'] as $filter)
@@ -757,7 +757,7 @@
             </section>
 
             <section
-                class="flex snap-x gap-4 overflow-x-auto border-b border-slate-200 py-8 [scrollbar-width:none] md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-b border-slate-200 py-8 md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
             >
                 @foreach ([['Architecture', 'Content models, domains, layouts, and package contracts.', '14 resources'], ['Migration', 'Imports, redirects, media moves, and validation evidence.', '9 resources'], ['Publishing', 'Approval flows, preview discipline, cache, and release checks.', '12 resources'], ['Theme systems', 'Blade surfaces, Tailwind composition, and visual QA.', '8 resources']] as [$title, $copy, $count])
                     <article
@@ -793,7 +793,7 @@
                             </h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             <em
-                                class="mt-auto text-sm font-extrabold not-italic text-slate-600"
+                                class="mt-auto text-sm font-extrabold text-slate-600 not-italic"
                             >
                                 {{ $time }}
                             </em>
@@ -807,12 +807,12 @@
             >
                 <div>
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-teal-100"
+                        class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase"
                     >
                         Implementation toolkit
                     </p>
                     <h2
-                        class="mt-3 font-[Manrope] text-3xl font-extrabold leading-tight text-white md:text-4xl"
+                        class="mt-3 font-[Manrope] text-3xl leading-tight font-extrabold text-white md:text-4xl"
                     >
                         Build faster with architectural blueprints.
                     </h2>
@@ -867,12 +867,12 @@
                         class="grid content-start gap-4 border-l-4 border-[#0f766e] bg-teal-50 p-4"
                     >
                         <strong
-                            class="font-[Manrope] text-2xl font-extrabold leading-tight text-[#0f766e]"
+                            class="font-[Manrope] text-2xl leading-tight font-extrabold text-[#0f766e]"
                         >
                             Article chrome
                         </strong>
                         <span
-                            class="text-sm font-bold leading-6 text-slate-700"
+                            class="text-sm leading-6 font-bold text-slate-700"
                         >
                             Author, read time, body copy, related resources, and
                             clean public rendering.
@@ -886,7 +886,7 @@
                     @foreach ([['Author', 'Capell editorial'], ['Read time', '8 min'], ['Template', 'Single post']] as [$label, $value])
                         <span>
                             <strong
-                                class="block text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]"
+                                class="block text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase"
                             >
                                 {{ $label }}
                             </strong>
@@ -936,7 +936,7 @@
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-2xl font-black leading-none text-slate-950"
+                                class="text-2xl leading-none font-black text-slate-950"
                             >
                                 {{ $title }}
                             </h3>
@@ -950,7 +950,7 @@
                 >
                     @foreach (['Footer route', 'Shared template', 'Local content'] as $label)
                         <span
-                            class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black uppercase tracking-normal text-slate-950"
+                            class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black tracking-normal text-slate-950 uppercase"
                         >
                             {{ $label }}
                         </span>

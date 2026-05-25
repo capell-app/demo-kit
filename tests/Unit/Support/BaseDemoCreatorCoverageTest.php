@@ -9,7 +9,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,7 +50,7 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and($contact?->key)->toBe('contact-standalone')
         ->and($contact?->blocks)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form'])
         ->and($unknown)->toBeNull()
-        ->and(Block::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
+        ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
 });
 
 it('normalizes demo page metadata content summaries and hero snippets', function (): void {

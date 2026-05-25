@@ -43,7 +43,7 @@
                             {{ $item['label'] }}
                         </span>
                         <h3
-                            class="text-2xl font-black leading-none text-slate-950"
+                            class="text-2xl leading-none font-black text-slate-950"
                         >
                             {{ $item['title'] }}
                         </h3>
@@ -65,7 +65,7 @@
                         class="border border-slate-200 bg-white p-5 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e] md:text-4xl"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $metric['value'] }}
                         </strong>
@@ -94,13 +94,13 @@
                 >
                     @foreach ($steps as $step)
                         <li
-                            class="grid content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                            class="grid content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
                         >
                             <span class="text-sm font-black text-[#0f766e]">
                                 {{ $step['label'] }}
                             </span>
                             <strong
-                                class="text-lg font-extrabold leading-snug text-slate-950"
+                                class="text-lg leading-snug font-extrabold text-slate-950"
                             >
                                 {{ $step['title'] }}
                             </strong>
@@ -128,12 +128,12 @@
                         @class([$carouselItemClass, $cardClass, 'min-h-72', 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $loop->iteration === 2])
                     >
                         <span
-                            class="{{ $loop->iteration === 2 ? 'text-xs font-black uppercase tracking-normal text-green-700' : $labelClass }}"
+                            class="{{ $loop->iteration === 2 ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
                         >
                             {{ $item['label'] }}
                         </span>
                         <h3
-                            class="text-4xl font-black leading-none text-slate-950"
+                            class="text-4xl leading-none font-black text-slate-950"
                         >
                             {{ $item['title'] }}
                         </h3>
@@ -151,11 +151,11 @@
                             class="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white"
                         >
                             <span
-                                class="text-xs font-extrabold uppercase tracking-[0.08em] text-teal-200"
+                                class="text-xs font-extrabold tracking-[0.08em] text-teal-200 uppercase"
                             >
                                 {{ $step['label'] }}
                             </span>
-                            <h3 class="mt-3 text-xl font-black leading-tight">
+                            <h3 class="mt-3 text-xl leading-tight font-black">
                                 {{ $step['title'] }}
                             </h3>
                             <p class="mt-2 text-sm leading-6 text-slate-200">
@@ -186,7 +186,7 @@
                             {{ $featured['label'] }}
                         </span>
                         <h3
-                            class="mt-3 font-[Manrope] text-2xl font-extrabold leading-tight text-slate-950 md:text-4xl"
+                            class="mt-3 font-[Manrope] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
                         >
                             {{ $featured['title'] }}
                         </h3>
@@ -196,7 +196,7 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e]"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e]"
                         >
                             18 min
                         </strong>
@@ -302,7 +302,7 @@
                         @if ($loop->first) open @endif
                     >
                         <summary
-                            class="cursor-pointer text-lg font-extrabold leading-snug text-slate-950"
+                            class="cursor-pointer text-lg leading-snug font-extrabold text-slate-950"
                         >
                             {{ $item['title'] }}
                         </summary>
@@ -323,12 +323,12 @@
             >
                 <p class="{{ $eyebrowClass }}">{{ $section['eyebrow'] }}</p>
                 <h2
-                    class="max-w-[11ch] text-balance font-[Manrope] text-4xl font-extrabold leading-[1.02] tracking-normal text-[#131b2e] md:text-6xl"
+                    class="max-w-[11ch] font-[Manrope] text-4xl leading-[1.02] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-6xl"
                 >
                     {{ $section['title'] }}
                 </h2>
                 <p
-                    class="max-w-2xl text-pretty text-base leading-8 text-slate-600 md:text-lg"
+                    class="max-w-2xl text-base leading-8 text-pretty text-slate-600 md:text-lg"
                 >
                     {{ $section['intro'] }}
                 </p>

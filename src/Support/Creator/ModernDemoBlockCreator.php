@@ -8,12 +8,12 @@ use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
 abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
 {
-    public function createModernFeatureListBlock(): Block
+    public function createModernFeatureListBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -73,7 +73,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernTeamMembersBlock(): Block
+    public function createModernTeamMembersBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -156,7 +156,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernPricingTableBlock(): Block
+    public function createModernPricingTableBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -248,7 +248,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernTestimonialsBlock(): Block
+    public function createModernTestimonialsBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -309,7 +309,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernFaqBlock(): Block
+    public function createModernFaqBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -367,7 +367,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernStatsSectionBlock(): Block
+    public function createModernStatsSectionBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -425,7 +425,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernAlternatingContentBlock(): Block
+    public function createModernAlternatingContentBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -482,7 +482,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernProcessStepsBlock(): Block
+    public function createModernProcessStepsBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);
@@ -540,7 +540,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         return $block;
     }
 
-    public function createModernImageGalleryBlock(): Block
+    public function createModernImageGalleryBlock(): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Assets);

@@ -202,10 +202,6 @@ final class RefreshDemoStitchPagesAction
                 ->where('status', true)
                 ->get()
                 ->each(function (Model $pageUrl): void {
-                    if (! $pageUrl instanceof PageUrl) {
-                        return;
-                    }
-
                     PageUrl::query()
                         ->where('site_id', $pageUrl->site_id)
                         ->where('language_id', $pageUrl->language_id)

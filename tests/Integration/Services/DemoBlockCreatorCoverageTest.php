@@ -13,8 +13,8 @@ use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\DemoKit\Tests\Fixtures\Models\DemoAsset;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -75,7 +75,7 @@ it('creates standard content blocks with translated portable content', function 
 
     $contentBlock = $creator->createContentBlock($site->languages);
     $splitBlock = $creator->createSplitContentBlock($site->languages);
-    expect($contentBlock)->toBeInstanceOf(Block::class)
+    expect($contentBlock)->toBeInstanceOf(Widget::class)
         ->and($contentBlock->key)->toBe('example-content')
         ->and($contentBlock->translations)->toHaveCount(1)
         ->and(json_decode((string) $contentBlock->translations()->first()?->content, true))->toBeArray()
@@ -136,7 +136,7 @@ it('creates page card assets only when related image pages exist', function (): 
 
     expect($cardsBlock->assets()->count())->toBe(3)
         ->and($duplicateCardsBlock->assets()->count())->toBe(3)
-        ->and(BlockAsset::query()->where('pageable_id', $page->getKey())->where('container', 'sidebar')->count())->toBe(3);
+        ->and(WidgetAsset::query()->where('pageable_id', $page->getKey())->where('container', 'sidebar')->count())->toBe(3);
 });
 
 it('creates app showcase demo blocks with sections and media assets', function (): void {

@@ -19,8 +19,8 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\LayoutBuilder\Actions\CreateHeroBlockAction;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Error;
@@ -86,10 +86,10 @@ abstract class BaseDemoCreator
     /** @var class-string<Model&HasMedia> */
     protected string $contentModel;
 
-    /** @var class-string<Block> */
+    /** @var class-string<Widget> */
     protected string $blockModel;
 
-    protected ?Block $demoPageContentBlock = null;
+    protected ?Widget $demoPageContentBlock = null;
 
     public static function getDemoResourcePath(?string $folder): string
     {
@@ -309,7 +309,7 @@ abstract class BaseDemoCreator
         return $model->morphMany(Translation::class, 'translatable');
     }
 
-    protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
+    protected function createPageBlockAsset(Widget $block, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
     {
         $blockAsset = DB::transaction(
             fn (): Model => $block->assets()->createOrFirst([
@@ -323,14 +323,14 @@ abstract class BaseDemoCreator
             attempts: 5,
         );
 
-        throw_unless($blockAsset instanceof BlockAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+        throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
 
         return $blockAsset;
     }
 
-    protected function ensureDemoPageContentBlock(): Block
+    protected function ensureDemoPageContentBlock(): Widget
     {
-        if ($this->demoPageContentBlock instanceof Block) {
+        if ($this->demoPageContentBlock instanceof Widget) {
             return $this->demoPageContentBlock;
         }
 
@@ -351,7 +351,7 @@ abstract class BaseDemoCreator
             'status' => true,
         ];
 
-        $block = Block::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
+        $block = Widget::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
         $block->forceFill($attributes);
 
         if ($block->isDirty()) {
@@ -386,11 +386,11 @@ abstract class BaseDemoCreator
                     'occurrence' => 1,
                 ])
                 ->get()
-                ->filter(fn (BlockAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true);
+                ->filter(fn (WidgetAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true);
 
             $existingSeededAssets
-                ->reject(fn (BlockAsset $asset): bool => in_array($asset->meta['demo_page_asset_key'] ?? null, $activeKeys, true))
-                ->each(fn (BlockAsset $asset): ?bool => $asset->delete());
+                ->reject(fn (WidgetAsset $asset): bool => in_array($asset->meta['demo_page_asset_key'] ?? null, $activeKeys, true))
+                ->each(fn (WidgetAsset $asset): ?bool => $asset->delete());
 
             foreach ($definitions as $order => $definition) {
                 $asset = $this->createDemoPageContentAsset($page, $definition);
@@ -916,7 +916,7 @@ abstract class BaseDemoCreator
             return;
         }
 
-        Block::query()->updateOrCreate(
+        Widget::query()->updateOrCreate(
             ['key' => 'contact-form'],
             [
                 'name' => 'Contact form',
@@ -932,7 +932,7 @@ abstract class BaseDemoCreator
         );
     }
 
-    protected function createHomepageBladeBlock(string $key, string $name): Block
+    protected function createHomepageBladeBlock(string $key, string $name): Widget
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::Default);
@@ -954,7 +954,7 @@ abstract class BaseDemoCreator
             ],
         ];
 
-        $block = Block::query()->firstOrCreate(['key' => $key], $attributes);
+        $block = Widget::query()->firstOrCreate(['key' => $key], $attributes);
         $block->forceFill($attributes)->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
@@ -1327,10 +1327,12 @@ abstract class BaseDemoCreator
             $translations = [];
 
             foreach ($languages as $language) {
-                if (! $language instanceof Language || $content->translations->contains('language_id', $language->id)) {
+                if (! $language instanceof Language) {
                     continue;
                 }
-
+                if ($content->translations->contains('language_id', $language->id)) {
+                    continue;
+                }
                 $translations[] = [
                     'language_id' => $language->id,
                     'title' => $testimonial['name'],
@@ -1462,10 +1464,12 @@ abstract class BaseDemoCreator
             $translations = [];
 
             foreach ($languages as $language) {
-                if (! $language instanceof Language || $content->translations->contains('language_id', $language->id)) {
+                if (! $language instanceof Language) {
                     continue;
                 }
-
+                if ($content->translations->contains('language_id', $language->id)) {
+                    continue;
+                }
                 $translations[] = [
                     'language_id' => $language->id,
                     'title' => $member['name'],
@@ -1481,7 +1485,7 @@ abstract class BaseDemoCreator
         return $teamMembersCollection;
     }
 
-    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -1537,7 +1541,7 @@ abstract class BaseDemoCreator
             }
         }
 
-        // Create content and link via BlockAsset
+        // Create content and link via WidgetAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Support;
 
 use Capell\Core\Contracts\Pageable;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Support\Collection;
 
 final class DemoPageContentAssetSections
@@ -14,24 +14,24 @@ final class DemoPageContentAssetSections
     /**
      * @return list<array<string, mixed>>
      */
-    public function resolve(Block $block, ?Pageable $page, string $container, int $occurrence): array
+    public function resolve(Widget $block, ?Pageable $page, string $container, int $occurrence): array
     {
         if (! $page instanceof Pageable || ! $block->relationLoaded('assets')) {
             return [];
         }
 
         return $block->assets
-            ->filter(fn (mixed $asset): bool => $asset instanceof BlockAsset)
-            ->filter(fn (BlockAsset $asset): bool => $this->belongsToPosition($asset, $page, $container, $occurrence))
-            ->filter(fn (BlockAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true)
-            ->sortBy(fn (BlockAsset $asset): int => (int) $asset->order)
-            ->map(fn (BlockAsset $asset): array => $this->normalize($asset))
+            ->filter(fn (mixed $asset): bool => $asset instanceof WidgetAsset)
+            ->filter(fn (WidgetAsset $asset): bool => $this->belongsToPosition($asset, $page, $container, $occurrence))
+            ->filter(fn (WidgetAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true)
+            ->sortBy(fn (WidgetAsset $asset): int => (int) $asset->order)
+            ->map(fn (WidgetAsset $asset): array => $this->normalize($asset))
             ->filter(fn (array $section): bool => $section !== [])
             ->values()
             ->all();
     }
 
-    private function belongsToPosition(BlockAsset $asset, Pageable $page, string $container, int $occurrence): bool
+    private function belongsToPosition(WidgetAsset $asset, Pageable $page, string $container, int $occurrence): bool
     {
         return $asset->pageable_type === $page->getMorphClass()
             && (string) $asset->pageable_id === (string) $page->getKey()
@@ -42,7 +42,7 @@ final class DemoPageContentAssetSections
     /**
      * @return array<string, mixed>
      */
-    private function normalize(BlockAsset $asset): array
+    private function normalize(WidgetAsset $asset): array
     {
         $meta = is_array($asset->meta) ? $asset->meta : [];
         $variant = $this->stringValue($meta['variant'] ?? null);

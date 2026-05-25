@@ -12,8 +12,8 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\DemoPageContentAssetSections;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
@@ -60,7 +60,7 @@ it('creates homepage demo snippets as layout builder blocks', function (): void 
 
     $block = resolve(DemoCreator::class)->createHomepageHeroCommandCenterBlock();
 
-    expect($block)->toBeInstanceOf(Block::class)
+    expect($block)->toBeInstanceOf(Widget::class)
         ->and($block->getTable())->toBe('blocks')
         ->and($block->key)->toBe('capell-home-hero-command-center')
         ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
@@ -76,7 +76,7 @@ it('creates the interactive homepage widgets carousel block', function (): void 
     $block = resolve(DemoCreator::class)->createHomepageDemoWidgetsCarouselBlock();
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/block/homepage-section.blade.php');
 
-    expect($block)->toBeInstanceOf(Block::class)
+    expect($block)->toBeInstanceOf(Widget::class)
         ->and($block->key)->toBe('capell-home-demo-widgets-carousel')
         ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
         ->and($view)->toContain('window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1')
@@ -101,9 +101,9 @@ it('uses a blade-backed demo page content block for designed demo pages', functi
     $page->refresh();
 
     expect($page->layout?->blocks)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
-        ->and(Block::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.block.demo-page-content')
-        ->and(Block::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
-        ->and(Block::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero')
+        ->and(Widget::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.block.demo-page-content')
+        ->and(Widget::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
+        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero')
         ->and($page->translation?->content)->toContain('<p>Capell combines Laravel package discipline')
         ->and($page->translation?->content)->not->toContain('class=');
 });
@@ -131,7 +131,7 @@ it('canonicalizes the old architecture demo page into the platform architecture 
         ->and($page->translation?->getMeta('hero_title'))->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('hero'))->toBeString()
         ->and($page->translation?->getMeta('hero'))->toStartWith('<p>')
-        ->and(Block::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero');
+        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero');
 });
 
 it('keeps demo pages without heroes on content-only layouts', function (): void {
@@ -176,8 +176,8 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
 
         throw_unless($page instanceof Page);
 
-        $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
-        $assets = BlockAsset::query()
+        $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
+        $assets = WidgetAsset::query()
             ->where('widget_id', $block->getKey())
             ->where('pageable_type', $page->getMorphClass())
             ->where('pageable_id', $page->getKey())
@@ -193,9 +193,9 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
 
 it('seeds uniform contact routing content for designed contact pages', function (): void {
     $page = createDemoAssetPage('Contact');
-    $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
+    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
 
-    $asset = BlockAsset::query()
+    $asset = WidgetAsset::query()
         ->where('widget_id', $block->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
@@ -213,7 +213,7 @@ it('seeds uniform contact routing content for designed contact pages', function 
 
 it('keeps seeded demo page assets idempotent and preserves editor assets', function (): void {
     $page = createDemoAssetPage('Services');
-    $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
+    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
     $sectionType = Blueprint::query()->firstOrCreate([
         'type' => 'section',
         'key' => 'demo-page-content-editor-asset',
@@ -244,7 +244,7 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
     $method = new ReflectionMethod($creator, 'syncDemoPageContentAssets');
     $method->invoke($creator, $page, 'Services');
 
-    $pageAssets = BlockAsset::query()
+    $pageAssets = WidgetAsset::query()
         ->where('widget_id', $block->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
@@ -269,7 +269,7 @@ it('preloads asset backed demo page content without lazy loading block assets', 
         1,
     );
 
-    expect($loadedBlock)->toBeInstanceOf(Block::class)
+    expect($loadedBlock)->toBeInstanceOf(Widget::class)
         ->and($loadedBlock?->relationLoaded('assets'))->toBeTrue()
         ->and($loadedBlock?->assets)->toHaveCount(1)
         ->and($loadedBlock?->assets->first()?->meta['variant'])->toBe('services-workbench');
@@ -322,7 +322,7 @@ it('renders asset backed demo page content without exposing layout metadata', fu
 
 it('falls back when demo page assets are not preloaded', function (): void {
     $page = createDemoAssetPage('Services');
-    $block = Block::query()->where('key', 'demo-page-content')->firstOrFail();
+    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
 
     $sections = resolve(DemoPageContentAssetSections::class)
         ->resolve($block, $page, 'main', 1);

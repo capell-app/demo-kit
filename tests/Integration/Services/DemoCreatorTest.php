@@ -16,7 +16,7 @@ use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\FormBuilder\Models\Form;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -342,7 +342,7 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
         ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
-        ->and(Block::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
+        ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
 });
 
 it('skips contact form integration when form builder is not installed', function (): void {
@@ -360,7 +360,7 @@ it('skips contact form integration when form builder is not installed', function
 
     expect($contactPage->layout?->key)->toBe('contact-standalone')
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeFalse()
-        ->and(Block::query()->where('key', 'contact-form')->exists())->toBeFalse();
+        ->and(Widget::query()->where('key', 'contact-form')->exists())->toBeFalse();
 
     CapellCore::forcePackageInstalled('capell-app/form-builder');
 });

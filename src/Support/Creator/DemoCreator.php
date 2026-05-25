@@ -16,7 +16,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\DemoKit\Support\DemoContentPool;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -40,7 +40,7 @@ class DemoCreator extends ApDemoBlockCreator
         $this->pageModel = Page::class;
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
-        $this->blockModel = Block::class;
+        $this->blockModel = Widget::class;
         $this->contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;

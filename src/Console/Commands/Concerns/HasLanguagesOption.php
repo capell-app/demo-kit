@@ -20,9 +20,9 @@ trait HasLanguagesOption
     use PromptsWithOptionFallback;
 
     /**
-     * @return array<int, string>|null
+     * @return string[]
      */
-    private function getDemoLanguages(): ?array
+    private function getDemoLanguages(): array
     {
         $languageOption = $this->option('languages');
         if (is_string($languageOption) && $languageOption !== '') {
@@ -45,13 +45,11 @@ trait HasLanguagesOption
 
         $this->requireInteractiveOrFail('Example site languages', 'Pass --languages=<comma,separated,codes>.');
 
-        $selectedLanguages = multiselect(
+        return multiselect(
             label: 'Choose the example site languages?',
             options: $demoLanguages,
             default: count($databaseLanguages) > 0 ? array_keys($databaseLanguages) : [array_key_first($demoLanguages)],
             required: true,
         );
-
-        return $selectedLanguages;
     }
 }

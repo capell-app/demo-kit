@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Support\Creator;
 
 use Capell\Core\Enums\ContainerWidthEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
 {
@@ -48,7 +48,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         ],
     ];
 
-    public function createHomepageHeroCommandCenterBlock(): Block
+    public function createHomepageHeroCommandCenterBlock(): Widget
     {
         $block = $this->createHomepageBladeBlock(
             key: 'capell-home-hero-command-center',
@@ -58,7 +58,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         return $this->withHomepageHeroLayout($this->withHomepageHeroSlides($this->withHomepageImageSource($block)));
     }
 
-    public function createHomepageProofStripBlock(): Block
+    public function createHomepageProofStripBlock(): Widget
     {
         return $this->createHomepageBladeBlock(
             key: 'capell-home-proof-strip',
@@ -66,7 +66,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         );
     }
 
-    public function createHomepageDemoShowcaseBlock(): Block
+    public function createHomepageDemoShowcaseBlock(): Widget
     {
         return $this->withHomepageImageSource($this->createHomepageBladeBlock(
             key: 'capell-home-demo-showcase',
@@ -74,7 +74,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         ));
     }
 
-    public function createHomepageDemoWidgetsCarouselBlock(): Block
+    public function createHomepageDemoWidgetsCarouselBlock(): Widget
     {
         return $this->createHomepageBladeBlock(
             key: 'capell-home-demo-widgets-carousel',
@@ -82,7 +82,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         );
     }
 
-    public function createHomepageMarketplaceBlock(): Block
+    public function createHomepageMarketplaceBlock(): Widget
     {
         return $this->withHomepageImageSource($this->createHomepageBladeBlock(
             key: 'capell-extension-marketplace-showcase',
@@ -90,7 +90,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         ));
     }
 
-    public function createHomepageTechnicalPipelineBlock(): Block
+    public function createHomepageTechnicalPipelineBlock(): Widget
     {
         return $this->createHomepageBladeBlock(
             key: 'capell-home-technical-pipeline',
@@ -98,7 +98,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         );
     }
 
-    public function createHomepageRouteSplitBlock(): Block
+    public function createHomepageRouteSplitBlock(): Widget
     {
         return $this->createHomepageBladeBlock(
             key: 'capell-home-route-split',
@@ -106,7 +106,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         );
     }
 
-    public function createHomepageFinalCtaBlock(): Block
+    public function createHomepageFinalCtaBlock(): Widget
     {
         $block = $this->createHomepageBladeBlock(
             key: 'capell-home-final-cta',
@@ -116,7 +116,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         return $this->withContainedFullBleedSectionLayout($block);
     }
 
-    private function withHomepageImageSource(Block $block): Block
+    private function withHomepageImageSource(Widget $block): Widget
     {
         $url = self::HOMEPAGE_IMAGE_SOURCES[$block->key] ?? null;
 
@@ -135,7 +135,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    private function withHomepageHeroSlides(Block $block): Block
+    private function withHomepageHeroSlides(Widget $block): Widget
     {
         $meta = is_array($block->meta) ? $block->meta : [];
         $meta['hero_slides'] = self::HOMEPAGE_HERO_SLIDES;
@@ -145,12 +145,12 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    private function withHomepageHeroLayout(Block $block): Block
+    private function withHomepageHeroLayout(Widget $block): Widget
     {
         return $this->withContainedFullBleedSectionLayout($block);
     }
 
-    private function withContainedFullBleedSectionLayout(Block $block): Block
+    private function withContainedFullBleedSectionLayout(Widget $block): Widget
     {
         $meta = is_array($block->meta) ? $block->meta : [];
         $meta['container'] = ContainerWidthEnum::Default->value;

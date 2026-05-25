@@ -16,7 +16,7 @@ use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Tests\Fixtures\Models\DemoAsset;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -127,7 +127,7 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
             'capell-home-route-split',
             'capell-home-final-cta',
         ])
-        ->and(Block::query()->whereIn('key', $layout->blocks)->count())->toBe(8)
+        ->and(Widget::query()->whereIn('key', $layout->blocks)->count())->toBe(8)
         ->and($childContent->parent_id)->toBe($rootContent->getKey());
 });
 
