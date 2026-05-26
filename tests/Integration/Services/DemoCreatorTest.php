@@ -98,8 +98,8 @@ it('creates a child page and attaches video media', function (): void {
 });
 
 it('throws if demo image path is empty', function (): void {
-    File::spy();
     $demoCreator = new DemoCreator;
+
     expect(fn (): string => $demoCreator->getRandomDemoImage('/nonexistent/path'))
         ->toThrow(UnexpectedValueException::class);
 });
@@ -293,7 +293,6 @@ it('rejects demo zip symlink entries', function (): void {
 });
 
 it('creates a page with parent relation and media disabled', function (): void {
-    File::spy();
     $demoCreator = new DemoCreator;
 
     $language = Language::factory()->default()->create();
@@ -316,8 +315,6 @@ it('creates a page with parent relation and media disabled', function (): void {
 });
 
 it('uses standalone contact and footer layouts for demo pages', function (): void {
-    File::spy();
-
     Blueprint::factory()->create([
         'key' => BlockTypeEnum::Default->value,
         'type' => LayoutTypeEnum::Widget->value,
@@ -346,7 +343,6 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
 });
 
 it('skips contact form integration when form builder is not installed', function (): void {
-    File::spy();
     CapellCore::forcePackageInstalled('capell-app/form-builder', false);
 
     $demoCreator = new DemoCreator;

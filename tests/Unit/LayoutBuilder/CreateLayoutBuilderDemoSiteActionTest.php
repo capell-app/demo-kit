@@ -74,18 +74,18 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
         'containers' => [
             'secondary' => [
                 'meta' => ['colspan' => 4],
-                'blocks' => [['block_key' => 'existing-secondary']],
+                'widgets' => [['widget_key' => 'existing-secondary']],
             ],
             'hero' => [
                 'meta' => ['colspan' => 12],
-                'blocks' => [['block_key' => 'hero']],
+                'widgets' => [['widget_key' => 'hero']],
             ],
             'loose' => [
                 'meta' => ['colspan' => 12],
-                'blocks' => 'not-a-block-list',
+                'widgets' => 'not-a-widget-list',
             ],
         ],
-        'blocks' => ['existing-secondary'],
+        'widgets' => ['existing-secondary'],
     ])->save();
 
     $homeType = Blueprint::query()->pageType()->where('key', 'home')->firstOrFail();
@@ -109,15 +109,15 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
     expect($created)->toBeTrue()
         ->and($homePage->refresh()->layout_id)->toBe($layout->getKey())
         ->and(array_keys($layout->containers))->toBe(['hero', 'ap-blocks', 'final-cta', 'loose'])
-        ->and($layout->containers['hero']['meta']['container'])->toBe(ContainerWidthEnum::Full)
+        ->and($layout->containers['hero']['meta']['container'])->toBe(ContainerWidthEnum::Full->value)
         ->and($layout->containers['hero']['widgets'])->toBe([
             ['widget_key' => 'capell-home-hero-command-center'],
         ])
-        ->and($layout->containers['final-cta']['meta']['container'])->toBe(ContainerWidthEnum::Full)
+        ->and($layout->containers['final-cta']['meta']['container'])->toBe(ContainerWidthEnum::Full->value)
         ->and($layout->containers['final-cta']['widgets'])->toBe([
             ['widget_key' => 'capell-home-final-cta'],
         ])
-        ->and($layout->blocks)->toBe([
+        ->and($layout->widgets)->toBe([
             'capell-home-hero-command-center',
             'capell-home-proof-strip',
             'capell-home-demo-showcase',
@@ -127,7 +127,7 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
             'capell-home-route-split',
             'capell-home-final-cta',
         ])
-        ->and(Widget::query()->whereIn('key', $layout->blocks)->count())->toBe(8)
+        ->and(Widget::query()->whereIn('key', $layout->widgets)->count())->toBe(8)
         ->and($childContent->parent_id)->toBe($rootContent->getKey());
 });
 

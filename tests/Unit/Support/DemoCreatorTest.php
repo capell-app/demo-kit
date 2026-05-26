@@ -61,7 +61,7 @@ it('creates homepage demo snippets as layout builder blocks', function (): void 
     $block = resolve(DemoCreator::class)->createHomepageHeroCommandCenterBlock();
 
     expect($block)->toBeInstanceOf(Widget::class)
-        ->and($block->getTable())->toBe('blocks')
+        ->and($block->getTable())->toBe('widgets')
         ->and($block->key)->toBe('capell-home-hero-command-center')
         ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
         ->and($block->getMeta('container'))->toBe(ContainerWidthEnum::Default->value)
@@ -100,7 +100,7 @@ it('uses a blade-backed demo page content block for designed demo pages', functi
 
     $page->refresh();
 
-    expect($page->layout?->blocks)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
+    expect($page->layout?->widgets)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
         ->and(Widget::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.block.demo-page-content')
         ->and(Widget::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
         ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero')
@@ -123,8 +123,8 @@ it('canonicalizes the old architecture demo page into the platform architecture 
 
     expect($page->name)->toBe('Platform Architecture')
         ->and($page->layout?->key)->toBe('capell-demo-platform-architecture')
-        ->and($page->layout?->blocks)->toContain('demo-page-hero')
-        ->and($page->layout?->blocks)->toContain('demo-page-content')
+        ->and($page->layout?->widgets)->toContain('demo-page-hero')
+        ->and($page->layout?->widgets)->toContain('demo-page-content')
         ->and($page->translation?->title)->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('label'))->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('slug'))->toBe('platform-architecture')
@@ -148,8 +148,8 @@ it('keeps demo pages without heroes on content-only layouts', function (): void 
     $page->refresh()->loadMissing(['layout', 'translation']);
 
     expect($page->layout?->key)->toBe('capell-demo-pricing-no-hero')
-        ->and($page->layout?->blocks)->not->toContain('hero')
-        ->and($page->layout?->blocks)->toContain('demo-page-content')
+        ->and($page->layout?->widgets)->not->toContain('hero')
+        ->and($page->layout?->widgets)->toContain('demo-page-content')
         ->and($page->translation?->getMeta('hero'))->toBeNull()
         ->and($page->translation?->getMeta('hero_title'))->toBe('Pricing');
 });

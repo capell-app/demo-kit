@@ -1330,9 +1330,11 @@ abstract class BaseDemoCreator
                 if (! $language instanceof Language) {
                     continue;
                 }
+
                 if ($content->translations->contains('language_id', $language->id)) {
                     continue;
                 }
+
                 $translations[] = [
                     'language_id' => $language->id,
                     'title' => $testimonial['name'],
@@ -1467,9 +1469,11 @@ abstract class BaseDemoCreator
                 if (! $language instanceof Language) {
                     continue;
                 }
+
                 if ($content->translations->contains('language_id', $language->id)) {
                     continue;
                 }
+
                 $translations[] = [
                     'language_id' => $language->id,
                     'title' => $member['name'],

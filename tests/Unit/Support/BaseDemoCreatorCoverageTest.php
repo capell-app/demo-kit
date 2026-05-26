@@ -42,13 +42,13 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
     $unknown = $creator->layoutFor('Unknown Page');
 
     expect($about?->key)->toBe('capell-demo-about')
-        ->and($about?->blocks)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
+        ->and($about?->widgets)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
         ->and($faq?->key)->toBe('capell-demo-faq-no-hero')
-        ->and($faq?->blocks)->toBe(['breadcrumbs', 'demo-page-content'])
+        ->and($faq?->widgets)->toBe(['breadcrumbs', 'demo-page-content'])
         ->and($footer?->key)->toBe('footer-standard')
-        ->and($footer?->blocks)->toBe(['breadcrumbs', 'demo-page-content'])
+        ->and($footer?->widgets)->toBe(['breadcrumbs', 'demo-page-content'])
         ->and($contact?->key)->toBe('contact-standalone')
-        ->and($contact?->blocks)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form'])
+        ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form'])
         ->and($unknown)->toBeNull()
         ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
 });
