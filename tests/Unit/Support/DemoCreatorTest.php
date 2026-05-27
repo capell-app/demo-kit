@@ -134,7 +134,27 @@ it('canonicalizes the old architecture demo page into the platform architecture 
         ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero');
 });
 
-it('keeps demo pages without heroes on content-only layouts', function (): void {
+it('keeps support pages without heroes on content-only layouts', function (): void {
+    resolve(TypeCreator::class)->createBlockTypes();
+
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+
+    $page = resolve(DemoCreator::class)->createPage([
+        'name' => ['en' => 'FAQ'],
+        'title' => ['en' => 'FAQ'],
+    ], $site, createMedia: false);
+
+    $page->refresh()->loadMissing(['layout', 'translation']);
+
+    expect($page->layout?->key)->toBe('capell-demo-faq-no-hero')
+        ->and($page->layout?->widgets)->not->toContain('hero')
+        ->and($page->layout?->widgets)->toContain('demo-page-content')
+        ->and($page->translation?->getMeta('hero'))->toBeNull()
+        ->and($page->translation?->getMeta('hero_title'))->toBe('Faq');
+});
+
+it('uses a custom hero image layout for pricing', function (): void {
     resolve(TypeCreator::class)->createBlockTypes();
 
     $language = Language::factory()->default()->create();
@@ -143,15 +163,16 @@ it('keeps demo pages without heroes on content-only layouts', function (): void 
     $page = resolve(DemoCreator::class)->createPage([
         'name' => ['en' => 'Pricing'],
         'title' => ['en' => 'Pricing'],
-    ], $site, createMedia: false);
+    ], $site);
 
-    $page->refresh()->loadMissing(['layout', 'translation']);
+    $page->refresh()->loadMissing(['layout', 'media', 'translation']);
 
-    expect($page->layout?->key)->toBe('capell-demo-pricing-no-hero')
-        ->and($page->layout?->widgets)->not->toContain('hero')
-        ->and($page->layout?->widgets)->toContain('demo-page-content')
-        ->and($page->translation?->getMeta('hero'))->toBeNull()
-        ->and($page->translation?->getMeta('hero_title'))->toBe('Pricing');
+    expect($page->layout?->key)->toBe('capell-demo-pricing')
+        ->and($page->layout?->widgets)->toContain('demo-page-hero')
+        ->and($page->meta)->toMatchArray(['show_hero' => true, 'hero_style' => 'compact'])
+        ->and($page->translation?->getMeta('hero'))->toBeString()
+        ->and($page->media)->toHaveCount(1)
+        ->and($page->media->first()?->file_name)->toBe('pricing.jpg');
 });
 
 it('seeds distinct page scoped assets for reusable demo page content block', function (): void {

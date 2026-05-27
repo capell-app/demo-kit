@@ -45,10 +45,12 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and($about?->widgets)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
         ->and($faq?->key)->toBe('capell-demo-faq-no-hero')
         ->and($faq?->widgets)->toBe(['breadcrumbs', 'demo-page-content'])
+        ->and($creator->layoutFor('Pricing')?->key)->toBe('capell-demo-pricing')
+        ->and($creator->layoutFor('Pricing')?->widgets)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
         ->and($footer?->key)->toBe('footer-standard')
         ->and($footer?->widgets)->toBe(['breadcrumbs', 'demo-page-content'])
         ->and($contact?->key)->toBe('contact-standalone')
-        ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form'])
+        ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form', 'page-bottom-banner'])
         ->and($unknown)->toBeNull()
         ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
 });
@@ -87,10 +89,12 @@ it('normalizes demo page metadata content summaries and hero snippets', function
 
     expect($creator->metaFor('Homepage 2'))
         ->toMatchArray(['show_hero' => true, 'hero_style' => 'immersive', 'header_over_hero' => true])
+        ->and($creator->metaFor('Pricing'))->toMatchArray(['show_hero' => true, 'hero_style' => 'compact'])
         ->and($creator->metaFor('Implementation'))->toMatchArray(['show_hero' => false, 'hero_style' => 'default'])
         ->and($creator->contentFor('Services', 'en'))->toContain('Implementation services cover content modelling')
         ->and($creator->contentFor('Services', 'fr'))->toBeNull()
         ->and($creator->heroFor('FAQ', '<p>Question. Answer.</p>'))->toBeNull()
+        ->and($creator->heroFor('Pricing', '<p>Choose a plan. Start building.</p>'))->toBe('<p>Choose a plan.</p>')
         ->and($creator->heroFor('Services', '<p>First sentence. Second sentence.</p>'))->toBe('<p>First sentence.</p>')
         ->and($creator->summaryFor('Compliance'))->toContain('Regional compliance')
         ->and($creator->summaryFor('Services'))->toBeNull()

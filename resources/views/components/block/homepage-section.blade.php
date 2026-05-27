@@ -25,13 +25,50 @@
     :index="$loop->index"
     :$block
     @class([
-        'capell-block-homepage-section relative overflow-hidden text-[#1a1c1b]',
+        'capell-block-homepage-section relative overflow-hidden text-[#1a1c1b] dark:text-slate-100',
         'bg-[#faf9f7]' => $block->key !== 'capell-home-final-cta',
         'bg-transparent' => $block->key === 'capell-home-final-cta',
     ])
 >
     @once
         <style>
+            .dark .capell-block-homepage-section.bg-\[\#faf9f7\] {
+                background-color: rgb(2 6 23);
+            }
+
+            .dark
+                .capell-block-homepage-section
+                :where(article, div, a, button)[class*='bg-white'],
+            .dark
+                .capell-block-homepage-section
+                :where(article, div, a, button)[class*='bg-slate-50'] {
+                background-color: rgb(15 23 42 / 0.84);
+            }
+
+            .dark
+                .capell-block-homepage-section
+                :where(article, div, a, button)[class*='border-slate'],
+            .dark
+                .capell-block-homepage-section
+                :where(article, div, a, button)[class*='border-[#'] {
+                border-color: rgb(255 255 255 / 0.12);
+            }
+
+            .dark
+                .capell-block-homepage-section
+                :where(h2, h3, p, span, a, button)[class*='text-slate-950'],
+            .dark
+                .capell-block-homepage-section
+                :where(h2, h3, p, span, a, button)[class*='text-[#1a1c1b]'] {
+                color: rgb(248 250 252);
+            }
+
+            .dark
+                .capell-block-homepage-section
+                :where(p, span)[class*='text-slate-600'] {
+                color: rgb(203 213 225);
+            }
+
             .capell-home-hero-grid {
                 display: grid;
                 gap: 2.5rem;

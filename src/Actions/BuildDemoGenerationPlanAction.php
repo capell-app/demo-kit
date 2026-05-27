@@ -251,12 +251,6 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('Pricing'),
                 mediaCount: 0,
-                children: [
-                    new DemoPagePlanData(
-                        name: $this->translatedName('Implementation'),
-                        mediaCount: 0,
-                    ),
-                ],
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Resources'),

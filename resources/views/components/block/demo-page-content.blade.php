@@ -36,16 +36,16 @@
 
     $eyebrowClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
     $headingClass = 'max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
-    $introClass = 'max-w-3xl text-base leading-8 text-pretty text-slate-600 md:text-lg';
-    $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16';
+    $introClass = 'max-w-3xl text-base leading-8 text-pretty text-slate-600 md:text-lg dark:text-slate-300';
+    $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16 dark:border-white/10';
     $splitSectionClass = $sectionClass . ' lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:items-start';
     $carouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
     $compactCarouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
     $carouselItemClass = 'min-w-full snap-start md:min-w-0';
-    $cardClass = 'grid min-h-44 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)] md:p-6';
+    $cardClass = 'grid min-h-44 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)] md:p-6 dark:border-white/10 dark:bg-slate-900/80 dark:hover:border-teal-300/40';
     $labelClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
-    $cardTitleClass = 'text-xl leading-tight font-extrabold tracking-normal text-slate-950';
-    $cardCopyClass = 'text-base leading-7 text-pretty text-slate-600';
+    $cardTitleClass = 'text-xl leading-tight font-extrabold tracking-normal text-slate-950 dark:text-white';
+    $cardCopyClass = 'text-base leading-7 text-pretty text-slate-600 dark:text-slate-300';
     $showcaseContent = [
         'About Us' => [
             'eyebrow' => 'Platform experience',
@@ -155,9 +155,85 @@
     :$containerWidth
     :index="$loop->index"
     :$block
-    class="capell-block-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility]"
+    class="capell-block-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility] dark:bg-slate-950 dark:text-slate-100"
     tag="section"
 >
+    @once
+        <style>
+            .dark
+                .capell-demo-page-content
+                :where(article, aside, div, form, a)[class*='bg-white'],
+            .dark
+                .capell-demo-page-content
+                :where(article, aside, div, form, a)[class*='bg-slate-50'] {
+                background-color: rgb(15 23 42 / 0.82);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(input, textarea)[class*='bg-white'] {
+                background-color: rgb(2 6 23 / 0.9);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(
+                    article,
+                    aside,
+                    div,
+                    form,
+                    a,
+                    input,
+                    textarea
+                )[class*='border-slate'] {
+                border-color: rgb(255 255 255 / 0.12);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(
+                    h2,
+                    h3,
+                    h4,
+                    p,
+                    span,
+                    dt,
+                    dd,
+                    label,
+                    summary,
+                    input,
+                    textarea
+                )[class*='text-slate-950'],
+            .dark
+                .capell-demo-page-content
+                :where(
+                    h2,
+                    h3,
+                    h4,
+                    p,
+                    span,
+                    dt,
+                    dd,
+                    label,
+                    summary
+                )[class*='text-[#131b2e]'] {
+                color: rgb(248 250 252);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(p, span, dd)[class*='text-slate-600'],
+            .dark
+                .capell-demo-page-content
+                :where(p, span, dd)[class*='text-slate-700'],
+            .dark
+                .capell-demo-page-content
+                :where(label)[class*='text-slate-800'] {
+                color: rgb(203 213 225);
+            }
+        </style>
+    @endonce
+
     @if ($content && ! $isContactPage)
         <div class="mx-auto max-w-4xl px-[6%] py-8 xl:px-0">
             <x-capell::content
@@ -587,19 +663,22 @@
             </section>
         @elseif ($pageName === 'Pricing')
             <section class="capell-demo-pricing-matrix {{ $sectionClass }}">
-                <div class="grid gap-5 lg:max-w-3xl">
-                    <p class="{{ $eyebrowClass }}">Pricing matrix</p>
+                <div class="grid gap-5 lg:max-w-4xl">
+                    <p class="{{ $eyebrowClass }}">Pricing control room</p>
                     <h2 class="{{ $headingClass }}">
-                        Simple pricing for Capell CMS delivery
+                        Pricing that separates access, support, and delivery
+                        risk
                     </h2>
                     <p class="{{ $introClass }}">
-                        Compare the commercial model without making the homepage
-                        carry the full pricing table.
+                        Compare the commercial model with the same discipline as
+                        a CMS rollout: product access first, operational support
+                        second, scoped implementation work only when the risk is
+                        visible.
                     </p>
                 </div>
 
                 <div class="capell-demo-pricing-grid {{ $carouselClass }}">
-                    @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production delivery with commercial support and implementation confidence.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
+                    @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production teams that need support, package confidence, and release guidance.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, migrations, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
                         <article
                             @class([
                                 $carouselItemClass,
@@ -628,19 +707,20 @@
                     @endforeach
                 </div>
 
-                <section
-                    class="max-w-5xl rounded-lg bg-slate-950 p-6 shadow-[0_18px_60px_rgb(15_23_42_/_0.18)] md:p-8"
-                >
-                    <h3 class="text-2xl font-black tracking-normal text-white">
-                        Common pricing questions
-                    </h3>
-                    <p
-                        class="mt-3 max-w-3xl text-base leading-8 text-pretty text-slate-200"
-                    >
-                        Support level, response time, migration help, and
-                        implementation depth are separated so teams can pick the
-                        right path.
-                    </p>
+                <section class="grid gap-4 md:grid-cols-3">
+                    @foreach ([['Support', 'Response model', 'Choose support separately from implementation scope so operating costs stay predictable.'], ['Migration', 'Import confidence', 'Add migration help only when source data, redirects, and verification need proof.'], ['Delivery', 'Scoped change', 'Commercial changes are priced before implementation work starts.']] as [$label, $title, $copy])
+                        <article
+                            class="rounded-lg border border-slate-200 bg-slate-50 p-5 md:p-6"
+                        >
+                            <p class="{{ $labelClass }}">{{ $label }}</p>
+                            <h3 class="{{ $cardTitleClass }} mt-3">
+                                {{ $title }}
+                            </h3>
+                            <p class="{{ $cardCopyClass }} mt-3">
+                                {{ $copy }}
+                            </p>
+                        </article>
+                    @endforeach
                 </section>
             </section>
         @elseif ($pageName === 'Implementation')

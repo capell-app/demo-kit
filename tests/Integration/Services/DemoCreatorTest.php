@@ -338,8 +338,41 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ->and($integrationsPage->layout?->key)->toBe('footer-standard')
         ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
         ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
+        ->and($contactPage->layout?->containers['bottom-banner']['widgets'])->toBe([
+            ['widget_key' => 'page-bottom-banner'],
+        ])
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->where('component', 'capell.block.default')->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->value('meta'))->toMatchArray([
+            'container' => 'full',
+            'margin' => ['t-xl'],
+            'padding' => ['lg'],
+            'background_color' => '#123c69',
+        ])
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
         ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
+});
+
+it('adds the reusable bottom banner to the demo article layout', function (): void {
+    Blueprint::factory()->create([
+        'key' => BlockTypeEnum::Default->value,
+        'type' => LayoutTypeEnum::Widget->value,
+    ]);
+
+    $demoCreator = new DemoCreator;
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $demoCreator->setupSite($site);
+
+    $articlePage = $demoCreator->createPage([
+        'name' => ['en' => 'Home, Buildings and Architecture'],
+        'title' => ['en' => 'Home, Buildings and Architecture'],
+    ], $site, createMedia: false);
+
+    expect($articlePage->layout?->key)->toBe('capell-demo-platform-architecture')
+        ->and($articlePage->layout?->containers['bottom-banner']['widgets'])->toBe([
+            ['widget_key' => 'page-bottom-banner'],
+        ])
+        ->and($articlePage->layout?->widgets)->toContain('page-bottom-banner');
 });
 
 it('skips contact form integration when form builder is not installed', function (): void {

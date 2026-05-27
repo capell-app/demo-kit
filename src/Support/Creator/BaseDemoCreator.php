@@ -17,6 +17,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\LayoutBuilder\Actions\CreateHeroBlockAction;
+use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
@@ -501,9 +502,9 @@ abstract class BaseDemoCreator
             'Pricing' => [
                 'variant' => 'pricing-matrix',
                 'layout' => 'pricing-matrix',
-                'eyebrow' => 'Pricing matrix',
-                'title' => 'Simple pricing for Capell CMS delivery',
-                'intro' => 'A commercial comparison surface with plan cards, scope notes, and implementation guardrails.',
+                'eyebrow' => 'Pricing control room',
+                'title' => 'Pricing that separates access, support, and delivery risk',
+                'intro' => 'A commercial decision surface with plan cards, support notes, implementation guardrails, and a custom hero image for the route.',
                 'items' => [
                     ['label' => 'Developer', 'title' => 'GBP 0', 'copy' => 'For evaluation, prototypes, and local proof-of-concept work.'],
                     ['label' => 'Agency', 'title' => 'GBP 99', 'copy' => 'For production delivery with commercial support and implementation confidence.'],
@@ -668,6 +669,7 @@ abstract class BaseDemoCreator
     {
         $name = $this->canonicalDemoPageName($name);
         $demoPageContentBlock = $this->ensureDemoPageContentBlock();
+        $pageBottomBannerBlock = $this->ensurePageBottomBannerBlock();
 
         $templateLayouts = [
             'About Us' => ['capell-demo-about', 'Capell Demo About', true],
@@ -675,7 +677,7 @@ abstract class BaseDemoCreator
             'Services' => ['capell-demo-services', 'Capell Demo Services', true],
             'Team' => ['capell-demo-team', 'Capell Demo Team', true],
             'FAQ' => ['capell-demo-faq-no-hero', 'Capell Demo FAQ Without Hero', true],
-            'Pricing' => ['capell-demo-pricing-no-hero', 'Capell Demo Pricing Without Hero', true],
+            'Pricing' => ['capell-demo-pricing', 'Capell Demo Pricing', true],
             'Implementation' => ['capell-demo-implementation-pricing', 'Capell Demo Implementation Pricing', true],
             'Testimonials' => ['capell-demo-testimonials', 'Capell Demo Testimonials', true],
             'Projects' => ['capell-demo-projects', 'Capell Demo Projects', true],
@@ -695,7 +697,7 @@ abstract class BaseDemoCreator
                 $key,
                 $layoutName,
                 $withBreadcrumbs,
-                ! in_array($name, ['FAQ', 'Pricing', 'Project Detail'], true),
+                ! in_array($name, ['FAQ', 'Project Detail'], true),
             );
         }
 
@@ -765,8 +767,18 @@ abstract class BaseDemoCreator
                         ],
                     ],
                 ],
+                'bottom-banner' => [
+                    'meta' => [
+                        'colspan' => 12,
+                        'spacing' => 'none',
+                        'container' => 'full',
+                    ],
+                    'widgets' => [
+                        ['widget_key' => $pageBottomBannerBlock->key],
+                    ],
+                ],
             ],
-            'widgets' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form'],
+            'widgets' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form', $pageBottomBannerBlock->key],
             'meta' => [
                 'description' => 'A standalone contact layout without child or latest-page rails.',
             ],
@@ -783,7 +795,9 @@ abstract class BaseDemoCreator
     protected function demoPageLayout(string $key, string $name, bool $withBreadcrumbs, bool $withHero): Layout
     {
         $demoPageContentBlock = $this->ensureDemoPageContentBlock();
+        $pageBottomBannerBlock = $this->ensurePageBottomBannerBlock();
         $heroBlock = $withHero ? CreateHeroBlockAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
+        $shouldShowBottomBanner = in_array($key, ['capell-demo-single-post', 'capell-demo-platform-architecture'], true);
 
         $blocks = $withBreadcrumbs
             ? [
@@ -817,9 +831,22 @@ abstract class BaseDemoCreator
                     ],
                     'widgets' => $blocks,
                 ],
+                ...($shouldShowBottomBanner ? [
+                    'bottom-banner' => [
+                        'meta' => [
+                            'colspan' => 12,
+                            'spacing' => 'none',
+                            'container' => 'full',
+                        ],
+                        'widgets' => [
+                            ['widget_key' => $pageBottomBannerBlock->key],
+                        ],
+                    ],
+                ] : []),
             ],
             'widgets' => collect($blocks)
                 ->pluck('widget_key')
+                ->when($shouldShowBottomBanner, fn ($widgets) => $widgets->push($pageBottomBannerBlock->key))
                 ->values()
                 ->all(),
             'meta' => [
@@ -970,6 +997,51 @@ abstract class BaseDemoCreator
         return $block;
     }
 
+    protected function ensurePageBottomBannerBlock(): Widget
+    {
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', BlockTypeEnum::Default);
+
+        $blockType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Widget->value)
+            ->firstWhere('key', BlockTypeEnum::Default->value);
+
+        throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
+
+        $attributes = [
+            'name' => 'Page bottom banner',
+            'blueprint_id' => $blockType->id,
+            'component' => BlockComponentEnum::Default->value,
+            'view_file' => null,
+            'meta' => [
+                'component' => BlockComponentEnum::Default->value,
+                'container' => 'full',
+                'margin' => ['t-xl'],
+                'padding' => ['lg'],
+                'background_color' => '#123c69',
+                'align' => 'center',
+                'title' => 'Reusable layouts keep the next step consistent',
+                'copy' => 'This shared banner can sit below contact pages, articles, or any long-form route that needs a clean break before the footer.',
+            ],
+            'status' => true,
+        ];
+
+        $block = Widget::query()->firstOrCreate(['key' => 'page-bottom-banner'], $attributes);
+        $block->forceFill($attributes)->save();
+
+        foreach (Site::getDefault()->languages ?? [] as $language) {
+            $block->translations()->updateOrCreate(
+                ['language_id' => $language->id],
+                [
+                    'title' => $attributes['meta']['title'],
+                    'content' => '<p>' . e($attributes['meta']['copy']) . '</p>',
+                ],
+            );
+        }
+
+        return $block;
+    }
+
     /**
      * @return array<array-key, mixed>
      */
@@ -980,7 +1052,6 @@ abstract class BaseDemoCreator
         $withoutHero = in_array($name, [
             'Contact',
             'FAQ',
-            'Pricing',
             'Implementation',
             'Project Detail',
             'Home, Buildings and Architecture',
@@ -992,7 +1063,7 @@ abstract class BaseDemoCreator
             'show_hero' => ! $withoutHero,
             'hero_style' => match ($name) {
                 'Homepage 2' => 'immersive',
-                'About Us', 'Services', 'Team', 'Testimonials', 'Projects', 'Blog', 'Resources' => 'compact',
+                'About Us', 'Services', 'Team', 'Testimonials', 'Projects', 'Blog', 'Resources', 'Pricing' => 'compact',
                 default => 'default',
             },
             'hero_asset_source' => 'mixed',
@@ -1017,7 +1088,6 @@ abstract class BaseDemoCreator
 
         if (in_array($name, [
             'FAQ',
-            'Pricing',
             'Implementation',
             'Project Detail',
             'Home, Buildings and Architecture',
@@ -1079,8 +1149,8 @@ abstract class BaseDemoCreator
                 'It proves Capell can render saved page copy, accordion content, and support guidance in a calmer page template.',
             ],
             'Pricing' => [
-                'Choose the access and support model that fits your team.',
-                'Plan cards, support notes, and implementation scoping stay on this route so the homepage can remain compact and focused.',
+                'Choose the Capell access and support model that fits your team without hiding implementation risk inside a generic monthly plan.',
+                'Plan cards, support notes, migration confidence, and delivery guardrails stay on this route so the homepage can remain compact and focused.',
             ],
             'Testimonials' => [
                 'Customer proof should connect outcomes to the delivery model behind them.',
