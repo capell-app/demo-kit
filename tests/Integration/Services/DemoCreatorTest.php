@@ -425,6 +425,37 @@ it('falls back to a random demo image when the requested media file does not exi
     Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
 });
 
+it('stores image dimensions without loading images through gd', function (): void {
+    useTinyDemoResources();
+    Queue::fake();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $page = $demoCreator->createPage([
+        'name' => ['en' => 'Image Dimensions'],
+        'title' => ['en' => 'Image Dimensions'],
+    ], $site, $site->languages, null, null, null, false);
+
+    assert($page instanceof Page);
+
+    $demoCreator->createMedia($page, 'home');
+
+    $media = $page->refresh()->getFirstMedia(MediaCollectionEnum::Image->value);
+    assert($media !== null);
+
+    expect($media->custom_properties)
+        ->toMatchArray([
+            'width' => 32,
+            'height' => 32,
+        ]);
+});
+
 it('does not create duplicate media when a previously-loaded target collection already has media', function (): void {
     useTinyDemoResources();
     Queue::fake();

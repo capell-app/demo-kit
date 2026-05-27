@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Console\Commands;
 
+use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Console\Commands\Concerns\HasPackageSelection;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Data\PackageData;
@@ -155,7 +156,7 @@ class DemoCommand extends Command
                 $params['--sites'] = $sites;
             }
 
-            $this->call($package->getDemoCommand(), $params);
+            DemoPackageAction::run($package, $params);
 
             $this->comment('Successfully setup demo: ' . $package->name);
             $this->newLine();

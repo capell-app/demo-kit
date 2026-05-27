@@ -37,13 +37,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use RuntimeException;
-use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 use SplFileInfo;
-use Throwable;
 use ZipArchive;
 
 abstract class BaseDemoCreator
@@ -174,32 +172,21 @@ abstract class BaseDemoCreator
             $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, $ext);
         }
 
-        $image = null;
-        if ($type !== 'video') {
-            try {
-                $image = Image::load($demo_file);
-            } catch (Throwable) {
-                $image = null;
-            }
-        }
-
-        $customProps = [
-            ...(
-                $image instanceof Image
-                ? ['width' => $image->getWidth(), 'height' => $image->getHeight()]
-                : []
-            ),
-        ];
+        $customProps = $type === 'video' ? [] : $this->imageDimensions($demo_file);
 
         if (! File::exists($demo_file)) {
             return;
         }
+
+        gc_collect_cycles();
 
         try {
             $model->addMedia($demo_file)
                 ->preservingOriginal()
                 ->withCustomProperties($customProps)
                 ->toMediaCollection($this->mediaCollectionName($collection));
+
+            gc_collect_cycles();
         } catch (ModelNotFoundException $exception) {
             if ($exception->getModel() === Media::class) {
                 return;
@@ -939,6 +926,8 @@ abstract class BaseDemoCreator
             ->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', BlockTypeEnum::Default->value);
 
+        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
+
         if (! $blockType instanceof Blueprint) {
             return;
         }
@@ -967,6 +956,8 @@ abstract class BaseDemoCreator
         $blockType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', BlockTypeEnum::Default->value);
+
+        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
 
         throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
 
@@ -1005,6 +996,8 @@ abstract class BaseDemoCreator
         $blockType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', BlockTypeEnum::Default->value);
+
+        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
 
         throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
 
@@ -1605,16 +1598,6 @@ abstract class BaseDemoCreator
 
         throw_unless(File::exists($demoFile), Exception::class, 'Unable to find demo media file: ' . $demoFile);
 
-        // Attach primary media
-        $image = null;
-        if (! $isVideo) {
-            try {
-                $image = Image::load($demoFile);
-            } catch (Throwable) {
-                $image = null;
-            }
-        }
-
         // Create content and link via WidgetAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
@@ -1626,12 +1609,14 @@ abstract class BaseDemoCreator
             'asset_type' => resolve($this->contentModel)->getMorphClass(),
         ]);
 
+        gc_collect_cycles();
+
         $media = $content->addMedia($demoFile)
             ->preservingOriginal()
-            ->withCustomProperties([
-                ...($image instanceof Image ? ['width' => $image->getWidth(), 'height' => $image->getHeight()] : []),
-            ])
+            ->withCustomProperties($isVideo ? [] : $this->imageDimensions($demoFile))
             ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
+
+        gc_collect_cycles();
 
         // For videos, also attach a jpg poster image
         if (! $isVideo) {
@@ -1646,23 +1631,31 @@ abstract class BaseDemoCreator
             return $this->ensureCapellMedia($media);
         }
 
-        try {
-            $posterImage = Image::load($posterFile);
-        } catch (Throwable) {
-            $posterImage = null;
-        }
-
         $posterMedia = $content->addMedia($posterFile)
             ->preservingOriginal()
-            ->withCustomProperties([
-                ...($posterImage instanceof Image ? [
-                    'width' => $posterImage->getWidth(),
-                    'height' => $posterImage->getHeight(),
-                ] : []),
-            ])
+            ->withCustomProperties($this->imageDimensions($posterFile))
             ->toMediaCollection(MediaCollectionEnum::Image->value);
 
+        gc_collect_cycles();
+
         return $this->ensureCapellMedia($posterMedia);
+    }
+
+    /**
+     * @return array{width: int, height: int}|array{}
+     */
+    protected function imageDimensions(string $path): array
+    {
+        $dimensions = @getimagesize($path);
+
+        if (! is_array($dimensions) || ! isset($dimensions[0], $dimensions[1])) {
+            return [];
+        }
+
+        return [
+            'width' => (int) $dimensions[0],
+            'height' => (int) $dimensions[1],
+        ];
     }
 
     protected function ensureCapellMedia(SpatieMedia $media): Media

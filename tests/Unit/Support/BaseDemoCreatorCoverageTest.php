@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -9,6 +10,8 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -53,6 +56,30 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form', 'page-bottom-banner'])
         ->and($unknown)->toBeNull()
         ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
+});
+
+it('creates missing default block types while building demo page layouts', function (): void {
+    Blueprint::query()
+        ->where('type', LayoutTypeEnum::Widget->value)
+        ->where('key', BlockTypeEnum::Default->value)
+        ->forceDelete();
+
+    $creator = new class extends DemoCreator
+    {
+        public function layoutFor(string $name): ?Layout
+        {
+            return $this->layoutForDemoPage($name);
+        }
+    };
+
+    $layout = $creator->layoutFor('Contact');
+
+    expect($layout?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form', 'page-bottom-banner'])
+        ->and(Blueprint::query()
+            ->where('type', LayoutTypeEnum::Widget->value)
+            ->where('key', BlockTypeEnum::Default->value)
+            ->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->exists())->toBeTrue();
 });
 
 it('normalizes demo page metadata content summaries and hero snippets', function (): void {
