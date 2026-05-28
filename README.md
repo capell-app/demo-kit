@@ -71,6 +71,7 @@ This package makes its Composer dependencies visible because they are part of th
 - `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
 - `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
 - `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for block, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation

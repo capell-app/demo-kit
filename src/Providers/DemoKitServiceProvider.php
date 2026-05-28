@@ -16,6 +16,7 @@ use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
+use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Capell\DemoKit\Livewire\ResourcesLibrary;
@@ -44,6 +45,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 FullDemoCommand::class,
                 DemoKitDoctorCommand::class,
                 RefreshDemoStitchPagesCommand::class,
+                KitchenSinkDemoCommand::class,
             ]);
     }
 
