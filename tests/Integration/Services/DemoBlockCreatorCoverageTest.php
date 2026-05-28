@@ -230,6 +230,18 @@ it('creates the remaining standard section-backed demo blocks idempotently', fun
         ->and(DemoAsset::query()->where('name', 'Team Members')->exists())->toBeTrue();
 });
 
+it('creates faq blocks for languages without explicit demo questions', function (): void {
+    $language = Language::factory()->default()->create(['code' => 'nl']);
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+
+    $creator = new DemoCreator;
+
+    $faq = $creator->createFaqBlock($site->languages);
+
+    expect($faq->assets()->count())->toBe(6)
+        ->and(DemoAsset::query()->where('name', 'How was this website created?')->exists())->toBeTrue();
+});
+
 function bindDemoBlockCreatorTinyResources(): void
 {
     $demoDirectory = sys_get_temp_dir() . '/capell-demo-block-creator-resources-' . uniqid();

@@ -167,7 +167,8 @@ class DemoCreator extends ApDemoBlockCreator
         $languages ??= $site->languages;
         $pageCreator ??= new PageCreator;
 
-        $name = $this->canonicalDemoPageName(Str::title($data['name']['en']));
+        $names = is_array($data['name'] ?? null) ? $data['name'] : [];
+        $name = $this->canonicalDemoPageName(Str::title($this->preferredTranslatedValue($names, $languages)));
         $layout ??= $this->layoutForDemoPage($name);
 
         if ($name === 'Contact') {
@@ -300,5 +301,34 @@ class DemoCreator extends ApDemoBlockCreator
 
             $site->related()->attach($relatedSites)->save();
         });
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @param  Collection<int, Language>  $languages
+     */
+    private function preferredTranslatedValue(array $values, Collection $languages): string
+    {
+        foreach ($languages as $language) {
+            $value = $values[$language->code] ?? null;
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        $englishValue = $values['en'] ?? null;
+
+        if (is_string($englishValue) && $englishValue !== '') {
+            return $englishValue;
+        }
+
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        throw new InvalidArgumentException('Demo page data must include at least one translated name.');
     }
 }

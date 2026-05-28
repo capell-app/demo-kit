@@ -101,7 +101,6 @@ class CreateLayoutBuilderDemoSiteAction
 
         $layout->update([
             'containers' => $containers,
-            'widgets' => $this->layoutBlockKeys($containers),
         ]);
     }
 
@@ -156,29 +155,6 @@ class CreateLayoutBuilderDemoSiteAction
     }
 
     /**
-     * @param  array<array-key, mixed>  $containers
-     * @return list<string>
-     */
-    private function layoutBlockKeys(array $containers): array
-    {
-        return collect($containers)
-            ->flatMap(function (mixed $container): array {
-                if (! is_array($container)) {
-                    return [];
-                }
-
-                $blocks = $container['widgets'] ?? [];
-
-                return is_array($blocks) ? $blocks : [];
-            })
-            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['widget_key'] ?? null) : null)
-            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    /**
      * @param  EloquentCollection<int, Language>  $languages
      * @param  array<array-key, mixed>  $contentNode
      */
@@ -190,9 +166,10 @@ class CreateLayoutBuilderDemoSiteAction
         ?Model $parent = null,
     ): void {
         $languages ??= $site->languages;
+        $contentNames = is_array($contentNode['name'] ?? null) ? $contentNode['name'] : [];
 
         $contentData = [
-            'name' => $contentNode['name']['en'],
+            'name' => $this->preferredTranslatedValue($contentNames, $languages),
         ];
 
         if ($parent instanceof Model) {
@@ -201,7 +178,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         foreach ($languages as $language) {
             $code = $language->getAttribute('code');
-            $name = is_string($code) ? $contentNode['name'][$code] : null;
+            $name = is_string($code) ? ($contentNames[$code] ?? null) : null;
 
             if ($name === null) {
                 continue;
@@ -222,6 +199,35 @@ class CreateLayoutBuilderDemoSiteAction
         foreach ($contentNode['children'] as $childNode) {
             $this->createSiteContents($contentCreator, $childNode, $site, $languages, $content);
         }
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @param  EloquentCollection<int, Language>  $languages
+     */
+    private function preferredTranslatedValue(array $values, EloquentCollection $languages): string
+    {
+        foreach ($languages as $language) {
+            $value = $values[$language->code] ?? null;
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        $englishValue = $values['en'] ?? null;
+
+        if (is_string($englishValue) && $englishValue !== '') {
+            return $englishValue;
+        }
+
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        throw new Exception('Demo content data must include at least one translated name.');
     }
 
     /**

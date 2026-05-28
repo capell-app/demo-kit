@@ -465,9 +465,9 @@ abstract class BaseDemoCreator
             'Services' => [
                 'variant' => 'services-workbench',
                 'layout' => 'services-workbench',
-                'eyebrow' => 'Services atelier',
-                'title' => 'Implementation services for complex Capell rollouts',
-                'intro' => 'A delivery workbench for content modelling, migration paths, layout architecture, package boundaries, and launch verification.',
+                'eyebrow' => 'Implementation studio',
+                'title' => 'Services for Capell sites that cannot afford template drift',
+                'intro' => 'A sharper delivery workbench for content modelling, migration paths, layout architecture, package boundaries, launch verification, and editor handover.',
                 'items' => [
                     ['label' => 'Audit lane', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
                     ['label' => 'Build lane', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks editors can compose without breaking public output.'],
@@ -489,9 +489,9 @@ abstract class BaseDemoCreator
             'Pricing' => [
                 'variant' => 'pricing-matrix',
                 'layout' => 'pricing-matrix',
-                'eyebrow' => 'Pricing control room',
-                'title' => 'Pricing that separates access, support, and delivery risk',
-                'intro' => 'A commercial decision surface with plan cards, support notes, implementation guardrails, and a custom hero image for the route.',
+                'eyebrow' => 'Commercial model',
+                'title' => 'Pricing built around risk, support, and delivery clarity',
+                'intro' => 'An editorial pricing surface with plan cards, implementation guardrails, migration confidence, and support paths separated clearly.',
                 'items' => [
                     ['label' => 'Developer', 'title' => 'GBP 0', 'copy' => 'For evaluation, prototypes, and local proof-of-concept work.'],
                     ['label' => 'Agency', 'title' => 'GBP 99', 'copy' => 'For production delivery with commercial support and implementation confidence.'],
@@ -515,6 +515,9 @@ abstract class BaseDemoCreator
                     ['label' => 'Migration', 'title' => 'Designing imports editors can trust', 'copy' => 'Validate source rows, preserve redirects, and keep rejected records explainable.'],
                     ['label' => 'Publishing', 'title' => 'Approval workflows without admin leakage', 'copy' => 'Keep draft tooling private while public pages stay clean and cacheable.'],
                     ['label' => 'Theme systems', 'title' => 'Package-owned frontend rendering', 'copy' => 'Build reusable public surfaces without coupling them to Filament screens.'],
+                    ['label' => 'Architecture', 'title' => 'Layout containers that stack predictably', 'copy' => 'Use explicit regions, ordering, and responsive constraints so sidebars become clean mobile sections.'],
+                    ['label' => 'Publishing', 'title' => 'Preview discipline for content teams', 'copy' => 'Give editors confidence without letting preview URLs or authoring state leak into public output.'],
+                    ['label' => 'Migration', 'title' => 'Redirect evidence for legacy estates', 'copy' => 'Pair imported content with route checks, rejected row reports, and cache-safe publishing decisions.'],
                 ],
                 'cta' => ['label' => 'Plan a rollout', 'href' => '/contact'],
             ],
@@ -582,7 +585,7 @@ abstract class BaseDemoCreator
                 'variant' => 'faq-support',
                 'layout' => 'faq-support',
                 'eyebrow' => 'Support layout',
-                'title' => 'FAQ content without a hero dependency',
+                'title' => 'Frequently Asked Questions without a hero dependency',
                 'intro' => 'A calm support page with native disclosure sections and clear next-step guidance.',
                 'items' => [
                     ['label' => 'Question', 'title' => 'Can a page skip the hero entirely?', 'copy' => 'Yes. Pages can render directly into support, article, pricing, or project layouts.'],
@@ -705,7 +708,6 @@ abstract class BaseDemoCreator
                             ],
                         ],
                     ],
-                    'widgets' => ['breadcrumbs', $demoPageContentBlock->key],
                     'meta' => [
                         'description' => 'A full-width editorial layout for shared footer pages.',
                     ],
@@ -765,7 +767,6 @@ abstract class BaseDemoCreator
                     ],
                 ],
             ],
-            'widgets' => ['breadcrumbs', $demoPageContentBlock->key, 'contact-form', $pageBottomBannerBlock->key],
             'meta' => [
                 'description' => 'A standalone contact layout without child or latest-page rails.',
             ],
@@ -831,11 +832,6 @@ abstract class BaseDemoCreator
                     ],
                 ] : []),
             ],
-            'widgets' => collect($blocks)
-                ->pluck('widget_key')
-                ->when($shouldShowBottomBanner, fn ($widgets) => $widgets->push($pageBottomBannerBlock->key))
-                ->values()
-                ->all(),
             'meta' => [
                 'description' => 'A Capell demo page template rendered through reusable page-content layout blocks.',
             ],
@@ -1011,7 +1007,8 @@ abstract class BaseDemoCreator
                 'container' => 'full',
                 'margin' => ['t-xl'],
                 'padding' => ['lg'],
-                'background_color' => '#123c69',
+                'background_color' => 'dark-gray',
+                'color_scheme' => 'light',
                 'align' => 'center',
                 'title' => 'Reusable layouts keep the next step consistent',
                 'copy' => 'This shared banner can sit below contact pages, articles, or any long-form route that needs a clean break before the footer.',
@@ -1648,13 +1645,13 @@ abstract class BaseDemoCreator
     {
         $dimensions = @getimagesize($path);
 
-        if (! is_array($dimensions) || ! isset($dimensions[0], $dimensions[1])) {
+        if (! is_array($dimensions)) {
             return [];
         }
 
         return [
-            'width' => (int) $dimensions[0],
-            'height' => (int) $dimensions[1],
+            'width' => $dimensions[0],
+            'height' => $dimensions[1],
         ];
     }
 

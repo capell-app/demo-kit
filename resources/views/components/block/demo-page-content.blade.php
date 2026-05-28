@@ -48,33 +48,33 @@
     $cardCopyClass = 'text-base leading-7 text-pretty text-slate-600 dark:text-slate-300';
     $showcaseContent = [
         'About Us' => [
-            'eyebrow' => 'Platform experience',
-            'title' => 'Experienced in flexible content systems',
-            'intro' => 'Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.',
+            'eyebrow' => 'Operating model',
+            'title' => 'A CMS team built around durable public systems',
+            'intro' => 'Capell is shaped for Laravel teams who need editorial velocity without turning the public frontend into a collection of one-off templates.',
             'items' => [
-                ['label' => '01', 'title' => 'Model content', 'copy' => 'Store durable page stories as simple CMS content that can move between renderers.'],
-                ['label' => '02', 'title' => 'Render in Blade', 'copy' => 'Keep the designed public surface inside package-owned views.'],
-                ['label' => '03', 'title' => 'Verify output', 'copy' => 'Connect admin records to frontend rendering without exposing editor concerns.'],
+                ['label' => 'Architecture', 'title' => 'Model the durable parts', 'copy' => 'Pages, translations, media, route intent, and page relationships stay portable.'],
+                ['label' => 'Rendering', 'title' => 'Design the public surface', 'copy' => 'Blade, Tailwind, and package render data own the parts visitors actually see.'],
+                ['label' => 'Verification', 'title' => 'Prove the output', 'copy' => 'Route smoke checks, cache checks, and visual snapshots keep admin state out of public pages.'],
             ],
         ],
         'Homepage 2' => [
-            'eyebrow' => 'Homepage variant',
-            'title' => 'A second homepage for service-led Capell builds',
-            'intro' => 'This page proves the same content system can support a different homepage rhythm: stronger service positioning, proof modules, and route-specific calls to action.',
+            'eyebrow' => 'Field notes homepage',
+            'title' => 'A completely different entry point for implementation-led teams',
+            'intro' => 'This homepage variation behaves more like an editorial command board: route cards, proof rails, service signals, and high-contrast calls to action instead of the default product story.',
             'items' => [
-                ['label' => 'Hero', 'title' => 'Service-led opening', 'copy' => 'A compact proposition for teams evaluating implementation support.'],
-                ['label' => 'Proof', 'title' => 'Capability modules', 'copy' => 'Reusable proof cards make the page feel distinct without another template stack.'],
-                ['label' => 'Routes', 'title' => 'Next-step links', 'copy' => 'Pricing, contact, resources, and services stay connected from the variant.'],
+                ['label' => 'Hero', 'title' => 'Editorial opening', 'copy' => 'A bolder opening for buyers comparing implementation support, migration confidence, and governed rollout.'],
+                ['label' => 'Proof', 'title' => 'Operational evidence', 'copy' => 'Cards highlight release checks, cache safety, and page ownership instead of generic feature lists.'],
+                ['label' => 'Routes', 'title' => 'Directed next steps', 'copy' => 'Pricing, contact, resources, and services stay connected without copying the default homepage modules.'],
             ],
         ],
         'Team' => [
             'eyebrow' => 'Delivery team',
-            'title' => 'Implementation specialists for Capell websites',
-            'intro' => 'A team page should prove capability, not just show profiles. These roles map to the work needed to build flexible Capell sites.',
+            'title' => 'A senior delivery bench, not a profile grid',
+            'intro' => 'The team page now reads as a capability map: who owns architecture, who owns public rendering, and who makes publishing safe for editors.',
             'items' => [
-                ['label' => 'Strategy', 'title' => 'CMS architecture', 'copy' => 'Owns page models, routes, package boundaries, and release shape.'],
-                ['label' => 'Frontend', 'title' => 'Public rendering', 'copy' => 'Builds Tailwind and Blade surfaces that stay clean for visitors.'],
-                ['label' => 'Publishing', 'title' => 'Workflow setup', 'copy' => 'Connects Filament editing, preview, approval, and handover.'],
+                ['label' => 'Strategy', 'title' => 'CMS architecture lead', 'copy' => 'Owns page models, route strategy, package boundaries, and release shape.'],
+                ['label' => 'Frontend', 'title' => 'Public rendering specialist', 'copy' => 'Builds Tailwind and Blade surfaces that stay clean, responsive, and cacheable.'],
+                ['label' => 'Publishing', 'title' => 'Workflow operator', 'copy' => 'Connects Filament editing, preview, approval, content QA, and handover.'],
             ],
         ],
         'Testimonials' => [

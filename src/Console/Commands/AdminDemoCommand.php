@@ -108,7 +108,14 @@ class AdminDemoCommand extends Command
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
         } catch (Throwable $throwable) {
-            $this->error('Demo command failed: ' . $throwable->getMessage());
+            report($throwable);
+
+            $this->error(sprintf(
+                'Demo command failed: %s in %s:%d',
+                $throwable->getMessage(),
+                $throwable->getFile(),
+                $throwable->getLine(),
+            ));
             throw_if(app()->environment('testing'), $throwable);
 
             return Command::FAILURE;

@@ -85,7 +85,6 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
                 'widgets' => 'not-a-widget-list',
             ],
         ],
-        'widgets' => ['existing-secondary'],
     ])->save();
 
     $homeType = Blueprint::query()->pageType()->where('key', 'home')->firstOrFail();
@@ -128,6 +127,37 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
             'capell-home-final-cta',
         ])
         ->and(Widget::query()->whereIn('key', $layout->widgets)->count())->toBe(8)
+        ->and($childContent->parent_id)->toBe($rootContent->getKey());
+});
+
+it('builds nested content tree pages without english names', function (): void {
+    $language = Language::factory()->french(isDefault: true)->create();
+    $site = Site::factory()->default()->language($language)->withTranslations($language)->create();
+    $layout = Layout::query()->firstWhere('key', LayoutEnum::Home)
+        ?? Layout::factory()->site($site)->create(['key' => LayoutEnum::Home]);
+
+    $homeType = Blueprint::query()->pageType()->where('key', 'home')->firstOrFail();
+    Page::factory()
+        ->site($site)
+        ->type($homeType)
+        ->layout($layout)
+        ->withTranslations($language)
+        ->create(['name' => 'Accueil', 'parent_id' => null, 'order' => 1]);
+
+    $created = CreateLayoutBuilderDemoSiteAction::run(new DemoSitePlanData(
+        site: $site,
+        contentTree: [
+            'name' => ['fr' => 'Racine'],
+            'children' => [
+                ['name' => ['fr' => 'Enfant']],
+            ],
+        ],
+    ));
+
+    $rootContent = DemoAsset::query()->where('site_id', $site->getKey())->where('name', 'Racine')->firstOrFail();
+    $childContent = DemoAsset::query()->where('site_id', $site->getKey())->where('name', 'Enfant')->firstOrFail();
+
+    expect($created)->toBeTrue()
         ->and($childContent->parent_id)->toBe($rootContent->getKey());
 });
 

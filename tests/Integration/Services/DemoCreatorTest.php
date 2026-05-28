@@ -58,6 +58,29 @@ it('creates a demo site with languages, pages, and media', function (): void {
     expect($page->translations->where('language_id', $language->id)->count())->toBeGreaterThan(0);
 });
 
+it('creates a demo page using the primary language name when english is unavailable', function (): void {
+    useTinyDemoResources();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->french(isDefault: true)->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $demoCreator->setupSite($site);
+
+    $page = $demoCreator->createPage([
+        'name' => ['fr' => 'Accueil'],
+        'title' => ['fr' => 'Bienvenue'],
+    ], $site, createMedia: false);
+
+    expect($page)->toBeInstanceOf(Page::class)
+        ->and($page->name)->toBe('Accueil')
+        ->and($page->translations()->where('language_id', $language->id)->exists())->toBeTrue();
+});
+
 it('creates a child page and attaches video media', function (): void {
     Storage::fake('public');
 
@@ -346,7 +369,8 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
             'container' => 'full',
             'margin' => ['t-xl'],
             'padding' => ['lg'],
-            'background_color' => '#123c69',
+            'background_color' => 'dark-gray',
+            'color_scheme' => 'light',
         ])
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
         ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();

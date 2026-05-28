@@ -18,6 +18,8 @@ use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
+use Capell\DemoKit\Livewire\ResourcesLibrary;
+use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
@@ -57,9 +59,15 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->registerLivewireComponents();
         $this->registerTailwindSources();
         $this->registerRenderables();
         $this->registerAdminPanelExtensions();
+    }
+
+    private function registerLivewireComponents(): void
+    {
+        Livewire::component('capell-demo-kit.resources-library', ResourcesLibrary::class);
     }
 
     private function registerTailwindSources(): void

@@ -208,53 +208,11 @@
             @endif
         </section>
 
-        @if ($filters !== [])
-            <nav
-                class="flex flex-wrap gap-2 border-b border-slate-200 py-5"
-                aria-label="Resource categories"
-            >
-                @foreach ($filters as $filter)
-                    <a
-                        @class(['rounded-lg border px-4 py-2 text-sm font-extrabold no-underline', 'border-[#0f766e] bg-[#0f766e] text-white' => $loop->first, 'border-slate-200 bg-white text-slate-950' => ! $loop->first])
-                        href="/resources"
-                        @if ($loop->first) aria-current="page" @endif
-                    >
-                        {{ $filter }}
-                    </a>
-                @endforeach
-            </nav>
-        @endif
-
-        <section
-            class="capell-demo-resource-index-section {{ $sectionClass }}"
-        >
-            <div class="capell-demo-resource-index {{ $carouselClass }}">
-                @foreach (array_slice($items, 1) as $item)
-                    <article
-                        class="{{ $carouselItemClass }} {{ $cardClass }}"
-                    >
-                        <span class="{{ $labelClass }}">
-                            {{ $item['label'] }}
-                        </span>
-                        <h3 class="{{ $cardTitleClass }}">
-                            {{ $item['title'] }}
-                        </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $item['copy'] }}
-                        </p>
-                    </article>
-                @endforeach
-            </div>
-
-            @if (($cta['label'] ?? '') !== '' && ($cta['href'] ?? '') !== '')
-                <a
-                    class="inline-flex min-h-12 items-center justify-center justify-self-start rounded-lg border border-slate-200 bg-slate-950 px-5 font-extrabold text-white no-underline hover:bg-[#0f766e]"
-                    href="{{ $cta['href'] }}"
-                >
-                    {{ $cta['label'] }}
-                </a>
-            @endif
-        </section>
+        <livewire:capell-demo-kit.resources-library
+            :items="array_slice($items, 1)"
+            :filters="$filters"
+            :cta="$cta"
+        />
     @elseif ($layout === 'architecture-layers')
         <section
             class="capell-demo-architecture-map architecture-layer-map {{ $sectionClass }}"
