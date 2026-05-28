@@ -1,10 +1,11 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\File;
 
 describe('demo kit capell.json manifest', function (): void {
     $demoKitManifest = fn (): array => json_decode(
-        file_get_contents(__DIR__ . '/../../capell.json'),
+        File::get(__DIR__ . '/../../capell.json'),
         associative: true,
     );
 
