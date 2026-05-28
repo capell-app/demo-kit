@@ -72,6 +72,7 @@ This package makes its Composer dependencies visible because they are part of th
 - `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
 - `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
 - `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for block, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
+- The Kitchen Sink page intentionally server-renders only the structured-text reference block up front. The remaining reference block families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation
@@ -86,6 +87,10 @@ Useful options:
 - `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
 
 Omit `--seed` for a fresh random demo on each run.
+
+## Kitchen Sink Lighthouse Notes
+
+The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Devilbox or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
 
 ## Content Rendering Boundary
 

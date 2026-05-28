@@ -90,12 +90,6 @@
                 --swiper-pagination-bullet-horizontal-gap: 0.2rem;
             }
 
-            @property --capell-home-hero-progress {
-                syntax: '<angle>';
-                inherits: false;
-                initial-value: 0deg;
-            }
-
             .capell-home-hero-carousel .swiper-slide {
                 height: auto;
             }
@@ -160,7 +154,10 @@
 
             .capell-home-hero-carousel-controls
                 .swiper-pagination-bullet-active::before {
-                animation: capellHomeHeroProgress 4200ms linear forwards;
+                background: conic-gradient(
+                    rgb(49 95 143 / 0.38) 360deg,
+                    rgb(154 166 181 / 0.12) 0
+                );
                 opacity: 0.55;
             }
 
@@ -169,20 +166,9 @@
                 background: #315f8f;
             }
 
-            @keyframes capellHomeHeroProgress {
-                from {
-                    --capell-home-hero-progress: 0deg;
-                }
-
-                to {
-                    --capell-home-hero-progress: 360deg;
-                }
-            }
-
             @media (prefers-reduced-motion: reduce) {
                 .capell-home-hero-carousel-controls
                     .swiper-pagination-bullet-active::before {
-                    animation: none;
                     background: conic-gradient(
                         rgb(49 95 143 / 0.38) 360deg,
                         rgb(154 166 181 / 0.12) 0
@@ -229,7 +215,7 @@
                         [
                             'image' => [
                                 'type' => 'url',
-                                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+                                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
                             ],
                             'alt' => 'Capell content package dashboard preview',
                             'label' => 'Packages',
@@ -239,7 +225,7 @@
                         [
                             'image' => [
                                 'type' => 'url',
-                                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+                                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
                             ],
                             'alt' => 'Capell publishing workflow preview',
                             'label' => 'Workflow',
@@ -606,7 +592,7 @@
             @endphp
 
             <section
-                class="grid gap-6 py-10 md:py-14"
+                class="grid max-w-full gap-6 overflow-x-clip py-10 md:py-14"
                 x-data="{
                     active: 0,
                     perPage: 4,

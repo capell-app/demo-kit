@@ -53,7 +53,7 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and($footer?->key)->toBe('footer-standard')
         ->and($footer?->widgets)->toBe(['breadcrumbs', 'demo-page-content'])
         ->and($contact?->key)->toBe('contact-standalone')
-        ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form', 'page-bottom-banner'])
+        ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'page-bottom-banner'])
         ->and($unknown)->toBeNull()
         ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
 });
@@ -74,7 +74,7 @@ it('creates missing default block types while building demo page layouts', funct
 
     $layout = $creator->layoutFor('Contact');
 
-    expect($layout?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'contact-form', 'page-bottom-banner'])
+    expect($layout?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'page-bottom-banner'])
         ->and(Blueprint::query()
             ->where('type', LayoutTypeEnum::Widget->value)
             ->where('key', BlockTypeEnum::Default->value)

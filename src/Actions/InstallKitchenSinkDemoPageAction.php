@@ -8,6 +8,8 @@ use Capell\Core\Actions\CreateDefaultLanguagesAction;
 use Capell\Core\Actions\CreateThemeAction;
 use Capell\Core\Actions\SetupPageUrlsAction;
 use Capell\Core\Enums\PageTypeEnum;
+use Capell\Core\Enums\PresentationDeliveryMode;
+use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -27,6 +29,18 @@ final class InstallKitchenSinkDemoPageAction
     private const string PageName = 'Kitchen Sink Demo Page';
 
     private const string PageSlug = 'kitchen-sink-demo';
+
+    /**
+     * @var array<int, string>
+     */
+    private const array LazyBlockKeys = [
+        'kitchen-sink-rich-text',
+        'kitchen-sink-data-display',
+        'kitchen-sink-interactions',
+        'kitchen-sink-embeds',
+        'kitchen-sink-forms',
+        'kitchen-sink-utility-states',
+    ];
 
     /**
      * @return array<int, string>
@@ -114,7 +128,9 @@ final class InstallKitchenSinkDemoPageAction
                     'main' => [
                         'meta' => ['landmark' => 'main'],
                         'widgets' => array_map(
-                            static fn (string $key): array => ['widget_key' => $key, 'occurrence' => 1],
+                            fn (string $key): array => in_array($key, self::LazyBlockKeys, true)
+                                ? $this->lazyBlock($key)
+                                : $this->eagerBlock($key),
                             $blockKeys,
                         ),
                     ],
@@ -124,6 +140,39 @@ final class InstallKitchenSinkDemoPageAction
         );
 
         return $layout;
+    }
+
+    /**
+     * @return array{widget_key: string, occurrence: int}
+     */
+    private function eagerBlock(string $key): array
+    {
+        return ['widget_key' => $key, 'occurrence' => 1];
+    }
+
+    /**
+     * @return array{widget_key: string, occurrence: int, meta: array{presentation: array{delivery_mode: string, loading_strategy: string}}}
+     */
+    private function lazyBlock(string $key): array
+    {
+        return [
+            'widget_key' => $key,
+            'occurrence' => 1,
+            'meta' => [
+                'presentation' => $this->lazyPresentation(),
+            ],
+        ];
+    }
+
+    /**
+     * @return array{delivery_mode: string, loading_strategy: string}
+     */
+    private function lazyPresentation(): array
+    {
+        return [
+            'delivery_mode' => PresentationDeliveryMode::LazyFragment->value,
+            'loading_strategy' => PresentationLoadingStrategy::Visible->value,
+        ];
     }
 
     /**

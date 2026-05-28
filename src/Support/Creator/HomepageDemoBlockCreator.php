@@ -10,16 +10,16 @@ use Capell\LayoutBuilder\Models\Widget;
 abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
 {
     private const array HOMEPAGE_IMAGE_SOURCES = [
-        'capell-home-hero-command-center' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-        'capell-home-demo-showcase' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
-        'capell-extension-marketplace-showcase' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+        'capell-home-hero-command-center' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
+        'capell-home-demo-showcase' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
+        'capell-extension-marketplace-showcase' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
     ];
 
     private const array HOMEPAGE_HERO_SLIDES = [
         [
             'image' => [
                 'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+                'url' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
             ],
             'alt' => 'Capell CMS workspace preview',
             'label' => 'Page types',
@@ -29,7 +29,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         [
             'image' => [
                 'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
             ],
             'alt' => 'Capell content package dashboard preview',
             'label' => 'Packages',
@@ -39,7 +39,7 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         [
             'image' => [
                 'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
             ],
             'alt' => 'Capell publishing workflow preview',
             'label' => 'Workflow',

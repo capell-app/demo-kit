@@ -11,6 +11,7 @@ use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
+use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\Tests\AbstractTestCase;
@@ -55,6 +56,7 @@ class DemoKitTestCase extends AbstractTestCase
             FrontendServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             FormBuilderServiceProvider::class,
+            FoundationThemeServiceProvider::class,
             DemoKitServiceProvider::class,
             LivewireServiceProvider::class,
         ];
@@ -73,6 +75,7 @@ class DemoKitTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FormBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FoundationThemeServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(DemoKitServiceProvider::$packageName);
     }
 }
