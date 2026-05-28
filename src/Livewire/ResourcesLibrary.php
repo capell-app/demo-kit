@@ -59,6 +59,7 @@ final class ResourcesLibrary extends Component
         ]);
     }
 
+    /** @return LengthAwarePaginator<int, array<string, string>> */
     private function resources(): LengthAwarePaginator
     {
         $items = $this->filteredItems();

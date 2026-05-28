@@ -465,13 +465,13 @@ abstract class BaseDemoCreator
             'Services' => [
                 'variant' => 'services-workbench',
                 'layout' => 'services-workbench',
-                'eyebrow' => 'Implementation studio',
-                'title' => 'Services for Capell sites that cannot afford template drift',
-                'intro' => 'A sharper delivery workbench for content modelling, migration paths, layout architecture, package boundaries, launch verification, and editor handover.',
+                'eyebrow' => 'Services atelier',
+                'title' => 'Implementation services for complex Capell rollouts',
+                'intro' => 'Content modelling, migration paths, layout architecture, package boundaries, and launch verification stay connected in one delivery path.',
                 'items' => [
-                    ['label' => 'Audit lane', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
-                    ['label' => 'Build lane', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks editors can compose without breaking public output.'],
-                    ['label' => 'Launch lane', 'title' => 'Release checks', 'copy' => 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.'],
+                    ['label' => 'Audit board', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
+                    ['label' => 'Build board', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks that editors can compose without breaking public output.'],
+                    ['label' => 'Launch board', 'title' => 'Release checks', 'copy' => 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.'],
                 ],
                 'metrics' => [
                     ['value' => '6 wk', 'label' => 'typical build sprint'],
