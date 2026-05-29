@@ -1,4 +1,5 @@
 @php
+    use Capell\DemoKit\Support\DemoPageContentAssetSections;
     use Capell\Frontend\Facades\Frontend;
     use Illuminate\Support\Str;
 @endphp
@@ -28,49 +29,52 @@
     $hasVisibleHero = ($pageMeta['show_hero'] ?? true) !== false;
     $content = $pageTranslation?->content;
     $contentStructure = $pageType?->content_structure;
+    $occurrence = (int) ($blockData['occurrence'] ?? 1);
+    $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($block, $pageRecord, $containerKey, $occurrence);
+    $hasAssetSections = $pageName !== 'Blog' && $assetSections !== [];
+    $isContactPage = $pageName === 'Contact';
 
-    $eyebrowClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
-    $headingClass = 'max-w-[18ch] text-balance font-[Manrope] text-3xl font-extrabold leading-[1.08] tracking-normal text-[#131b2e] md:text-5xl';
-    $introClass = 'max-w-3xl text-pretty text-base leading-8 text-slate-600 md:text-lg';
-    $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16';
+    $eyebrowClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
+    $headingClass = 'max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
+    $introClass = 'max-w-3xl text-base leading-8 text-pretty text-slate-600 md:text-lg dark:text-slate-300';
+    $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16 dark:border-white/10';
     $splitSectionClass = $sectionClass . ' lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:items-start';
-    $carouselClass = 'flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:overflow-visible md:pb-0 md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] [&::-webkit-scrollbar]:hidden';
-    $compactCarouselClass = 'flex snap-x gap-4 overflow-x-auto pb-3 [scrollbar-width:none] md:grid md:overflow-visible md:pb-0 md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))] [&::-webkit-scrollbar]:hidden';
+    $carouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
+    $compactCarouselClass = 'flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden';
     $carouselItemClass = 'min-w-full snap-start md:min-w-0';
-    $cardClass = 'grid min-h-44 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)] md:p-6';
-    $labelClass = 'text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]';
-    $cardTitleClass = 'text-xl font-extrabold leading-tight tracking-normal text-slate-950';
-    $cardCopyClass = 'text-pretty text-base leading-7 text-slate-600';
-
+    $cardClass = 'grid min-h-44 content-start gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-none transition duration-200 hover:border-teal-200 hover:shadow-[0_16px_40px_rgb(15_23_42_/_0.08)] md:p-6 dark:border-white/10 dark:bg-slate-900/80 dark:hover:border-teal-300/40';
+    $labelClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
+    $cardTitleClass = 'text-xl leading-tight font-extrabold tracking-normal text-slate-950 dark:text-white';
+    $cardCopyClass = 'text-base leading-7 text-pretty text-slate-600 dark:text-slate-300';
     $showcaseContent = [
         'About Us' => [
-            'eyebrow' => 'Platform experience',
-            'title' => 'Experienced in flexible content systems',
-            'intro' => 'Use Capell when a site needs more than pages and prose. The same model can power media-heavy marketing pages, resource libraries, navigation-led microsites, and governed multi-site publishing.',
+            'eyebrow' => 'Operating model',
+            'title' => 'A CMS team built around durable public systems',
+            'intro' => 'Capell is shaped for Laravel teams who need editorial velocity without turning the public frontend into a collection of one-off templates.',
             'items' => [
-                ['label' => '01', 'title' => 'Model content', 'copy' => 'Store durable page stories as simple CMS content that can move between renderers.'],
-                ['label' => '02', 'title' => 'Render in Blade', 'copy' => 'Keep the designed public surface inside package-owned views.'],
-                ['label' => '03', 'title' => 'Verify output', 'copy' => 'Connect admin records to frontend rendering without exposing editor concerns.'],
+                ['label' => 'Architecture', 'title' => 'Model the durable parts', 'copy' => 'Pages, translations, media, route intent, and page relationships stay portable.'],
+                ['label' => 'Rendering', 'title' => 'Design the public surface', 'copy' => 'Blade, Tailwind, and package render data own the parts visitors actually see.'],
+                ['label' => 'Verification', 'title' => 'Prove the output', 'copy' => 'Route smoke checks, cache checks, and visual snapshots keep admin state out of public pages.'],
             ],
         ],
         'Homepage 2' => [
-            'eyebrow' => 'Homepage variant',
-            'title' => 'A second homepage for service-led Capell builds',
-            'intro' => 'This page proves the same content system can support a different homepage rhythm: stronger service positioning, proof modules, and route-specific calls to action.',
+            'eyebrow' => 'Field notes homepage',
+            'title' => 'A completely different entry point for implementation-led teams',
+            'intro' => 'This homepage variation behaves more like an editorial command board: route cards, proof rails, service signals, and high-contrast calls to action instead of the default product story.',
             'items' => [
-                ['label' => 'Hero', 'title' => 'Service-led opening', 'copy' => 'A compact proposition for teams evaluating implementation support.'],
-                ['label' => 'Proof', 'title' => 'Capability modules', 'copy' => 'Reusable proof cards make the page feel distinct without another template stack.'],
-                ['label' => 'Routes', 'title' => 'Next-step links', 'copy' => 'Pricing, contact, resources, and services stay connected from the variant.'],
+                ['label' => 'Hero', 'title' => 'Editorial opening', 'copy' => 'A bolder opening for buyers comparing implementation support, migration confidence, and governed rollout.'],
+                ['label' => 'Proof', 'title' => 'Operational evidence', 'copy' => 'Cards highlight release checks, cache safety, and page ownership instead of generic feature lists.'],
+                ['label' => 'Routes', 'title' => 'Directed next steps', 'copy' => 'Pricing, contact, resources, and services stay connected without copying the default homepage modules.'],
             ],
         ],
         'Team' => [
             'eyebrow' => 'Delivery team',
-            'title' => 'Implementation specialists for Capell websites',
-            'intro' => 'A team page should prove capability, not just show profiles. These roles map to the work needed to build flexible Capell sites.',
+            'title' => 'A senior delivery bench, not a profile grid',
+            'intro' => 'The team page now reads as a capability map: who owns architecture, who owns public rendering, and who makes publishing safe for editors.',
             'items' => [
-                ['label' => 'Strategy', 'title' => 'CMS architecture', 'copy' => 'Owns page models, routes, package boundaries, and release shape.'],
-                ['label' => 'Frontend', 'title' => 'Public rendering', 'copy' => 'Builds Tailwind and Blade surfaces that stay clean for visitors.'],
-                ['label' => 'Publishing', 'title' => 'Workflow setup', 'copy' => 'Connects Filament editing, preview, approval, and handover.'],
+                ['label' => 'Strategy', 'title' => 'CMS architecture lead', 'copy' => 'Owns page models, route strategy, package boundaries, and release shape.'],
+                ['label' => 'Frontend', 'title' => 'Public rendering specialist', 'copy' => 'Builds Tailwind and Blade surfaces that stay clean, responsive, and cacheable.'],
+                ['label' => 'Publishing', 'title' => 'Workflow operator', 'copy' => 'Connects Filament editing, preview, approval, content QA, and handover.'],
             ],
         ],
         'Testimonials' => [
@@ -101,16 +105,6 @@
                 ['label' => 'Scope', 'title' => 'Reusable page sections', 'copy' => 'The implementation kept existing content intent while improving layout ownership.'],
                 ['label' => 'Result', 'title' => 'Cleaner publishing', 'copy' => 'Editors gained safer composition and developers kept package-owned rendering.'],
                 ['label' => 'Handover', 'title' => 'Documented release path', 'copy' => 'QA, cache, and frontend checks are part of the delivery.'],
-            ],
-        ],
-        'Blog' => [
-            'eyebrow' => 'Latest news',
-            'title' => 'Our blog for Capell builders',
-            'intro' => 'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
-            'items' => [
-                ['label' => 'News', 'title' => 'Home, buildings and architecture', 'copy' => 'How architecture-style page systems map to Capell layout builder websites.'],
-                ['label' => 'Guide', 'title' => 'Designing a better homepage flow', 'copy' => 'Turning mixed CMS objects into one coherent public page.'],
-                ['label' => 'Tips', 'title' => 'How to avoid rigid templates', 'copy' => 'Use block boundaries, assets, and reusable sections to keep pages flexible.'],
             ],
         ],
         'Platform Architecture' => [
@@ -161,10 +155,86 @@
     :$containerWidth
     :index="$loop->index"
     :$block
-    class="capell-block-demo-page-content capell-demo-page-content overflow-x-clip bg-[#faf8ff] text-[#131b2e] [container-type:inline-size] [text-rendering:optimizeLegibility]"
+    class="capell-block-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility] dark:bg-slate-950 dark:text-slate-100"
     tag="section"
 >
-    @if ($content)
+    @once
+        <style>
+            .dark
+                .capell-demo-page-content
+                :where(article, aside, div, form, a)[class*='bg-white'],
+            .dark
+                .capell-demo-page-content
+                :where(article, aside, div, form, a)[class*='bg-slate-50'] {
+                background-color: rgb(15 23 42 / 0.82);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(input, textarea)[class*='bg-white'] {
+                background-color: rgb(2 6 23 / 0.9);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(
+                    article,
+                    aside,
+                    div,
+                    form,
+                    a,
+                    input,
+                    textarea
+                )[class*='border-slate'] {
+                border-color: rgb(255 255 255 / 0.12);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(
+                    h2,
+                    h3,
+                    h4,
+                    p,
+                    span,
+                    dt,
+                    dd,
+                    label,
+                    summary,
+                    input,
+                    textarea
+                )[class*='text-slate-950'],
+            .dark
+                .capell-demo-page-content
+                :where(
+                    h2,
+                    h3,
+                    h4,
+                    p,
+                    span,
+                    dt,
+                    dd,
+                    label,
+                    summary
+                )[class*='text-[#131b2e]'] {
+                color: rgb(248 250 252);
+            }
+
+            .dark
+                .capell-demo-page-content
+                :where(p, span, dd)[class*='text-slate-600'],
+            .dark
+                .capell-demo-page-content
+                :where(p, span, dd)[class*='text-slate-700'],
+            .dark
+                .capell-demo-page-content
+                :where(label)[class*='text-slate-800'] {
+                color: rgb(203 213 225);
+            }
+        </style>
+    @endonce
+
+    @if ($content && ! $isContactPage)
         <div class="mx-auto max-w-4xl px-[6%] py-8 xl:px-0">
             <x-capell::content
                 class="prose-p:text-pretty prose-p:text-slate-600 prose-p:leading-8"
@@ -185,7 +255,23 @@
             </h1>
         @endif
 
-        @if ($lesson)
+        @if ($hasAssetSections)
+            @include('capell-demo-kit::components.block.demo-page-content-assets', [
+                'sections' => $assetSections,
+                'sectionClass' => $sectionClass,
+                'splitSectionClass' => $splitSectionClass,
+                'carouselClass' => $carouselClass,
+                'compactCarouselClass' => $compactCarouselClass,
+                'carouselItemClass' => $carouselItemClass,
+                'cardClass' => $cardClass,
+                'eyebrowClass' => $eyebrowClass,
+                'headingClass' => $headingClass,
+                'introClass' => $introClass,
+                'labelClass' => $labelClass,
+                'cardTitleClass' => $cardTitleClass,
+                'cardCopyClass' => $cardCopyClass,
+            ])
+        @elseif ($lesson && ! $isContactPage && $pageName !== 'Blog')
             <section
                 class="grid gap-4 border-b border-slate-200/70 py-8 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] md:items-start md:py-10"
             >
@@ -194,14 +280,14 @@
                         How this page is assembled
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-2xl font-extrabold leading-tight tracking-normal text-slate-950 md:text-3xl"
+                        class="mt-3 max-w-[18ch] font-[Manrope] text-2xl leading-tight font-extrabold tracking-normal text-slate-950 md:text-3xl"
                     >
                         {{ $lesson[0] }}
                     </h2>
                 </div>
 
                 <p
-                    class="max-w-3xl text-pretty text-base leading-8 text-slate-600"
+                    class="max-w-3xl text-base leading-8 text-pretty text-slate-600"
                 >
                     {{ $lesson[1] }}
                 </p>
@@ -239,63 +325,219 @@
                 </div>
             </section>
         @elseif ($pageName === 'Contact')
+            @once
+                <style>
+                    @media (min-width: 1024px) {
+                        .capell-demo-contact-gateway {
+                            grid-template-columns: minmax(0, 1fr) minmax(
+                                    22rem,
+                                    0.72fr
+                                );
+                        }
+                    }
+                </style>
+            @endonce
+
             <section
                 id="scoping"
-                class="capell-demo-contact-gateway {{ $splitSectionClass }}"
+                class="capell-demo-contact-gateway grid gap-8 border-b border-slate-200/70 py-10 md:py-16 lg:grid-cols-2 lg:items-start"
             >
-                <div class="grid gap-5">
-                    <p class="{{ $eyebrowClass }}">Contact gateway</p>
-                    <h2 class="{{ $headingClass }}">
-                        Send a message about your Capell build
-                    </h2>
-                    <p class="{{ $introClass }}">
-                        Route implementation, migration, package, and support
-                        enquiries through one clear public surface.
-                    </p>
-                </div>
-
-                <div class="capell-demo-contact-routing grid gap-6">
-                    <div
-                        class="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-none md:p-6"
-                    >
-                        <span class="{{ $labelClass }}">Routing model</span>
-                        <h3 class="{{ $cardTitleClass }}">
-                            One gateway, clear handoff
-                        </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            The real contact form renders in the adjacent form
-                            block. This panel explains how enquiries are routed
-                            before the CMS hands the request to the form
-                            builder.
-                        </p>
-                        <a
-                            class="inline-flex min-h-12 items-center justify-center justify-self-start rounded-lg border border-slate-200 bg-slate-50 px-5 font-extrabold text-slate-950 no-underline hover:border-[#0f766e] hover:text-[#0f766e]"
-                            href="#contact-form-contact-form-0"
+                <div class="grid gap-8">
+                    <div class="grid gap-5">
+                        <p
+                            class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase"
                         >
-                            Use the contact form
-                        </a>
+                            Contact
+                        </p>
+                        <h2
+                            class="max-w-[10ch] font-[Manrope] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
+                        >
+                            Start the right conversation
+                        </h2>
+                        <p
+                            class="max-w-2xl text-lg leading-8 text-pretty text-slate-600 md:text-xl md:leading-9"
+                        >
+                            Tell us what you are planning, fixing, moving, or
+                            partnering on. One governed contact page routes
+                            project scoping, technical support, migrations, and
+                            partnerships to the right Capell team.
+                        </p>
                     </div>
 
                     <div
-                        class="capell-demo-contact-grid {{ $compactCarouselClass }}"
+                        class="grid gap-4 border-y border-slate-300 py-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-start"
                     >
-                        @foreach ([['Address', 'Capell Studio, London', 'Remote-first delivery with UK timezone handover.'], ['Response', 'Two business days', 'Enough context to qualify the right delivery path.'], ['Routing', 'Project, support, migration', 'Contact topics map to the same governed CMS model.']] as [$label, $title, $copy])
-                            <article
-                                class="{{ $carouselItemClass }} {{ $cardClass }}"
+                        <div class="grid gap-2">
+                            <span class="{{ $labelClass }}">
+                                Contact details
+                            </span>
+                            <h3
+                                class="text-2xl leading-tight font-extrabold tracking-normal text-slate-950"
                             >
-                                <span class="{{ $labelClass }}">
+                                Capell Studio, London
+                            </h3>
+                        </div>
+
+                        <div class="grid gap-5">
+                            <p
+                                class="text-base leading-7 text-pretty text-slate-600"
+                            >
+                                Remote-first delivery with UK timezone handover.
+                                Send an enquiry and the form builder passes it
+                                into the right follow-up path.
+                            </p>
+                            <dl
+                                class="grid gap-3 text-sm font-bold text-slate-700 sm:grid-cols-2"
+                            >
+                                <div>
+                                    <dt
+                                        class="text-xs tracking-[0.12em] text-slate-500 uppercase"
+                                    >
+                                        Email
+                                    </dt>
+                                    <dd class="mt-1 text-slate-950">
+                                        hello@capell.test
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt
+                                        class="text-xs tracking-[0.12em] text-slate-500 uppercase"
+                                    >
+                                        Typical response
+                                    </dt>
+                                    <dd class="mt-1 text-slate-950">
+                                        Within 4 business hours
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-0 border-t border-slate-200">
+                        @foreach ([['Project scoping', 'New implementations', 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'], ['Support', 'Existing site help', 'Route production issues, editor workflow questions, and package troubleshooting to the right owner.'], ['Migration planning', 'Move from legacy CMSs', 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'], ['Partnerships', 'Agency and technology work', 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.']] as [$label, $title, $copy])
+                            <article
+                                class="grid gap-3 border-b border-slate-200 py-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6"
+                            >
+                                <span
+                                    class="text-xs font-extrabold tracking-[0.12em] text-[#0f766e] uppercase"
+                                >
                                     {{ $label }}
                                 </span>
-                                <h3 class="{{ $cardTitleClass }}">
-                                    {{ $title }}
-                                </h3>
-                                <p class="{{ $cardCopyClass }}">
-                                    {{ $copy }}
-                                </p>
+                                <div class="grid gap-2">
+                                    <h3
+                                        class="text-xl leading-tight font-extrabold tracking-normal text-slate-950"
+                                    >
+                                        {{ $title }}
+                                    </h3>
+                                    <p
+                                        class="text-base leading-7 text-pretty text-slate-600"
+                                    >
+                                        {{ $copy }}
+                                    </p>
+                                </div>
                             </article>
                         @endforeach
                     </div>
                 </div>
+
+                <aside
+                    class="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_24px_80px_rgb(15_23_42_/_0.08)] md:sticky md:top-24 md:p-7"
+                    aria-labelledby="contact-static-form-title"
+                >
+                    <div class="grid gap-2">
+                        <p class="{{ $labelClass }}">Contact form</p>
+                        <h2
+                            id="contact-static-form-title"
+                            class="text-2xl leading-tight font-black text-slate-950"
+                        >
+                            Send an enquiry
+                        </h2>
+                        <p class="text-sm leading-6 text-slate-600">
+                            Share the context once. We will route it to the
+                            right delivery, support, migration, or partnership
+                            lead.
+                        </p>
+                    </div>
+
+                    <form class="mt-6 grid gap-4" method="post" action="#">
+                        @foreach ([['contact-name', 'name', 'text', 'Name', 'name'], ['contact-email', 'email', 'email', 'Work email', 'email'], ['contact-company', 'company', 'text', 'Company', 'organization']] as [$id, $name, $type, $label, $autocomplete])
+                            <div class="grid gap-2">
+                                <label
+                                    class="text-sm font-bold text-slate-800"
+                                    for="{{ $id }}"
+                                >
+                                    {{ $label }}
+                                </label>
+                                <input
+                                    id="{{ $id }}"
+                                    name="{{ $name }}"
+                                    type="{{ $type }}"
+                                    autocomplete="{{ $autocomplete }}"
+                                    class="min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-950"
+                                />
+                            </div>
+                        @endforeach
+
+                        <div class="grid gap-2">
+                            <label
+                                class="text-sm font-bold text-slate-800"
+                                for="contact-topic"
+                            >
+                                Topic
+                            </label>
+                            <select
+                                id="contact-topic"
+                                name="topic"
+                                class="min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-950"
+                            >
+                                <option>Project scoping</option>
+                                <option>Support</option>
+                                <option>Migration planning</option>
+                                <option>Partnerships</option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <label
+                                class="text-sm font-bold text-slate-800"
+                                for="contact-message"
+                            >
+                                Message
+                            </label>
+                            <textarea
+                                id="contact-message"
+                                name="message"
+                                rows="5"
+                                class="min-h-32 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-950"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#0f766e] px-5 font-extrabold text-white transition hover:bg-[#115e59]"
+                        >
+                            Send enquiry
+                        </button>
+                    </form>
+                </aside>
+            </section>
+
+            <section
+                class="grid gap-4 border-y border-slate-200 bg-white py-5 md:grid-cols-3 md:gap-0 md:py-0"
+                aria-label="Contact expectations"
+            >
+                @foreach ([['Response', 'Within 4 business hours'], ['Location', 'London, UK and remote-first'], ['Handover', 'Directly routed to the right team']] as [$label, $value])
+                    <div
+                        class="border-slate-200 px-5 md:border-l md:px-6 md:py-5 md:first:border-l-0"
+                    >
+                        <span class="{{ $labelClass }}">{{ $label }}</span>
+                        <strong
+                            class="mt-1 block text-base font-extrabold text-slate-950"
+                        >
+                            {{ $value }}
+                        </strong>
+                    </div>
+                @endforeach
             </section>
         @elseif ($pageName === 'Services')
             <section
@@ -322,7 +564,7 @@
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-2xl font-black leading-none text-slate-950"
+                                class="text-2xl leading-none font-black text-slate-950"
                             >
                                 {{ $title }}
                             </h3>
@@ -333,7 +575,7 @@
             </section>
 
             <section
-                class="flex snap-x gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0 [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0 [&::-webkit-scrollbar]:hidden"
                 aria-label="Service proof points"
             >
                 @foreach ([['6 wk', 'typical build sprint'], ['12+', 'page shapes mapped'], ['0', 'admin metadata leaks'], ['4', 'handover checkpoints']] as [$value, $label])
@@ -341,7 +583,7 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e] md:text-4xl"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $value }}
                         </strong>
@@ -369,17 +611,17 @@
                     </p>
                 </div>
                 <ol
-                    class="flex snap-x gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white [scrollbar-width:none] md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
                 >
                     @foreach ([['01', 'Audit the content model', 'Inventory pages, media, routes, redirects, permissions, integrations, and editorial risks.'], ['02', 'Shape reusable layouts', 'Turn page intent into governed sections instead of another stack of bespoke templates.'], ['03', 'Build package-owned surfaces', 'Keep Blade, render data, cache, and tests close to the package that owns the behaviour.'], ['04', 'Verify public output', 'Check anonymous rendering, navigation, search, SEO, and visual regressions before handover.']] as [$step, $title, $copy])
                         <li
-                            class="grid min-w-full snap-start content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:min-w-0 md:border-b-0 md:border-r md:last:border-r-0"
+                            class="grid min-w-full snap-start content-start gap-2 border-b border-slate-200 p-5 last:border-b-0 md:min-w-0 md:border-r md:border-b-0 md:last:border-r-0"
                         >
                             <span class="text-sm font-black text-[#0f766e]">
                                 {{ $step }}
                             </span>
                             <strong
-                                class="text-lg font-extrabold leading-snug text-slate-950"
+                                class="text-lg leading-snug font-extrabold text-slate-950"
                             >
                                 {{ $title }}
                             </strong>
@@ -408,7 +650,7 @@
                             @if ($loop->first) open @endif
                         >
                             <summary
-                                class="cursor-pointer text-lg font-extrabold leading-snug text-slate-950"
+                                class="cursor-pointer text-lg leading-snug font-extrabold text-slate-950"
                             >
                                 {{ $question }}
                             </summary>
@@ -421,19 +663,22 @@
             </section>
         @elseif ($pageName === 'Pricing')
             <section class="capell-demo-pricing-matrix {{ $sectionClass }}">
-                <div class="grid gap-5 lg:max-w-3xl">
-                    <p class="{{ $eyebrowClass }}">Pricing matrix</p>
+                <div class="grid gap-5 lg:max-w-4xl">
+                    <p class="{{ $eyebrowClass }}">Pricing control room</p>
                     <h2 class="{{ $headingClass }}">
-                        Simple pricing for Capell CMS delivery
+                        Pricing that separates access, support, and delivery
+                        risk
                     </h2>
                     <p class="{{ $introClass }}">
-                        Compare the commercial model without making the homepage
-                        carry the full pricing table.
+                        Compare the commercial model with the same discipline as
+                        a CMS rollout: product access first, operational support
+                        second, scoped implementation work only when the risk is
+                        visible.
                     </p>
                 </div>
 
                 <div class="capell-demo-pricing-grid {{ $carouselClass }}">
-                    @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production delivery with commercial support and implementation confidence.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
+                    @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production teams that need support, package confidence, and release guidance.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, migrations, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
                         <article
                             @class([
                                 $carouselItemClass,
@@ -443,18 +688,18 @@
                             ])
                         >
                             <span
-                                class="{{ $featured ? 'text-xs font-black uppercase tracking-normal text-green-700' : $labelClass }}"
+                                class="{{ $featured ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
                             >
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-4xl font-black leading-none text-slate-950"
+                                class="text-4xl leading-none font-black text-slate-950"
                             >
                                 {{ $price }}
                             </h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             <em
-                                class="mt-auto justify-self-start rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-extrabold not-italic text-slate-950"
+                                class="mt-auto justify-self-start rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-extrabold text-slate-950 not-italic"
                             >
                                 {{ $badge }}
                             </em>
@@ -462,38 +707,39 @@
                     @endforeach
                 </div>
 
-                <section
-                    class="max-w-5xl rounded-lg bg-slate-950 p-6 shadow-[0_18px_60px_rgb(15_23_42_/_0.18)] md:p-8"
-                >
-                    <h3 class="text-2xl font-black tracking-normal text-white">
-                        Common pricing questions
-                    </h3>
-                    <p
-                        class="mt-3 max-w-3xl text-pretty text-base leading-8 text-slate-200"
-                    >
-                        Support level, response time, migration help, and
-                        implementation depth are separated so teams can pick the
-                        right path.
-                    </p>
+                <section class="grid gap-4 md:grid-cols-3">
+                    @foreach ([['Support', 'Response model', 'Choose support separately from implementation scope so operating costs stay predictable.'], ['Migration', 'Import confidence', 'Add migration help only when source data, redirects, and verification need proof.'], ['Delivery', 'Scoped change', 'Commercial changes are priced before implementation work starts.']] as [$label, $title, $copy])
+                        <article
+                            class="rounded-lg border border-slate-200 bg-slate-50 p-5 md:p-6"
+                        >
+                            <p class="{{ $labelClass }}">{{ $label }}</p>
+                            <h3 class="{{ $cardTitleClass }} mt-3">
+                                {{ $title }}
+                            </h3>
+                            <p class="{{ $cardCopyClass }} mt-3">
+                                {{ $copy }}
+                            </p>
+                        </article>
+                    @endforeach
                 </section>
             </section>
         @elseif ($pageName === 'Implementation')
             <section
-                class="capell-demo-implementation-plan bg-linear-to-br my-10 grid gap-8 rounded-2xl from-slate-950 to-blue-900 p-6 shadow-2xl md:my-16 md:p-10"
+                class="capell-demo-implementation-plan my-10 grid gap-8 rounded-2xl bg-linear-to-br from-slate-950 to-blue-900 p-6 shadow-2xl md:my-16 md:p-10"
             >
                 <div class="grid gap-5">
                     <p
-                        class="text-xs font-black uppercase tracking-normal text-blue-200"
+                        class="text-xs font-black tracking-normal text-blue-200 uppercase"
                     >
                         Implementation scoping
                     </p>
                     <h2
-                        class="max-w-[16ch] text-balance text-3xl font-black leading-[1.02] tracking-normal text-white md:text-5xl xl:text-6xl"
+                        class="max-w-[16ch] text-3xl leading-[1.02] font-black tracking-normal text-balance text-white md:text-5xl xl:text-6xl"
                     >
                         Implementation plan with commercial guardrails
                     </h2>
                     <p
-                        class="max-w-3xl text-pretty text-base leading-8 text-blue-100 md:text-lg"
+                        class="max-w-3xl text-base leading-8 text-pretty text-blue-100 md:text-lg"
                     >
                         Turn scope, timeline, risk, and price confidence into a
                         visible delivery surface.
@@ -508,17 +754,17 @@
                             class="{{ $carouselItemClass }} grid min-h-44 content-start gap-3 rounded-lg border border-blue-200/30 bg-white/10 p-5 text-white shadow-none md:p-6"
                         >
                             <span
-                                class="text-xs font-black uppercase tracking-normal text-blue-100"
+                                class="text-xs font-black tracking-normal text-blue-100 uppercase"
                             >
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-3xl font-black leading-none text-white"
+                                class="text-3xl leading-none font-black text-white"
                             >
                                 {{ $title }}
                             </h3>
                             <p
-                                class="text-pretty text-base leading-7 text-blue-50"
+                                class="text-base leading-7 text-pretty text-blue-50"
                             >
                                 {{ $copy }}
                             </p>
@@ -548,7 +794,7 @@
                     <div>
                         <span class="{{ $labelClass }}">Featured guide</span>
                         <h3
-                            class="mt-3 font-[Manrope] text-2xl font-extrabold leading-tight text-slate-950 md:text-4xl"
+                            class="mt-3 font-[Manrope] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
                         >
                             Scaling Laravel CMS architecture for 1M+ records
                         </h3>
@@ -560,7 +806,7 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="block font-[Manrope] text-3xl font-extrabold leading-none text-[#0f766e] md:text-4xl"
+                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             18 min
                         </strong>
@@ -572,7 +818,7 @@
             </section>
 
             <section
-                class="flex gap-2 overflow-x-auto border-b border-slate-200 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                class="flex [scrollbar-width:none] gap-2 overflow-x-auto border-b border-slate-200 py-5 [&::-webkit-scrollbar]:hidden"
                 aria-label="Resource categories"
             >
                 @foreach (['All resources', 'Architecture', 'Migration', 'Publishing', 'Theme systems'] as $filter)
@@ -591,7 +837,7 @@
             </section>
 
             <section
-                class="flex snap-x gap-4 overflow-x-auto border-b border-slate-200 py-8 [scrollbar-width:none] md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-b border-slate-200 py-8 md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
             >
                 @foreach ([['Architecture', 'Content models, domains, layouts, and package contracts.', '14 resources'], ['Migration', 'Imports, redirects, media moves, and validation evidence.', '9 resources'], ['Publishing', 'Approval flows, preview discipline, cache, and release checks.', '12 resources'], ['Theme systems', 'Blade surfaces, Tailwind composition, and visual QA.', '8 resources']] as [$title, $copy, $count])
                     <article
@@ -627,7 +873,7 @@
                             </h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             <em
-                                class="mt-auto text-sm font-extrabold not-italic text-slate-600"
+                                class="mt-auto text-sm font-extrabold text-slate-600 not-italic"
                             >
                                 {{ $time }}
                             </em>
@@ -641,12 +887,12 @@
             >
                 <div>
                     <p
-                        class="text-xs font-extrabold uppercase tracking-[0.08em] text-teal-100"
+                        class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase"
                     >
                         Implementation toolkit
                     </p>
                     <h2
-                        class="mt-3 font-[Manrope] text-3xl font-extrabold leading-tight text-white md:text-4xl"
+                        class="mt-3 font-[Manrope] text-3xl leading-tight font-extrabold text-white md:text-4xl"
                     >
                         Build faster with architectural blueprints.
                     </h2>
@@ -701,12 +947,12 @@
                         class="grid content-start gap-4 border-l-4 border-[#0f766e] bg-teal-50 p-4"
                     >
                         <strong
-                            class="font-[Manrope] text-2xl font-extrabold leading-tight text-[#0f766e]"
+                            class="font-[Manrope] text-2xl leading-tight font-extrabold text-[#0f766e]"
                         >
                             Article chrome
                         </strong>
                         <span
-                            class="text-sm font-bold leading-6 text-slate-700"
+                            class="text-sm leading-6 font-bold text-slate-700"
                         >
                             Author, read time, body copy, related resources, and
                             clean public rendering.
@@ -720,7 +966,7 @@
                     @foreach ([['Author', 'Capell editorial'], ['Read time', '8 min'], ['Template', 'Single post']] as [$label, $value])
                         <span>
                             <strong
-                                class="block text-xs font-extrabold uppercase tracking-[0.08em] text-[#0f766e]"
+                                class="block text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase"
                             >
                                 {{ $label }}
                             </strong>
@@ -770,7 +1016,7 @@
                                 {{ $label }}
                             </span>
                             <h3
-                                class="text-2xl font-black leading-none text-slate-950"
+                                class="text-2xl leading-none font-black text-slate-950"
                             >
                                 {{ $title }}
                             </h3>
@@ -784,7 +1030,7 @@
                 >
                     @foreach (['Footer route', 'Shared template', 'Local content'] as $label)
                         <span
-                            class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black uppercase tracking-normal text-slate-950"
+                            class="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black tracking-normal text-slate-950 uppercase"
                         >
                             {{ $label }}
                         </span>

@@ -20,7 +20,7 @@
             "capell-app/core",
             "capell-app/frontend"
         ],
-        "optional": [],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
@@ -39,7 +39,17 @@
     "commands": {
         "install": null,
         "setup": null,
-        "demo": null,
+        "demo": "capell:demo-kit-full-demo",
+        "demoParams": [
+            "url",
+            "user",
+            "languages",
+            "sites",
+            "site-count",
+            "page-count",
+            "seed",
+            "force"
+        ],
         "doctor": "capell:demo-kit-doctor"
     },
     "settings": [],
@@ -74,7 +84,13 @@
     },
     "marketplace": {
         "summary": "Demo Kit provides example content and media for local Capell demos.",
-        "screenshots": [],
+        "screenshots": [
+            {
+                "path": "docs/assets/marketplace/extension-card.jpg",
+                "alt": "Demo Kit extension preview image",
+                "caption": "Demo Kit extension preview"
+            }
+        ],
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {

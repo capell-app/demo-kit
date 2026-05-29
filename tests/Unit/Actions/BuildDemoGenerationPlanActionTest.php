@@ -139,6 +139,10 @@ it('keeps generated demo page trees out of publishable config', function (): voi
         ->and(config('capell-demo-kit.counts.pages_per_site'))->toBe([12, 30]);
 });
 
+/**
+ * @param  array<array-key, mixed>  $pages
+ * @return array<array-key, mixed>
+ */
 function demoPlanPageNames(array $pages): array
 {
     return collect($pages)

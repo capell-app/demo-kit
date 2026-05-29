@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\LayoutBuilder\Actions;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
@@ -83,6 +84,7 @@ class CreateLayoutBuilderDemoSiteAction
         $orderedContainers = [];
         $remainingContainers = array_diff_key($containers, array_flip([
             'ap-blocks',
+            'hero',
             'main',
             'faq-main',
             'faq-col',
@@ -99,59 +101,63 @@ class CreateLayoutBuilderDemoSiteAction
 
         $layout->update([
             'containers' => $containers,
-            'blocks' => $this->layoutBlockKeys($containers),
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateAPBlocksContainer(array &$containers): void
     {
         $heroBlock = $this->demoCreator->createHomepageHeroCommandCenterBlock();
         $proofBlock = $this->demoCreator->createHomepageProofStripBlock();
         $showcaseBlock = $this->demoCreator->createHomepageDemoShowcaseBlock();
+        $widgetsCarouselBlock = $this->demoCreator->createHomepageDemoWidgetsCarouselBlock();
         $marketplaceBlock = $this->demoCreator->createHomepageMarketplaceBlock();
         $pipelineBlock = $this->demoCreator->createHomepageTechnicalPipelineBlock();
         $routeSplitBlock = $this->demoCreator->createHomepageRouteSplitBlock();
         $finalCtaBlock = $this->demoCreator->createHomepageFinalCtaBlock();
 
+        $containers['hero'] = [
+            'meta' => [
+                'colspan' => 12,
+                'container' => ContainerWidthEnum::Full,
+            ],
+            'widgets' => [
+                ['widget_key' => $heroBlock->key],
+            ],
+        ];
+
         $containers['ap-blocks'] = [
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $heroBlock->key],
-                ['block_key' => $proofBlock->key],
-                ['block_key' => $showcaseBlock->key],
-                ['block_key' => $marketplaceBlock->key],
-                ['block_key' => $pipelineBlock->key],
-                ['block_key' => $routeSplitBlock->key],
-                ['block_key' => $finalCtaBlock->key],
+            'widgets' => [
+                ['widget_key' => $proofBlock->key],
+                ['widget_key' => $showcaseBlock->key],
+                ['widget_key' => $widgetsCarouselBlock->key],
+                ['widget_key' => $marketplaceBlock->key],
+                ['widget_key' => $pipelineBlock->key],
+                ['widget_key' => $routeSplitBlock->key],
+            ],
+        ];
+
+        $containers['final-cta'] = [
+            'meta' => [
+                'colspan' => 12,
+                'container' => ContainerWidthEnum::Full,
+                'html_class' => 'bg-slate-950',
+            ],
+            'widgets' => [
+                ['widget_key' => $finalCtaBlock->key],
             ],
         ];
     }
 
     /**
-     * @param  array<string, mixed>  $containers
-     * @return list<string>
+     * @param  EloquentCollection<int, Language>  $languages
+     * @param  array<array-key, mixed>  $contentNode
      */
-    private function layoutBlockKeys(array $containers): array
-    {
-        return collect($containers)
-            ->flatMap(function (mixed $container): array {
-                if (! is_array($container)) {
-                    return [];
-                }
-
-                $blocks = $container['blocks'] ?? [];
-
-                return is_array($blocks) ? $blocks : [];
-            })
-            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['block_key'] ?? null) : null)
-            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
-            ->unique()
-            ->values()
-            ->all();
-    }
-
     private function createSiteContents(
         ContentCreator $contentCreator,
         array $contentNode,
@@ -160,9 +166,10 @@ class CreateLayoutBuilderDemoSiteAction
         ?Model $parent = null,
     ): void {
         $languages ??= $site->languages;
+        $contentNames = is_array($contentNode['name'] ?? null) ? $contentNode['name'] : [];
 
         $contentData = [
-            'name' => $contentNode['name']['en'],
+            'name' => $this->preferredTranslatedValue($contentNames, $languages),
         ];
 
         if ($parent instanceof Model) {
@@ -171,7 +178,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         foreach ($languages as $language) {
             $code = $language->getAttribute('code');
-            $name = is_string($code) ? $contentNode['name'][$code] : null;
+            $name = is_string($code) ? ($contentNames[$code] ?? null) : null;
 
             if ($name === null) {
                 continue;
@@ -194,6 +201,38 @@ class CreateLayoutBuilderDemoSiteAction
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @param  EloquentCollection<int, Language>  $languages
+     */
+    private function preferredTranslatedValue(array $values, EloquentCollection $languages): string
+    {
+        foreach ($languages as $language) {
+            $value = $values[$language->code] ?? null;
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        $englishValue = $values['en'] ?? null;
+
+        if (is_string($englishValue) && $englishValue !== '') {
+            return $englishValue;
+        }
+
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        throw new Exception('Demo content data must include at least one translated name.');
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
         $navigationDemoCreatorClass = NavigationDemoCreator::class;

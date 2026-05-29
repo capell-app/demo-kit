@@ -35,6 +35,18 @@ final class FullDemoCommand extends Command
             return Command::FAILURE;
         }
 
+        $queueConversionsByDefault = config('media-library.queue_conversions_by_default');
+        config(['media-library.queue_conversions_by_default' => false]);
+
+        try {
+            return $this->createFullDemo();
+        } finally {
+            config(['media-library.queue_conversions_by_default' => $queueConversionsByDefault]);
+        }
+    }
+
+    private function createFullDemo(): int
+    {
         $url = $this->resolveUrl();
         $plan = BuildDemoGenerationPlanAction::run([
             'sites' => $this->parseCsvOption('sites'),

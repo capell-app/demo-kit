@@ -10,6 +10,18 @@ Demo content and media kit for Capell.
 - Service providers: `packages/demo-kit/src/Providers/DemoKitServiceProvider.php`
 - Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
 
+## Why It Helps Your Capell Workflow
+
+- Creates repeatable demo content and media so package demos, sales reviews, screenshots, and QA runs start from known data.
+- Helps owners and stakeholders see a realistic Capell site without hand-building fixture pages every time.
+- Keeps demo creation in package Actions and setup flows so production content boundaries stay separate from presentation examples.
+
+## Best Used With
+
+- [Foundation Theme](../foundation-theme/README.md)
+- [Layout Builder](../layout-builder/README.md)
+- [Content Sections](../content-sections/README.md)
+
 ## What It Adds
 
 Generated demo content and media kit for Capell.
@@ -59,6 +71,8 @@ This package makes its Composer dependencies visible because they are part of th
 - `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
 - `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
 - `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for block, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
+- The Kitchen Sink page intentionally server-renders only the structured-text reference block up front. The remaining reference block families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation
@@ -73,6 +87,10 @@ Useful options:
 - `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
 
 Omit `--seed` for a fresh random demo on each run.
+
+## Kitchen Sink Lighthouse Notes
+
+The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Devilbox or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
 
 ## Content Rendering Boundary
 
@@ -103,6 +121,7 @@ Current examples:
 
 ## Docs
 
+- [docs index](docs/README.md)
 - [overview.md](docs/overview.md)
 - [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
 

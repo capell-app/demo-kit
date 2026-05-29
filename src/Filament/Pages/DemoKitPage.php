@@ -34,7 +34,7 @@ final class DemoKitPage extends Page
     }
 
     #[Override]
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return (string) __('capell-admin::navigation.group_system');
     }
@@ -52,7 +52,7 @@ final class DemoKitPage extends Page
     }
 
     #[Override]
-    public function getSubheading(): ?string
+    public function getSubheading(): string
     {
         return (string) __('capell-demo-kit::page.subheading');
     }

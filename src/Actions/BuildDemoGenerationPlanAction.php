@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static DemoGenerationPlanData run(array $options = [])
+ * @method static DemoGenerationPlanData run(array{sites?: list<string>, site_count?: int, pages?: int, languages?: list<string>, seed?: int|null} $options = [])
  */
 final class BuildDemoGenerationPlanAction
 {
@@ -251,12 +251,6 @@ final class BuildDemoGenerationPlanAction
             new DemoPagePlanData(
                 name: $this->translatedName('Pricing'),
                 mediaCount: 0,
-                children: [
-                    new DemoPagePlanData(
-                        name: $this->translatedName('Implementation'),
-                        mediaCount: 0,
-                    ),
-                ],
             ),
             new DemoPagePlanData(
                 name: $this->translatedName('Resources'),

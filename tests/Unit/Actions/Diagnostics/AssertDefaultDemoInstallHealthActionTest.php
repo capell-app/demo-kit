@@ -11,7 +11,7 @@ use Capell\Core\Models\Translation;
 use Capell\DemoKit\Actions\Diagnostics\AssertDefaultDemoInstallHealthAction;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Str;
@@ -78,6 +78,7 @@ function showcaseBlockKeys(): array
         'capell-home-hero-command-center',
         'capell-home-proof-strip',
         'capell-home-demo-showcase',
+        'capell-home-demo-widgets-carousel',
         'capell-extension-marketplace-showcase',
         'capell-home-technical-pipeline',
         'capell-home-route-split',
@@ -106,13 +107,13 @@ function createDemoHealthLayout(Site $site, array $blockKeys): Layout
         ]);
 }
 
-function createDemoHealthBlock(string $key, string $title): Block
+function createDemoHealthBlock(string $key, string $title): Widget
 {
     $type = Blueprint::factory()->create([
-        'type' => LayoutTypeEnum::Block->value,
+        'type' => LayoutTypeEnum::Widget->value,
     ]);
 
-    $block = Block::factory()
+    $block = Widget::factory()
         ->for($type, 'type')
         ->create([
             'key' => $key,
@@ -136,6 +137,7 @@ function showcaseBlockTitle(string $key): string
         'capell-home-hero-command-center' => 'Capell CMS',
         'capell-home-proof-strip' => 'Proof points for a healthier release',
         'capell-home-demo-showcase' => 'A complete CMS foundation',
+        'capell-home-demo-widgets-carousel' => 'Interactive demo widgets',
         'capell-extension-marketplace-showcase' => 'Extension marketplace showcase',
         'capell-home-technical-pipeline' => 'Everything visible is backed by editable records',
         'capell-home-route-split' => 'From model to public page',
@@ -145,7 +147,7 @@ function showcaseBlockTitle(string $key): string
 
 function createBlockAssets(string $blockKey, int $count): void
 {
-    $block = Block::query()->where('key', $blockKey)->firstOrFail();
+    $block = Widget::query()->where('key', $blockKey)->firstOrFail();
 
     for ($index = 0; $index < $count; $index++) {
         resolve(ConnectionResolverInterface::class)->table('block_assets')->insert([

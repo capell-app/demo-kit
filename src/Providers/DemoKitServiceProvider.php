@@ -8,6 +8,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Renderables\RenderableRegistry;
@@ -15,8 +16,13 @@ use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Console\Commands\DemoCommand;
 use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
+use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
+use Capell\DemoKit\Livewire\ResourcesLibrary;
+use Capell\DemoKit\Support\KitchenSinkPublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
@@ -41,6 +47,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 FullDemoCommand::class,
                 DemoKitDoctorCommand::class,
                 RefreshDemoStitchPagesCommand::class,
+                KitchenSinkDemoCommand::class,
             ]);
     }
 
@@ -52,12 +59,27 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
 
         $this->registerAdminPanelExtensions();
+        $this->registerPublicBlockPayloadContributors();
     }
 
     public function packageBooted(): void
     {
+        $this->registerLivewireComponents();
+        $this->registerTailwindSources();
         $this->registerRenderables();
         $this->registerAdminPanelExtensions();
+    }
+
+    private function registerLivewireComponents(): void
+    {
+        Livewire::component('capell-demo-kit.resources-library', ResourcesLibrary::class);
+    }
+
+    private function registerTailwindSources(): void
+    {
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource('resources/views/**/*.blade.php', self::$packageName),
+        );
     }
 
     private function registerRenderables(): void
@@ -77,6 +99,15 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             type: 'layout-block',
             blade: 'capell-demo-kit::block.homepage-section',
         ));
+    }
+
+    private function registerPublicBlockPayloadContributors(): void
+    {
+        if (! interface_exists(PublicBlockPayloadContributor::class)) {
+            return;
+        }
+
+        $this->app->tag([KitchenSinkPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
     }
 
     private function registerAdminPanelExtensions(): void
@@ -111,9 +142,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         }
 
         $registerExtensionPage = static function (CapellAdminManager $capellAdminManager): void {
-            if (! method_exists($capellAdminManager, 'registerExtensionPage')) {
-                return;
-            }
 
             $capellAdminManager->registerExtensionPage(self::$packageName, DemoKitPage::class);
         };

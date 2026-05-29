@@ -16,7 +16,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\DemoKit\Support\DemoContentPool;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -40,15 +40,21 @@ class DemoCreator extends ApDemoBlockCreator
         $this->pageModel = Page::class;
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
-        $this->blockModel = Block::class;
+        $this->blockModel = Widget::class;
         $this->contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;
     }
 
+    /**
+     * @param  Collection<int, Language>|null  $languages
+     */
     public function setupSite(Site $site, ?Collection $languages = null): void
     {
-        $languages ??= $site->languages;
+        $languages ??= Language::query()
+            ->whereKey($site->languages->modelKeys())
+            ->get();
+
         $title = ctype_digit($site->name[0]) ? $site->name : Str::title($site->name);
 
         $meta = $site->meta;
@@ -106,6 +112,9 @@ class DemoCreator extends ApDemoBlockCreator
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $languages
+     */
     public function createDefaultLanguages(?array $languages = null): void
     {
         foreach (resolve(DemoContentPool::class)->languages() as $item) {
@@ -142,7 +151,8 @@ class DemoCreator extends ApDemoBlockCreator
     }
 
     /**
-     * @param  null|Collection<int, Language>  $languages  =  null
+     * @param  array<array-key, mixed>  $data
+     * @param  Collection<int, Language>|null  $languages
      */
     public function createPage(
         array $data,
@@ -157,7 +167,8 @@ class DemoCreator extends ApDemoBlockCreator
         $languages ??= $site->languages;
         $pageCreator ??= new PageCreator;
 
-        $name = $this->canonicalDemoPageName(Str::title($data['name']['en']));
+        $names = is_array($data['name'] ?? null) ? $data['name'] : [];
+        $name = $this->canonicalDemoPageName(Str::title($this->preferredTranslatedValue($names, $languages)));
         $layout ??= $this->layoutForDemoPage($name);
 
         if ($name === 'Contact') {
@@ -202,7 +213,7 @@ class DemoCreator extends ApDemoBlockCreator
                         'Read More',
                         'Get Started',
                         'More information',
-                        'Unlock the Full Story',
+                        'View the full notes',
                     ]),
                     'slug' => $slug,
                 ],
@@ -211,13 +222,20 @@ class DemoCreator extends ApDemoBlockCreator
 
         $page = $pageCreator->createPage($pageData, $site, $languages);
 
-        if ($createMedia) {
+        if ($createMedia && $page instanceof Model) {
             $this->createMedia($page, $name);
+        }
+
+        if ($page instanceof Page) {
+            $this->syncDemoPageContentAssets($page, $name);
         }
 
         return $page;
     }
 
+    /**
+     * @param  Collection<int, Language>  $languages
+     */
     public function refreshDemoPage(Page $page, Collection $languages, bool $refreshUrls = true): Page
     {
         $name = $this->canonicalDemoPageName($page->name);
@@ -266,6 +284,8 @@ class DemoCreator extends ApDemoBlockCreator
             SetupPageUrlsAction::run($page);
         }
 
+        $this->syncDemoPageContentAssets($page, $name);
+
         return $page->refresh();
     }
 
@@ -281,5 +301,34 @@ class DemoCreator extends ApDemoBlockCreator
 
             $site->related()->attach($relatedSites)->save();
         });
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @param  Collection<int, Language>  $languages
+     */
+    private function preferredTranslatedValue(array $values, Collection $languages): string
+    {
+        foreach ($languages as $language) {
+            $value = $values[$language->code] ?? null;
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        $englishValue = $values['en'] ?? null;
+
+        if (is_string($englishValue) && $englishValue !== '') {
+            return $englishValue;
+        }
+
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        throw new InvalidArgumentException('Demo page data must include at least one translated name.');
     }
 }

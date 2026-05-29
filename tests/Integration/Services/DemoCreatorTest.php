@@ -16,8 +16,7 @@ use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\FormBuilder\Models\Form;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -57,6 +56,29 @@ it('creates a demo site with languages, pages, and media', function (): void {
     assertDatabaseHas('pages', ['name' => 'Home']);
 
     expect($page->translations->where('language_id', $language->id)->count())->toBeGreaterThan(0);
+});
+
+it('creates a demo page using the primary language name when english is unavailable', function (): void {
+    useTinyDemoResources();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->french(isDefault: true)->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $demoCreator->setupSite($site);
+
+    $page = $demoCreator->createPage([
+        'name' => ['fr' => 'Accueil'],
+        'title' => ['fr' => 'Bienvenue'],
+    ], $site, createMedia: false);
+
+    expect($page)->toBeInstanceOf(Page::class)
+        ->and($page->name)->toBe('Accueil')
+        ->and($page->translations()->where('language_id', $language->id)->exists())->toBeTrue();
 });
 
 it('creates a child page and attaches video media', function (): void {
@@ -99,8 +121,8 @@ it('creates a child page and attaches video media', function (): void {
 });
 
 it('throws if demo image path is empty', function (): void {
-    File::spy();
     $demoCreator = new DemoCreator;
+
     expect(fn (): string => $demoCreator->getRandomDemoImage('/nonexistent/path'))
         ->toThrow(UnexpectedValueException::class);
 });
@@ -109,7 +131,7 @@ it('sets up site translations and domains for languages', function (): void {
     $demoCreator = new DemoCreator(url: 'https://example.com');
     $demoCreator->createDefaultLanguages();
 
-    $languages = Language::all();
+    $languages = Language::query()->get();
 
     $site = Site::factory()->default()->create(['name' => 'Demo']);
     $demoCreator->setupSite($site, $languages);
@@ -136,7 +158,7 @@ it('keeps an existing null-domain fallback instead of creating a host-specific d
         'default' => true,
     ]);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$language]));
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey($language->getKey())->get());
 
     expect($site->siteDomains()->count())->toBe(1)
         ->and($site->siteDomains()->first()->domain)->toBeNull()
@@ -148,7 +170,7 @@ it('creates null-domain fallback domains when demo setup owns initial domain cre
     $french = Language::factory()->create(['code' => 'fr', 'default' => false]);
     $site = Site::factory()->language($english)->default()->create(['name' => 'Demo']);
 
-    (new DemoCreator(url: 'https://example.com'))->setupSite($site, new EloquentCollection([$english, $french]));
+    (new DemoCreator(url: 'https://example.com'))->setupSite($site, Language::query()->whereKey([$english->getKey(), $french->getKey()])->get());
 
     $siteDomains = $site->siteDomains()->orderBy('language_id')->get();
 
@@ -294,7 +316,6 @@ it('rejects demo zip symlink entries', function (): void {
 });
 
 it('creates a page with parent relation and media disabled', function (): void {
-    File::spy();
     $demoCreator = new DemoCreator;
 
     $language = Language::factory()->default()->create();
@@ -317,11 +338,9 @@ it('creates a page with parent relation and media disabled', function (): void {
 });
 
 it('uses standalone contact and footer layouts for demo pages', function (): void {
-    File::spy();
-
     Blueprint::factory()->create([
         'key' => BlockTypeEnum::Default->value,
-        'type' => LayoutTypeEnum::Block->value,
+        'type' => LayoutTypeEnum::Widget->value,
     ]);
 
     $demoCreator = new DemoCreator;
@@ -342,12 +361,45 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ->and($integrationsPage->layout?->key)->toBe('footer-standard')
         ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
         ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
+        ->and($contactPage->layout?->containers['bottom-banner']['widgets'])->toBe([
+            ['widget_key' => 'page-bottom-banner'],
+        ])
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->where('component', 'capell.block.default')->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->value('meta'))->toMatchArray([
+            'container' => 'full',
+            'margin' => ['t-xl'],
+            'padding' => ['lg'],
+            'background_color' => 'dark-gray',
+            'color_scheme' => 'light',
+        ])
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
-        ->and(Block::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
+        ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
+});
+
+it('adds the reusable bottom banner to the demo article layout', function (): void {
+    Blueprint::factory()->create([
+        'key' => BlockTypeEnum::Default->value,
+        'type' => LayoutTypeEnum::Widget->value,
+    ]);
+
+    $demoCreator = new DemoCreator;
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $demoCreator->setupSite($site);
+
+    $articlePage = $demoCreator->createPage([
+        'name' => ['en' => 'Home, Buildings and Architecture'],
+        'title' => ['en' => 'Home, Buildings and Architecture'],
+    ], $site, createMedia: false);
+
+    expect($articlePage->layout?->key)->toBe('capell-demo-platform-architecture')
+        ->and($articlePage->layout?->containers['bottom-banner']['widgets'])->toBe([
+            ['widget_key' => 'page-bottom-banner'],
+        ])
+        ->and($articlePage->layout?->widgets)->toContain('page-bottom-banner');
 });
 
 it('skips contact form integration when form builder is not installed', function (): void {
-    File::spy();
     CapellCore::forcePackageInstalled('capell-app/form-builder', false);
 
     $demoCreator = new DemoCreator;
@@ -361,7 +413,7 @@ it('skips contact form integration when form builder is not installed', function
 
     expect($contactPage->layout?->key)->toBe('contact-standalone')
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeFalse()
-        ->and(Block::query()->where('key', 'contact-form')->exists())->toBeFalse();
+        ->and(Widget::query()->where('key', 'contact-form')->exists())->toBeFalse();
 
     CapellCore::forcePackageInstalled('capell-app/form-builder');
 });
@@ -395,6 +447,37 @@ it('falls back to a random demo image when the requested media file does not exi
         ->and($media->file_name)->not()->toBe('missing-demo-image.jpg');
 
     Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
+});
+
+it('stores image dimensions without loading images through gd', function (): void {
+    useTinyDemoResources();
+    Queue::fake();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $demoCreator = new DemoCreator;
+
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $page = $demoCreator->createPage([
+        'name' => ['en' => 'Image Dimensions'],
+        'title' => ['en' => 'Image Dimensions'],
+    ], $site, $site->languages, null, null, null, false);
+
+    assert($page instanceof Page);
+
+    $demoCreator->createMedia($page, 'home');
+
+    $media = $page->refresh()->getFirstMedia(MediaCollectionEnum::Image->value);
+    assert($media !== null);
+
+    expect($media->custom_properties)
+        ->toMatchArray([
+            'width' => 32,
+            'height' => 32,
+        ]);
 });
 
 it('does not create duplicate media when a previously-loaded target collection already has media', function (): void {

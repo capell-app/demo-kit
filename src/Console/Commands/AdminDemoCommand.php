@@ -6,7 +6,6 @@ namespace Capell\DemoKit\Console\Commands;
 
 use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
-use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -109,7 +108,14 @@ class AdminDemoCommand extends Command
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
         } catch (Throwable $throwable) {
-            $this->error('Demo command failed: ' . $throwable->getMessage());
+            report($throwable);
+
+            $this->error(sprintf(
+                'Demo command failed: %s in %s:%d',
+                $throwable->getMessage(),
+                $throwable->getFile(),
+                $throwable->getLine(),
+            ));
             throw_if(app()->environment('testing'), $throwable);
 
             return Command::FAILURE;
@@ -121,6 +127,9 @@ class AdminDemoCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function resolveSites(): array
     {
         if ($this->option('sites') !== null) {
@@ -137,6 +146,9 @@ class AdminDemoCommand extends Command
         return $this->getDemoSites();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function resolveLanguages(): array
     {
         if ($this->hasOption('languages') && $this->option('languages') !== null) {
@@ -247,7 +259,7 @@ class AdminDemoCommand extends Command
         foreach ($plan->sites as $siteIndex => $sitePlan) {
             $siteNumber++;
 
-            /** @var Collection<int, Language> $siteLanguages */
+            /** @var \Illuminate\Support\Collection<int, Language> $siteLanguages */
             $siteLanguages = Language::query()
                 ->whereIn('code', $sitePlan->languageCodes)
                 ->get();
@@ -317,6 +329,9 @@ class AdminDemoCommand extends Command
         $bar->advance();
     }
 
+    /**
+     * @param  Collection<int, Language>  $languages
+     */
     private function setupSite(
         DemoSiteGenerationPlanData $demoData,
         Site $site,
@@ -331,12 +346,15 @@ class AdminDemoCommand extends Command
         }
     }
 
+    /**
+     * @param  Collection<int, Language>  $languages
+     */
     private function createPagesWithProgress(
         DemoPagePlanData $pageData,
         Site $site,
         Collection $languages,
         Language $defaultLanguage,
-        Pageable|bool|null $parent = null,
+        ?Page $parent = null,
         ?string $parentName = '',
         ?ProgressBar $bar = null,
     ): void {
@@ -355,6 +373,8 @@ class AdminDemoCommand extends Command
             $parent,
             createMedia: $pageData->mediaCount > 0,
         );
+
+        throw_unless($parent instanceof Page);
 
         if ($bar instanceof ProgressBar) {
             $bar->advance();

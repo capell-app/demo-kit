@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
+use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
@@ -22,6 +23,68 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Artisan;
+
+beforeEach(function (): void {
+    DemoPackageAction::resetProcessFactory();
+    DemoPackageAction::setProcessFactory(fn (array $command): object => new readonly class($command)
+    {
+        /** @param array<int, string> $command */
+        public function __construct(private array $command) {}
+
+        public function setTimeout(?float $timeout): self
+        {
+            return $this;
+        }
+
+        public function run(?callable $callback = null): int
+        {
+            $artisanIndex = array_search(base_path('artisan'), $this->command, true);
+            assert(is_int($artisanIndex));
+
+            $exitCode = Artisan::call($this->command[$artisanIndex + 1], $this->artisanArguments($artisanIndex + 2));
+
+            if ($callback !== null) {
+                $callback('out', Artisan::output());
+            }
+
+            return $exitCode;
+        }
+
+        public function isSuccessful(): bool
+        {
+            return true;
+        }
+
+        public function getExitCode(): int
+        {
+            return 0;
+        }
+
+        /** @return array<string, mixed> */
+        private function artisanArguments(int $argumentOffset): array
+        {
+            return collect(array_slice($this->command, $argumentOffset))
+                ->mapWithKeys(function (string $argument): array {
+                    if (! str_starts_with($argument, '--')) {
+                        return [];
+                    }
+
+                    if (! str_contains($argument, '=')) {
+                        return [$argument => true];
+                    }
+
+                    [$name, $value] = explode('=', $argument, 2);
+
+                    return [$name => str_contains($value, ',') ? explode(',', $value) : $value];
+                })
+                ->all();
+        }
+    });
+});
+
+afterEach(function (): void {
+    DemoPackageAction::resetProcessFactory();
+});
 
 function fakeDemoKitCurrentRouteName(string $routeName): void
 {
@@ -72,7 +135,8 @@ it('creates full multi site and language demo data and runs package demos', func
         '--force' => true,
     ])->assertExitCode(0);
 
-    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
+    capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
 });
 
 it('requires force when running non interactively', function (): void {
@@ -85,15 +149,15 @@ it('requires force when running non interactively', function (): void {
 it('registers its package owned extension page', function (): void {
     fakeDemoKitCurrentRouteName(DemoKitPage::getRouteName());
 
-    $expectation = expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
-        ->and(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class)
-        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
+    capell_expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class);
+    capell_expect(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class);
+    capell_expect(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
 
     if (! class_exists(ExtensionBreadcrumbDecorator::class)) {
         return;
     }
 
-    $expectation->and(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
+    capell_expect(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
         ExtensionsPage::getUrl() => __('capell-admin::navigation.extensions'),
         resolve(DemoKitPage::class)->getTitle(),
     ]);
@@ -102,7 +166,7 @@ it('registers its package owned extension page', function (): void {
 it('builds the insert example site data schema', function (): void {
     $schema = resolve(ExampleSiteDataActionSchema::class)->schema();
 
-    expect($schema)
+    capell_expect($schema)
         ->toHaveCount(3)
         ->and($schema[0])->toBeInstanceOf(TextInput::class)
         ->and($schema[1])->toBeInstanceOf(LanguageSelect::class)
@@ -124,5 +188,5 @@ it('inserts example site data through the registered demo command', function ():
         'sites' => ['Main Site'],
     ]);
 
-    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:insert-example-site-data']);
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:insert-example-site-data']);
 });

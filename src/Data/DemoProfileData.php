@@ -29,12 +29,13 @@ final class DemoProfileData extends Data
         return new self(
             seed: config('capell-demo-kit.seed'),
             counts: config('capell-demo-kit.counts'),
-            minimumBlockCount: 7,
+            minimumBlockCount: 8,
             minimumMediaCount: 8,
             showcaseBlockOrder: [
                 'capell-home-hero-command-center',
                 'capell-home-proof-strip',
                 'capell-home-demo-showcase',
+                'capell-home-demo-widgets-carousel',
                 'capell-extension-marketplace-showcase',
                 'capell-home-technical-pipeline',
                 'capell-home-route-split',

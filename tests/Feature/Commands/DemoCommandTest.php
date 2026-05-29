@@ -2,10 +2,73 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
 use Illuminate\Support\Facades\Artisan;
+
+beforeEach(function (): void {
+    DemoPackageAction::resetProcessFactory();
+    DemoPackageAction::setProcessFactory(fn (array $command): object => new readonly class($command)
+    {
+        /** @param array<int, string> $command */
+        public function __construct(private array $command) {}
+
+        public function setTimeout(?float $timeout): self
+        {
+            return $this;
+        }
+
+        public function run(?callable $callback = null): int
+        {
+            $artisanIndex = array_search(base_path('artisan'), $this->command, true);
+            assert(is_int($artisanIndex));
+
+            $exitCode = Artisan::call($this->command[$artisanIndex + 1], $this->artisanArguments($artisanIndex + 2));
+
+            if ($callback !== null) {
+                $callback('out', Artisan::output());
+            }
+
+            return $exitCode;
+        }
+
+        public function isSuccessful(): bool
+        {
+            return true;
+        }
+
+        public function getExitCode(): int
+        {
+            return 0;
+        }
+
+        /** @return array<string, mixed> */
+        private function artisanArguments(int $argumentOffset): array
+        {
+            return collect(array_slice($this->command, $argumentOffset))
+                ->mapWithKeys(function (string $argument): array {
+                    if (! str_starts_with($argument, '--')) {
+                        return [];
+                    }
+
+                    if (! str_contains($argument, '=')) {
+                        return [$argument => true];
+                    }
+
+                    [$name, $value] = explode('=', $argument, 2);
+
+                    return [$name => str_contains($value, ',') ? explode(',', $value) : $value];
+                })
+                ->all();
+        }
+    });
+});
+
+afterEach(function (): void {
+    DemoPackageAction::resetProcessFactory();
+});
 
 it('runs core demo command successfully', function (): void {
     TrackingDemoCommand::reset();

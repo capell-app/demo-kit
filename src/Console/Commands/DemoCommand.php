@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Console\Commands;
 
+use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Console\Commands\Concerns\HasPackageSelection;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Data\PackageData;
@@ -118,6 +119,10 @@ class DemoCommand extends Command
 
     /**
      * Install demo data for selected packages.
+     *
+     * @param  array<array-key, mixed>|null  $languages
+     * @param  array<array-key, mixed>|null  $sites
+     * @param  Collection<array-key, mixed>  $packages
      */
     private function installDemoPackages(Collection $packages, string $siteUrl, bool $user, ?array $languages, ?array $sites): void
     {
@@ -151,7 +156,7 @@ class DemoCommand extends Command
                 $params['--sites'] = $sites;
             }
 
-            $this->call($package->getDemoCommand(), $params);
+            DemoPackageAction::run($package, $params);
 
             $this->comment('Successfully setup demo: ' . $package->name);
             $this->newLine();
