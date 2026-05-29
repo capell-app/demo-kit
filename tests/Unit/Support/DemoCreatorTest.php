@@ -4,20 +4,36 @@ declare(strict_types=1);
 
 use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\ContainerWidthEnum;
+use Capell\Core\Enums\ContentStructure;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
+use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\DemoKit\Support\DemoPageContentAssetSections;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\CreateWidget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
+
+use function Pest\Laravel\assertDatabaseHas;
+
+uses(CreatesAdminUser::class);
 
 beforeEach(function (): void {
     foreach (CapellLayoutBuilderManager::getMigrations() as $migration) {
@@ -28,6 +44,246 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
 });
+
+function useTinyDemoKitWidgetResources(): void
+{
+    $demoDirectory = sys_get_temp_dir() . '/capell-demo-kit-widget-resources-' . uniqid();
+    $imageDirectory = $demoDirectory . '/img';
+    $videoDirectory = $demoDirectory . '/video';
+
+    File::ensureDirectoryExists($imageDirectory);
+    File::ensureDirectoryExists($videoDirectory);
+
+    $image = imagecreatetruecolor(32, 32);
+    assert($image instanceof GdImage);
+
+    $background = imagecolorallocate($image, 34, 139, 230);
+    assert(is_int($background));
+
+    imagefilledrectangle($image, 0, 0, 31, 31, $background);
+
+    foreach (['fallback', 'home', 'pricing', 'sharks'] as $imageName) {
+        imagejpeg($image, $imageDirectory . '/' . $imageName . '.jpg', 85);
+    }
+
+    imagedestroy($image);
+
+    File::put($videoDirectory . '/SampleVideo_1280x720_1mb.mp4', 'video');
+
+    test()->beforeApplicationDestroyed(function () use ($demoDirectory): void {
+        File::deleteDirectory($demoDirectory);
+    });
+
+    app()->instance(DemoResourceResolver::class, new readonly class($demoDirectory)
+    {
+        public function __construct(private string $demoDirectory) {}
+
+        public function resolve(?string $folder): string
+        {
+            return $this->demoDirectory . ($folder === null || $folder === '' ? '' : '/' . ltrim($folder, '/'));
+        }
+    });
+}
+
+/**
+ * @return array{creator: DemoCreator, languages: Collection<int, Language>, site: Site, page: Page}
+ */
+function prepareDemoKitWidgetCreatorFixture(): array
+{
+    useTinyDemoKitWidgetResources();
+    installContentSectionsForDemoAssets();
+    Storage::fake('public');
+
+    config()->set('media-library.disk_name', 'public');
+    config()->set('media-library.conversions_disk', 'public');
+
+    $typeCreator = resolve(TypeCreator::class);
+    $typeCreator->createDefaultContentType();
+    $typeCreator->createBuilderContentType();
+    $typeCreator->createBlockTypes();
+
+    $language = Language::factory()->english()->create();
+    $languages = Language::query()->whereKey($language->getKey())->get();
+    $site = Site::factory()->language($language)->default()->withTranslations($languages)->create();
+    $pageType = Blueprint::factory()->page()->default()->create([
+        'name' => 'Default Page',
+        'key' => 'default',
+        'status' => true,
+        'meta' => [
+            'accessible' => true,
+            'listable' => true,
+        ],
+    ]);
+
+    $creator = resolve(DemoCreator::class);
+    $creator->setupSite($site, $languages);
+
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($languages)
+        ->create([
+            'name' => 'Manual Widget Fixture Page',
+            'blueprint_id' => $pageType->getKey(),
+        ]);
+
+    $creator->createMedia($page, 'home', collection: MediaCollectionEnum::Image);
+
+    Page::factory()
+        ->count(4)
+        ->site($site)
+        ->withTranslations($languages)
+        ->create(['blueprint_id' => $pageType->getKey()])
+        ->each(function (Page $relatedPage) use ($creator): void {
+            $creator->createMedia($relatedPage, 'fallback', collection: MediaCollectionEnum::Image);
+        });
+
+    return [
+        'creator' => $creator,
+        'languages' => $languages,
+        'site' => $site,
+        'page' => $page,
+    ];
+}
+
+/**
+ * @param  array{creator: DemoCreator, languages: Collection<int, Language>, site: Site, page: Page}  $fixture
+ * @return array<string, callable(): Widget>
+ */
+function demoKitWidgetCreatorCases(array $fixture): array
+{
+    $creator = $fixture['creator'];
+    $languages = $fixture['languages'];
+    $site = $fixture['site'];
+    $page = $fixture['page'];
+
+    return [
+        'createApHeroBannerBlock' => $creator->createApHeroBannerBlock(...),
+        'createApCardGridBlock' => $creator->createApCardGridBlock(...),
+        'createApFeatureListBlock' => $creator->createApFeatureListBlock(...),
+        'createFeatureListBlock' => $creator->createFeatureListBlock(...),
+        'createApCtaSectionBlock' => $creator->createApCtaSectionBlock(...),
+        'createApImageGalleryBlock' => $creator->createApImageGalleryBlock(...),
+        'createModernFeatureListBlock' => $creator->createModernFeatureListBlock(...),
+        'createModernTeamMembersBlock' => $creator->createModernTeamMembersBlock(...),
+        'createModernPricingTableBlock' => $creator->createModernPricingTableBlock(...),
+        'createModernTestimonialsBlock' => $creator->createModernTestimonialsBlock(...),
+        'createModernFaqBlock' => $creator->createModernFaqBlock(...),
+        'createModernStatsSectionBlock' => $creator->createModernStatsSectionBlock(...),
+        'createModernAlternatingContentBlock' => $creator->createModernAlternatingContentBlock(...),
+        'createModernProcessStepsBlock' => $creator->createModernProcessStepsBlock(...),
+        'createModernImageGalleryBlock' => $creator->createModernImageGalleryBlock(...),
+        'createContentBlock' => fn (): Widget => $creator->createContentBlock($languages),
+        'createSplitContentBlock' => fn (): Widget => $creator->createSplitContentBlock($languages),
+        'createBannerImageBlock' => fn (): Widget => $creator->createBannerImageBlock($languages),
+        'createGalleryBlock' => $creator->createGalleryBlock(...),
+        'createPageCardsBlock' => fn (): Widget => $creator->createPageCardsBlock($page),
+        'createFaqBlock' => fn (): Widget => $creator->createFaqBlock($languages),
+        'createMediaCarouselBlock' => $creator->createMediaCarouselBlock(...),
+        'createStaticNavigationBlock' => fn (): Widget => $creator->createStaticNavigationBlock($languages, $site),
+        'createClientLogosBlock' => fn (): Widget => $creator->createClientLogosBlock($languages),
+        'createBusinessFeaturesBlock' => fn (): Widget => $creator->createBusinessFeaturesBlock($site),
+        'createBannersBlock' => $creator->createBannersBlock(...),
+        'createTestimonialsBlock' => fn (): Widget => $creator->createTestimonialsBlock($languages),
+        'createStatisticsBlock' => $creator->createStatisticsBlock(...),
+        'createTeamPortfolioBlock' => fn (): Widget => $creator->createTeamPortfolioBlock($languages),
+        'createHomepageHeroCommandCenterBlock' => $creator->createHomepageHeroCommandCenterBlock(...),
+        'createHomepageProofStripBlock' => $creator->createHomepageProofStripBlock(...),
+        'createHomepageDemoShowcaseBlock' => $creator->createHomepageDemoShowcaseBlock(...),
+        'createHomepageDemoWidgetsCarouselBlock' => $creator->createHomepageDemoWidgetsCarouselBlock(...),
+        'createHomepageMarketplaceBlock' => $creator->createHomepageMarketplaceBlock(...),
+        'createHomepageTechnicalPipelineBlock' => $creator->createHomepageTechnicalPipelineBlock(...),
+        'createHomepageRouteSplitBlock' => $creator->createHomepageRouteSplitBlock(...),
+        'createHomepageFinalCtaBlock' => $creator->createHomepageFinalCtaBlock(...),
+    ];
+}
+
+/**
+ * @return list<string>
+ */
+function publicDemoKitWidgetCreatorMethodNames(): array
+{
+    return collect((new ReflectionClass(DemoCreator::class))->getMethods(ReflectionMethod::IS_PUBLIC))
+        ->filter(function (ReflectionMethod $method): bool {
+            if (! str_starts_with($method->getName(), 'create')) {
+                return false;
+            }
+
+            if (! str_ends_with($method->getName(), 'Block')) {
+                return false;
+            }
+
+            $returnType = $method->getReturnType();
+
+            return $returnType instanceof ReflectionNamedType && $returnType->getName() === Widget::class;
+        })
+        ->map(fn (ReflectionMethod $method): string => $method->getName())
+        ->sort()
+        ->values()
+        ->all();
+}
+
+/**
+ * @param  array<string, mixed>  $actual
+ * @param  array<string, mixed>  $expected
+ */
+function expectDemoCreatorArrayValuesPreserved(array $actual, array $expected, string $context): void
+{
+    foreach ($expected as $key => $expectedValue) {
+        expect($actual)->toHaveKey($key);
+
+        if (is_array($expectedValue)) {
+            $actualValue = $actual[$key] ?? null;
+
+            expect($actualValue)->toBeArray($context . '.' . $key);
+
+            expectDemoCreatorArrayValuesPreserved($actualValue, $expectedValue, $context . '.' . $key);
+
+            continue;
+        }
+
+        expect($actual[$key] ?? null)->toBe($expectedValue, $context . '.' . $key);
+    }
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function manualWidgetFormStateFromDemoWidget(Widget $widget, string $key): array
+{
+    $meta = [];
+
+    if (is_array($widget->meta) && array_key_exists('navigation', $widget->meta)) {
+        $meta['navigation'] = $widget->meta['navigation'];
+    }
+
+    $translations = $widget->translations()
+        ->get()
+        ->mapWithKeys(fn (Translation $translation): array => [
+            (string) Str::uuid() => [
+                'language_id' => $translation->language_id,
+                'title' => $translation->title,
+                'content' => '<p>Manual demo widget content.</p>',
+                'summary' => $translation->summary,
+                'meta' => $translation->meta,
+            ],
+        ])
+        ->all();
+
+    return [
+        'name' => $widget->name . ' Manual',
+        'key' => $key,
+        'blueprint_id' => $widget->blueprint_id,
+        'status' => (bool) $widget->status,
+        'visible_from' => $widget->visible_from,
+        'visible_until' => $widget->visible_until,
+        'component' => $widget->component,
+        'component_item' => $widget->component_item,
+        'is_livewire' => $widget->is_livewire,
+        'view_file' => $widget->view_file,
+        'meta' => $meta,
+        'translations' => $translations,
+    ];
+}
 
 function installContentSectionsForDemoAssets(): void
 {
@@ -68,6 +324,150 @@ it('creates homepage demo snippets as layout builder blocks', function (): void 
         ->and($block->getMeta('margin'))->toBe(['none'])
         ->and($block->getMeta('padding'))->toBe(['none'])
         ->and($block->getViewFile())->toBeNull();
+});
+
+it('persists every public demo kit widget creator output', function (): void {
+    $fixture = prepareDemoKitWidgetCreatorFixture();
+    $cases = demoKitWidgetCreatorCases($fixture);
+
+    expect(collect(array_keys($cases))->sort()->values()->all())
+        ->toBe(publicDemoKitWidgetCreatorMethodNames());
+
+    foreach ($cases as $method => $createWidget) {
+        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'type']);
+        $persistedWidget = Widget::query()
+            ->with(['translations', 'assets', 'media'])
+            ->whereKey($widget->getKey())
+            ->firstOrFail();
+
+        expect($persistedWidget->exists)->toBeTrue($method)
+            ->and($persistedWidget->name)->toBe($widget->name, $method)
+            ->and($persistedWidget->key)->toBe($widget->key, $method)
+            ->and($persistedWidget->blueprint_id)->toBe($widget->blueprint_id, $method)
+            ->and($persistedWidget->component)->toBe($widget->component, $method)
+            ->and($persistedWidget->component_item)->toBe($widget->component_item, $method)
+            ->and($persistedWidget->view_file)->toBe($widget->view_file, $method)
+            ->and($persistedWidget->is_livewire)->toBe($widget->is_livewire, $method)
+            ->and($persistedWidget->meta)->toBe($widget->meta, $method)
+            ->and($persistedWidget->admin)->toBe($widget->admin, $method)
+            ->and($persistedWidget->translations)->toHaveCount($widget->translations->count(), $method)
+            ->and($persistedWidget->assets)->toHaveCount($widget->assets->count(), $method)
+            ->and($persistedWidget->media)->toHaveCount($widget->media->count(), $method);
+
+        assertDatabaseHas('widgets', [
+            'id' => $widget->getKey(),
+            'key' => $widget->key,
+            'blueprint_id' => $widget->blueprint_id,
+        ]);
+    }
+});
+
+it('can manually create every demo kit widget type through Filament', function (): void {
+    test()->actingAsAdmin();
+
+    $fixture = prepareDemoKitWidgetCreatorFixture();
+
+    foreach (demoKitWidgetCreatorCases($fixture) as $method => $createWidget) {
+        $demoWidget = $createWidget()->refresh();
+        $manualKey = $demoWidget->key . '-manual-' . Str::random(8);
+        $state = manualWidgetFormStateFromDemoWidget($demoWidget, $manualKey);
+
+        Livewire::test(CreateWidget::class)
+            ->assertSuccessful()
+            ->set('data.blueprint_id', $demoWidget->blueprint_id)
+            ->set('data.translations', [])
+            ->fillForm($state)
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $manualWidget = Widget::query()
+            ->where('key', $manualKey)
+            ->with('translations')
+            ->firstOrFail();
+
+        expect($manualWidget->name)->toBe($state['name'], $method)
+            ->and($manualWidget->blueprint_id)->toBe($demoWidget->blueprint_id, $method)
+            ->and($manualWidget->component)->toBe($demoWidget->component, $method)
+            ->and($manualWidget->component_item)->toBe($demoWidget->component_item, $method)
+            ->and($manualWidget->view_file)->toBe($demoWidget->view_file, $method)
+            ->and((bool) $manualWidget->is_livewire)->toBe((bool) $demoWidget->is_livewire, $method)
+            ->and($manualWidget->meta)->toBeArray($method)
+            ->and($manualWidget->translations)->toHaveCount($demoWidget->translations()->count(), $method);
+    }
+});
+
+it('can edit every demo kit creator widget through Filament without losing creator data', function (): void {
+    test()->actingAsAdmin();
+
+    $fixture = prepareDemoKitWidgetCreatorFixture();
+    $language = $fixture['languages']->first();
+
+    expect($language)->toBeInstanceOf(Language::class);
+    assert($language instanceof Language);
+
+    foreach (demoKitWidgetCreatorCases($fixture) as $method => $createWidget) {
+        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'type']);
+        $originalMeta = $widget->meta;
+        $originalAdmin = $widget->admin;
+        $originalAssetIds = $widget->assets->pluck('id')->sort()->values()->all();
+        $originalMediaIds = $widget->media->pluck('id')->sort()->values()->all();
+        $existingTranslation = $widget->translations->firstWhere('language_id', $language->getKey());
+        $editedName = $widget->name . ' Edited';
+        $editedTitle = $widget->name . ' edited title';
+        $editedHtml = '<p>Edited demo creator widget content for ' . e($widget->key) . '.</p>';
+        $editedContent = $widget->type?->content_structure === ContentStructure::Blocks
+            ? [['type' => 'content', 'data' => ['content' => $editedHtml]]]
+            : $editedHtml;
+
+        try {
+            $component = Livewire::test(EditWidget::class, ['record' => $widget->getRouteKey()])
+                ->assertSuccessful()
+                ->fillForm([
+                    'name' => $editedName,
+                    'status' => (bool) $widget->status,
+                ]);
+
+            if ($existingTranslation instanceof Translation) {
+                $component
+                    ->set('data.translations.record-' . $existingTranslation->getKey() . '.title', $editedTitle)
+                    ->set('data.translations.record-' . $existingTranslation->getKey() . '.content', $editedContent);
+            }
+
+            $component
+                ->call('save')
+                ->assertHasNoFormErrors();
+        } catch (Throwable $throwable) {
+            throw new RuntimeException($method . ': ' . $throwable->getMessage(), $throwable->getCode(), previous: $throwable);
+        }
+
+        $editedWidget = $widget->refresh()->loadMissing(['assets', 'media']);
+        $editedTranslation = $editedWidget->translations()
+            ->where('language_id', $language->getKey())
+            ->first();
+
+        expect($editedWidget->name)->toBe($editedName, $method)
+            ->and($editedWidget->assets->pluck('id')->sort()->values()->all())->toBe($originalAssetIds, $method)
+            ->and($editedWidget->media->pluck('id')->sort()->values()->all())->toBe($originalMediaIds, $method);
+
+        if ($existingTranslation instanceof Translation) {
+            expect($editedTranslation?->title)->toBe($editedTitle, $method);
+
+            if ($widget->type?->content_structure === ContentStructure::Blocks) {
+                expect(json_decode((string) $editedTranslation?->getRawOriginal('content'), true))
+                    ->toBe($editedContent, $method);
+            } else {
+                expect($editedTranslation?->content)->toBe($editedContent, $method);
+            }
+        }
+
+        if (is_array($originalAdmin) && $originalAdmin !== []) {
+            expect($editedWidget->admin)->toMatchArray($originalAdmin, $method . ':admin');
+        }
+
+        if (is_array($originalMeta) && $originalMeta !== []) {
+            expectDemoCreatorArrayValuesPreserved($editedWidget->meta ?? [], $originalMeta, $method . ':meta');
+        }
+    }
 });
 
 it('creates the interactive homepage widgets carousel block', function (): void {
