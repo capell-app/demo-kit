@@ -136,6 +136,7 @@ it('creates full multi site and language demo data and runs package demos', func
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
+    capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
 });
 
 it('requires force when running non interactively', function (): void {

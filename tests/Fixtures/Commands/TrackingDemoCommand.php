@@ -11,6 +11,8 @@ class TrackingDemoCommand extends Command
     /** @var list<string> */
     public static array $executionOrder = [];
 
+    public static ?bool $queueConversionsByDefault = null;
+
     public function __construct(string $signature = 'test:demo {--url=} {--user=} {--languages=*} {--sites=*}')
     {
         $this->signature = $signature;
@@ -21,11 +23,13 @@ class TrackingDemoCommand extends Command
     public static function reset(): void
     {
         self::$executionOrder = [];
+        self::$queueConversionsByDefault = null;
     }
 
     public function handle(): int
     {
         self::$executionOrder[] = $this->getName() ?? $this->signature;
+        self::$queueConversionsByDefault = config('media-library.queue_conversions_by_default');
 
         return Command::SUCCESS;
     }

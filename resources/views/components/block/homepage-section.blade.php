@@ -90,6 +90,22 @@
                 --swiper-pagination-bullet-horizontal-gap: 0.2rem;
             }
 
+            @property --capell-home-hero-progress {
+                syntax: '<angle>';
+                inherits: false;
+                initial-value: 0deg;
+            }
+
+            @keyframes capellHomeHeroProgress {
+                from {
+                    --capell-home-hero-progress: 0deg;
+                }
+
+                to {
+                    --capell-home-hero-progress: 360deg;
+                }
+            }
+
             .capell-home-hero-carousel .swiper-slide {
                 height: auto;
             }
@@ -154,8 +170,9 @@
 
             .capell-home-hero-carousel-controls
                 .swiper-pagination-bullet-active::before {
+                animation: capellHomeHeroProgress 4200ms linear forwards;
                 background: conic-gradient(
-                    rgb(49 95 143 / 0.38) 360deg,
+                    rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
                     rgb(154 166 181 / 0.12) 0
                 );
                 opacity: 0.55;
@@ -169,6 +186,7 @@
             @media (prefers-reduced-motion: reduce) {
                 .capell-home-hero-carousel-controls
                     .swiper-pagination-bullet-active::before {
+                    animation: none;
                     background: conic-gradient(
                         rgb(49 95 143 / 0.38) 360deg,
                         rgb(154 166 181 / 0.12) 0

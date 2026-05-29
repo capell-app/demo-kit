@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions\Diagnostics;
 
 use Capell\Core\Actions\Diagnostics\VerifyFrontendBuildAssetsAction;
+use Capell\Core\Actions\Packages\BuildPackageCapabilityGraphAction;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Data\Diagnostics\FrontendBuildAssetVerificationResultData;
+use Capell\Core\Enums\PackageCapability;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\DemoKit\Data\DemoProfileData;
+use Capell\Frontend\Actions\AssertPublicRenderContractAction;
+use Capell\HtmlCache\Actions\BuildHtmlCacheEligibilityReportAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Facades\Schema;
@@ -46,6 +50,9 @@ final class AssertDefaultDemoInstallHealthAction
             ] : []),
             $this->minimumMediaCount(),
             $this->runtimeAssetsExist(),
+            $this->capabilityGraphIncludesDemoPackages(),
+            $this->cacheEligibilityDiagnosticsAreAvailable(),
+            $this->publicRenderContractIsAvailable(),
         ]);
 
         return new DemoInstallHealthData($checks);
@@ -296,6 +303,63 @@ final class AssertDefaultDemoInstallHealthAction
             label: 'Required published runtime assets',
             passed: true,
             message: 'All registered runtime build assets are published.',
+        );
+    }
+
+    private function capabilityGraphIncludesDemoPackages(): DoctorCheckResultData
+    {
+        $graph = BuildPackageCapabilityGraphAction::run();
+
+        if ($graph->packageHas('capell-app/frontend', PackageCapability::PublicStatic)
+            || $graph->packageHas('capell-app/foundation-theme', PackageCapability::FrontendAssets)) {
+            return new DoctorCheckResultData(
+                label: 'Default demo package capabilities',
+                passed: true,
+                message: 'The package capability graph includes frontend demo capabilities.',
+            );
+        }
+
+        return new DoctorCheckResultData(
+            label: 'Default demo package capabilities',
+            passed: false,
+            message: 'The package capability graph does not include expected frontend demo capabilities.',
+            remediation: 'Confirm capell.json manifests are discovered and include typed frontend capabilities.',
+        );
+    }
+
+    private function cacheEligibilityDiagnosticsAreAvailable(): DoctorCheckResultData
+    {
+        if (class_exists(BuildHtmlCacheEligibilityReportAction::class)) {
+            return new DoctorCheckResultData(
+                label: 'Default demo cache eligibility diagnostics',
+                passed: true,
+                message: 'HTML cache eligibility diagnostics are available for demo routes.',
+            );
+        }
+
+        return new DoctorCheckResultData(
+            label: 'Default demo cache eligibility diagnostics',
+            passed: false,
+            message: 'HTML cache eligibility diagnostics are not available.',
+            remediation: 'Install capell-app/html-cache with the demo package set.',
+        );
+    }
+
+    private function publicRenderContractIsAvailable(): DoctorCheckResultData
+    {
+        if (class_exists(AssertPublicRenderContractAction::class)) {
+            return new DoctorCheckResultData(
+                label: 'Default demo public render contract',
+                passed: true,
+                message: 'The public render contract can validate demo frontend output.',
+            );
+        }
+
+        return new DoctorCheckResultData(
+            label: 'Default demo public render contract',
+            passed: false,
+            message: 'The public render contract action is not available.',
+            remediation: 'Update capell-app/frontend before running demo parity checks.',
         );
     }
 
