@@ -34,7 +34,7 @@ use Illuminate\Support\Str;
 abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createContentBlock(Collection $languages): Widget
     {
@@ -47,8 +47,8 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             'blueprint_id' => $type->id,
             'meta' => [
                 'size' => 'md',
-                'margin' => 'none',
-                'padding' => 'md',
+                'margin' => ['none'],
+                'padding' => ['md'],
                 'reverse_order' => true,
                 'background_color' => 'light-gray',
                 'actions' => [
@@ -92,7 +92,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createSplitContentBlock(Collection $languages): Widget
     {
@@ -105,8 +105,8 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 'align' => 'center',
                 'size' => 'md',
                 'style' => 'column',
-                'padding' => 'xl',
-                'margin' => 'none',
+                'padding' => ['xl'],
+                'margin' => ['none'],
                 'actions' => [
                     [
                         'type' => ActionLinkEnum::Page->value,
@@ -148,7 +148,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createBannerImageBlock(Collection $languages): Widget
     {
@@ -229,7 +229,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createFaqBlock(Collection $languages): Widget
     {
@@ -375,7 +375,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createStaticNavigationBlock(Collection $languages, Site $site): Widget
     {
@@ -556,7 +556,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createClientLogosBlock(Collection $languages): Widget
     {
@@ -581,11 +581,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             return $block;
         }
 
-        $languages->each(function (Model $language) use ($block): void {
-            if (! $language instanceof Language) {
-                return;
-            }
-
+        $languages->each(function (Language $language) use ($block): void {
             $block->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -669,7 +665,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createTestimonialsBlock(Collection $languages): Widget
     {
@@ -678,11 +674,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $this->createMedia($block, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Model $language) use ($block): void {
-            if (! $language instanceof Language) {
-                return;
-            }
-
+        $languages->each(function (Language $language) use ($block): void {
             $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
@@ -714,7 +706,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 4,
-                'margin' => 'none',
+                'margin' => ['none'],
                 'container' => ContainerWidthEnum::Small->value,
             ],
             'admin' => [
@@ -783,7 +775,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      */
     public function createTeamPortfolioBlock(Collection $languages): Widget
     {
@@ -818,11 +810,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        $languages->each(function (Model $language) use ($block): void {
-            if (! $language instanceof Language) {
-                return;
-            }
-
+        $languages->each(function (Language $language) use ($block): void {
             $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Meet the people represented in the sample team directory.</p>',

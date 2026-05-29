@@ -1312,7 +1312,7 @@ abstract class BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      * @return Collection<int, Model>
      */
     protected function createTestimonials(Collection $languages): Collection
@@ -1374,10 +1374,6 @@ abstract class BaseDemoCreator
             $translations = [];
 
             foreach ($languages as $language) {
-                if (! $language instanceof Language) {
-                    continue;
-                }
-
                 if ($content->translations->contains('language_id', $language->id)) {
                     continue;
                 }
@@ -1398,7 +1394,7 @@ abstract class BaseDemoCreator
     }
 
     /**
-     * @param  Collection<int, Model>  $languages
+     * @param  Collection<int, Language>  $languages
      * @return Collection<int, Model>
      */
     protected function createTeamMembers(Collection $languages): Collection
@@ -1513,10 +1509,6 @@ abstract class BaseDemoCreator
             $translations = [];
 
             foreach ($languages as $language) {
-                if (! $language instanceof Language) {
-                    continue;
-                }
-
                 if ($content->translations->contains('language_id', $language->id)) {
                     continue;
                 }

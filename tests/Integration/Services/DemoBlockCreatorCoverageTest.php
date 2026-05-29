@@ -75,12 +75,17 @@ it('creates standard content blocks with translated portable content', function 
 
     $contentBlock = $creator->createContentBlock($site->languages);
     $splitBlock = $creator->createSplitContentBlock($site->languages);
+    $contentBlockContent = (string) $contentBlock->translations()->first()?->content;
+    $splitBlockContent = (string) $splitBlock->translations()->first()?->content;
+
     expect($contentBlock)->toBeInstanceOf(Widget::class)
         ->and($contentBlock->key)->toBe('example-content')
         ->and($contentBlock->translations)->toHaveCount(1)
-        ->and(json_decode((string) $contentBlock->translations()->first()?->content, true))->toBeArray()
+        ->and($contentBlockContent)->toContain('<p>')
+        ->and(strip_tags($contentBlockContent))->not->toBe('')
         ->and($splitBlock->key)->toBe('example-split-content')
-        ->and(json_decode((string) $splitBlock->translations()->first()?->content, true))->toBeArray();
+        ->and($splitBlockContent)->toContain('<p>')
+        ->and(strip_tags($splitBlockContent))->not->toBe('');
 });
 
 it('creates asset backed standard demo blocks idempotently', function (): void {
