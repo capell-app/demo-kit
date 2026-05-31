@@ -81,13 +81,24 @@ class AdminDemoCommand extends Command
         }
 
         try {
-            $plan = BuildDemoGenerationPlanAction::run([
+            /** @var array{sites?: list<string>, site_count?: int, pages?: int, languages?: list<string>, seed?: int|null} $options */
+            $options = [
                 'sites' => $this->resolveSites(),
-                'site_count' => $this->resolvePositiveIntegerOption('site-count'),
-                'pages' => $this->resolvePositiveIntegerOption('page-count'),
                 'languages' => $this->resolveLanguages(),
                 'seed' => $this->resolveSeedOption(),
-            ]);
+            ];
+
+            $siteCount = $this->resolvePositiveIntegerOption('site-count');
+            if ($siteCount !== null) {
+                $options['site_count'] = $siteCount;
+            }
+
+            $pageCount = $this->resolvePositiveIntegerOption('page-count');
+            if ($pageCount !== null) {
+                $options['pages'] = $pageCount;
+            }
+
+            $plan = BuildDemoGenerationPlanAction::run($options);
             $siteUrl = $this->resolveSiteUrl();
             $user = $this->resolveUser();
 
@@ -128,7 +139,7 @@ class AdminDemoCommand extends Command
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return list<string>
      */
     private function resolveSites(): array
     {
@@ -143,11 +154,11 @@ class AdminDemoCommand extends Command
             )));
         }
 
-        return $this->getDemoSites();
+        return array_values($this->getDemoSites());
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return list<string>
      */
     private function resolveLanguages(): array
     {
@@ -162,7 +173,7 @@ class AdminDemoCommand extends Command
             ));
         }
 
-        return $this->getDemoLanguages();
+        return array_values($this->getDemoLanguages());
     }
 
     private function resolveSiteUrl(): string
@@ -179,17 +190,27 @@ class AdminDemoCommand extends Command
             );
         }
 
-        return $siteUrl;
+        return is_scalar($siteUrl) ? (string) $siteUrl : '';
     }
 
     private function resolveUser(): ?User
     {
         $user = $this->option('user');
         if ($user !== null) {
+            if (! is_scalar($user)) {
+                return null;
+            }
+
             $userModel = config('auth.providers.users.model');
-            $user = str_contains((string) $user, '@')
-                ? $userModel::query()->where('email', $user)->first()
-                : $userModel::query()->whereKey($user)->first();
+
+            if (! is_string($userModel) || ! is_subclass_of($userModel, User::class)) {
+                return null;
+            }
+
+            $userIdentifier = (string) $user;
+            $user = str_contains($userIdentifier, '@')
+                ? $userModel::query()->where('email', $userIdentifier)->first()
+                : $userModel::query()->whereKey($userIdentifier)->first();
         }
 
         if (! $user && auth()->check()) {
@@ -259,7 +280,7 @@ class AdminDemoCommand extends Command
         foreach ($plan->sites as $siteIndex => $sitePlan) {
             $siteNumber++;
 
-            /** @var \Illuminate\Support\Collection<int, Language> $siteLanguages */
+            /** @var Collection<int, Language> $siteLanguages */
             $siteLanguages = Language::query()
                 ->whereIn('code', $sitePlan->languageCodes)
                 ->get();

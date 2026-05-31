@@ -23,6 +23,8 @@ final class BuildDemoGenerationPlanAction
 
     public const int MAX_PAGE_COUNT = 250;
 
+    private int $randomState = 1;
+
     public function __construct(
         private readonly DemoContentPool $contentPool = new DemoContentPool,
     ) {}
@@ -35,11 +37,7 @@ final class BuildDemoGenerationPlanAction
         $profile = DemoProfileData::default();
         $seed = array_key_exists('seed', $options) ? $options['seed'] : $profile->seed;
 
-        if (is_int($seed)) {
-            mt_srand($seed);
-        } else {
-            mt_srand(random_int(1, PHP_INT_MAX));
-        }
+        $this->initializeRandomState($seed);
 
         $languageCodes = $this->resolveLanguageCodes($options['languages'] ?? []);
         $siteNames = $this->resolveSiteNames($options['sites'] ?? [], $options['site_count'] ?? null);
@@ -111,7 +109,7 @@ final class BuildDemoGenerationPlanAction
             return min($requested, self::MAX_PAGE_COUNT);
         }
 
-        return mt_rand($profile->counts['pages_per_site'][0], $profile->counts['pages_per_site'][1]);
+        return $this->randomInt($profile->counts['pages_per_site'][0], $profile->counts['pages_per_site'][1]);
     }
 
     /**
@@ -124,7 +122,7 @@ final class BuildDemoGenerationPlanAction
             return $available;
         }
 
-        $count = mt_rand($profile->counts['languages_per_site'][0], min($profile->counts['languages_per_site'][1], count($available)));
+        $count = $this->randomInt($profile->counts['languages_per_site'][0], min($profile->counts['languages_per_site'][1], count($available)));
 
         return $this->takeRandom($available, $count);
     }
@@ -142,7 +140,7 @@ final class BuildDemoGenerationPlanAction
         foreach (array_slice($availableNames, 0, $remainingCount) as $name) {
             $pages[] = new DemoPagePlanData(
                 name: $this->translatedName($name),
-                mediaCount: mt_rand($profile->counts['media_per_page'][0], $profile->counts['media_per_page'][1]),
+                mediaCount: $this->randomInt($profile->counts['media_per_page'][0], $profile->counts['media_per_page'][1]),
             );
         }
 
@@ -221,7 +219,7 @@ final class BuildDemoGenerationPlanAction
         }
 
         foreach ($deferredChildren as $pageIndex => $children) {
-            $availableCount = $count - $this->countPages($reservedPages);
+            $availableCount = $count - $this->countPages(array_values($reservedPages));
 
             if ($availableCount <= 0) {
                 break;
@@ -235,7 +233,7 @@ final class BuildDemoGenerationPlanAction
             );
         }
 
-        return $reservedPages;
+        return array_values($reservedPages);
     }
 
     /**
@@ -382,20 +380,20 @@ final class BuildDemoGenerationPlanAction
         $maxDepth = max(1, $profile->counts['page_depth'][1]);
 
         foreach ($pages as $page) {
-            if ($roots === [] || mt_rand(1, 100) <= 45 || $maxDepth === 1) {
+            if ($roots === [] || $this->randomInt(1, 100) <= 45 || $maxDepth === 1) {
                 $roots[] = $page;
 
                 continue;
             }
 
-            $parentIndex = mt_rand(0, count($roots) - 1);
+            $parentIndex = $this->randomInt(0, count($roots) - 1);
             $parent = $roots[$parentIndex];
             $children = $parent->children;
             $children[] = $page;
             $roots[$parentIndex] = new DemoPagePlanData($parent->name, $parent->mediaCount, $children);
         }
 
-        return $roots;
+        return array_values($roots);
     }
 
     /**
@@ -417,10 +415,29 @@ final class BuildDemoGenerationPlanAction
         $items = array_values($items);
 
         for ($index = count($items) - 1; $index > 0; $index--) {
-            $swapIndex = mt_rand(0, $index);
+            $swapIndex = $this->randomInt(0, $index);
             [$items[$index], $items[$swapIndex]] = [$items[$swapIndex], $items[$index]];
         }
 
         return array_slice($items, 0, max(0, $count));
+    }
+
+    private function initializeRandomState(?int $seed): void
+    {
+        $randomSeed = $seed ?? random_int(1, PHP_INT_MAX);
+        $state = abs($randomSeed % 2_147_483_647);
+
+        $this->randomState = $state > 0 ? $state : 1;
+    }
+
+    private function randomInt(int $minimum, int $maximum): int
+    {
+        if ($maximum <= $minimum) {
+            return $minimum;
+        }
+
+        $this->randomState = ($this->randomState * 1_103_515_245 + 12_345) & 0x7FFFFFFF;
+
+        return $minimum + ($this->randomState % ($maximum - $minimum + 1));
     }
 }

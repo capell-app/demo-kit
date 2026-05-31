@@ -8,9 +8,11 @@ use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\DemoKit\Filament\Configurators\Blocks\HomepageSectionBlockConfigurator;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
@@ -44,6 +46,37 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
 });
+
+function demoCreatorRequiredLayout(Page $page): Layout
+{
+    $layout = $page->layout;
+
+    throw_unless($layout instanceof Layout, RuntimeException::class, 'Expected the demo page to have a layout.');
+
+    return $layout;
+}
+
+function demoCreatorRequiredWidget(?Widget $widget): Widget
+{
+    throw_unless($widget instanceof Widget, RuntimeException::class, 'Expected a demo widget.');
+
+    return $widget;
+}
+
+function demoCreatorRequiredWidgetAsset(?WidgetAsset $asset): WidgetAsset
+{
+    throw_unless($asset instanceof WidgetAsset, RuntimeException::class, 'Expected a demo widget asset.');
+
+    return $asset;
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function demoCreatorWidgetAssetMeta(WidgetAsset $asset): array
+{
+    return is_array($asset->meta) ? $asset->meta : [];
+}
 
 function useTinyDemoKitWidgetResources(): void
 {
@@ -202,7 +235,7 @@ function demoKitWidgetCreatorCases(array $fixture): array
  */
 function publicDemoKitWidgetCreatorMethodNames(): array
 {
-    return collect((new ReflectionClass(DemoCreator::class))->getMethods(ReflectionMethod::IS_PUBLIC))
+    return array_values(collect((new ReflectionClass(DemoCreator::class))->getMethods(ReflectionMethod::IS_PUBLIC))
         ->filter(function (ReflectionMethod $method): bool {
             if (! str_starts_with($method->getName(), 'create')) {
                 return false;
@@ -219,7 +252,7 @@ function publicDemoKitWidgetCreatorMethodNames(): array
         ->map(fn (ReflectionMethod $method): string => $method->getName())
         ->sort()
         ->values()
-        ->all();
+        ->all());
 }
 
 /**
@@ -479,12 +512,18 @@ it('creates the interactive homepage widgets carousel block', function (): void 
     expect($block)->toBeInstanceOf(Widget::class)
         ->and($block->key)->toBe('capell-home-demo-widgets-carousel')
         ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($block->type?->key)->toBe('homepage-section')
+        ->and($block->type?->admin)->toMatchArray([
+            'configurator' => HomepageSectionBlockConfigurator::getKey(),
+        ])
+        ->and($block->meta)->toHaveKey('content')
+        ->and(data_get($block->meta, 'content.items.0.title'))->toBe('Editorial workflow')
         ->and($view)->toContain('window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1')
         ->and($view)->toContain('pageCount()')
         ->and($view)->toContain('x-on:touchstart.passive="swipeStart($event)"')
         ->and($view)->toContain('x-on:touchend.passive="swipeEnd($event)"')
-        ->and($view)->toContain('Editorial workflow')
-        ->and($view)->toContain('Translation queue');
+        ->and($view)->toContain('$homepageItems(\'items\')')
+        ->and($view)->not->toContain('Editorial workflow');
 });
 
 it('uses a blade-backed demo page content block for designed demo pages', function (): void {
@@ -605,10 +644,12 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
             ->where('container', 'main')
             ->where('occurrence', 1)
             ->get();
+        $asset = demoCreatorRequiredWidgetAsset($assets->first());
+        $assetMeta = demoCreatorWidgetAssetMeta($asset);
 
         expect($assets)->toHaveCount(1)
-            ->and($assets->first()?->meta['variant'])->toBe($variant)
-            ->and($assets->first()?->asset)->toBeInstanceOf(Section::class);
+            ->and($assetMeta['variant'] ?? null)->toBe($variant)
+            ->and($asset->asset)->toBeInstanceOf(Section::class);
     }
 });
 
@@ -623,13 +664,14 @@ it('seeds uniform contact routing content for designed contact pages', function 
         ->where('container', 'main')
         ->where('occurrence', 1)
         ->firstOrFail();
+    $assetMeta = demoCreatorWidgetAssetMeta($asset);
 
-    expect($asset->meta['variant'])->toBe('contact-routing')
+    expect($assetMeta['variant'] ?? null)->toBe('contact-routing')
         ->and($asset->asset)->toBeInstanceOf(Section::class)
-        ->and($asset->meta['title'])->toBe('Start the right conversation')
-        ->and($asset->meta['items'])->toContain(['label' => 'Project scoping', 'title' => 'New implementations', 'copy' => 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'])
-        ->and($asset->meta['items'])->toContain(['label' => 'Migration planning', 'title' => 'Move from legacy CMSs', 'copy' => 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'])
-        ->and($asset->meta['items'])->toContain(['label' => 'Partnerships', 'title' => 'Agency and technology work', 'copy' => 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.']);
+        ->and($assetMeta['title'] ?? null)->toBe('Start the right conversation')
+        ->and($assetMeta['items'] ?? [])->toContain(['label' => 'Project scoping', 'title' => 'New implementations', 'copy' => 'Plan content models, package boundaries, layouts, and launch checks before the build starts.'])
+        ->and($assetMeta['items'] ?? [])->toContain(['label' => 'Migration planning', 'title' => 'Move from legacy CMSs', 'copy' => 'Map pages, redirects, media, structured fields, and verification work into a clear migration path.'])
+        ->and($assetMeta['items'] ?? [])->toContain(['label' => 'Partnerships', 'title' => 'Agency and technology work', 'copy' => 'Discuss delivery partnerships, packaged integrations, and repeatable theme or content operations.']);
 });
 
 it('keeps seeded demo page assets idempotent and preserves editor assets', function (): void {
@@ -672,41 +714,45 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
         ->where('container', 'main')
         ->where('occurrence', 1)
         ->get();
+    $editorPageAsset = demoCreatorRequiredWidgetAsset($pageAssets->where('asset_id', $editorAsset->getKey())->first());
+    $editorAssetMeta = demoCreatorWidgetAssetMeta($editorPageAsset);
 
     expect($pageAssets)->toHaveCount(2)
         ->and($pageAssets->where('meta.demo_kit_seed', true))->toHaveCount(1)
-        ->and($pageAssets->where('asset_id', $editorAsset->getKey())->first()?->meta['editor_added'])->toBeTrue();
+        ->and($editorAssetMeta['editor_added'] ?? null)->toBeTrue();
 });
 
 it('preloads asset backed demo page content without lazy loading block assets', function (): void {
     $page = createDemoAssetPage('Services');
     $language = Language::query()->where('default', true)->firstOrFail();
-    $loadedBlock = resolve(LayoutLoader::class)->getLayoutBlock(
-        $page->layout,
+    $loadedBlock = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutBlock(
+        demoCreatorRequiredLayout($page),
         'demo-page-content',
         $language,
         $page,
         'main',
         1,
-    );
+    ));
+    $firstAsset = demoCreatorRequiredWidgetAsset($loadedBlock->assets->first());
+    $assetMeta = demoCreatorWidgetAssetMeta($firstAsset);
 
     expect($loadedBlock)->toBeInstanceOf(Widget::class)
-        ->and($loadedBlock?->relationLoaded('assets'))->toBeTrue()
-        ->and($loadedBlock?->assets)->toHaveCount(1)
-        ->and($loadedBlock?->assets->first()?->meta['variant'])->toBe('services-workbench');
+        ->and($loadedBlock->relationLoaded('assets'))->toBeTrue()
+        ->and($loadedBlock->assets)->toHaveCount(1)
+        ->and($assetMeta['variant'] ?? null)->toBe('services-workbench');
 });
 
 it('renders asset backed demo page content without exposing layout metadata', function (): void {
     $page = createDemoAssetPage('Services');
     $language = Language::query()->where('default', true)->firstOrFail();
-    $loadedBlock = resolve(LayoutLoader::class)->getLayoutBlock(
-        $page->layout,
+    $loadedBlock = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutBlock(
+        demoCreatorRequiredLayout($page),
         'demo-page-content',
         $language,
         $page,
         'main',
         1,
-    );
+    ));
     $sections = resolve(DemoPageContentAssetSections::class)
         ->resolve($loadedBlock, $page, 'main', 1);
     $classes = [

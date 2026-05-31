@@ -39,7 +39,11 @@ final class CreateDemoUsersAction
         /** @var class-string<User> $userModel */
         $userModel = config('auth.providers.users.model');
 
-        $panelUserRole = Role::findOrCreate($roleName);
+        $roles = [$roleName];
+
+        if ($roleName !== Utils::getSuperAdminName() && Utils::isPanelUserRoleEnabled()) {
+            $roles[] = Utils::getPanelUserRoleName();
+        }
 
         /** @var User $user */
         $user = $userModel::query()->where('email', $email)->first() ?? new $userModel;
@@ -48,6 +52,11 @@ final class CreateDemoUsersAction
         $user->password = Hash::make($password);
         $user->save();
 
-        $user->assignRole($panelUserRole);
+        $guardName = (string) config('auth.defaults.guard', 'web');
+
+        $user->assignRole(array_map(
+            static fn (string $role): Role => Role::findOrCreate($role, $guardName),
+            array_values(array_unique($roles)),
+        ));
     }
 }

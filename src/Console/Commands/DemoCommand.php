@@ -103,8 +103,10 @@ class DemoCommand extends Command
      */
     private function getSiteUrl(): string
     {
-        if ($this->option('url')) {
-            return $this->option('url');
+        $siteUrl = $this->option('url');
+
+        if (is_scalar($siteUrl) && (string) $siteUrl !== '') {
+            return (string) $siteUrl;
         }
 
         $this->requireInteractiveOrFail('Site URL', 'Pass --url=<url>.');

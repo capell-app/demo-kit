@@ -45,11 +45,17 @@ trait HasLanguagesOption
 
         $this->requireInteractiveOrFail('Example site languages', 'Pass --languages=<comma,separated,codes>.');
 
-        return multiselect(
+        $defaultLanguages = array_keys($databaseLanguages);
+        if ($defaultLanguages === []) {
+            $firstLanguage = array_key_first($demoLanguages);
+            $defaultLanguages = $firstLanguage === null ? [] : [$firstLanguage];
+        }
+
+        return array_values(array_map(static fn (mixed $language): string => (string) $language, multiselect(
             label: 'Choose the example site languages?',
             options: $demoLanguages,
-            default: count($databaseLanguages) > 0 ? array_keys($databaseLanguages) : [array_key_first($demoLanguages)],
+            default: $defaultLanguages,
             required: true,
-        );
+        )));
     }
 }

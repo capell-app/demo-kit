@@ -30,6 +30,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
@@ -98,9 +99,14 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     {
         $siteId = Site::query()->default()->value('id');
 
+        $blockType = $this->requireBlueprint(
+            $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget]),
+            'split content widget',
+        );
+
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $blockType->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -271,6 +277,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ->where('type', 'section')
             ->where('key', ContentTypeEnum::Builder)
             ->first();
+        $contentType = $this->requireBlueprint($contentType, 'FAQ content section');
 
         $parentContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'FAQs',
@@ -467,6 +474,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ->first();
         }
 
+        $type = $this->requireBlueprint($type, 'content section');
+
+        $site = $page->site;
+
+        throw_unless($site instanceof Site, RuntimeException::class, 'Unable to resolve a site for the content block page.');
+
         $features = [
             [
                 'title' => 'Empower Your Vision',
@@ -496,7 +509,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                         [
                             'type' => ActionLinkEnum::Page->value,
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
-                            'pageable_id' => Page::query()->where('site_id', $page->site->id)
+                            'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
                                     'type',
                                     /** @param Blueprint $query */
@@ -504,12 +517,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                                 )
                                 ->inRandomOrder()
                                 ->value('id'),
-                            'site_id' => $page->site->id,
+                            'site_id' => $site->id,
                         ],
                         [
                             'type' => ActionLinkEnum::Page->value,
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
-                            'pageable_id' => Page::query()->where('site_id', $page->site->id)
+                            'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
                                     'type',
                                     /** @param Blueprint $query */
@@ -517,7 +530,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                                 )
                                 ->inRandomOrder()
                                 ->value('id'),
-                            'site_id' => $page->site->id,
+                            'site_id' => $site->id,
                             'color' => 'secondary',
                         ],
                         [
@@ -532,7 +545,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ],
             ]);
 
-            foreach ($page->site->languages as $language) {
+            foreach ($site->languages as $language) {
                 $this->translationsFor($content)->updateOrCreate(
                     ['language_id' => $language->id],
                     [
@@ -564,7 +577,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'client logos widget')->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -603,7 +616,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget]), 'business features widget')->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -646,7 +659,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         $creator = resolve(BlockCreator::class);
         $block = $creator->bannerBlock();
 
-        $site = Site::getDefault();
+        $site = $this->requireDefaultSite();
 
         $features = $this->createFeatures($site);
 
@@ -700,7 +713,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     {
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'statistics widget')->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
                 'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
@@ -745,7 +758,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ];
 
-        $site = Site::getDefault();
+        $site = $this->requireDefaultSite();
 
         foreach ($statistics as $statistic) {
             $content = $this->contentModel::query()->firstOrCreate([

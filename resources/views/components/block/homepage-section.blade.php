@@ -7,8 +7,18 @@
 ])
 
 @php
+    use Capell\DemoKit\Support\HomepageDemoContent;
     use Capell\Frontend\Facades\Frontend;
     use Capell\Hero\Actions\ResolveHeroBackgroundDataAction;
+
+    $rawHomepageContent = $block->getMeta('content', []);
+    $homepageContent = HomepageDemoContent::mergeForBlock($block->key, is_array($rawHomepageContent) ? $rawHomepageContent : []);
+    $homepageText = static fn (string $key, string $fallback = ''): string => (string) data_get($homepageContent, $key, $fallback);
+    $homepageItems = static function (string $key, array $fallback = []) use ($homepageContent): array {
+        $items = data_get($homepageContent, $key, $fallback);
+
+        return is_array($items) ? $items : $fallback;
+    };
 
     $capellHeroBackground = null;
     $capellHeroBackgroundResolver = ResolveHeroBackgroundDataAction::class;
@@ -219,38 +229,11 @@
         @case('capell-home-hero-command-center')
             @php
                 $heroCarouselId = 'capell-home-hero-carousel-' . ($block->id ?? $loop->index);
-                $heroSlides = $block->getMeta('hero_slides', []);
+                $rawHeroSlides = $block->getMeta('hero_slides', []);
+                $heroSlides = $homepageItems('slides', is_array($rawHeroSlides) ? $rawHeroSlides : []);
 
-                if (! is_array($heroSlides) || $heroSlides === []) {
-                    $heroSlides = [
-                        [
-                            'image' => $block->getMeta('image_source'),
-                            'alt' => 'Capell CMS workspace preview',
-                            'label' => 'Page types',
-                            'value' => 'Home, Resources, Services',
-                            'status' => 'Typed',
-                        ],
-                        [
-                            'image' => [
-                                'type' => 'url',
-                                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
-                            ],
-                            'alt' => 'Capell content package dashboard preview',
-                            'label' => 'Packages',
-                            'value' => 'Layout Builder, SEO, Search, Publishing',
-                            'status' => 'Installed',
-                        ],
-                        [
-                            'image' => [
-                                'type' => 'url',
-                                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
-                            ],
-                            'alt' => 'Capell publishing workflow preview',
-                            'label' => 'Workflow',
-                            'value' => 'Draft, preview, approve, publish',
-                            'status' => 'Traceable',
-                        ],
-                    ];
+                if ($heroSlides === []) {
+                    $heroSlides = is_array($rawHeroSlides) ? $rawHeroSlides : [];
                 }
             @endphp
 
@@ -265,37 +248,34 @@
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
-                        Capell CMS
+                        {{ $homepageText('eyebrow') }}
                     </p>
                     <h1
                         class="capell-home-hero-title font-[Manrope] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-6xl"
                     >
-                        Composable content infrastructure for Laravel teams
+                        {{ $homepageText('heading') }}
                     </h1>
                     <p class="max-w-2xl text-lg leading-8 text-[#444650]">
-                        Ship multi-site CMS platforms without template sprawl:
-                        typed content, editor-owned layouts, package-owned
-                        rendering, static output, and diagnostics in one
-                        Laravel-native system.
+                        {{ $homepageText('copy') }}
                     </p>
                     <div class="flex flex-wrap gap-3">
                         <a
                             class="inline-flex min-h-12 items-center justify-center rounded-md border border-[#315f8f] bg-[#315f8f] px-5 font-extrabold text-white no-underline hover:bg-[#24496f]"
-                            href="/resources"
+                            href="{{ $homepageText('primary_url') }}"
                         >
-                            Explore the demo
+                            {{ $homepageText('primary_label') }}
                         </a>
                         <a
                             class="inline-flex min-h-12 items-center justify-center rounded-md border border-[#c7ced8] bg-white px-5 font-extrabold text-[#1a1c1b] no-underline hover:border-[#315f8f] hover:bg-[#f4f3f1]"
-                            href="/pricing"
+                            href="{{ $homepageText('secondary_url') }}"
                         >
-                            View pricing
+                            {{ $homepageText('secondary_label') }}
                         </a>
                     </div>
                 </section>
                 <section
                     class="overflow-hidden rounded-md border border-[#d9dee6] bg-white shadow-[0_18px_44px_rgb(26_28_27_/_0.08)]"
-                    aria-label="Capell system board"
+                    aria-label="{{ $homepageText('system_board_label') }}"
                 >
                     <div
                         class="capell-home-hero-carousel swiper"
@@ -349,7 +329,7 @@
                     >
                         <div
                             class="swiper-pagination"
-                            aria-label="Capell system board pagination"
+                            aria-label="{{ $homepageText('pagination_label') }}"
                         ></div>
                     </div>
                 </section>
@@ -359,56 +339,24 @@
         @case('capell-home-proof-strip')
             <div
                 class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
-                aria-label="Demo proof points"
+                aria-label="{{ $homepageText('label') }}"
             >
-                <div
-                    class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
-                >
-                    <strong
-                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
+                @foreach ($homepageItems('metrics') as $metric)
+                    <div
+                        class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                     >
-                        38
-                    </strong>
-                    <span class="mt-2 block text-sm font-bold text-slate-600">
-                        packages installed
-                    </span>
-                </div>
-                <div
-                    class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
-                >
-                    <strong
-                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
-                    >
-                        7
-                    </strong>
-                    <span class="mt-2 block text-sm font-bold text-slate-600">
-                        custom homepage blocks
-                    </span>
-                </div>
-                <div
-                    class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
-                >
-                    <strong
-                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
-                    >
-                        120+
-                    </strong>
-                    <span class="mt-2 block text-sm font-bold text-slate-600">
-                        static pages generated
-                    </span>
-                </div>
-                <div
-                    class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
-                >
-                    <strong
-                        class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
-                    >
-                        4
-                    </strong>
-                    <span class="mt-2 block text-sm font-bold text-slate-600">
-                        discovery checks
-                    </span>
-                </div>
+                        <strong
+                            class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
+                        >
+                            {{ $metric['value'] ?? '' }}
+                        </strong>
+                        <span
+                            class="mt-2 block text-sm font-bold text-slate-600"
+                        >
+                            {{ $metric['label'] ?? '' }}
+                        </span>
+                    </div>
+                @endforeach
             </div>
 
             @break
@@ -418,17 +366,15 @@
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
-                        What ships in the demo
+                        {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
                         class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
-                        Custom layouts that prove the CMS can change shape
+                        {{ $homepageText('heading') }}
                     </h2>
                     <p class="mt-4 text-lg leading-8 text-slate-600">
-                        Each homepage region uses a different composition so the
-                        demo feels like a real system, not a repeated stack of
-                        generic cards.
+                        {{ $homepageText('copy') }}
                     </p>
                 </div>
                 <div
@@ -436,7 +382,7 @@
                 >
                     <x-capell::image-source
                         :image="$block->getMeta('image_source')"
-                        alt="Capell demo workspace preview"
+                        alt="{{ $homepageText('image_alt') }}"
                         class="w-full object-cover"
                         style="height: 18rem"
                     />
@@ -444,169 +390,65 @@
                 <div
                     class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
                 >
-                    <article
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <p
-                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
+                    @foreach ($homepageItems('cards') as $card)
+                        <article
+                            class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                         >
-                            Editorial command center
-                        </p>
-                        <h3
-                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
-                        >
-                            Operational content, not placeholder blocks
-                        </h3>
-                        <p class="mt-3 text-base leading-7 text-slate-600">
-                            Use block translations, page types, layout
-                            containers, and package data to show how an
-                            editor-owned surface stays structured.
-                        </p>
-                    </article>
-                    <article
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <p
-                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                        >
-                            Package marketplace
-                        </p>
-                        <h3
-                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
-                        >
-                            Extension evidence grid
-                        </h3>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
+                            <p
+                                class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                             >
-                                SEO Suite
-                            </span>
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
+                                {{ $card['eyebrow'] ?? '' }}
+                            </p>
+                            <h3
+                                class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
                             >
-                                Search
-                            </span>
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
-                            >
-                                Forms
-                            </span>
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
-                            >
-                                Access Gate
-                            </span>
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
-                            >
-                                Newsletter
-                            </span>
-                            <span
-                                class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
-                            >
-                                Insights
-                            </span>
-                        </div>
-                    </article>
-                    <article
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <p
-                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                        >
-                            Publishing workflow
-                        </p>
-                        <h3
-                            class="mt-3 text-xl leading-tight font-extrabold text-slate-950"
-                        >
-                            Timeline plus checklist
-                        </h3>
-                        <ol class="mt-4 grid gap-3">
-                            <li class="grid gap-1">
-                                <strong>Model</strong>
-                                <span class="text-sm text-slate-600">
-                                    Types and blocks
-                                </span>
-                            </li>
-                            <li class="grid gap-1">
-                                <strong>Compose</strong>
-                                <span class="text-sm text-slate-600">
-                                    Layout containers
-                                </span>
-                            </li>
-                            <li class="grid gap-1">
-                                <strong>Release</strong>
-                                <span class="text-sm text-slate-600">
-                                    Cache and sitemap
-                                </span>
-                            </li>
-                        </ol>
-                    </article>
+                                {{ $card['title'] ?? '' }}
+                            </h3>
+                            @if (filled($card['copy'] ?? null))
+                                <p
+                                    class="mt-3 text-base leading-7 text-slate-600"
+                                >
+                                    {{ $card['copy'] }}
+                                </p>
+                            @endif
+
+                            @if (is_array($card['badges'] ?? null))
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    @foreach ($card['badges'] as $badge)
+                                        <span
+                                            class="rounded-md bg-slate-50 px-3 py-1 text-sm font-bold text-[#24496f]"
+                                        >
+                                            {{ $badge }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if (is_array($card['steps'] ?? null))
+                                <ol class="mt-4 grid gap-3">
+                                    @foreach ($card['steps'] as $step)
+                                        <li class="grid gap-1">
+                                            <strong>
+                                                {{ $step['title'] ?? '' }}
+                                            </strong>
+                                            <span
+                                                class="text-sm text-slate-600"
+                                            >
+                                                {{ $step['copy'] ?? '' }}
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ol>
+                            @endif
+                        </article>
+                    @endforeach
                 </div>
             </div>
 
             @break
         @case('capell-home-demo-widgets-carousel')
             @php
-                $demoWidgets = [
-                    [
-                        'code' => 'WF',
-                        'label' => 'Workflow',
-                        'title' => 'Editorial workflow',
-                        'description' => 'Draft, review, preview, approve, and publish from one traceable content queue.',
-                        'metric' => '5 states',
-                    ],
-                    [
-                        'code' => 'TH',
-                        'label' => 'Theme',
-                        'title' => 'Theme controls',
-                        'description' => 'Expose colors, spacing, navigation, and footer settings without leaking admin data.',
-                        'metric' => '12 tokens',
-                    ],
-                    [
-                        'code' => 'CL',
-                        'label' => 'Library',
-                        'title' => 'Content library',
-                        'description' => 'Reusable sections and typed blocks keep page building consistent across sites.',
-                        'metric' => '34 blocks',
-                    ],
-                    [
-                        'code' => 'SI',
-                        'label' => 'Insights',
-                        'title' => 'Search insights',
-                        'description' => 'Show what visitors search for and which pages need better content coverage.',
-                        'metric' => '8 queries',
-                    ],
-                    [
-                        'code' => 'NL',
-                        'label' => 'Newsletter',
-                        'title' => 'Newsletter capture',
-                        'description' => 'Place package-owned signup widgets into layouts with clear consent copy.',
-                        'metric' => '3 lists',
-                    ],
-                    [
-                        'code' => 'RC',
-                        'label' => 'Release',
-                        'title' => 'Release checklist',
-                        'description' => 'Verify cache, sitemap, assets, forms, and public output before handover.',
-                        'metric' => '9 checks',
-                    ],
-                    [
-                        'code' => 'MA',
-                        'label' => 'Media',
-                        'title' => 'Media automation',
-                        'description' => 'Generated conversions and alt text prompts keep image-heavy pages maintainable.',
-                        'metric' => '4 sizes',
-                    ],
-                    [
-                        'code' => 'TR',
-                        'label' => 'Locales',
-                        'title' => 'Translation queue',
-                        'description' => 'Track localized content coverage without changing the public rendering contract.',
-                        'metric' => '6 locales',
-                    ],
-                ];
+                $demoWidgets = $homepageItems('items');
             @endphp
 
             <section
@@ -677,18 +519,16 @@
                         <p
                             class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                         >
-                            Demo widgets
+                            {{ $homepageText('eyebrow') }}
                         </p>
                         <h2
                             id="capell-demo-widgets-title"
                             class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                         >
-                            Small interactive blocks that feel like a real CMS
+                            {{ $homepageText('heading') }}
                         </h2>
                         <p class="mt-4 text-lg leading-8 text-slate-600">
-                            These package-owned widgets fill out the homepage
-                            with concrete CMS behaviours while keeping the
-                            public frontend static, inspectable, and safe.
+                            {{ $homepageText('copy') }}
                         </p>
                     </div>
                     <div class="flex gap-2">
@@ -697,7 +537,7 @@
                             class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-300 bg-white text-xl font-black text-slate-950 transition hover:border-[#315f8f] hover:text-[#315f8f] disabled:cursor-not-allowed disabled:opacity-40"
                             x-on:click="previous()"
                             x-bind:disabled="active === 0"
-                            aria-label="Previous demo widgets"
+                            aria-label="{{ $homepageText('previous_label') }}"
                         >
                             <span aria-hidden="true">&lt;</span>
                         </button>
@@ -706,7 +546,7 @@
                             class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-300 bg-white text-xl font-black text-slate-950 transition hover:border-[#315f8f] hover:text-[#315f8f] disabled:cursor-not-allowed disabled:opacity-40"
                             x-on:click="next()"
                             x-bind:disabled="active === maxPage()"
-                            aria-label="Next demo widgets"
+                            aria-label="{{ $homepageText('next_label') }}"
                         >
                             <span aria-hidden="true">&gt;</span>
                         </button>
@@ -760,7 +600,7 @@
                                         <span
                                             class="text-sm font-bold text-slate-500"
                                         >
-                                            Demo state
+                                            {{ $homepageText('state_label') }}
                                         </span>
                                         <strong
                                             class="text-sm font-black text-[#315f8f]"
@@ -777,7 +617,7 @@
                 <div
                     class="flex justify-center gap-2"
                     role="tablist"
-                    aria-label="Demo widget carousel pages"
+                    aria-label="{{ $homepageText('pages_label') }}"
                 >
                     <template
                         x-for="index in pageCount()"
@@ -788,7 +628,7 @@
                             class="h-2.5 rounded-full transition-all"
                             x-bind:class="activePage() === index - 1 ? 'w-8 bg-[#315f8f]' : 'w-2.5 bg-slate-300'"
                             x-on:click="goPage(index - 1)"
-                            x-bind:aria-label="`Show demo widget set ${index}`"
+                            x-bind:aria-label="`{{ $homepageText('page_button_label') }} ${index}`"
                             x-bind:aria-selected="activePage() === index - 1"
                         ></button>
                     </template>
@@ -804,26 +644,22 @@
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
-                        Marketplace extensions
+                        {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
                         class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
-                        Extension pages that help teams decide
+                        {{ $homepageText('heading') }}
                     </h2>
                     <p class="mt-4 text-lg leading-8 text-slate-600">
-                        Extension detail pages show the contract behind each
-                        package: install eligibility, licence state, surfaces,
-                        dependencies, frontend budget, health status,
-                        documentation, feedback controls, and screenshot
-                        galleries.
+                        {{ $homepageText('copy') }}
                     </p>
                     <div
                         class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
                     >
                         <x-capell::image-source
                             :image="$block->getMeta('image_source')"
-                            alt="Capell marketplace screenshot preview"
+                            alt="{{ $homepageText('image_alt') }}"
                             class="w-full object-cover"
                             style="height: 14rem"
                         />
@@ -832,36 +668,16 @@
                 <div
                     class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
                 >
-                    <div
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <strong>See the product before installing</strong>
-                        <span class="mt-3 block text-slate-600">
-                            Large screenshots make admin pages, frontend
-                            components, settings screens, and workflows visible
-                            without leaving Capell.
-                        </span>
-                    </div>
-                    <div
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <strong>Keep extension boundaries explicit</strong>
-                        <span class="mt-3 block text-slate-600">
-                            Surfaces, dependencies, contribution counts, and
-                            performance budgets tell developers what the
-                            extension adds.
-                        </span>
-                    </div>
-                    <div
-                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
-                    >
-                        <strong>Connect docs to the buying decision</strong>
-                        <span class="mt-3 block text-slate-600">
-                            Public and entitled documentation sit beside licence
-                            status, access checks, version history, and
-                            Marketplace actions.
-                        </span>
-                    </div>
+                    @foreach ($homepageItems('cards') as $card)
+                        <div
+                            class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
+                        >
+                            <strong>{{ $card['title'] ?? '' }}</strong>
+                            <span class="mt-3 block text-slate-600">
+                                {{ $card['copy'] ?? '' }}
+                            </span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
@@ -874,68 +690,36 @@
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
-                        Release path
+                        {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
                         class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
-                        From admin edits to verified frontend
+                        {{ $homepageText('heading') }}
                     </h2>
                     <p class="mt-4 text-lg leading-8 text-slate-600">
-                        Capell keeps the editable CMS surface and the generated
-                        public output connected through explicit ownership and
-                        checks.
+                        {{ $homepageText('copy') }}
                     </p>
                 </div>
                 <ol
                     class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
                 >
-                    <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
-                    >
-                        <span class="text-sm font-black text-[#315f8f]">
-                            01
-                        </span>
-                        <strong>Model content</strong>
-                        <p class="text-sm leading-6 text-slate-600">
-                            Define typed pages, blocks, translations, media, and
-                            package fields.
-                        </p>
-                    </li>
-                    <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
-                    >
-                        <span class="text-sm font-black text-[#315f8f]">
-                            02
-                        </span>
-                        <strong>Compose layout</strong>
-                        <p class="text-sm leading-6 text-slate-600">
-                            Place blocks into containers that the public theme
-                            renders predictably.
-                        </p>
-                    </li>
-                    <li
-                        class="grid min-w-full snap-start gap-2 border-b border-slate-200 p-5 md:min-w-0 md:border-r md:border-b-0"
-                    >
-                        <span class="text-sm font-black text-[#315f8f]">
-                            03
-                        </span>
-                        <strong>Publish safely</strong>
-                        <p class="text-sm leading-6 text-slate-600">
-                            Preview changes, approve releases, warm cache, and
-                            generate static HTML.
-                        </p>
-                    </li>
-                    <li class="grid min-w-full snap-start gap-2 p-5 md:min-w-0">
-                        <span class="text-sm font-black text-[#315f8f]">
-                            04
-                        </span>
-                        <strong>Verify output</strong>
-                        <p class="text-sm leading-6 text-slate-600">
-                            Run doctor, discovery, sitemap, and runtime asset
-                            checks before handover.
-                        </p>
-                    </li>
+                    @foreach ($homepageItems('steps') as $step)
+                        <li
+                            @class([
+                                'grid min-w-full snap-start gap-2 p-5 md:min-w-0',
+                                'border-b border-slate-200 md:border-r md:border-b-0' => ! $loop->last,
+                            ])
+                        >
+                            <span class="text-sm font-black text-[#315f8f]">
+                                {{ $step['number'] ?? '' }}
+                            </span>
+                            <strong>{{ $step['title'] ?? '' }}</strong>
+                            <p class="text-sm leading-6 text-slate-600">
+                                {{ $step['copy'] ?? '' }}
+                            </p>
+                        </li>
+                    @endforeach
                 </ol>
             </div>
 
@@ -944,66 +728,28 @@
             <div
                 class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-10 md:grid md:grid-cols-3 md:overflow-visible md:py-14 [&::-webkit-scrollbar]:hidden"
             >
-                <a
-                    class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 text-slate-950 no-underline md:min-w-0 md:p-6"
-                    href="/resources"
-                >
-                    <span
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
+                @foreach ($homepageItems('items') as $item)
+                    <a
+                        class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 text-slate-950 no-underline md:min-w-0 md:p-6"
+                        href="{{ $item['url'] ?? '#' }}"
                     >
-                        Resources hub
-                    </span>
-                    <strong
-                        class="mt-3 block text-xl leading-tight font-extrabold"
-                    >
-                        Technical guides and launch checklists
-                    </strong>
-                    <em
-                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
-                    >
-                        Read the CMS playbook
-                    </em>
-                </a>
-                <a
-                    class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 text-slate-950 no-underline md:min-w-0 md:p-6"
-                    href="/pricing"
-                >
-                    <span
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
-                        Pricing
-                    </span>
-                    <strong
-                        class="mt-3 block text-xl leading-tight font-extrabold"
-                    >
-                        Licensing and support for production teams
-                    </strong>
-                    <em
-                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
-                    >
-                        Plan the rollout
-                    </em>
-                </a>
-                <a
-                    class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 text-slate-950 no-underline md:min-w-0 md:p-6"
-                    href="/contact#scoping"
-                >
-                    <span
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
-                        Contact
-                    </span>
-                    <strong
-                        class="mt-3 block text-xl leading-tight font-extrabold"
-                    >
-                        Architecture, migration, and package support
-                    </strong>
-                    <em
-                        class="mt-4 block text-sm font-bold text-slate-600 not-italic"
-                    >
-                        Start scoping
-                    </em>
-                </a>
+                        <span
+                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
+                        >
+                            {{ $item['eyebrow'] ?? '' }}
+                        </span>
+                        <strong
+                            class="mt-3 block text-xl leading-tight font-extrabold"
+                        >
+                            {{ $item['title'] ?? '' }}
+                        </strong>
+                        <em
+                            class="mt-4 block text-sm font-bold text-slate-600 not-italic"
+                        >
+                            {{ $item['cta'] ?? '' }}
+                        </em>
+                    </a>
+                @endforeach
             </div>
 
             @break
@@ -1015,27 +761,24 @@
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-slate-100 uppercase"
                     >
-                        Demo install
+                        {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
                         class="mt-3 max-w-2xl font-[Manrope] text-3xl leading-tight font-extrabold text-balance text-white md:text-5xl"
                     >
-                        Show a CMS that feels assembled, verified, and ready to
-                        extend.
+                        {{ $homepageText('heading') }}
                     </h2>
                     <p
                         class="mt-4 max-w-3xl text-base leading-7 text-slate-300"
                     >
-                        The homepage demonstrates layout shapes, custom block
-                        compositions, package boundaries, and public-page
-                        discovery paths.
+                        {{ $homepageText('copy') }}
                     </p>
                 </div>
                 <a
                     class="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#315f8f] bg-[#315f8f] px-5 font-extrabold text-white no-underline hover:bg-[#24496f]"
-                    href="/contact#scoping"
+                    href="{{ $homepageText('action_url') }}"
                 >
-                    Start implementation scoping
+                    {{ $homepageText('action_label') }}
                 </a>
             </div>
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
@@ -18,10 +19,12 @@ use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
+use Capell\DemoKit\Filament\Configurators\Blocks\HomepageSectionBlockConfigurator;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Capell\DemoKit\Livewire\ResourcesLibrary;
 use Capell\DemoKit\Support\KitchenSinkPublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
@@ -114,6 +117,20 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     {
         $this->registerExtensionPageRegistry();
         $this->registerAdminSurfacePage();
+        $this->registerConfigurators();
+    }
+
+    private function registerConfigurators(): void
+    {
+        if (! enum_exists(ConfiguratorTypeEnum::class)) {
+            return;
+        }
+
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: HomepageSectionBlockConfigurator::class,
+            group: ConfiguratorTypeEnum::Widget->value,
+            name: HomepageSectionBlockConfigurator::getKey(),
+        ));
     }
 
     private function registerExtensionPageRegistry(): void

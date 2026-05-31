@@ -126,7 +126,7 @@ abstract class BaseDemoCreator
         $filenames = self::$demoImageFilenames[$cacheKey];
         throw_if($filenames === [], Exception::class, 'No demo files with extension .' . $extension . ' found in the specified path: ' . $path);
 
-        return $filenames[mt_rand(0, count($filenames) - 1)];
+        return $filenames[random_int(0, count($filenames) - 1)];
     }
 
     /**
@@ -210,6 +210,24 @@ abstract class BaseDemoCreator
     protected static function assertSafeDemoZipEntries(ZipArchive $zip): void
     {
         resolve(DemoResourceResolver::class)->assertSafeDemoZipEntries($zip);
+    }
+
+    protected function requireBlueprint(?Blueprint $blueprint, string $description): Blueprint
+    {
+        if (! $blueprint instanceof Blueprint) {
+            throw new RuntimeException(sprintf('Unable to resolve [%s] blueprint.', $description));
+        }
+
+        return $blueprint;
+    }
+
+    protected function requireDefaultSite(): Site
+    {
+        $site = Site::getDefault();
+
+        throw_unless($site instanceof Site, RuntimeException::class, 'Unable to resolve the default site.');
+
+        return $site;
     }
 
     /**
@@ -933,14 +951,7 @@ abstract class BaseDemoCreator
 
     protected function createHomepageBladeBlock(string $key, string $name): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Default);
-
-        $blockType ??= $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Widget->value)
-            ->firstWhere('key', BlockTypeEnum::Default->value);
-
-        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
+        $blockType = $this->homepageBladeBlockType();
 
         throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
 
@@ -969,6 +980,20 @@ abstract class BaseDemoCreator
         }
 
         return $block;
+    }
+
+    protected function homepageBladeBlockType(): Blueprint
+    {
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', BlockTypeEnum::Default);
+
+        $blockType ??= $this->typeModel::query()
+            ->where('type', LayoutTypeEnum::Widget->value)
+            ->firstWhere('key', BlockTypeEnum::Default->value);
+
+        return $blockType instanceof Blueprint
+            ? $blockType
+            : resolve(TypeCreator::class)->defaultBlockType();
     }
 
     protected function ensurePageBottomBannerBlock(): Widget
@@ -1578,7 +1603,8 @@ abstract class BaseDemoCreator
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);
-        assert($content instanceof HasMedia);
+
+        throw_unless($content instanceof HasMedia, RuntimeException::class, 'Demo media content must implement media collections.');
 
         $model->assets()->create([
             'asset_id' => $content->getKey(),
@@ -1590,7 +1616,7 @@ abstract class BaseDemoCreator
         $media = $content->addMedia($demoFile)
             ->preservingOriginal()
             ->withCustomProperties($isVideo ? [] : $this->imageDimensions($demoFile))
-            ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
+            ->toMediaCollection($this->collectionName($collection));
 
         gc_collect_cycles();
 
@@ -1649,6 +1675,11 @@ abstract class BaseDemoCreator
      */
     protected function randomItem(array $items): mixed
     {
-        return $items[mt_rand(0, count($items) - 1)];
+        return $items[random_int(0, count($items) - 1)];
+    }
+
+    private function collectionName(BackedEnum|string $collection): string
+    {
+        return is_string($collection) ? $collection : (string) $collection->value;
     }
 }

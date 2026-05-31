@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -14,6 +15,7 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 beforeEach(function (): void {
@@ -25,6 +27,20 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
 });
+
+/**
+ * @param  Collection<string, DoctorCheckResultData>  $checks
+ */
+function demoHealthCheck(Collection $checks, string $label): DoctorCheckResultData
+{
+    $check = $checks->get($label);
+
+    if (! $check instanceof DoctorCheckResultData) {
+        throw new RuntimeException(sprintf('Expected demo health check [%s] to exist.', $label));
+    }
+
+    return $check;
+}
 
 it('passes the showcase order asset and placeholder demo checks for curated homepage data', function (): void {
     $language = Language::factory()->english()->create();
@@ -44,9 +60,9 @@ it('passes the showcase order asset and placeholder demo checks for curated home
 
     $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
 
-    expect($checks['Default demo showcase block order']->passed)->toBeTrue()
-        ->and($checks['Default demo AP block assets']->passed)->toBeTrue()
-        ->and($checks['Default demo placeholder labels']->passed)->toBeTrue();
+    expect(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo AP block assets')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeTrue();
 });
 
 it('fails when the homepage keeps generic AP labels or an incomplete showcase order', function (): void {
@@ -65,8 +81,21 @@ it('fails when the homepage keeps generic AP labels or an incomplete showcase or
 
     $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
 
-    expect($checks['Default demo showcase block order']->passed)->toBeFalse()
-        ->and($checks['Default demo placeholder labels']->passed)->toBeFalse();
+    expect(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeFalse();
+});
+
+it('reports actionable demo health failures before homepage content and media are installed', function (): void {
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+
+    expect(demoHealthCheck($checks, 'Layout Builder demo dependency')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo homepage exists')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Homepage layout has blocks')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Homepage starts with a hero block')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo block count')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo AP block assets')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeFalse();
 });
 
 /**

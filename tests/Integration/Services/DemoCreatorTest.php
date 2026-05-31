@@ -25,6 +25,21 @@ use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\assertDatabaseHas;
 
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function demoCreatorBottomBannerWidgets(Page $page): array
+{
+    $layout = $page->layout;
+    $containers = $layout instanceof Layout ? $layout->containers : null;
+    $bottomBanner = is_array($containers) ? ($containers['bottom-banner'] ?? null) : null;
+    $widgets = is_array($bottomBanner) ? ($bottomBanner['widgets'] ?? null) : null;
+
+    throw_unless(is_array($widgets), RuntimeException::class, 'Expected the demo page layout to have bottom banner widgets.');
+
+    return $widgets;
+}
+
 it('creates a demo site with languages, pages, and media', function (): void {
     useTinyDemoResources();
     Queue::fake();
@@ -357,11 +372,13 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         'title' => ['en' => 'Integrations'],
     ], $site, createMedia: false);
 
+    throw_unless($contactPage instanceof Page);
+
     expect($contactPage->layout?->key)->toBe('contact-standalone')
         ->and($integrationsPage->layout?->key)->toBe('footer-standard')
         ->and(Layout::query()->where('key', 'contact-standalone')->exists())->toBeTrue()
         ->and(Layout::query()->where('key', 'footer-standard')->exists())->toBeTrue()
-        ->and($contactPage->layout?->containers['bottom-banner']['widgets'])->toBe([
+        ->and(demoCreatorBottomBannerWidgets($contactPage))->toBe([
             ['widget_key' => 'page-bottom-banner'],
         ])
         ->and(Widget::query()->where('key', 'page-bottom-banner')->where('component', 'capell.block.default')->exists())->toBeTrue()
@@ -392,8 +409,10 @@ it('adds the reusable bottom banner to the demo article layout', function (): vo
         'title' => ['en' => 'Home, Buildings and Architecture'],
     ], $site, createMedia: false);
 
+    throw_unless($articlePage instanceof Page);
+
     expect($articlePage->layout?->key)->toBe('capell-demo-platform-architecture')
-        ->and($articlePage->layout?->containers['bottom-banner']['widgets'])->toBe([
+        ->and(demoCreatorBottomBannerWidgets($articlePage))->toBe([
             ['widget_key' => 'page-bottom-banner'],
         ])
         ->and($articlePage->layout?->widgets)->toContain('page-bottom-banner');

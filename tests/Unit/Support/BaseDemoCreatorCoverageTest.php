@@ -29,6 +29,17 @@ beforeEach(function (): void {
     resolve(TypeCreator::class)->createBlockTypes();
 });
 
+/**
+ * @return array<string, mixed>
+ */
+function baseDemoCreatorPageContentMeta(): array
+{
+    $widget = Widget::query()->where('key', 'demo-page-content')->first();
+    $meta = $widget?->meta;
+
+    return is_array($meta) ? $meta : [];
+}
+
 it('creates demo page layouts for named, footer, contact, and unknown pages', function (): void {
     $creator = new class extends DemoCreator
     {
@@ -55,13 +66,21 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and($contact?->key)->toBe('contact-standalone')
         ->and($contact?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'page-bottom-banner'])
         ->and($unknown)->toBeNull()
-        ->and(Widget::query()->where('key', 'demo-page-content')->first()?->meta['page_content'])->toBe(['content']);
+        ->and(baseDemoCreatorPageContentMeta()['page_content'] ?? null)->toBe(['content']);
 });
 
 it('creates missing default block types while building demo page layouts', function (): void {
-    Blueprint::query()
+    $defaultBlockTypeIds = Blueprint::query()
         ->where('type', LayoutTypeEnum::Widget->value)
         ->where('key', BlockTypeEnum::Default->value)
+        ->pluck('id');
+
+    Widget::query()
+        ->whereIn('blueprint_id', $defaultBlockTypeIds)
+        ->forceDelete();
+
+    Blueprint::query()
+        ->whereKey($defaultBlockTypeIds)
         ->forceDelete();
 
     $creator = new class extends DemoCreator
@@ -159,4 +178,37 @@ it('falls back to page names for navigation labels when navigation is not instal
 
     expect($item['label'])->toBe('Fallback Label')
         ->and($item['children'])->toHaveCount(1);
+});
+
+it('refreshes demo pages and links related sites through the creator workflow', function (): void {
+    $creator = new DemoCreator;
+
+    $english = Language::factory()->english()->create();
+    $french = Language::factory()->french()->create();
+    $site = Site::factory()
+        ->default()
+        ->language($english)
+        ->withTranslations([$english, $french])
+        ->create(['name' => 'coverage primary']);
+    $relatedSite = Site::factory()
+        ->language($english)
+        ->withTranslations($english)
+        ->create(['name' => 'coverage related']);
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($english, ['title' => 'Old contact title'])
+        ->create(['name' => 'Contact', 'visible_from' => null]);
+
+    $creator->setupSite($site, new Collection([$english, $french]));
+
+    $refreshedPage = $creator->refreshDemoPage($page, new Collection([$english, $french]), refreshUrls: false);
+    $creator->setupRelatedSites();
+
+    expect($refreshedPage->name)->toBe('Contact')
+        ->and($refreshedPage->layout?->key)->toBe('contact-standalone')
+        ->and($refreshedPage->visible_from)->not->toBeNull()
+        ->and($refreshedPage->translations()->whereIn('language_id', [$english->getKey(), $french->getKey()])->count())->toBe(2)
+        ->and($refreshedPage->translations()->where('language_id', $english->getKey())->value('title'))->toBe('Contact')
+        ->and($site->refresh()->related()->whereKey($relatedSite)->exists())->toBeTrue()
+        ->and($relatedSite->refresh()->related()->whereKey($site)->exists())->toBeTrue();
 });

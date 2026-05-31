@@ -1,7 +1,5 @@
 @php
-    use Capell\DemoKit\Support\DemoPageContentAssetSections;
-    use Capell\Frontend\Facades\Frontend;
-    use Illuminate\Support\Str;
+    use Capell\DemoKit\Actions\BuildDemoPageContentViewDataAction;
 @endphp
 
 @props([
@@ -15,24 +13,17 @@
 ])
 
 @php
-    $pageRecord ??= Frontend::page();
-    $pageName = match (Str::lower((string) ($pageRecord?->name ?? ''))) {
-        'faq' => 'FAQ',
-        'home, buildings and architecture' => 'Home, Buildings and Architecture',
-        'platform architecture' => 'Platform Architecture',
-        default => (string) ($pageRecord?->name ?? ''),
-    };
-    $pageSlug = Str::slug($pageName);
-    $pageTranslation = $pageRecord?->relationLoaded('translation') ? $pageRecord->translation : null;
-    $pageType = $pageRecord?->relationLoaded('type') ? $pageRecord->type : null;
-    $pageMeta = is_array($pageRecord?->meta ?? null) ? $pageRecord->meta : [];
-    $hasVisibleHero = ($pageMeta['show_hero'] ?? true) !== false;
-    $content = $pageTranslation?->content;
-    $contentStructure = $pageType?->content_structure;
-    $occurrence = (int) ($blockData['occurrence'] ?? 1);
-    $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($block, $pageRecord, $containerKey, $occurrence);
-    $hasAssetSections = $pageName !== 'Blog' && $assetSections !== [];
-    $isContactPage = $pageName === 'Contact';
+    $demoPageContentData = BuildDemoPageContentViewDataAction::run($pageRecord, $block, $containerKey, $blockData);
+    $pageName = $demoPageContentData->pageName;
+    $pageSlug = $demoPageContentData->pageSlug;
+    $pageMeta = $demoPageContentData->pageMeta;
+    $hasVisibleHero = $demoPageContentData->hasVisibleHero;
+    $content = $demoPageContentData->content;
+    $contentStructure = $demoPageContentData->contentStructure;
+    $occurrence = $demoPageContentData->occurrence;
+    $assetSections = $demoPageContentData->assetSections;
+    $hasAssetSections = $demoPageContentData->hasAssetSections;
+    $isContactPage = $demoPageContentData->isContactPage;
 
     $eyebrowClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
     $headingClass = 'max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
