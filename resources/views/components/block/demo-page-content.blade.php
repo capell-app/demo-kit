@@ -450,7 +450,11 @@
                         </p>
                     </div>
 
-                    <form class="mt-6 grid gap-4" method="post" action="#">
+                    <form
+                        class="mt-6 grid gap-4"
+                        method="post"
+                        action="#"
+                    >
                         @foreach ([['contact-name', 'name', 'text', 'Name', 'name'], ['contact-email', 'email', 'email', 'Work email', 'email'], ['contact-company', 'company', 'text', 'Company', 'organization']] as [$id, $name, $type, $label, $autocomplete])
                             <div class="grid gap-2">
                                 <label
