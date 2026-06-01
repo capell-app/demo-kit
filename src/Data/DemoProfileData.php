@@ -87,9 +87,11 @@ final class DemoProfileData extends Data
             if (! is_string($key)) {
                 continue;
             }
+
             if (! is_int($count)) {
                 continue;
             }
+
             $map[$key] = $count;
         }
 
