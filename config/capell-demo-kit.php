@@ -22,6 +22,33 @@ return [
         'media_per_page' => [0, 2],
     ],
 
+    'health' => [
+        'minimum_block_count' => 8,
+        'minimum_media_count' => 8,
+        'homepage_opening_block_keys' => [
+            'capell-home-hero-command-center',
+        ],
+        'showcase_block_order' => [
+            'capell-home-hero-command-center',
+            'capell-home-proof-strip',
+            'capell-home-demo-showcase',
+            'capell-home-demo-widgets-carousel',
+            'capell-extension-marketplace-showcase',
+            'capell-home-technical-pipeline',
+            'capell-home-route-split',
+            'capell-home-final-cta',
+        ],
+        'block_asset_minimums' => [],
+        'placeholder_labels' => [
+            'AP Card Grid',
+            'AP Feature List',
+            'Editorial Workflow',
+            'Our Work',
+            'Meet Our Team',
+            'Client Logos',
+        ],
+    ],
+
     'archive' => [
         'url' => 'https://capell.app/demo.zip',
         'checksum' => 'cf39f86a46f45bc9246352472dbbc39f70d79ee52de06e3c04f51b58fb436957',

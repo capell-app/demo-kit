@@ -3,7 +3,7 @@
     "composerName": "capell-app/demo-kit",
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
-    "outputDirectory": "public/docs/screenshots/packages/demo-kit",
+    "outputDirectory": "packages/demo-kit/docs/screenshots",
     "entries": [
         {
             "id": "demo-kit-admin-page",
@@ -14,7 +14,7 @@
             "target": "DemoKitPage",
             "required": true,
             "notes": "Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state.",
-            "screenshotPath": "public/docs/screenshots/packages/demo-kit/demo-kit-admin-page.png",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page.png",
             "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page."
         },
         {
@@ -26,7 +26,7 @@
             "target": "capell-demo-kit::components.block.demo-page-content",
             "required": true,
             "notes": "Requires Demo Kit generated page data with a layout block using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.",
-            "screenshotPath": "public/docs/screenshots/packages/demo-kit/demo-page-content-block.png",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-block.png",
             "useCase": "A maintainer verifies generated demo pages render designed content through the package-owned Blade view."
         },
         {
@@ -38,7 +38,7 @@
             "target": "capell-demo-kit::components.block.homepage-section",
             "required": true,
             "notes": "Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero block.",
-            "screenshotPath": "public/docs/screenshots/packages/demo-kit/homepage-section-block.png",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-block.png",
             "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade."
         }
     ]

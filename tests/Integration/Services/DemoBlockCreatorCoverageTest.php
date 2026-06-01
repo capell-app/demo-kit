@@ -223,9 +223,10 @@ it('creates the remaining standard section-backed demo blocks idempotently', fun
     $banners = $creator->createBannersBlock();
     $testimonials = $creator->createTestimonialsBlock($site->languages);
     $teamPortfolio = $creator->createTeamPortfolioBlock($site->languages);
+    $navigationMeta = is_array($navigation->meta) ? $navigation->meta : [];
 
     expect($faq->assets()->count())->toBe(6)
-        ->and($navigation->meta['navigation'])->toBe('example-menu')
+        ->and($navigationMeta['navigation'] ?? null)->toBe('example-menu')
         ->and($contentsBlock->assets()->where('pageable_id', $page->getKey())->where('container', 'main')->count())->toBe(4)
         ->and($businessFeatures->assets()->count())->toBe(7)
         ->and($banners->assets()->count())->toBe(7)

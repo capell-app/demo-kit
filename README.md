@@ -90,7 +90,7 @@ Omit `--seed` for a fresh random demo on each run.
 
 ## Kitchen Sink Lighthouse Notes
 
-The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Devilbox or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
+The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Docker/web-server or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
 
 ## Content Rendering Boundary
 

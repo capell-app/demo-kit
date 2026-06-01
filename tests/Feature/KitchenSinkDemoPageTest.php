@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
@@ -22,29 +24,45 @@ use Livewire\Livewire;
 
 uses(CreatesAdminUser::class);
 
+function kitchenSinkRequiredLayout(?Layout $layout): Layout
+{
+    throw_unless($layout instanceof Layout, RuntimeException::class, 'Expected the kitchen sink layout to exist.');
+
+    return $layout;
+}
+
+/**
+ * @return array{widgets: array<int, array<string, mixed>>}
+ */
+function kitchenSinkMainContainer(Layout $layout): array
+{
+    $containers = $layout->containers;
+    $main = is_array($containers) ? ($containers['main'] ?? null) : null;
+    $widgets = is_array($main) ? ($main['widgets'] ?? null) : null;
+
+    throw_unless(is_array($widgets), RuntimeException::class, 'Expected the kitchen sink layout to have main widgets.');
+
+    return ['widgets' => $widgets];
+}
+
 it('installs the kitchen sink demo page idempotently', function (): void {
     $firstPage = InstallKitchenSinkDemoPageAction::run();
     $secondPage = InstallKitchenSinkDemoPageAction::run();
 
-    $layout = Layout::query()->firstWhere('key', 'kitchen-sink-demo');
+    $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
 
     expect($secondPage->getKey())->toBe($firstPage->getKey())
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->count())->toBe(1)
         ->and($layout)->not->toBeNull()
-        ->and($layout->containers['main']['widgets'])->toHaveCount(7)
+        ->and(kitchenSinkMainContainer($layout)['widgets'])->toHaveCount(7)
         ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBe(7);
 });
 
 it('stores lazy presentation metadata only on below fold kitchen sink layout instances', function (): void {
     InstallKitchenSinkDemoPageAction::run();
 
-    $layout = Layout::query()->firstWhere('key', 'kitchen-sink-demo');
-    $layoutContainers = $layout?->containers;
-    expect(is_array($layoutContainers))->toBeTrue();
-
-    $layoutWidgets = is_array($layoutContainers['main']['widgets'] ?? null)
-        ? $layoutContainers['main']['widgets']
-        : [];
+    $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
+    $layoutWidgets = kitchenSinkMainContainer($layout)['widgets'];
 
     $blocks = collect($layoutWidgets)->keyBy('widget_key');
 
@@ -226,7 +244,10 @@ it('renders the structured text block eagerly and lazy placeholders for below fo
         ->and($html)->toContain('Hero')
         ->and($html)->toContain('Breadcrumbs')
         ->and($html)->toContain('Table of contents')
-        ->and(preg_match_all('/\sdata-capell-fragment(\s|>)/', $html))->toBe(6)
+        ->and(preg_match_all('/\sdata-deferred-fragment(\s|>)/', $html))->toBe(6)
+        ->and($html)->not->toContain('data-capell-fragment')
+        ->and($html)->not->toContain('_capell/fragments')
+        ->and($html)->not->toContain('capell-layout-builder')
         ->and($html)->not->toContain('Paragraph styles')
         ->and($html)->not->toContain('Full form')
         ->and($html)->not->toContain('kitchen-sink-rich-text')
@@ -239,7 +260,7 @@ it('renders the structured text block eagerly and lazy placeholders for below fo
 it('fetches each lazy kitchen sink fragment through the public fragment route', function (): void {
     $page = InstallKitchenSinkDemoPageAction::run();
     $html = kitchenSinkLayoutHtml($page);
-    preg_match_all('/data-capell-fragment-url="([^"]+)"/', $html, $matches);
+    preg_match_all('/data-deferred-fragment-url="([^"]+)"/', $html, $matches);
 
     expect($matches[1])->toHaveCount(6);
 
@@ -250,7 +271,7 @@ it('fetches each lazy kitchen sink fragment through the public fragment route', 
 
         $this->get($path)->assertOk();
 
-        $reference = rawurldecode((string) str($path)->after('/_capell/fragments/'));
+        $reference = rawurldecode((string) str($path)->after('/_fragments/'));
         $fragmentHtml .= RenderPublicFragmentAction::run($reference);
     }
 
@@ -269,21 +290,25 @@ function kitchenSinkLayoutHtml(Page $page): string
 {
     $page->loadMissing(['layout', 'site', 'translations.language']);
     $language = $page->translations->first()?->language;
+    $site = $page->site;
+    $layout = $page->layout;
+
+    throw_if(! $site instanceof Site || ! $layout instanceof Layout || ! $language instanceof Language, RuntimeException::class, 'Expected kitchen sink page context to be loaded.');
 
     app()->instance(
         CapellFrontendContext::class,
         new CapellFrontendContext(
             (new FrontendState)
-                ->withSite($page->site)
+                ->withSite($site)
                 ->withLanguage($language)
                 ->withPage($page)
-                ->withLayout($page->layout),
+                ->withLayout($layout),
         ),
     );
 
-    $container = $page->layout->containers['main'];
+    $container = kitchenSinkMainContainer($layout);
     $translation = $page->translations->first();
-    $html = (string) $translation?->content;
+    $html = (string) $translation->content;
 
     foreach ($container['widgets'] as $blockIndex => $blockData) {
         $block = Widget::query()->firstWhere('key', $blockData['widget_key']);

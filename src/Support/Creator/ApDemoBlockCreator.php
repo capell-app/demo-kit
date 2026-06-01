@@ -22,6 +22,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ->firstWhere('key', BlockTypeEnum::HeroBanner)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requireBlueprint($blockType, 'AP hero banner widget');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
@@ -65,6 +66,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ->firstWhere('key', BlockTypeEnum::CardGrid)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requireBlueprint($blockType, 'AP card grid widget');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
@@ -133,6 +135,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ->firstWhere('key', BlockTypeEnum::FeatureList)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requireBlueprint($blockType, 'AP feature list widget');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
@@ -243,6 +246,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ->firstWhere('key', BlockTypeEnum::CTASection)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requireBlueprint($blockType, 'AP CTA section widget');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
@@ -284,6 +288,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             ->firstWhere('key', BlockTypeEnum::ImageGallery)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requireBlueprint($blockType, 'AP image gallery widget');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',

@@ -75,7 +75,7 @@ final class DemoPageContentAssetSections
             return [];
         }
 
-        return (new Collection($items))
+        return array_values((new Collection($items))
             ->filter(fn (mixed $item): bool => is_array($item))
             ->map(fn (array $item): array => [
                 'label' => $this->stringValue($item['label'] ?? ''),
@@ -85,7 +85,7 @@ final class DemoPageContentAssetSections
                 'href' => $this->stringValue($item['href'] ?? ''),
             ])
             ->values()
-            ->all();
+            ->all());
     }
 
     /**
@@ -97,11 +97,11 @@ final class DemoPageContentAssetSections
             return [];
         }
 
-        return (new Collection($items))
+        return array_values((new Collection($items))
             ->map(fn (mixed $item): string => $this->stringValue($item))
             ->filter(fn (string $item): bool => $item !== '')
             ->values()
-            ->all();
+            ->all());
     }
 
     private function stringValue(mixed $value): string

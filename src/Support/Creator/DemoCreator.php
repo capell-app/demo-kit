@@ -19,9 +19,11 @@ use Capell\DemoKit\Support\DemoContentPool;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use InvalidArgumentException;
+use Spatie\MediaLibrary\HasMedia;
 
 class DemoCreator extends ApDemoBlockCreator
 {
@@ -41,9 +43,18 @@ class DemoCreator extends ApDemoBlockCreator
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
         $this->blockModel = Widget::class;
-        $this->contentModel = CapellCore::hasAsset('Section')
+        $contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;
+
+        throw_unless(
+            is_subclass_of($contentModel, Model::class) && is_subclass_of($contentModel, HasMedia::class),
+            InvalidArgumentException::class,
+            'Demo content model must be an Eloquent media model.',
+        );
+
+        /** @var class-string<Model&HasMedia> $contentModel */
+        $this->contentModel = $contentModel;
     }
 
     /**
@@ -57,7 +68,15 @@ class DemoCreator extends ApDemoBlockCreator
 
         $title = ctype_digit($site->name[0]) ? $site->name : Str::title($site->name);
 
-        $meta = $site->meta;
+        $meta = [
+            'brand_color' => null,
+            'contact_page_id' => null,
+            'favicon' => null,
+            'icon' => null,
+            'meta_schema' => [],
+            'twitter' => null,
+            ...($site->meta ?? []),
+        ];
 
         $meta['business_name'] = $title . ' ltd';
         $meta['email'] = config('mail.from.address');
@@ -68,16 +87,19 @@ class DemoCreator extends ApDemoBlockCreator
                 'type' => 'facebook',
                 'url' => 'https://facebook.com',
                 'icon' => 'fab-square-facebook',
+                'title' => null,
             ],
             [
                 'type' => 'twitter',
                 'url' => 'https://twitter.com',
                 'icon' => 'fab-square-x-twitter',
+                'title' => null,
             ],
             [
                 'type' => 'instagram',
                 'url' => 'https://instagram.com',
                 'icon' => 'fab-square-instagram',
+                'title' => null,
             ],
         ];
 
@@ -87,8 +109,23 @@ class DemoCreator extends ApDemoBlockCreator
             $site->translations()->updateOrCreate(['language_id' => $language->id], [
                 'title' => $title,
                 'meta' => [
+                    'title_after_text' => null,
                     'description' => 'Description for ' . $title,
                     'footer_copy' => sprintf('<p>&copy; :year %s</p>', $title),
+                    'label' => null,
+                    'ai_discovery' => [
+                        'llms_txt_enabled' => false,
+                        'llms_full_txt_enabled' => false,
+                        'markdown_pages_enabled' => false,
+                        'accept_markdown_enabled' => false,
+                        'default_include_pages' => false,
+                        'status' => null,
+                        'default_section' => null,
+                        'max_full_txt_pages' => null,
+                        'max_full_txt_bytes' => null,
+                        'cache_ttl_seconds' => null,
+                        'intro_markdown' => null,
+                    ],
                 ],
             ]);
 
@@ -182,7 +219,7 @@ class DemoCreator extends ApDemoBlockCreator
             'layout_id' => $layout?->getKey(),
             'meta' => $this->demoPageMeta($name),
             'translations' => [],
-            'visible_from' => now()->subDays(mt_rand(0, 90))->format('Y-m-d'),
+            'visible_from' => now()->subDays(random_int(0, 90))->format('Y-m-d'),
         ];
 
         if ($parent instanceof Pageable) {
@@ -246,7 +283,11 @@ class DemoCreator extends ApDemoBlockCreator
         }
 
         if ($name === 'Contact') {
-            $this->ensureContactFormIntegration($page->site);
+            $site = $page->site;
+
+            throw_unless($site instanceof Site, InvalidArgumentException::class, 'Unable to resolve a site for the contact demo page.');
+
+            $this->ensureContactFormIntegration($site);
         }
 
         $page->forceFill([
@@ -261,23 +302,26 @@ class DemoCreator extends ApDemoBlockCreator
             $content = $this->demoPageContent($name, $language->code)
                 ?? DummyContentGeneratorAction::run($language->code);
 
-            $page->translations()->updateOrCreate(
-                ['language_id' => $language->getKey()],
-                [
-                    'title' => $title,
-                    'content' => $content,
-                    'summary' => $this->demoPageSummary($name),
-                    'meta' => [
-                        'description' => str($content)->stripTags()->limit(160),
-                        'hero' => $this->demoPageHeroContent($name, $content),
-                        'hero_title' => $title,
-                        'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
-                        'label' => $title,
-                        'link_text' => 'Learn More',
-                        'slug' => Str::slug($title),
-                    ],
+            $translation = $page->translations()->firstOrNew(['language_id' => $language->getKey()]);
+            $translationPayload = [
+                'title' => $title,
+                'content' => $content,
+                'meta' => [
+                    'description' => str($content)->stripTags()->limit(160),
+                    'hero' => $this->demoPageHeroContent($name, $content),
+                    'hero_title' => $title,
+                    'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
+                    'label' => $title,
+                    'link_text' => 'Learn More',
+                    'slug' => Str::slug($title),
                 ],
-            );
+            ];
+
+            if (Schema::hasColumn($translation->getTable(), 'summary')) {
+                $translationPayload['summary'] = $this->demoPageSummary($name);
+            }
+
+            $translation->forceFill($translationPayload)->save();
         });
 
         if ($refreshUrls) {
@@ -293,6 +337,8 @@ class DemoCreator extends ApDemoBlockCreator
     {
         $sites = $this->siteModel::with(['language', 'translations'])->get();
         $defaultSite = $this->siteModel::getDefault();
+
+        throw_unless($defaultSite instanceof Site, InvalidArgumentException::class, 'Unable to resolve the default site for related site setup.');
 
         $this->attachRelatedSites($defaultSite, $sites);
 

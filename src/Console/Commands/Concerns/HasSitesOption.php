@@ -45,11 +45,11 @@ trait HasSitesOption
 
         $this->requireInteractiveOrFail('Example sites', 'Pass --sites=<comma,separated,list>.');
 
-        return multiselect(
+        return array_values(array_map(static fn (mixed $site): string => (string) $site, multiselect(
             label: 'Choose the example site content?',
             options: $demoSitesOptions,
             default: $databaseSites,
             required: true,
-        );
+        )));
     }
 }

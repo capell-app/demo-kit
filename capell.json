@@ -94,6 +94,6 @@
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": ["admin-page"]
+        "deferredContributions": ["admin-page", "asset", "configurator"]
     }
 }

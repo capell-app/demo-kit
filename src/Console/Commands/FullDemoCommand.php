@@ -48,13 +48,24 @@ final class FullDemoCommand extends Command
     private function createFullDemo(): int
     {
         $url = $this->resolveUrl();
-        $plan = BuildDemoGenerationPlanAction::run([
+        /** @var array{sites?: list<string>, site_count?: int, pages?: int, languages?: list<string>, seed?: int|null} $options */
+        $options = [
             'sites' => $this->parseCsvOption('sites'),
-            'site_count' => $this->resolvePositiveIntegerOption('site-count'),
-            'pages' => $this->resolvePositiveIntegerOption('page-count'),
             'languages' => $this->resolveLanguages(),
             'seed' => $this->resolveSeedOption(),
-        ]);
+        ];
+
+        $siteCount = $this->resolvePositiveIntegerOption('site-count');
+        if ($siteCount !== null) {
+            $options['site_count'] = $siteCount;
+        }
+
+        $pageCount = $this->resolvePositiveIntegerOption('page-count');
+        if ($pageCount !== null) {
+            $options['pages'] = $pageCount;
+        }
+
+        $plan = BuildDemoGenerationPlanAction::run($options);
         $languages = $plan->languageCodes;
         $sites = array_map(
             static fn (DemoSiteGenerationPlanData $site): string => $site->name,
@@ -193,11 +204,11 @@ final class FullDemoCommand extends Command
         /** @var Collection<string, PackageData> $packages */
         $packages = CapellCore::getInstalledPackages();
 
-        return $packages
+        return array_values($packages
             ->reject(fn (PackageData $package): bool => $package->name === DemoKitServiceProvider::$packageName)
             ->reject(fn (PackageData $package): bool => in_array($package->getDemoCommand(), [null, '', '0'], true))
             ->keys()
             ->values()
-            ->all();
+            ->all());
     }
 }
