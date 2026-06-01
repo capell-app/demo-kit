@@ -84,10 +84,12 @@ final class DemoProfileData extends Data
         $map = [];
 
         foreach ($value as $key => $count) {
-            if (! is_string($key) || ! is_int($count)) {
+            if (! is_string($key)) {
                 continue;
             }
-
+            if (! is_int($count)) {
+                continue;
+            }
             $map[$key] = $count;
         }
 
