@@ -31,8 +31,14 @@ final class HomepageDemoContent
         return [
             'capell-home-hero-command-center' => [
                 'eyebrow' => 'Capell CMS',
-                'heading' => 'Composable content infrastructure for Laravel teams',
-                'copy' => 'Ship multi-site CMS platforms without template sprawl: typed content, editor-owned layouts, package-owned rendering, static output, and diagnostics in one Laravel-native system.',
+                'heading' => 'Build Laravel CMS sites without losing control',
+                'copy' => 'Model content, compose layouts, install packages, preview releases, and ship cached public pages from one Laravel-native system.',
+                'highlights' => [
+                    'Typed page trees',
+                    'Editor-owned layouts',
+                    'Package-safe widgets',
+                    'Static cache checks',
+                ],
                 'primary_label' => 'Explore the demo',
                 'primary_url' => '/resources',
                 'secondary_label' => 'View pricing',

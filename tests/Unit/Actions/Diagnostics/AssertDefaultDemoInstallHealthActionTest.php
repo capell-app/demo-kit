@@ -65,6 +65,47 @@ it('passes the showcase order asset and placeholder demo checks for curated home
         ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeTrue();
 });
 
+it('allows applications to configure the homepage health profile', function (): void {
+    config()->set('capell-demo-kit.health.minimum_media_count', 0);
+    config()->set('capell-demo-kit.health.homepage_opening_block_keys', ['page-content']);
+    config()->set('capell-demo-kit.health.showcase_block_order', [
+        'page-content',
+        'capell-marketing-hero',
+        'capell-marketing-showcase',
+        'capell-marketing-cloud',
+        'capell-marketing-boundaries',
+        'capell-marketing-features',
+        'capell-marketing-carousel',
+        'capell-marketing-mcp',
+    ]);
+
+    $language = Language::factory()->english()->create();
+    $site = Site::factory()->default()->language($language)->withTranslations($language)->create();
+    $layout = createDemoHealthLayout($site, [
+        'page-content',
+        'capell-marketing-hero',
+        'capell-marketing-showcase',
+        'capell-marketing-cloud',
+        'capell-marketing-boundaries',
+        'capell-marketing-features',
+        'capell-marketing-carousel',
+        'capell-marketing-mcp',
+    ]);
+
+    Page::factory()
+        ->home()
+        ->site($site)
+        ->layout($layout)
+        ->withTranslations($language, ['title' => 'Home'])
+        ->create();
+
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+
+    expect(demoHealthCheck($checks, 'Homepage starts with a hero block')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeTrue();
+});
+
 it('fails when the homepage keeps generic AP labels or an incomplete showcase order', function (): void {
     $language = Language::factory()->english()->create();
     $site = Site::factory()->default()->language($language)->withTranslations($language)->create();

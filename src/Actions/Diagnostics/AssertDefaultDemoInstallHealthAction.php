@@ -164,7 +164,7 @@ final class AssertDefaultDemoInstallHealthAction
         return new DoctorCheckResultData(
             label: 'Default demo showcase block order',
             passed: true,
-            message: 'Homepage uses the curated Foundation showcase block order.',
+            message: 'Homepage uses the configured showcase block order.',
         );
     }
 
@@ -201,13 +201,17 @@ final class AssertDefaultDemoInstallHealthAction
     {
         $firstBlockKey = $this->firstHomepageBlockKey();
 
-        if ($firstBlockKey === null || ! str_contains($firstBlockKey, 'hero')) {
+        if ($firstBlockKey === null || ! in_array($firstBlockKey, $this->profile->homepageOpeningBlockKeys, true)) {
             return new DoctorCheckResultData(
                 label: 'Homepage starts with a hero block',
                 passed: false,
                 message: $firstBlockKey === null
                     ? 'The homepage layout has no first block.'
-                    : sprintf('The homepage starts with "%s", not a hero block.', $firstBlockKey),
+                    : sprintf(
+                        'The homepage starts with "%s"; expected one of [%s].',
+                        $firstBlockKey,
+                        implode(', ', $this->profile->homepageOpeningBlockKeys),
+                    ),
                 remediation: 'Rerun the demo package step after the selected theme setup so the homepage layout order is rebuilt.',
             );
         }
@@ -215,7 +219,7 @@ final class AssertDefaultDemoInstallHealthAction
         return new DoctorCheckResultData(
             label: 'Homepage starts with a hero block',
             passed: true,
-            message: sprintf('Homepage starts with "%s".', $firstBlockKey),
+            message: sprintf('Homepage starts with configured opening block "%s".', $firstBlockKey),
         );
     }
 

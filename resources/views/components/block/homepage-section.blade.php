@@ -82,9 +82,10 @@
             .capell-home-hero-grid {
                 display: grid;
                 gap: 2.5rem;
-                padding-block: 3.5rem;
+                padding-block: 3rem;
             }
 
+            .block-capell-home-hero-command-center .hero-background,
             .block-capell-home-hero-command-center .capell-hero-background {
                 left: 50%;
                 right: auto;
@@ -211,7 +212,7 @@
                             30rem,
                             1.18fr
                         );
-                    padding-block: 4.5rem 5rem;
+                    padding-block: 3.5rem 4rem;
                 }
 
                 .capell-home-hero-title {
@@ -231,6 +232,7 @@
                 $heroCarouselId = 'capell-home-hero-carousel-' . ($block->id ?? $loop->index);
                 $rawHeroSlides = $block->getMeta('hero_slides', []);
                 $heroSlides = $homepageItems('slides', is_array($rawHeroSlides) ? $rawHeroSlides : []);
+                $heroHighlights = $homepageItems('highlights');
 
                 if ($heroSlides === []) {
                     $heroSlides = is_array($rawHeroSlides) ? $rawHeroSlides : [];
@@ -251,13 +253,25 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h1
-                        class="capell-home-hero-title font-[Manrope] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-6xl"
+                        class="capell-home-hero-title font-[Manrope] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h1>
                     <p class="max-w-2xl text-lg leading-8 text-[#444650]">
                         {{ $homepageText('copy') }}
                     </p>
+                    @if ($heroHighlights !== [])
+                        <ul class="flex max-w-2xl flex-wrap gap-2">
+                            @foreach ($heroHighlights as $highlight)
+                                <li
+                                    class="rounded-md border border-[#c7d3df] bg-white/70 px-3 py-1.5 text-sm font-extrabold text-[#24496f] shadow-[0_10px_24px_rgb(26_28_27_/_0.06)] backdrop-blur-sm"
+                                >
+                                    {{ $highlight }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
                     <div class="flex flex-wrap gap-3">
                         <a
                             class="inline-flex min-h-12 items-center justify-center rounded-md border border-[#315f8f] bg-[#315f8f] px-5 font-extrabold text-white no-underline hover:bg-[#24496f]"
