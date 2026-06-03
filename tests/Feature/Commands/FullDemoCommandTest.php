@@ -139,6 +139,56 @@ it('creates full multi site and language demo data and runs package demos', func
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
 });
 
+it('only runs package demos selected by packages option', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    foreach (['vendor/selected-package', 'vendor/skipped-package'] as $packageName) {
+        CapellCore::registerPackage(name: $packageName);
+        CapellCore::forcePackageInstalled($packageName);
+        CapellCore::getPackage($packageName)->demoCommand = $packageName === 'vendor/selected-package'
+            ? 'test:selected-demo'
+            : 'test:skipped-demo';
+    }
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:selected-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:skipped-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--page-count' => 1,
+        '--packages' => 'vendor/selected-package',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:selected-demo']);
+});
+
 it('requires force when running non interactively', function (): void {
     test()->artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',

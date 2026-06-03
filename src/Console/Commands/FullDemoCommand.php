@@ -22,6 +22,7 @@ final class FullDemoCommand extends Command
         {--sites=}
         {--site-count=}
         {--page-count=}
+        {--packages=}
         {--seed=}
         {--force}';
 
@@ -201,11 +202,20 @@ final class FullDemoCommand extends Command
      */
     private function demoPackageNames(): array
     {
+        $selectedPackageNames = $this->parseCsvOption('packages');
+        $selectedPackages = $selectedPackageNames === [] ? null : array_fill_keys($selectedPackageNames, true);
+
         /** @var Collection<string, PackageData> $packages */
         $packages = CapellCore::getInstalledPackages();
 
         return array_values($packages
             ->reject(fn (PackageData $package): bool => $package->name === DemoKitServiceProvider::$packageName)
+            ->when(
+                $selectedPackages !== null,
+                fn (Collection $packages): Collection => $packages->filter(
+                    static fn (PackageData $package): bool => isset($selectedPackages[$package->name]),
+                ),
+            )
             ->reject(fn (PackageData $package): bool => in_array($package->getDemoCommand(), [null, '', '0'], true))
             ->keys()
             ->values()
