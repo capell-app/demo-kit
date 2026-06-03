@@ -15,6 +15,7 @@ use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
 use Capell\DemoKit\Actions\CreateDemoUsersAction;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\DemoKit\Data\DemoGenerationPlanData;
@@ -36,6 +37,7 @@ use Throwable;
 
 class AdminDemoCommand extends Command
 {
+    use GuardsAgainstProduction;
     use HasLanguagesOption;
     use HasSitesOption;
     use PromptsWithOptionFallback;
@@ -65,7 +67,8 @@ class AdminDemoCommand extends Command
         {--sites=}
         {--site-count=}
         {--page-count=}
-        {--seed=}';
+        {--seed=}
+        {--allow-production}';
 
     private DemoCreator $demoCreator;
 
@@ -74,6 +77,10 @@ class AdminDemoCommand extends Command
      */
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return Command::FAILURE;
+        }
+
         if (! CapellCore::isPackageInstalled('capell-app/admin')) {
             $this->warn('Capell Admin is not installed, skipping admin example site content.');
 

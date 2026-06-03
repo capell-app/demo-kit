@@ -1,4 +1,5 @@
 # Demo Kit — Improvement & Growth Plan
+
 > Package: capell-app/demo-kit · Kind: package · Tier: free · Product group: Capell Foundation · Bundle: foundation · Status: Draft
 
 ## 1. Snapshot
@@ -54,9 +55,10 @@ Current marketplace `summary` (verbatim): "Demo Kit provides example content and
 Demo Kit is an internal/tooling package (`tier: free`, `bundle: foundation`, `commercial.proposedLicense: free`), not a marketplace seller — its commercial value is **indirect**: it powers the demo sites that drive conversion for every paid package, and it owns the screenshot contract that feeds marketing assets. Positioning should lean into that "engine behind the demos" role rather than pretending to be an end-user feature.
 
 **Critique — current copy is flat and undersells the orchestration.**
+
 - `marketplace.summary` / `composer.description` both say roughly "example content and media for local Capell demos." They omit the actual differentiators: deterministic/seeded plans, per-package demo fan-out, multi-site/multi-locale generation, and a CLI doctor.
-- Improved `marketplace.summary`: *"The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data."*
-- Improved `composer.description`: *"Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands."*
+- Improved `marketplace.summary`: _"The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data."_
+- Improved `composer.description`: _"Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands."_
 
 **Role in sales:** demo completeness is the conversion lever. The §3 gap (3/50 packages seed data) directly limits how compelling a full demo site looks; closing it is a revenue-adjacent investment, not just devx. **Role in screenshot automation:** `docs/screenshots.json` + `--seed` already position Demo Kit as the source of repeatable marketing imagery; threading seed through package demos and committing baseline captures would make it the canonical asset pipeline.
 
@@ -66,20 +68,20 @@ Demo Kit is an internal/tooling package (`tier: free`, `bundle: foundation`, `co
 
 ## 6. Prioritized Roadmap
 
-| Item | Bucket | Effort | Impact | Section ref |
-| --- | --- | --- | --- | --- |
-| Add production environment guard + no known-password superadmin outside local/testing | Now | S | High | §4 |
-| Fix `--user` forwarded as boolean to `capell:demo` | Now | S | High | §2.1 |
-| Add test asserting `--user` value reaches package demos | Now | S | Med | §4 |
-| Drive per-package `commands.demo` coverage (campaign + "missing demo" report) | Now | L | High | §3 |
-| Thread `--seed` through `capell:demo` package fan-out (or document boundary) | Next | M | High | §2.2 |
-| Surface `AssertDefaultDemoInstallHealthAction` in Diagnostics admin, not CLI-only | Next | M | High | §3, §2.4 |
-| Reword manifest healthCheck label to match marker behaviour | Now | S | Low | §2.4 |
-| Rewrite marketplace summary + composer description | Next | S | Med | §5 |
-| Populate marketplace screenshots to match `screenshots.json` (3 targets) + commit baselines | Next | M | Med | §5 |
-| Localize seeded site meta (footer/business/phone) via locale-aware content | Next | M | Med | §4 |
-| Guard against demo-key drift: test that Foundation showcase widget keys exist | Next | M | Med | §2.5, §4 |
-| Add idempotent/reset path for re-runnable seeding | Later | M | Med | §3 |
-| Add `--quick` seed profile for CI/screenshot speed | Later | M | Low | §4 |
-| Broaden curated locale pool + add RTL demo coverage | Later | M | Low | §3 |
-| Remove duplicated `page-count` parse + start a real CHANGELOG | Later | S | Low | §2.3, §4 |
+| Item                                                                                        | Bucket | Effort | Impact | Section ref |
+| ------------------------------------------------------------------------------------------- | ------ | ------ | ------ | ----------- |
+| Add production environment guard + no known-password superadmin outside local/testing       | Now    | S      | High   | §4          |
+| Fix `--user` forwarded as boolean to `capell:demo`                                          | Now    | S      | High   | §2.1        |
+| Add test asserting `--user` value reaches package demos                                     | Now    | S      | Med    | §4          |
+| Drive per-package `commands.demo` coverage (campaign + "missing demo" report)               | Now    | L      | High   | §3          |
+| Thread `--seed` through `capell:demo` package fan-out (or document boundary)                | Next   | M      | High   | §2.2        |
+| Surface `AssertDefaultDemoInstallHealthAction` in Diagnostics admin, not CLI-only           | Next   | M      | High   | §3, §2.4    |
+| Reword manifest healthCheck label to match marker behaviour                                 | Now    | S      | Low    | §2.4        |
+| Rewrite marketplace summary + composer description                                          | Next   | S      | Med    | §5          |
+| Populate marketplace screenshots to match `screenshots.json` (3 targets) + commit baselines | Next   | M      | Med    | §5          |
+| Localize seeded site meta (footer/business/phone) via locale-aware content                  | Next   | M      | Med    | §4          |
+| Guard against demo-key drift: test that Foundation showcase widget keys exist               | Next   | M      | Med    | §2.5, §4    |
+| Add idempotent/reset path for re-runnable seeding                                           | Later  | M      | Med    | §3          |
+| Add `--quick` seed profile for CI/screenshot speed                                          | Later  | M      | Low    | §4          |
+| Broaden curated locale pool + add RTL demo coverage                                         | Later  | M      | Low    | §3          |
+| Remove duplicated `page-count` parse + start a real CHANGELOG                               | Later  | S      | Low    | §2.3, §4    |

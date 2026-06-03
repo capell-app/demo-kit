@@ -1,6 +1,6 @@
 {
     "name": "capell-app/demo-kit",
-    "description": "Demo content and media kit for Capell",
+    "description": "Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
     "keywords": [
         "capell",
         "demo",

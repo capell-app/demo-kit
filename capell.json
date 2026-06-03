@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^4.0",
     "version": "4.x-dev",
-    "description": "Demo Kit provides example content and media for local Capell demos.",
+    "description": "Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
     "product": {
         "group": "Capell Foundation",
         "tier": "free",
@@ -48,6 +48,7 @@
             "site-count",
             "page-count",
             "seed",
+            "allow-production",
             "force"
         ],
         "doctor": "capell:demo-kit-doctor"
@@ -70,7 +71,7 @@
     "healthChecks": [
         {
             "key": "demo-kit.package-health",
-            "label": "Demo Kit package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "label": "Demo Kit declares the Capell API version it is compatible with so Diagnostics can flag version mismatches.",
             "class": "Capell\\DemoKit\\Health\\DemoKitHealthCheck",
             "severity": "critical",
             "surface": "admin"
@@ -83,7 +84,7 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Demo Kit provides example content and media for local Capell demos.",
+        "summary": "The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data.",
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",

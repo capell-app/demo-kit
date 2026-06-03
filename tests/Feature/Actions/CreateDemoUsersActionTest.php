@@ -7,6 +7,24 @@ use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
+it('refuses to mint known-credential demo users in production', function (): void {
+    $originalEnvironment = app()['env'];
+    app()['env'] = 'production';
+
+    try {
+        expect(fn (): mixed => CreateDemoUsersAction::run())
+            ->toThrow(
+                RuntimeException::class,
+                'Refusing to create known-credential demo users outside the local or testing environment.',
+            );
+
+        expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse()
+            ->and(User::query()->where('email', 'editor@example.com')->exists())->toBeFalse();
+    } finally {
+        app()['env'] = $originalEnvironment;
+    }
+});
+
 it('assigns panel access to the demo editor', function (): void {
     config()->set('filament-shield.panel_user.enabled', true);
     config()->set('filament-shield.panel_user.name', 'panel_user');

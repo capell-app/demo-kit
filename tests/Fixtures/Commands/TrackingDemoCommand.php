@@ -13,6 +13,9 @@ class TrackingDemoCommand extends Command
 
     public static ?bool $queueConversionsByDefault = null;
 
+    /** @var array<string, mixed> */
+    public static array $receivedUserByCommand = [];
+
     public function __construct(string $signature = 'test:demo {--url=} {--user=} {--languages=*} {--sites=*}')
     {
         $this->signature = $signature;
@@ -24,12 +27,19 @@ class TrackingDemoCommand extends Command
     {
         self::$executionOrder = [];
         self::$queueConversionsByDefault = null;
+        self::$receivedUserByCommand = [];
     }
 
     public function handle(): int
     {
-        self::$executionOrder[] = $this->getName() ?? $this->signature;
+        $commandName = $this->getName() ?? $this->signature;
+
+        self::$executionOrder[] = $commandName;
         self::$queueConversionsByDefault = config('media-library.queue_conversions_by_default');
+
+        if ($this->hasOption('user')) {
+            self::$receivedUserByCommand[$commandName] = $this->option('user');
+        }
 
         return Command::SUCCESS;
     }

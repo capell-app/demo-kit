@@ -19,6 +19,7 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
+use Capell\Tests\Fixtures\Models\User;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
@@ -137,6 +138,71 @@ it('creates full multi site and language demo data and runs package demos', func
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
+});
+
+it('forwards the chosen author username to package demos', function (): void {
+    TrackingDemoCommand::reset();
+
+    $author = User::factory()->create(['email' => 'author@example.com']);
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/example-package');
+    CapellCore::forcePackageInstalled('vendor/example-package');
+    CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:demo';
+    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites'];
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand);
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--user' => $author->email,
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$receivedUserByCommand)->toBe(['test:demo' => 'author@example.com']);
+});
+
+it('refuses to run in the production environment without an override', function (): void {
+    $originalEnvironment = app()['env'];
+    app()['env'] = 'production';
+
+    try {
+        test()->artisan('capell:demo-kit-full-demo', [
+            '--url' => 'https://example.test',
+            '--languages' => 'en',
+            '--sites' => 'Main Site',
+            '--force' => true,
+        ])->assertExitCode(1);
+
+        capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
+    } finally {
+        app()['env'] = $originalEnvironment;
+    }
 });
 
 it('only runs package demos selected by packages option', function (): void {

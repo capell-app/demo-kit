@@ -8,6 +8,7 @@ use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Console\Commands\Concerns\HasPackageSelection;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Data\PackageData;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
@@ -19,6 +20,7 @@ use function Laravel\Prompts\text;
 
 class DemoCommand extends Command
 {
+    use GuardsAgainstProduction;
     use HasLanguagesOption;
     use HasPackageSelection;
     use HasSitesOption;
@@ -29,7 +31,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}';
+    protected $signature = 'capell:demo {--user=} {--languages=} {--packages} {--sites=} {--url} {--allow-production} {--force}';
 
     /**
      * The console command description.
@@ -43,6 +45,10 @@ class DemoCommand extends Command
      */
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return Command::FAILURE;
+        }
+
         if (! $this->option('force')
             && $this->input->isInteractive()
             && ! confirm('Are you sure you want to install example site content?', false)
@@ -60,7 +66,7 @@ class DemoCommand extends Command
 
         $siteUrl = $this->getSiteUrl();
 
-        $user = $this->option('user');
+        $user = $this->resolveUserOption();
 
         $packages = $this->getSelectedPackages();
 
@@ -90,12 +96,26 @@ class DemoCommand extends Command
         $this->comment('Installing demo data');
         $this->newLine();
 
-        $this->installDemoPackages($packages, $siteUrl, $user !== null, $languages, $siteOptions);
+        $this->installDemoPackages($packages, $siteUrl, $user, $languages, $siteOptions);
 
         $this->newLine();
         $this->info('Finished installing demo data.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Resolve the author identifier (email or id) supplied via --user, if any.
+     */
+    private function resolveUserOption(): ?string
+    {
+        $user = $this->option('user');
+
+        if (is_scalar($user) && (string) $user !== '') {
+            return (string) $user;
+        }
+
+        return null;
     }
 
     /**
@@ -126,7 +146,7 @@ class DemoCommand extends Command
      * @param  array<array-key, mixed>|null  $sites
      * @param  Collection<array-key, mixed>  $packages
      */
-    private function installDemoPackages(Collection $packages, string $siteUrl, bool $user, ?array $languages, ?array $sites): void
+    private function installDemoPackages(Collection $packages, string $siteUrl, ?string $user, ?array $languages, ?array $sites): void
     {
         $packages->each(function (PackageData $package) use ($siteUrl, $user, $languages, $sites): void {
             if ($package->name === DemoKitServiceProvider::$packageName) {
@@ -146,7 +166,7 @@ class DemoCommand extends Command
                 $params['--url'] = $siteUrl;
             }
 
-            if (in_array('user', $package->getDemoParams(), true)) {
+            if ($user !== null && in_array('user', $package->getDemoParams(), true)) {
                 $params['--user'] = $user;
             }
 
