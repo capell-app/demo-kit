@@ -242,7 +242,7 @@
     >
         @if (! $hasVisibleHero && $pageName !== '')
             <h1 class="sr-only">
-                {{ $pageTranslation?->title ?: $pageName }}
+                {{ $pageName }}
             </h1>
         @endif
 
