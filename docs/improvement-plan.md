@@ -1,0 +1,85 @@
+# Demo Kit — Improvement & Growth Plan
+> Package: capell-app/demo-kit · Kind: package · Tier: free · Product group: Capell Foundation · Bundle: foundation · Status: Draft
+
+## 1. Snapshot
+
+Demo Kit is the demo-seeding engine for the Capell package suite. It is a tooling/dev package, not a marketplace seller: it provisions demo users, languages, sites, pages, media, and a curated Foundation showcase homepage so package demos, sales reviews, screenshots, and QA all start from known data. Orchestration is layered: `FullDemoCommand` (`capell:demo-kit-full-demo`) builds a deterministic plan via `BuildDemoGenerationPlanAction`, calls `capell:admin-demo` to seed core/admin data through `DemoCreator`/`AdminDemoCommand`, then calls `capell:demo` to fan out to each installed package's own demo command (`src/Console/Commands/FullDemoCommand.php`). Per-package registration is manifest-driven: each package declares `commands.demo` in its `capell.json`, and `FullDemoCommand::demoPackageNames()` discovers them via `CapellCore::getInstalledPackages()` + `PackageData::getDemoCommand()` (lines 203-223). Surfaces: `admin` + `frontend`; deps: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, plus `fakerphp/faker`. No migrations, no settings, no permissions, no declared capabilities.
+
+Current marketplace `summary` (verbatim): "Demo Kit provides example content and media for local Capell demos." Composer `description` (verbatim): "Demo content and media kit for Capell". `marketplace.screenshots[]` declares **1** entry (`docs/assets/marketplace/extension-card.jpg`); the file exists. Note the mismatch with `docs/screenshots.json`, which specifies **3** capture targets (admin page + two frontend widget renders) for the deployment screenshot runner — the marketplace card list is under-populated relative to the package's own screenshot contract, and `docs/screenshots/` (the runner output dir) contains no committed PNGs.
+
+## 2. Improvements (existing functionality)
+
+1. **Forward the chosen author to package demos** — `FullDemoCommand` passes `'--user' => $this->option('user') !== null` (a boolean) to `capell:demo`, whose signature is `{--user}` (a value-less flag). The real username is dropped, so package-contributed demo content (blog posts, etc.) is not attributed to the selected author even though `capell:admin-demo` is given the value correctly on the same run. Make `capell:demo` accept `{--user=}` and forward the string, consistent with `admin-demo`. — `src/Console/Commands/FullDemoCommand.php:108`, `src/Console/Commands/DemoCommand.php` (signature) — S
+
+2. **Forward `--seed` to package demos for true determinism** — `FullDemoCommand` forwards `--seed` to `capell:admin-demo` (line 90) but **not** to the `capell:demo` package fan-out (lines 106-113). README states `--seed` "makes the generated plan repeatable for screenshots, tests, and bug reports," but package-owned demo content (address, blog) is generated non-deterministically regardless of seed. Either thread the seed through `capell:demo` → each package's demo command, or document the boundary explicitly. — `src/Console/Commands/FullDemoCommand.php:106-113`; README "Demo Generation" — M
+
+3. **Remove duplicated option parse** — `resolvePositiveIntegerOption('page-count')` is computed twice (lines 64 and 84) inside `createFullDemo()`; the first result is already in `$options`/`$plan`. Reuse the value. Minor, but it is dead duplication in the hottest command. — `src/Console/Commands/FullDemoCommand.php:64,84` — S
+
+4. **Tighten the manifest health-check label to match behaviour** — `capell.json` `healthChecks[0].label` claims Demo Kit "surfaces, providers, and install health are discoverable by Diagnostics," but `DemoKitHealthCheck` only implements `compatibleCapellApiVersion()` (the suite-wide `ChecksExtensionHealth` marker pattern, same as `SeoSuiteHealthCheck`/`DiagnosticsHealthCheck`). The substantive 13-check logic lives in `AssertDefaultDemoInstallHealthAction` and is reachable only via the `capell:demo-kit-doctor` CLI. Reword the label to describe the API-version contract, and surface the doctor action through Diagnostics (see §3). — `capell.json` (healthChecks), `src/Health/DemoKitHealthCheck.php` — S
+
+5. **Make the hard-coded showcase contract self-documenting** — `AssertDefaultDemoInstallHealthAction::homepageUsesShowcaseOrder()` and `DemoProfileData::default()` hard-code an 8-widget Foundation showcase order (`capell-home-hero-command-center` … `capell-home-final-cta`) plus `capell-app/foundation-theme`/`capell-app/frontend` capability expectations (`capabilityGraphIncludesDemoPackages()`, lines 313-332). These keys belong to other packages; if Foundation Theme renames a widget, the demo doctor breaks with no compile-time link. Add a doc note + a test that asserts these keys still exist in the theme package, or source them from the theme rather than config defaults. — `src/Actions/Diagnostics/AssertDefaultDemoInstallHealthAction.php:145-169,313-332`; `src/Data/DemoProfileData.php` — M
+
+6. **Consolidate the three overlapping demo entry points** — `capell:demo`, `capell:admin-demo`, and `capell:demo-kit-full-demo` have overlapping option sets and subtle signature drift (`--user` flag vs `--user=` value; `--force` present on some, not others; `--seed` on some). The README and `capell.json.demoParams` already treat `full-demo` as the canonical entry. Document each command's role crisply and align option naming/types so the fan-out is lossless. — `src/Console/Commands/*`, README "Commands" — M
+
+## 3. Missing Features (gaps)
+
+`capabilities: []` is empty in `capell.json` — correct for a tooling package, so gaps are measured against demo-tooling norms rather than seller capabilities.
+
+- **Demo coverage for every package (table-stakes, currently the biggest gap).** Only **3** of ~50 packages declare a `commands.demo`: `demo-kit` (`capell:demo-kit-full-demo`), `blog` (`capell:blog-demo`), `address` (`capell:address-demo`). Every other package (events, bookings, form-builder, knowledge-base, comments, contacts, etc.) seeds nothing through the fan-out. The orchestration is excellent but starved of contributors. Add a `capell:demo-kit-doctor`-style report that lists installed packages with **no** demo command, and drive a campaign to add per-package demo commands. This is the single highest-leverage growth item — demo completeness is what makes demo sites sell. — ties to per-package demo registration norm — **differentiator once complete**
+
+- **Idempotent / resettable seeding (table-stakes).** `CreateDemoUsersAction` is idempotent (find-or-new by email), but the page/site fan-out has no documented "reset to clean demo" or "re-run safely" guarantee; re-running `full-demo` appends rather than reconciles. Add an explicit reset path or assert idempotency in tests so repeated screenshot/QA runs are stable.
+
+- **Diagnostics-surfaced demo health (table-stakes).** The rich `AssertDefaultDemoInstallHealthAction` (homepage exists, widget count/order, media count, placeholder-label absence, runtime assets, capability graph, cache eligibility, public-render contract) is CLI-only. Expose it as a real Diagnostics widget/page check so demo-site health is visible in admin, not just the terminal. — ties to `healthChecks[]` manifest entry
+
+- **Multi-site / multi-locale demo realism (partial).** Plan generation supports `--site-count`, `--languages=all|en,fr|random:3`, and `DummyContentGeneratorAction` ships hand-written copy for `en/fr/de/it/es` with a generic fallback. Locales outside that set fall back to English-shaped filler. Broaden the curated locale pool and add RTL coverage to prove the theme renders bidirectional content.
+
+- **Screenshot-automation support (partial → differentiator).** `docs/screenshots.json` defines a clean contract for the deployment screenshot runner (`requiresInstalledPackage`, per-entry `target`/`surface`/`useCase`), and `--seed` exists for repeatability — strong foundation. But (a) seed is not threaded to package demos (§2.2), (b) no committed baseline PNGs in `docs/screenshots/`, and (c) only demo-kit's own widgets are in the contract. Extending the seeded-state + screenshot contract across all packages would make Demo Kit the backbone of automated marketing-asset generation.
+
+## 4. Issues / Risks
+
+- **No production environment guard (highest risk).** `FullDemoCommand::handle()` gates only on `--force` + interactivity (`src/Console/Commands/FullDemoCommand.php:33-37`); there is no `app()->environment()` check. `CreateDemoUsersAction` creates a **super-admin** `demo@example.com` with password `password` (`src/Actions/CreateDemoUsersAction.php:19-25`). A stray `--force` run (or an automation hook) against a production DB would mint a known-credential superadmin and seed demo sites/pages. Add an environment guard that refuses to run in `production` unless an explicit override flag is set, and never seed a known-password superadmin outside `local`/`testing`.
+
+- **`--user` boolean bug is untested.** `FullDemoCommandTest` registers `vendor/example-package` with `demoParams` including `user` but asserts only `TrackingDemoCommand::$executionOrder`, never that the username value arrives (`tests/Feature/Commands/FullDemoCommandTest.php`). The §2.1 defect is invisible to the suite. Add an assertion that the forwarded `--user` value matches the input.
+
+- **Demo data drifting out of sync with the packages it seeds.** The demo contract is split across three locations that must agree but have no enforced link: (1) other packages' `capell.json` `commands.demo`, (2) the hard-coded Foundation widget keys in `config/capell-demo-kit.php` + `DemoProfileData`, (3) `AssertDefaultDemoInstallHealthAction`'s expectations. A widget rename or a package dropping its demo command is caught only at demo-run time. The doctor mitigates partially but is CLI-only and Foundation-specific.
+
+- **Seeding performance / queue side-effects.** `FullDemoCommand` force-disables `media-library.queue_conversions_by_default` for the whole run and restores it in `finally` (lines 39-46) — good. But with `pages_per_site` up to 30 across 3 sites and per-page media + image conversions run synchronously, large seeds are slow; there is no progress/throughput budget beyond `MAX_SITE_COUNT`/`MAX_PAGE_COUNT` clamps. The manifest `performance.adminQueryBudget: 40` is unverified for the admin page. Consider a `--quick` profile for CI/screenshots.
+
+- **i18n leakage in seeded content.** `DemoCreator::setupSite()` writes English-shaped meta literally regardless of locale: `business_name = "{title} ltd"`, `footer_content = 'Footer content here'`, `phone = '0123456789'` (`src/Support/Creator/DemoCreator.php`). These bypass `DummyContentGeneratorAction`'s locale awareness, so non-English demo sites show English boilerplate in footer/business fields.
+
+- **Empty CHANGELOG.** `CHANGELOG.md` has only an "Unreleased" stub ("Prepared package metadata and documentation…"). No released history to anchor support or upgrade notes.
+
+## 5. Marketplace & Positioning
+
+Demo Kit is an internal/tooling package (`tier: free`, `bundle: foundation`, `commercial.proposedLicense: free`), not a marketplace seller — its commercial value is **indirect**: it powers the demo sites that drive conversion for every paid package, and it owns the screenshot contract that feeds marketing assets. Positioning should lean into that "engine behind the demos" role rather than pretending to be an end-user feature.
+
+**Critique — current copy is flat and undersells the orchestration.**
+- `marketplace.summary` / `composer.description` both say roughly "example content and media for local Capell demos." They omit the actual differentiators: deterministic/seeded plans, per-package demo fan-out, multi-site/multi-locale generation, and a CLI doctor.
+- Improved `marketplace.summary`: *"The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data."*
+- Improved `composer.description`: *"Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands."*
+
+**Role in sales:** demo completeness is the conversion lever. The §3 gap (3/50 packages seed data) directly limits how compelling a full demo site looks; closing it is a revenue-adjacent investment, not just devx. **Role in screenshot automation:** `docs/screenshots.json` + `--seed` already position Demo Kit as the source of repeatable marketing imagery; threading seed through package demos and committing baseline captures would make it the canonical asset pipeline.
+
+**Screenshot/media gaps:** 1 marketplace screenshot vs a 3-entry screenshot contract; no committed PNG baselines in `docs/screenshots/`; no captures of the multi-site or multi-locale output that the README advertises.
+
+**Keywords/tags (8–12):** `demo-data`, `seeding`, `fixtures`, `screenshot-automation`, `multi-site`, `multi-language`, `deterministic-seed`, `qa-tooling`, `showcase`, `foundation`, `cms-demo`, `developer-tooling`.
+
+## 6. Prioritized Roadmap
+
+| Item | Bucket | Effort | Impact | Section ref |
+| --- | --- | --- | --- | --- |
+| Add production environment guard + no known-password superadmin outside local/testing | Now | S | High | §4 |
+| Fix `--user` forwarded as boolean to `capell:demo` | Now | S | High | §2.1 |
+| Add test asserting `--user` value reaches package demos | Now | S | Med | §4 |
+| Drive per-package `commands.demo` coverage (campaign + "missing demo" report) | Now | L | High | §3 |
+| Thread `--seed` through `capell:demo` package fan-out (or document boundary) | Next | M | High | §2.2 |
+| Surface `AssertDefaultDemoInstallHealthAction` in Diagnostics admin, not CLI-only | Next | M | High | §3, §2.4 |
+| Reword manifest healthCheck label to match marker behaviour | Now | S | Low | §2.4 |
+| Rewrite marketplace summary + composer description | Next | S | Med | §5 |
+| Populate marketplace screenshots to match `screenshots.json` (3 targets) + commit baselines | Next | M | Med | §5 |
+| Localize seeded site meta (footer/business/phone) via locale-aware content | Next | M | Med | §4 |
+| Guard against demo-key drift: test that Foundation showcase widget keys exist | Next | M | Med | §2.5, §4 |
+| Add idempotent/reset path for re-runnable seeding | Later | M | Med | §3 |
+| Add `--quick` seed profile for CI/screenshot speed | Later | M | Low | §4 |
+| Broaden curated locale pool + add RTL demo coverage | Later | M | Low | §3 |
+| Remove duplicated `page-count` parse + start a real CHANGELOG | Later | S | Low | §2.3, §4 |
