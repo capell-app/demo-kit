@@ -56,7 +56,7 @@ This package makes its Composer dependencies visible because they are part of th
 | Area      | Path                              | Purpose                                                           |
 | --------- | --------------------------------- | ----------------------------------------------------------------- |
 | Actions   | `packages/demo-kit/src/Actions`   | Domain operations. Test these directly where possible.            |
-| Filament  | `packages/demo-kit/src/Filament`  | Admin resources, pages, blocks, and settings UI.                  |
+| Filament  | `packages/demo-kit/src/Filament`  | Admin resources, pages, widgets, and settings UI.                 |
 | Providers | `packages/demo-kit/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
 | Resources | `packages/demo-kit/resources`     | Views, translations, assets, and package resources.               |
 | Config    | `packages/demo-kit/config`        | Package configuration and publishable config.                     |
@@ -71,8 +71,8 @@ This package makes its Composer dependencies visible because they are part of th
 - `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
 - `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
 - `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
-- `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for block, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
-- The Kitchen Sink page intentionally server-renders only the structured-text reference block up front. The remaining reference block families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
+- `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
+- The Kitchen Sink page intentionally server-renders only the structured-text reference widget up front. The remaining reference widget families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation
@@ -94,21 +94,21 @@ The Kitchen Sink fixture expects the serving layer to provide text compression f
 
 ## Content Rendering Boundary
 
-Demo Kit must keep saved CMS content portable. `DemoCreator` should only persist minimal editable copy in content fields: simple paragraphs, headings, lists, links, and light emphasis are fine. Do not store designed HTML, utility classes, component classes, layout wrappers, tables, cards, pricing grids, hero sections, or other presentation structures in page or block translations.
+Demo Kit must keep saved CMS content portable. `DemoCreator` should only persist minimal editable copy in content fields: simple paragraphs, headings, lists, links, and light emphasis are fine. Do not store designed HTML, utility classes, component classes, layout wrappers, tables, cards, pricing grids, hero sections, or other presentation structures in page or widget translations.
 
-When demo content needs a designed public surface, create or reuse a Capell Layout Builder block and render it from package Blade under `packages/demo-kit/resources/views`. The seeded database record should point at that block or view through Capell metadata, while the Blade view owns the markup and classes.
+When demo content needs a designed public surface, create or reuse a Capell Layout Builder widget and render it from package Blade under `packages/demo-kit/resources/views`. The seeded database record should point at that widget or view through Capell metadata, while the Blade view owns the markup and classes.
 
 Current examples:
 
-- `demo-page-content` renders designed demo pages through `capell-demo-kit::components.block.demo-page-content`.
-- Homepage demo sections render through `capell-demo-kit::components.block.homepage-section`.
+- `demo-page-content` renders designed demo pages through `capell-demo-kit::components.widget.demo-page-content`.
+- Homepage demo sections render through `capell-demo-kit::components.widget.homepage-section`.
 
 ## Data And Persistence
 
 - Config: `packages/demo-kit/config/capell-demo-kit.php`.
 - Content pools: `packages/demo-kit/src/Support/DemoContentPool.php`.
 - Generated plan: `packages/demo-kit/src/Actions/BuildDemoGenerationPlanAction.php`.
-- Designed public markup: `packages/demo-kit/resources/views/components/block`.
+- Designed public markup: `packages/demo-kit/resources/views/components/widget`.
 
 ## Extension Points
 

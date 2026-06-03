@@ -7,16 +7,16 @@ namespace Capell\DemoKit\Support\Creator;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Blueprint;
-use Capell\DemoKit\Filament\Configurators\Blocks\HomepageSectionBlockConfigurator;
+use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigurator;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\HomepageDemoContent;
-use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeGroupEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Override;
 
-abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
+abstract class HomepageDemoWidgetCreator extends ModernDemoWidgetCreator
 {
     private const array HOMEPAGE_IMAGE_SOURCES = [
         'capell-home-hero-command-center' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
@@ -57,88 +57,88 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
         ],
     ];
 
-    public function createHomepageHeroCommandCenterBlock(): Widget
+    public function createHomepageHeroCommandCenterWidget(): Widget
     {
-        $block = $this->createHomepageBladeBlock(
+        $widget = $this->createHomepageBladeWidget(
             key: 'capell-home-hero-command-center',
             name: 'Capell Homepage Command Center Hero',
         );
 
-        return $this->withHomepageHeroLayout($this->withHomepageHeroSlides($this->withHomepageContent($this->withHomepageImageSource($block))));
+        return $this->withHomepageHeroLayout($this->withHomepageHeroSlides($this->withHomepageContent($this->withHomepageImageSource($widget))));
     }
 
-    public function createHomepageProofStripBlock(): Widget
+    public function createHomepageProofStripWidget(): Widget
     {
-        return $this->withHomepageContent($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->createHomepageBladeWidget(
             key: 'capell-home-proof-strip',
             name: 'Capell Homepage Proof Strip',
         ));
     }
 
-    public function createHomepageDemoShowcaseBlock(): Widget
+    public function createHomepageDemoShowcaseWidget(): Widget
     {
-        return $this->withHomepageContent($this->withHomepageImageSource($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->withHomepageImageSource($this->createHomepageBladeWidget(
             key: 'capell-home-demo-showcase',
             name: 'Capell Homepage Demo Showcase',
         )));
     }
 
-    public function createHomepageDemoWidgetsCarouselBlock(): Widget
+    public function createHomepageDemoWidgetsCarouselWidget(): Widget
     {
-        return $this->withHomepageContent($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->createHomepageBladeWidget(
             key: 'capell-home-demo-widgets-carousel',
             name: 'Capell Homepage Demo Widgets Carousel',
         ));
     }
 
-    public function createHomepageMarketplaceBlock(): Widget
+    public function createHomepageMarketplaceWidget(): Widget
     {
-        return $this->withHomepageContent($this->withHomepageImageSource($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->withHomepageImageSource($this->createHomepageBladeWidget(
             key: 'capell-extension-marketplace-showcase',
             name: 'Extension Marketplace Showcase',
         )));
     }
 
-    public function createHomepageTechnicalPipelineBlock(): Widget
+    public function createHomepageTechnicalPipelineWidget(): Widget
     {
-        return $this->withHomepageContent($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->createHomepageBladeWidget(
             key: 'capell-home-technical-pipeline',
             name: 'Capell Homepage Technical Pipeline',
         ));
     }
 
-    public function createHomepageRouteSplitBlock(): Widget
+    public function createHomepageRouteSplitWidget(): Widget
     {
-        return $this->withHomepageContent($this->createHomepageBladeBlock(
+        return $this->withHomepageContent($this->createHomepageBladeWidget(
             key: 'capell-home-route-split',
             name: 'Capell Homepage Route Split',
         ));
     }
 
-    public function createHomepageFinalCtaBlock(): Widget
+    public function createHomepageFinalCtaWidget(): Widget
     {
-        $block = $this->createHomepageBladeBlock(
+        $widget = $this->createHomepageBladeWidget(
             key: 'capell-home-final-cta',
             name: 'Capell Homepage Final CTA',
         );
 
-        return $this->withContainedFullBleedSectionLayout($this->withHomepageContent($block));
+        return $this->withContainedFullBleedSectionLayout($this->withHomepageContent($widget));
     }
 
     #[Override]
-    protected function homepageBladeBlockType(): Blueprint
+    protected function homepageBladeWidgetType(): Blueprint
     {
-        $blockType = $this->typeModel::query()->updateOrCreate(
+        $widgetType = $this->typeModel::query()->updateOrCreate(
             [
                 'type' => LayoutTypeEnum::Widget->value,
                 'key' => 'homepage-section',
             ],
             [
                 'name' => 'Homepage section',
-                'group' => BlockTypeGroupEnum::Content->value,
+                'group' => WidgetTypeGroupEnum::Content->value,
                 'admin' => [
                     'type_configurator' => 'Widget',
-                    'configurator' => HomepageSectionBlockConfigurator::getKey(),
+                    'configurator' => HomepageSectionWidgetConfigurator::getKey(),
                     'icon' => 'heroicon-o-home',
                     'notes' => 'Demo homepage sections with editable content payloads.',
                 ],
@@ -151,65 +151,65 @@ abstract class HomepageDemoBlockCreator extends ModernDemoBlockCreator
             ],
         );
 
-        return $blockType instanceof Blueprint ? $blockType : resolve(TypeCreator::class)->defaultBlockType();
+        return $widgetType instanceof Blueprint ? $widgetType : resolve(TypeCreator::class)->defaultWidgetType();
     }
 
-    private function withHomepageImageSource(Widget $block): Widget
+    private function withHomepageImageSource(Widget $widget): Widget
     {
-        $url = self::HOMEPAGE_IMAGE_SOURCES[$block->key] ?? null;
+        $url = self::HOMEPAGE_IMAGE_SOURCES[$widget->key] ?? null;
 
         if ($url === null) {
-            return $block;
+            return $widget;
         }
 
-        $meta = is_array($block->meta) ? $block->meta : [];
+        $meta = is_array($widget->meta) ? $widget->meta : [];
         $meta['image_source'] = [
             'type' => 'url',
             'url' => $url,
         ];
 
-        $block->forceFill(['meta' => $meta])->save();
+        $widget->forceFill(['meta' => $meta])->save();
 
-        return $block;
+        return $widget;
     }
 
-    private function withHomepageHeroSlides(Widget $block): Widget
+    private function withHomepageHeroSlides(Widget $widget): Widget
     {
-        $meta = is_array($block->meta) ? $block->meta : [];
+        $meta = is_array($widget->meta) ? $widget->meta : [];
         $meta['hero_slides'] = self::HOMEPAGE_HERO_SLIDES;
 
-        $block->forceFill(['meta' => $meta])->save();
+        $widget->forceFill(['meta' => $meta])->save();
 
-        return $block;
+        return $widget;
     }
 
-    private function withHomepageContent(Widget $block): Widget
+    private function withHomepageContent(Widget $widget): Widget
     {
-        $meta = is_array($block->meta) ? $block->meta : [];
-        $meta['content'] = HomepageDemoContent::mergeForBlock(
-            $block->key,
+        $meta = is_array($widget->meta) ? $widget->meta : [];
+        $meta['content'] = HomepageDemoContent::mergeForWidget(
+            $widget->key,
             isset($meta['content']) && is_array($meta['content']) ? $meta['content'] : [],
         );
 
-        $block->forceFill(['meta' => $meta])->save();
+        $widget->forceFill(['meta' => $meta])->save();
 
-        return $block;
+        return $widget;
     }
 
-    private function withHomepageHeroLayout(Widget $block): Widget
+    private function withHomepageHeroLayout(Widget $widget): Widget
     {
-        return $this->withContainedFullBleedSectionLayout($block);
+        return $this->withContainedFullBleedSectionLayout($widget);
     }
 
-    private function withContainedFullBleedSectionLayout(Widget $block): Widget
+    private function withContainedFullBleedSectionLayout(Widget $widget): Widget
     {
-        $meta = is_array($block->meta) ? $block->meta : [];
+        $meta = is_array($widget->meta) ? $widget->meta : [];
         $meta['container'] = ContainerWidthEnum::Default->value;
         $meta['margin'] = ['none'];
         $meta['padding'] = ['none'];
 
-        $block->forceFill(['meta' => $meta])->save();
+        $widget->forceFill(['meta' => $meta])->save();
 
-        return $block;
+        return $widget;
     }
 }

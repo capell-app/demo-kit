@@ -14,8 +14,8 @@ use Capell\Core\Models\SiteDomain;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\FormBuilder\Models\Form;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -354,7 +354,7 @@ it('creates a page with parent relation and media disabled', function (): void {
 
 it('uses standalone contact and footer layouts for demo pages', function (): void {
     Blueprint::factory()->create([
-        'key' => BlockTypeEnum::Default->value,
+        'key' => WidgetTypeEnum::Default->value,
         'type' => LayoutTypeEnum::Widget->value,
     ]);
 
@@ -381,7 +381,7 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ->and(demoCreatorBottomBannerWidgets($contactPage))->toBe([
             ['widget_key' => 'page-bottom-banner'],
         ])
-        ->and(Widget::query()->where('key', 'page-bottom-banner')->where('component', 'capell.block.default')->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-bottom-banner')->where('component', 'capell.widget.default')->exists())->toBeTrue()
         ->and(Widget::query()->where('key', 'page-bottom-banner')->value('meta'))->toMatchArray([
             'container' => 'full',
             'margin' => ['t-xl'],
@@ -390,12 +390,12 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
             'color_scheme' => 'light',
         ])
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
-        ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::block.form')->exists())->toBeTrue();
+        ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::widget.form')->exists())->toBeTrue();
 });
 
 it('adds the reusable bottom banner to the demo article layout', function (): void {
     Blueprint::factory()->create([
-        'key' => BlockTypeEnum::Default->value,
+        'key' => WidgetTypeEnum::Default->value,
         'type' => LayoutTypeEnum::Widget->value,
     ]);
 

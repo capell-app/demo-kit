@@ -32,7 +32,7 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
     resolve(BlueprintCreator::class)->createPageTypes();
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     Schema::create('demo_assets', function (Illuminate\Database\Schema\Blueprint $table): void {
         $table->id();
@@ -57,10 +57,10 @@ beforeEach(function (): void {
     config()->set('media-library.disk_name', 'public');
     config()->set('media-library.conversions_disk', 'public');
 
-    bindDemoBlockCreatorTinyResources();
+    bindDemoWidgetCreatorTinyResources();
 });
 
-it('creates standard content blocks with translated portable content', function (): void {
+it('creates standard content widgets with translated portable content', function (): void {
     $language = Language::factory()->default()->create(['code' => 'en']);
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
     $pageType = Blueprint::query()->pageType()->default()->firstOrFail();
@@ -73,35 +73,35 @@ it('creates standard content blocks with translated portable content', function 
 
     $creator = new DemoCreator;
 
-    $contentBlock = $creator->createContentBlock($site->languages);
-    $splitBlock = $creator->createSplitContentBlock($site->languages);
-    $contentBlockContent = (string) $contentBlock->translations()->first()?->content;
-    $splitBlockContent = (string) $splitBlock->translations()->first()?->content;
+    $contentWidget = $creator->createContentWidget($site->languages);
+    $splitWidget = $creator->createSplitContentWidget($site->languages);
+    $contentWidgetContent = (string) $contentWidget->translations()->first()?->content;
+    $splitWidgetContent = (string) $splitWidget->translations()->first()?->content;
 
-    expect($contentBlock)->toBeInstanceOf(Widget::class)
-        ->and($contentBlock->key)->toBe('example-content')
-        ->and($contentBlock->translations)->toHaveCount(1)
-        ->and($contentBlockContent)->toContain('<p>')
-        ->and(strip_tags($contentBlockContent))->not->toBe('')
-        ->and($splitBlock->key)->toBe('example-split-content')
-        ->and($splitBlockContent)->toContain('<p>')
-        ->and(strip_tags($splitBlockContent))->not->toBe('');
+    expect($contentWidget)->toBeInstanceOf(Widget::class)
+        ->and($contentWidget->key)->toBe('example-content')
+        ->and($contentWidget->translations)->toHaveCount(1)
+        ->and($contentWidgetContent)->toContain('<p>')
+        ->and(strip_tags($contentWidgetContent))->not->toBe('')
+        ->and($splitWidget->key)->toBe('example-split-content')
+        ->and($splitWidgetContent)->toContain('<p>')
+        ->and(strip_tags($splitWidgetContent))->not->toBe('');
 });
 
-it('creates asset backed standard demo blocks idempotently', function (): void {
+it('creates asset backed standard demo widgets idempotently', function (): void {
     $language = Language::factory()->default()->create(['code' => 'en']);
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
 
     $creator = new DemoCreator;
 
-    $gallery = $creator->createGalleryBlock();
-    $carousel = $creator->createMediaCarouselBlock();
-    $logos = $creator->createClientLogosBlock($site->languages);
-    $statistics = $creator->createStatisticsBlock();
-    $secondStatistics = $creator->createStatisticsBlock();
+    $gallery = $creator->createGalleryWidget();
+    $carousel = $creator->createMediaCarouselWidget();
+    $logos = $creator->createClientLogosWidget($site->languages);
+    $statistics = $creator->createStatisticsWidget();
+    $secondStatistics = $creator->createStatisticsWidget();
 
     expect($gallery->assets()->count())->toBe(5)
-        ->and($creator->createGalleryBlock()->assets()->count())->toBe(5)
+        ->and($creator->createGalleryWidget()->assets()->count())->toBe(5)
         ->and($carousel->assets()->count())->toBe(8)
         ->and($logos->key)->toBe('client-logos')
         ->and($logos->assets()->count())->toBe(12)
@@ -122,9 +122,9 @@ it('creates page card assets only when related image pages exist', function (): 
         ->withTranslations($language, ['title' => 'Current'])
         ->create();
 
-    $emptyBlock = $creator->createPageCardsBlock($page);
+    $emptyWidget = $creator->createPageCardsWidget($page);
 
-    expect($emptyBlock->assets()->count())->toBe(0);
+    expect($emptyWidget->assets()->count())->toBe(0);
 
     for ($counter = 1; $counter <= 3; $counter++) {
         $relatedPage = Page::factory()
@@ -136,26 +136,26 @@ it('creates page card assets only when related image pages exist', function (): 
         $creator->createMedia($relatedPage, 'demo-' . $counter);
     }
 
-    $cardsBlock = $creator->createPageCardsBlock($page, 'sidebar', 2);
-    $duplicateCardsBlock = $creator->createPageCardsBlock($page, 'sidebar', 2);
+    $cardsWidget = $creator->createPageCardsWidget($page, 'sidebar', 2);
+    $duplicateCardsWidget = $creator->createPageCardsWidget($page, 'sidebar', 2);
 
-    expect($cardsBlock->assets()->count())->toBe(3)
-        ->and($duplicateCardsBlock->assets()->count())->toBe(3)
+    expect($cardsWidget->assets()->count())->toBe(3)
+        ->and($duplicateCardsWidget->assets()->count())->toBe(3)
         ->and(WidgetAsset::query()->where('pageable_id', $page->getKey())->where('container', 'sidebar')->count())->toBe(3);
 });
 
-it('creates app showcase demo blocks with sections and media assets', function (): void {
+it('creates app showcase demo widgets with sections and media assets', function (): void {
     $language = Language::factory()->default()->create(['code' => 'en']);
     Site::factory()->language($language)->default()->withTranslations($language)->create();
 
     $creator = new DemoCreator;
 
-    $hero = $creator->createApHeroBannerBlock();
-    $cards = $creator->createApCardGridBlock();
-    $features = $creator->createApFeatureListBlock();
-    $genericFeatures = $creator->createFeatureListBlock();
-    $cta = $creator->createApCtaSectionBlock();
-    $gallery = $creator->createApImageGalleryBlock();
+    $hero = $creator->createApHeroBannerWidget();
+    $cards = $creator->createApCardGridWidget();
+    $features = $creator->createApFeatureListWidget();
+    $genericFeatures = $creator->createFeatureListWidget();
+    $cta = $creator->createApCtaSectionWidget();
+    $gallery = $creator->createApImageGalleryWidget();
 
     expect($hero->key)->toBe('ap-hero-banner')
         ->and($cards->assets()->count())->toBe(3)
@@ -163,24 +163,24 @@ it('creates app showcase demo blocks with sections and media assets', function (
         ->and($genericFeatures->assets()->count())->toBe(6)
         ->and($cta->translations()->count())->toBe(1)
         ->and($gallery->assets()->count())->toBe(6)
-        ->and($creator->createApImageGalleryBlock()->assets()->count())->toBe(6);
+        ->and($creator->createApImageGalleryWidget()->assets()->count())->toBe(6);
 });
 
-it('creates modern demo blocks as repeatable section-backed blocks', function (): void {
+it('creates modern demo widgets as repeatable section-backed widgets', function (): void {
     $language = Language::factory()->default()->create(['code' => 'en']);
     Site::factory()->language($language)->default()->withTranslations($language)->create();
 
     $creator = new DemoCreator;
 
-    $featureList = $creator->createModernFeatureListBlock();
-    $teamMembers = $creator->createModernTeamMembersBlock();
-    $pricing = $creator->createModernPricingTableBlock();
-    $testimonials = $creator->createModernTestimonialsBlock();
-    $faq = $creator->createModernFaqBlock();
-    $stats = $creator->createModernStatsSectionBlock();
-    $alternating = $creator->createModernAlternatingContentBlock();
-    $process = $creator->createModernProcessStepsBlock();
-    $gallery = $creator->createModernImageGalleryBlock();
+    $featureList = $creator->createModernFeatureListWidget();
+    $teamMembers = $creator->createModernTeamMembersWidget();
+    $pricing = $creator->createModernPricingTableWidget();
+    $testimonials = $creator->createModernTestimonialsWidget();
+    $faq = $creator->createModernFaqWidget();
+    $stats = $creator->createModernStatsSectionWidget();
+    $alternating = $creator->createModernAlternatingContentWidget();
+    $process = $creator->createModernProcessStepsWidget();
+    $gallery = $creator->createModernImageGalleryWidget();
 
     expect($featureList->assets()->count())->toBe(6)
         ->and($teamMembers->assets()->count())->toBe(3)
@@ -191,10 +191,10 @@ it('creates modern demo blocks as repeatable section-backed blocks', function ()
         ->and($alternating->assets()->count())->toBe(3)
         ->and($process->assets()->count())->toBe(4)
         ->and($gallery->assets()->count())->toBe(6)
-        ->and($creator->createModernTeamMembersBlock()->assets()->count())->toBe(3);
+        ->and($creator->createModernTeamMembersWidget()->assets()->count())->toBe(3);
 });
 
-it('creates the remaining standard section-backed demo blocks idempotently', function (): void {
+it('creates the remaining standard section-backed demo widgets idempotently', function (): void {
     $language = Language::factory()->default()->create(['code' => 'en']);
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
     $pageType = Blueprint::query()->pageType()->default()->firstOrFail();
@@ -213,21 +213,21 @@ it('creates the remaining standard section-backed demo blocks idempotently', fun
 
     $creator = new DemoCreator;
 
-    $faq = $creator->createFaqBlock($site->languages);
-    $navigation = $creator->createStaticNavigationBlock($site->languages, $site);
-    $contentsBlock = $creator->createFeatureListBlock();
-    $creator->createContentsBlock($contentsBlock, $page, 'main', 3);
-    $creator->createContentsBlock($contentsBlock, $page, 'main', 3);
+    $faq = $creator->createFaqWidget($site->languages);
+    $navigation = $creator->createStaticNavigationWidget($site->languages, $site);
+    $contentsWidget = $creator->createFeatureListWidget();
+    $creator->createContentsWidget($contentsWidget, $page, 'main', 3);
+    $creator->createContentsWidget($contentsWidget, $page, 'main', 3);
 
-    $businessFeatures = $creator->createBusinessFeaturesBlock($site);
-    $banners = $creator->createBannersBlock();
-    $testimonials = $creator->createTestimonialsBlock($site->languages);
-    $teamPortfolio = $creator->createTeamPortfolioBlock($site->languages);
+    $businessFeatures = $creator->createBusinessFeaturesWidget($site);
+    $banners = $creator->createBannersWidget();
+    $testimonials = $creator->createTestimonialsWidget($site->languages);
+    $teamPortfolio = $creator->createTeamPortfolioWidget($site->languages);
     $navigationMeta = is_array($navigation->meta) ? $navigation->meta : [];
 
     expect($faq->assets()->count())->toBe(6)
         ->and($navigationMeta['navigation'] ?? null)->toBe('example-menu')
-        ->and($contentsBlock->assets()->where('pageable_id', $page->getKey())->where('container', 'main')->count())->toBe(4)
+        ->and($contentsWidget->assets()->where('pageable_id', $page->getKey())->where('container', 'main')->count())->toBe(4)
         ->and($businessFeatures->assets()->count())->toBe(7)
         ->and($banners->assets()->count())->toBe(7)
         ->and($testimonials->assets()->count())->toBe(3)
@@ -236,21 +236,21 @@ it('creates the remaining standard section-backed demo blocks idempotently', fun
         ->and(DemoAsset::query()->where('name', 'Team Members')->exists())->toBeTrue();
 });
 
-it('creates faq blocks for languages without explicit demo questions', function (): void {
+it('creates faq widgets for languages without explicit demo questions', function (): void {
     $language = Language::factory()->default()->create(['code' => 'nl']);
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
 
     $creator = new DemoCreator;
 
-    $faq = $creator->createFaqBlock($site->languages);
+    $faq = $creator->createFaqWidget($site->languages);
 
     expect($faq->assets()->count())->toBe(6)
         ->and(DemoAsset::query()->where('name', 'How was this website created?')->exists())->toBeTrue();
 });
 
-function bindDemoBlockCreatorTinyResources(): void
+function bindDemoWidgetCreatorTinyResources(): void
 {
-    $demoDirectory = sys_get_temp_dir() . '/capell-demo-block-creator-resources-' . uniqid();
+    $demoDirectory = sys_get_temp_dir() . '/capell-demo-widget-creator-resources-' . uniqid();
     $imageDirectory = $demoDirectory . '/img';
     $videoDirectory = $demoDirectory . '/video';
 

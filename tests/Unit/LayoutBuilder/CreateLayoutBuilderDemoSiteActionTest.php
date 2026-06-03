@@ -31,7 +31,7 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
     resolve(BlueprintCreator::class)->createPageTypes();
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     Schema::create('demo_assets', function (Illuminate\Database\Schema\Blueprint $table): void {
         $table->id();
@@ -64,7 +64,7 @@ it('returns false when a site has no pageable homepage', function (): void {
         ->and(DemoAsset::query()->where('site_id', $site->getKey())->where('name', 'Root')->exists())->toBeTrue();
 });
 
-it('builds homepage showcase layout blocks and nested content tree pages', function (): void {
+it('builds homepage showcase layout widgets and nested content tree pages', function (): void {
     $language = Language::factory()->english()->create();
     $site = Site::factory()->default()->language($language)->withTranslations($language)->create();
     $layout = Layout::query()->firstWhere('key', LayoutEnum::Home)
@@ -107,7 +107,7 @@ it('builds homepage showcase layout blocks and nested content tree pages', funct
 
     expect($created)->toBeTrue()
         ->and($homePage->refresh()->layout_id)->toBe($layout->getKey())
-        ->and(array_keys($layout->containers))->toBe(['hero', 'ap-blocks', 'final-cta', 'loose'])
+        ->and(array_keys($layout->containers))->toBe(['hero', 'ap-widgets', 'final-cta', 'loose'])
         ->and($layout->containers['hero']['meta']['container'])->toBe(ContainerWidthEnum::Full->value)
         ->and($layout->containers['hero']['widgets'])->toBe([
             ['widget_key' => 'capell-home-hero-command-center'],

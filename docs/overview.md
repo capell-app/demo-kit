@@ -17,7 +17,7 @@ Use it when a developer needs a populated Capell install quickly without committ
 - A package demo dispatcher that calls installed packages with the options they declare in their manifest.
 - Health checks for validating generated demo installs.
 - A `DemoKitPage` Filament page for admin-triggered demo generation workflows.
-- Package-owned Blade block views for designed demo page content.
+- Package-owned Blade widget views for designed demo page content.
 
 ## Admin Surface
 
@@ -25,10 +25,10 @@ Demo Kit registers `DemoKitPage` at the `demo-kit` admin slug in the system navi
 
 ## Frontend Surface
 
-Demo Kit does not add standalone public routes. Its frontend surface appears through seeded Capell content that references package-owned block views:
+Demo Kit does not add standalone public routes. Its frontend surface appears through seeded Capell content that references package-owned widget views:
 
-- `capell-demo-kit::components.block.demo-page-content`
-- `capell-demo-kit::components.block.homepage-section`
+- `capell-demo-kit::components.widget.demo-page-content`
+- `capell-demo-kit::components.widget.homepage-section`
 
 Those views keep presentation markup in Blade while database records keep only portable editable copy and render metadata.
 
@@ -71,20 +71,20 @@ That keeps Demo Kit generic: packages own their demo content, while Demo Kit own
 
 ## Rendering Boundary
 
-Demo Kit seeds CMS records, but it should not seed designed frontend markup into content columns. Keep page and block translations portable: simple paragraphs, headings, lists, links, and emphasis are acceptable because editors and themes can preserve them.
+Demo Kit seeds CMS records, but it should not seed designed frontend markup into content columns. Keep page and widget translations portable: simple paragraphs, headings, lists, links, and emphasis are acceptable because editors and themes can preserve them.
 
 Put public presentation in Capell rendering surfaces instead:
 
-- use Layout Builder blocks for page regions;
+- use Layout Builder widgets for page regions;
 - put designed markup and classes in package Blade files under `packages/demo-kit/resources/views`;
-- store only the block key, component, `view_file`, and simple editable copy in the database;
-- add a focused test when a demo layout switches from stored content to a Blade-backed block.
+- store only the widget key, component, `view_file`, and simple editable copy in the database;
+- add a focused test when a demo layout switches from stored content to a Blade-backed widget.
 
 `DemoCreator` currently uses `demo-page-content` for designed demo pages and `homepage-section` for homepage-specific sections. Follow that pattern for future demos instead of adding heredoc HTML to `DemoCreator`.
 
 ## Screenshot Coverage
 
-The screenshot contract is stored in [screenshots.json](screenshots.json). Final capture should include the Demo Kit admin page and at least one generated public demo page using each package-owned block view.
+The screenshot contract is stored in [screenshots.json](screenshots.json). Final capture should include the Demo Kit admin page and at least one generated public demo page using each package-owned widget view.
 
 ## Maintenance Notes
 

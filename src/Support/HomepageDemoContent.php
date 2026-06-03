@@ -9,7 +9,7 @@ final class HomepageDemoContent
     /**
      * @return array<string, mixed>
      */
-    public static function forBlock(string $key): array
+    public static function forWidget(string $key): array
     {
         return self::all()[$key] ?? [];
     }
@@ -18,9 +18,9 @@ final class HomepageDemoContent
      * @param  array<array-key, mixed>|null  $content
      * @return array<string, mixed>
      */
-    public static function mergeForBlock(string $key, ?array $content): array
+    public static function mergeForWidget(string $key, ?array $content): array
     {
-        return self::merge(self::forBlock($key), is_array($content) ? $content : []);
+        return self::merge(self::forWidget($key), is_array($content) ? $content : []);
     }
 
     /**
@@ -82,7 +82,7 @@ final class HomepageDemoContent
                 'label' => 'Demo proof points',
                 'metrics' => [
                     ['value' => '38', 'label' => 'packages installed'],
-                    ['value' => '7', 'label' => 'custom homepage blocks'],
+                    ['value' => '7', 'label' => 'custom homepage widgets'],
                     ['value' => '120+', 'label' => 'static pages generated'],
                     ['value' => '4', 'label' => 'discovery checks'],
                 ],
@@ -95,8 +95,8 @@ final class HomepageDemoContent
                 'cards' => [
                     [
                         'eyebrow' => 'Editorial command center',
-                        'title' => 'Operational content, not placeholder blocks',
-                        'copy' => 'Use block translations, page types, layout containers, and package data to show how an editor-owned surface stays structured.',
+                        'title' => 'Operational content, not placeholder widgets',
+                        'copy' => 'Use widget translations, page types, layout containers, and package data to show how an editor-owned surface stays structured.',
                     ],
                     [
                         'eyebrow' => 'Package marketplace',
@@ -107,7 +107,7 @@ final class HomepageDemoContent
                         'eyebrow' => 'Publishing workflow',
                         'title' => 'Timeline plus checklist',
                         'steps' => [
-                            ['title' => 'Model', 'copy' => 'Types and blocks'],
+                            ['title' => 'Model', 'copy' => 'Types and widgets'],
                             ['title' => 'Compose', 'copy' => 'Layout containers'],
                             ['title' => 'Release', 'copy' => 'Cache and sitemap'],
                         ],
@@ -116,7 +116,7 @@ final class HomepageDemoContent
             ],
             'capell-home-demo-widgets-carousel' => [
                 'eyebrow' => 'Demo widgets',
-                'heading' => 'Small interactive blocks that feel like a real CMS',
+                'heading' => 'Small interactive widgets that feel like a real CMS',
                 'copy' => 'These package-owned widgets fill out the homepage with concrete CMS behaviours while keeping the public frontend static, inspectable, and safe.',
                 'state_label' => 'Demo state',
                 'previous_label' => 'Previous demo widgets',
@@ -126,7 +126,7 @@ final class HomepageDemoContent
                 'items' => [
                     ['code' => 'WF', 'label' => 'Workflow', 'title' => 'Editorial workflow', 'description' => 'Draft, review, preview, approve, and publish from one traceable content queue.', 'metric' => '5 states'],
                     ['code' => 'TH', 'label' => 'Theme', 'title' => 'Theme controls', 'description' => 'Expose colors, spacing, navigation, and footer settings without leaking admin data.', 'metric' => '12 tokens'],
-                    ['code' => 'CL', 'label' => 'Library', 'title' => 'Content library', 'description' => 'Reusable sections and typed blocks keep page building consistent across sites.', 'metric' => '34 blocks'],
+                    ['code' => 'CL', 'label' => 'Library', 'title' => 'Content library', 'description' => 'Reusable sections and typed widgets keep page building consistent across sites.', 'metric' => '34 widgets'],
                     ['code' => 'SI', 'label' => 'Insights', 'title' => 'Search insights', 'description' => 'Show what visitors search for and which pages need better content coverage.', 'metric' => '8 queries'],
                     ['code' => 'NL', 'label' => 'Newsletter', 'title' => 'Newsletter capture', 'description' => 'Place package-owned signup widgets into layouts with clear consent copy.', 'metric' => '3 lists'],
                     ['code' => 'RC', 'label' => 'Release', 'title' => 'Release checklist', 'description' => 'Verify cache, sitemap, assets, forms, and public output before handover.', 'metric' => '9 checks'],
@@ -150,8 +150,8 @@ final class HomepageDemoContent
                 'heading' => 'From admin edits to verified frontend',
                 'copy' => 'Capell keeps the editable CMS surface and the generated public output connected through explicit ownership and checks.',
                 'steps' => [
-                    ['number' => '01', 'title' => 'Model content', 'copy' => 'Define typed pages, blocks, translations, media, and package fields.'],
-                    ['number' => '02', 'title' => 'Compose layout', 'copy' => 'Place blocks into containers that the public theme renders predictably.'],
+                    ['number' => '01', 'title' => 'Model content', 'copy' => 'Define typed pages, widgets, translations, media, and package fields.'],
+                    ['number' => '02', 'title' => 'Compose layout', 'copy' => 'Place widgets into containers that the public theme renders predictably.'],
                     ['number' => '03', 'title' => 'Publish safely', 'copy' => 'Preview changes, approve releases, warm cache, and generate static HTML.'],
                     ['number' => '04', 'title' => 'Verify output', 'copy' => 'Run doctor, discovery, sitemap, and runtime asset checks before handover.'],
                 ],
@@ -166,7 +166,7 @@ final class HomepageDemoContent
             'capell-home-final-cta' => [
                 'eyebrow' => 'Demo install',
                 'heading' => 'Show a CMS that feels assembled, verified, and ready to extend.',
-                'copy' => 'The homepage demonstrates layout shapes, custom block compositions, package boundaries, and public-page discovery paths.',
+                'copy' => 'The homepage demonstrates layout shapes, custom widget compositions, package boundaries, and public-page discovery paths.',
                 'action_label' => 'Start implementation scoping',
                 'action_url' => '/contact#scoping',
             ],

@@ -65,12 +65,12 @@
                         class="border border-slate-200 bg-white p-5 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $metric['value'] }}
                         </strong>
                         <span
-                            class="mt-2 block text-sm font-bold text-slate-600"
+                            class="widget mt-2 text-sm font-bold text-slate-600"
                         >
                             {{ $metric['label'] }}
                         </span>
@@ -196,11 +196,11 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e]"
+                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e]"
                         >
                             18 min
                         </strong>
-                        <span class="mt-2 block font-bold text-slate-600">
+                        <span class="widget mt-2 font-bold text-slate-600">
                             Architecture
                         </span>
                     </aside>
@@ -329,7 +329,7 @@
                 >
                     <span class="{{ $labelClass }}">{{ $label }}</span>
                     <strong
-                        class="mt-1 block text-base font-extrabold text-slate-950"
+                        class="widget mt-1 text-base font-extrabold text-slate-950"
                     >
                         {{ $value }}
                     </strong>

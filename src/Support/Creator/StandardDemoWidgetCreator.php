@@ -16,15 +16,15 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
-use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,18 +32,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use RuntimeException;
 
-abstract class StandardDemoBlockCreator extends BaseDemoCreator
+abstract class StandardDemoWidgetCreator extends BaseDemoCreator
 {
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createContentBlock(Collection $languages): Widget
+    public function createContentWidget(Collection $languages): Widget
     {
         $siteId = Site::query()->default()->value('id');
 
-        $type = resolve(TypeCreator::class)->contentBuilderBlockType();
+        $type = resolve(TypeCreator::class)->contentBuilderWidgetType();
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-content'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -70,10 +70,10 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        $this->createBlockMedia($block);
+        $this->createWidgetMedia($widget);
 
         foreach ($languages as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -89,24 +89,24 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createSplitContentBlock(Collection $languages): Widget
+    public function createSplitContentWidget(Collection $languages): Widget
     {
         $siteId = Site::query()->default()->value('id');
 
-        $blockType = $this->requireBlueprint(
-            $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget]),
+        $widgetType = $this->requireBlueprint(
+            $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget]),
             'split content widget',
         );
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -131,10 +131,10 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        $this->createBlockMedia($block);
+        $this->createWidgetMedia($widget);
 
         foreach ($languages as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Content',
@@ -150,27 +150,27 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createBannerImageBlock(Collection $languages): Widget
+    public function createBannerImageWidget(Collection $languages): Widget
     {
-        $block = resolve(BlockCreator::class)->bannerImageBlock();
+        $widget = resolve(WidgetCreator::class)->bannerImageWidget();
 
-        $media = $this->createBlockMedia($block);
+        $media = $this->createWidgetMedia($widget);
 
-        $meta = $block->meta;
+        $meta = $widget->meta;
 
         $meta['background_color'] = 'light-gray';
         $meta['background_image'] = $media->getFullUrl(MediaConversionEnum::Medium->value);
 
-        $block->meta = $meta;
+        $widget->meta = $meta;
 
         foreach ($languages as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Banner',
@@ -179,30 +179,30 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createGalleryBlock(): Widget
+    public function createGalleryWidget(): Widget
     {
-        $block = resolve(BlockCreator::class)->galleryBlock();
+        $widget = resolve(WidgetCreator::class)->galleryWidget();
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         for ($i = 1; $i <= 5; $i++) {
-            $this->createBlockMedia($block);
+            $this->createWidgetMedia($widget);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createPageCardsBlock(Pageable $page, string $container = 'main', int $occurrence = 1): Widget
+    public function createPageCardsWidget(Pageable $page, string $container = 'main', int $occurrence = 1): Widget
     {
-        $block = resolve(BlockCreator::class)->pagesCardBlock();
+        $widget = resolve(WidgetCreator::class)->pagesCardWidget();
 
         if (
-            $block->assets()
+            $widget->assets()
                 ->where([
                     'pageable_id' => $page->getKey(),
                     'pageable_type' => $page->getMorphClass(),
@@ -211,7 +211,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ])
                 ->exists()
         ) {
-            return $block;
+            return $widget;
         }
 
         $relatedPages = $this->pageModel::query()
@@ -224,35 +224,35 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ->get();
 
         if ($relatedPages->isEmpty()) {
-            return $block;
+            return $widget;
         }
 
         $relatedPages->each(
-            fn (Page $relatedPage): WidgetAsset => $this->createPageBlockAsset($block, $page, $container, $occurrence, $relatedPage),
+            fn (Page $relatedPage): WidgetAsset => $this->createPageWidgetAsset($widget, $page, $container, $occurrence, $relatedPage),
         );
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createFaqBlock(Collection $languages): Widget
+    public function createFaqWidget(Collection $languages): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', 'assets');
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'faq'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
-                'component' => BlockComponentEnum::AssetAccordion,
+                'component' => WidgetComponentEnum::AssetAccordion,
                 'margin' => ['lg'],
                 'align' => 'center',
             ],
@@ -264,7 +264,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => __('capell-layout-builder::heading.faq'),
@@ -335,7 +335,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 'blueprint_id' => $contentType->id,
             ]);
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $content->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
@@ -361,30 +361,30 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             }
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createMediaCarouselBlock(): Widget
+    public function createMediaCarouselWidget(): Widget
     {
-        $block = resolve(BlockCreator::class)->mediaCarouselBlock();
+        $widget = resolve(WidgetCreator::class)->mediaCarouselWidget();
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         for ($i = 1; $i <= 7; $i++) {
-            $this->createBlockMedia($block);
+            $this->createWidgetMedia($widget);
         }
 
-        $this->createBlockMedia($block, type: 'video');
+        $this->createWidgetMedia($widget, type: 'video');
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createStaticNavigationBlock(Collection $languages, Site $site): Widget
+    public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
         $model = Navigation::class;
 
@@ -411,7 +411,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ->limit(4)
             ->get();
 
-        $blockType = resolve(TypeCreator::class)->navigationBlockType();
+        $widgetType = resolve(TypeCreator::class)->navigationWidgetType();
 
         $navigationType = $this->typeModel::query()->navigationType()->default()->first();
         if ($navigationType === null) {
@@ -431,10 +431,10 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ])
             : null;
 
-        // Create block
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-navigation'], [
+        // Create widget
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $key,
                 'margin' => ['lg'],
@@ -442,7 +442,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         ]);
 
         foreach ($languages as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Navigation',
@@ -450,12 +450,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createContentsBlock(Widget $block, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
+    public function createContentsWidget(Widget $widget, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
     {
-        $pageBlockAssets = $block->assets()->where([
+        $pageWidgetAssets = $widget->assets()->where([
             'pageable_id' => $page->getKey(),
             'pageable_type' => $page->getMorphClass(),
             'container' => $container,
@@ -463,7 +463,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         ])
             ->exists();
 
-        if ($pageBlockAssets) {
+        if ($pageWidgetAssets) {
             return;
         }
 
@@ -478,7 +478,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $site = $page->site;
 
-        throw_unless($site instanceof Site, RuntimeException::class, 'Unable to resolve a site for the content block page.');
+        throw_unless($site instanceof Site, RuntimeException::class, 'Unable to resolve a site for the content widget page.');
 
         $features = [
             [
@@ -557,7 +557,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
             $this->createMedia($content);
 
-            $block->assets()->create([
+            $widget->assets()->create([
                 'pageable_id' => $page->id,
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -571,13 +571,13 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createClientLogosBlock(Collection $languages): Widget
+    public function createClientLogosWidget(Collection $languages): Widget
     {
-        $block = Widget::query()->firstOrCreate([
+        $widget = Widget::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'client logos widget')->id,
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'client logos widget')->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -590,12 +590,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
-        $languages->each(function (Language $language) use ($block): void {
-            $block->translations()->firstOrCreate([
+        $languages->each(function (Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => 'Client Logos',
@@ -604,33 +604,33 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         });
 
         for ($i = 1; $i <= 12; $i++) {
-            $this->createBlockMedia($block);
+            $this->createWidgetMedia($widget);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createBusinessFeaturesBlock(Site $site): Widget
+    public function createBusinessFeaturesWidget(Site $site): Widget
     {
-        $block = Widget::query()->firstOrCreate([
+        $widget = Widget::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget]), 'business features widget')->id,
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget]), 'business features widget')->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-foundation-theme::components.block.asset.features',
+                'view_file' => 'capell-foundation-theme::components.widget.asset.features',
             ],
         ]);
 
-        $this->createMedia($block);
+        $this->createMedia($widget);
 
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
-        $site->languages->each(function (Language $language) use ($block, $title, $content): void {
-            $block->translations()->updateOrCreate([
+        $site->languages->each(function (Language $language) use ($widget, $title, $content): void {
+            $widget->translations()->updateOrCreate([
                 'language_id' => $language->id,
             ], [
                 'title' => $title,
@@ -640,83 +640,83 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($block): void {
-            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $block->assets()->create([
+            $widget->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $block;
+        return $widget;
     }
 
-    public function createBannersBlock(): Widget
+    public function createBannersWidget(): Widget
     {
-        $creator = resolve(BlockCreator::class);
-        $block = $creator->bannerBlock();
+        $creator = resolve(WidgetCreator::class);
+        $widget = $creator->bannerWidget();
 
         $site = $this->requireDefaultSite();
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Model $content) use ($block): void {
-            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
+        $features->each(function (Model $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $block->assets()->create([
+            $widget->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createTestimonialsBlock(Collection $languages): Widget
+    public function createTestimonialsWidget(Collection $languages): Widget
     {
-        $blockCreator = resolve(BlockCreator::class);
-        $block = $blockCreator->testimonialsBlock();
+        $widgetCreator = resolve(WidgetCreator::class);
+        $widget = $widgetCreator->testimonialsWidget();
 
-        $this->createMedia($block, collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($widget, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Language $language) use ($block): void {
-            $block->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
         });
 
         $testimonials = $this->createTestimonials($languages);
 
-        $testimonials->each(function (Model $content) use ($block): void {
-            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
+        $testimonials->each(function (Model $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $block->assets()->create([
+            $widget->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $block;
+        return $widget;
     }
 
-    public function createStatisticsBlock(): Widget
+    public function createStatisticsWidget(): Widget
     {
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'statistics'], [
-            'name' => 'Statistic Blocks',
-            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'statistics widget')->id,
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
+            'name' => 'Statistic Widgets',
+            'blueprint_id' => $this->requireBlueprint($this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget]), 'statistics widget')->id,
             'meta' => [
-                'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
-                'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
+                'component_item' => FrontendComponentKeyEnum::SectionWidget->value,
+                'view_file' => 'capell-foundation-theme::components.widget.asset.widgets',
                 'spacing' => 'none',
                 'columns' => 4,
                 'margin' => ['none'],
@@ -727,8 +727,8 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         $statistics = [
@@ -778,32 +778,32 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ]);
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $content->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function createTeamPortfolioBlock(Collection $languages): Widget
+    public function createTeamPortfolioWidget(Collection $languages): Widget
     {
         $type = $this->typeModel::query()
             ->where([
-                'key' => BlockTypeEnum::Sections,
+                'key' => WidgetTypeEnum::Sections,
                 'type' => LayoutTypeEnum::Widget,
             ])
             ->first();
 
         if ($type === null) {
-            $type = resolve(TypeCreator::class)->contentsBlockType();
+            $type = resolve(TypeCreator::class)->contentsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
             'blueprint_id' => $type->id,
             'meta' => [
@@ -823,8 +823,8 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ]);
 
-        $languages->each(function (Language $language) use ($block): void {
-            $block->translations()->firstOrCreate(['language_id' => $language->id], [
+        $languages->each(function (Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Meet the people represented in the sample team directory.</p>',
             ]);
@@ -832,17 +832,17 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $teamMembers = $this->createTeamMembers($languages);
 
-        $teamMembers->each(function (Model $content) use ($block): void {
-            if ($block->assets()->where('asset_id', $content->getKey())->exists()) {
+        $teamMembers->each(function (Model $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->getKey())->exists()) {
                 return;
             }
 
-            $block->assets()->create([
+            $widget->assets()->create([
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->getKey(),
             ]);
         });
 
-        return $block;
+        return $widget;
     }
 }

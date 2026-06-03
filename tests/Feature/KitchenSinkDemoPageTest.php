@@ -12,7 +12,7 @@ use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Models\Widget;
@@ -64,9 +64,9 @@ it('stores lazy presentation metadata only on below fold kitchen sink layout ins
     $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
     $layoutWidgets = kitchenSinkMainContainer($layout)['widgets'];
 
-    $blocks = collect($layoutWidgets)->keyBy('widget_key');
+    $widgets = collect($layoutWidgets)->keyBy('widget_key');
 
-    expect($blocks->get('kitchen-sink-structured-text'))->not->toHaveKey('meta.presentation');
+    expect($widgets->get('kitchen-sink-structured-text'))->not->toHaveKey('meta.presentation');
 
     foreach ([
         'kitchen-sink-rich-text',
@@ -75,8 +75,8 @@ it('stores lazy presentation metadata only on below fold kitchen sink layout ins
         'kitchen-sink-embeds',
         'kitchen-sink-forms',
         'kitchen-sink-utility-states',
-    ] as $blockKey) {
-        expect($blocks->get($blockKey)['meta']['presentation'] ?? null)->toBe([
+    ] as $widgetKey) {
+        expect($widgets->get($widgetKey)['meta']['presentation'] ?? null)->toBe([
             'delivery_mode' => 'lazy_fragment',
             'loading_strategy' => 'visible',
         ]);
@@ -145,7 +145,7 @@ it('can edit every kitchen sink layout widget without losing demo creator data',
         $editedSections[0]['heading'] = $editedSectionHeading;
         $originalAssetIds = $widget->assets->pluck('id')->sort()->values()->all();
 
-        expect($widget->type?->key)->toBe(BlockTypeEnum::KitchenSinkReference->value, $widgetKey)
+        expect($widget->type?->key)->toBe(WidgetTypeEnum::KitchenSinkReference->value, $widgetKey)
             ->and($originalFamily)->toBeString($widgetKey)
             ->and($originalSections)->toBeArray($widgetKey)
             ->and($originalSections)->not->toBeEmpty($widgetKey);
@@ -196,7 +196,7 @@ it('can manually create kitchen sink reference widgets through Filament', functi
 
     $type = Blueprint::query()
         ->where('type', 'widget')
-        ->where('key', BlockTypeEnum::KitchenSinkReference->value)
+        ->where('key', WidgetTypeEnum::KitchenSinkReference->value)
         ->firstOrFail();
     $key = 'manual-kitchen-sink-reference-' . Str::random(8);
     $sections = [
@@ -235,7 +235,7 @@ it('can manually create kitchen sink reference widgets through Filament', functi
         ->and($widget->meta['sections'] ?? null)->toBe($sections);
 });
 
-it('renders the structured text block eagerly and lazy placeholders for below fold sections', function (): void {
+it('renders the structured text widget eagerly and lazy placeholders for below fold sections', function (): void {
     $page = InstallKitchenSinkDemoPageAction::run();
     $html = kitchenSinkLayoutHtml($page);
 
@@ -310,26 +310,26 @@ function kitchenSinkLayoutHtml(Page $page): string
     $translation = $page->translations->first();
     $html = (string) $translation->content;
 
-    foreach ($container['widgets'] as $blockIndex => $blockData) {
-        $block = Widget::query()->firstWhere('key', $blockData['widget_key']);
+    foreach ($container['widgets'] as $widgetIndex => $widgetData) {
+        $widget = Widget::query()->firstWhere('key', $widgetData['widget_key']);
 
-        if (! $block instanceof Widget) {
+        if (! $widget instanceof Widget) {
             continue;
         }
 
-        $html .= view('capell-layout-builder::components.layout.block', [
-            'component' => $block->getComponent(),
+        $html .= view('capell-layout-builder::components.layout.widget', [
+            'component' => $widget->getComponent(),
             'containerColspan' => 12,
             'container' => $container,
             'containerKey' => 'main',
             'containerIndex' => 0,
             'containerWidth' => ContainerWidthEnum::Full,
-            'loop' => (object) ['index' => $blockIndex],
+            'loop' => (object) ['index' => $widgetIndex],
             'layout' => $page->layout,
-            'type' => $block->getMetaComponentType(),
-            'block' => $block,
-            'blockIndex' => $blockIndex,
-            'blockData' => $blockData,
+            'type' => $widget->getMetaComponentType(),
+            'widget' => $widget,
+            'widgetIndex' => $widgetIndex,
+            'widgetData' => $widgetData,
             'pageSlot' => null,
         ])->render();
     }

@@ -16,10 +16,10 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
-use Capell\LayoutBuilder\Actions\CreateHeroBlockAction;
-use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
+use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -86,9 +86,9 @@ abstract class BaseDemoCreator
     protected string $contentModel;
 
     /** @var class-string<Widget> */
-    protected string $blockModel;
+    protected string $widgetModel;
 
-    protected ?Widget $demoPageContentBlock = null;
+    protected ?Widget $demoPageContentWidget = null;
 
     public static function getDemoResourcePath(?string $folder): string
     {
@@ -315,10 +315,10 @@ abstract class BaseDemoCreator
         return $model->morphMany(Translation::class, 'translatable');
     }
 
-    protected function createPageBlockAsset(Widget $block, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
+    protected function createPageWidgetAsset(Widget $widget, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
     {
-        $blockAsset = DB::transaction(
-            fn (): Model => $block->assets()->createOrFirst([
+        $widgetAsset = DB::transaction(
+            fn (): Model => $widget->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -329,25 +329,25 @@ abstract class BaseDemoCreator
             attempts: 5,
         );
 
-        throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+        throw_unless($widgetAsset instanceof WidgetAsset, RuntimeException::class, 'Layout widget asset creation must return a widget asset model.');
 
-        return $blockAsset;
+        return $widgetAsset;
     }
 
-    protected function ensureDemoPageContentBlock(): Widget
+    protected function ensureDemoPageContentWidget(): Widget
     {
-        if ($this->demoPageContentBlock instanceof Widget) {
-            return $this->demoPageContentBlock;
+        if ($this->demoPageContentWidget instanceof Widget) {
+            return $this->demoPageContentWidget;
         }
 
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::PageContents);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::PageContents);
 
-        $blockType ??= resolve(TypeCreator::class)->pageContentBlockType();
+        $widgetType ??= resolve(TypeCreator::class)->pageContentWidgetType();
 
         $attributes = [
             'name' => 'Demo Page Content',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'component' => DemoKitServiceProvider::DemoPageContentRenderable,
             'view_file' => null,
             'meta' => [
@@ -357,14 +357,14 @@ abstract class BaseDemoCreator
             'status' => true,
         ];
 
-        $block = Widget::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
-        $block->forceFill($attributes);
+        $widget = Widget::query()->firstOrCreate(['key' => 'demo-page-content'], $attributes);
+        $widget->forceFill($attributes);
 
-        if ($block->isDirty()) {
-            $block->save();
+        if ($widget->isDirty()) {
+            $widget->save();
         }
 
-        return $this->demoPageContentBlock = $block;
+        return $this->demoPageContentWidget = $widget;
     }
 
     protected function syncDemoPageContentAssets(Page $page, string $name): void
@@ -379,12 +379,12 @@ abstract class BaseDemoCreator
             return;
         }
 
-        $block = $this->ensureDemoPageContentBlock();
+        $widget = $this->ensureDemoPageContentWidget();
         $assetType = resolve($this->contentModel)->getMorphClass();
         $activeKeys = array_column($definitions, 'key');
 
-        DB::transaction(function () use ($activeKeys, $assetType, $block, $definitions, $page): void {
-            $existingSeededAssets = $block->assets()
+        DB::transaction(function () use ($activeKeys, $assetType, $widget, $definitions, $page): void {
+            $existingSeededAssets = $widget->assets()
                 ->where([
                     'pageable_id' => $page->getKey(),
                     'pageable_type' => $page->getMorphClass(),
@@ -401,7 +401,7 @@ abstract class BaseDemoCreator
             foreach ($definitions as $order => $definition) {
                 $asset = $this->createDemoPageContentAsset($page, $definition);
 
-                $block->assets()->updateOrCreate(
+                $widget->assets()->updateOrCreate(
                     [
                         'pageable_id' => $page->getKey(),
                         'pageable_type' => $page->getMorphClass(),
@@ -488,7 +488,7 @@ abstract class BaseDemoCreator
                 'intro' => 'Content modelling, migration paths, layout architecture, package boundaries, and launch verification stay connected in one delivery path.',
                 'items' => [
                     ['label' => 'Audit board', 'title' => 'Content model review', 'copy' => 'Map pages, assets, routes, redirects, and ownership before implementation starts.'],
-                    ['label' => 'Build board', 'title' => 'Layout architecture', 'copy' => 'Create reusable blocks that editors can compose without breaking public output.'],
+                    ['label' => 'Build board', 'title' => 'Layout architecture', 'copy' => 'Create reusable widgets that editors can compose without breaking public output.'],
                     ['label' => 'Launch board', 'title' => 'Release checks', 'copy' => 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.'],
                 ],
                 'metrics' => [
@@ -558,7 +558,7 @@ abstract class BaseDemoCreator
                 'title' => 'What Capell builders say',
                 'intro' => 'Outcome proof grouped by the people who need the CMS to work every day.',
                 'items' => [
-                    ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable blocks reduced one-off template work across the site.'],
+                    ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable widgets reduced one-off template work across the site.'],
                     ['label' => 'Editor', 'title' => 'Clear ownership', 'copy' => 'Teams can update copy and media without touching implementation details.'],
                     ['label' => 'Engineering', 'title' => 'Cleaner releases', 'copy' => 'Public output remains cacheable and separate from admin tooling.'],
                 ],
@@ -607,7 +607,7 @@ abstract class BaseDemoCreator
                 'intro' => 'A calm support page with native disclosure sections and clear next-step guidance.',
                 'items' => [
                     ['label' => 'Question', 'title' => 'Can a page skip the hero entirely?', 'copy' => 'Yes. Pages can render directly into support, article, pricing, or project layouts.'],
-                    ['label' => 'Question', 'title' => 'Where does the designed markup live?', 'copy' => 'The demo page-content block owns the Blade presentation. The database stores portable content only.'],
+                    ['label' => 'Question', 'title' => 'Where does the designed markup live?', 'copy' => 'The demo page-content widget owns the Blade presentation. The database stores portable content only.'],
                     ['label' => 'Question', 'title' => 'Can editors still update the copy?', 'copy' => 'Yes. Saved page content renders before the template-specific proof modules.'],
                 ],
             ],
@@ -676,8 +676,8 @@ abstract class BaseDemoCreator
     protected function layoutForDemoPage(string $name): ?Layout
     {
         $name = $this->canonicalDemoPageName($name);
-        $demoPageContentBlock = $this->ensureDemoPageContentBlock();
-        $pageBottomBannerBlock = $this->ensurePageBottomBannerBlock();
+        $demoPageContentWidget = $this->ensureDemoPageContentWidget();
+        $pageBottomBannerWidget = $this->ensurePageBottomBannerWidget();
 
         $templateLayouts = [
             'About Us' => ['capell-demo-about', 'Capell Demo About', true],
@@ -722,7 +722,7 @@ abstract class BaseDemoCreator
                             ],
                             'widgets' => [
                                 ['widget_key' => 'breadcrumbs'],
-                                ['widget_key' => $demoPageContentBlock->key],
+                                ['widget_key' => $demoPageContentWidget->key],
                             ],
                         ],
                     ],
@@ -758,7 +758,7 @@ abstract class BaseDemoCreator
                         'html_class' => 'capell-demo-contact-copy-column',
                     ],
                     'widgets' => [
-                        ['widget_key' => $demoPageContentBlock->key],
+                        ['widget_key' => $demoPageContentWidget->key],
                     ],
                 ],
                 'bottom-banner' => [
@@ -768,7 +768,7 @@ abstract class BaseDemoCreator
                         'container' => 'full',
                     ],
                     'widgets' => [
-                        ['widget_key' => $pageBottomBannerBlock->key],
+                        ['widget_key' => $pageBottomBannerWidget->key],
                     ],
                 ],
             ],
@@ -787,26 +787,26 @@ abstract class BaseDemoCreator
 
     protected function demoPageLayout(string $key, string $name, bool $withBreadcrumbs, bool $withHero): Layout
     {
-        $demoPageContentBlock = $this->ensureDemoPageContentBlock();
-        $pageBottomBannerBlock = $this->ensurePageBottomBannerBlock();
-        $heroBlock = $withHero ? CreateHeroBlockAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
+        $demoPageContentWidget = $this->ensureDemoPageContentWidget();
+        $pageBottomBannerWidget = $this->ensurePageBottomBannerWidget();
+        $heroWidget = $withHero ? CreateHeroWidgetAction::run('demo-page-hero', 'Demo Page Hero', 'small') : null;
         $shouldShowBottomBanner = in_array($key, ['capell-demo-single-post', 'capell-demo-platform-architecture'], true);
 
-        $blocks = $withBreadcrumbs
+        $widgets = $withBreadcrumbs
             ? [
-                ...($heroBlock !== null ? [['widget_key' => $heroBlock->key]] : []),
+                ...($heroWidget !== null ? [['widget_key' => $heroWidget->key]] : []),
                 ['widget_key' => 'breadcrumbs'],
                 [
-                    'widget_key' => $demoPageContentBlock->key,
+                    'widget_key' => $demoPageContentWidget->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
                 ],
             ]
             : [
-                ...($heroBlock !== null ? [['widget_key' => $heroBlock->key]] : []),
+                ...($heroWidget !== null ? [['widget_key' => $heroWidget->key]] : []),
                 [
-                    'widget_key' => $demoPageContentBlock->key,
+                    'widget_key' => $demoPageContentWidget->key,
                     'meta' => [
                         'page_content' => ['content'],
                     ],
@@ -822,7 +822,7 @@ abstract class BaseDemoCreator
                         'colspan' => 12,
                         'spacing' => 'lg',
                     ],
-                    'widgets' => $blocks,
+                    'widgets' => $widgets,
                 ],
                 ...($shouldShowBottomBanner ? [
                     'bottom-banner' => [
@@ -832,13 +832,13 @@ abstract class BaseDemoCreator
                             'container' => 'full',
                         ],
                         'widgets' => [
-                            ['widget_key' => $pageBottomBannerBlock->key],
+                            ['widget_key' => $pageBottomBannerWidget->key],
                         ],
                     ],
                 ] : []),
             ],
             'meta' => [
-                'description' => 'A Capell demo page template rendered through reusable page-content layout blocks.',
+                'description' => 'A Capell demo page template rendered through reusable page-content layout widgets.',
             ],
             'default' => false,
             'status' => true,
@@ -920,16 +920,16 @@ abstract class BaseDemoCreator
             ],
         );
 
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Default);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Default);
 
-        $blockType ??= $this->typeModel::query()
+        $widgetType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Widget->value)
-            ->firstWhere('key', BlockTypeEnum::Default->value);
+            ->firstWhere('key', WidgetTypeEnum::Default->value);
 
-        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
+        $widgetType ??= resolve(TypeCreator::class)->defaultWidgetType();
 
-        if (! $blockType instanceof Blueprint) {
+        if (! $widgetType instanceof Blueprint) {
             return;
         }
 
@@ -937,11 +937,11 @@ abstract class BaseDemoCreator
             ['key' => 'contact-form'],
             [
                 'name' => 'Contact form',
-                'blueprint_id' => $blockType->getKey(),
-                'component' => 'capell-form-builder::block.form',
+                'blueprint_id' => $widgetType->getKey(),
+                'component' => 'capell-form-builder::widget.form',
                 'is_livewire' => true,
                 'meta' => [
-                    'component' => 'capell-form-builder::block.form',
+                    'component' => 'capell-form-builder::widget.form',
                     'form_handle' => 'contact',
                 ],
                 'status' => true,
@@ -949,15 +949,15 @@ abstract class BaseDemoCreator
         );
     }
 
-    protected function createHomepageBladeBlock(string $key, string $name): Widget
+    protected function createHomepageBladeWidget(string $key, string $name): Widget
     {
-        $blockType = $this->homepageBladeBlockType();
+        $widgetType = $this->homepageBladeWidgetType();
 
-        throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
+        throw_unless($widgetType instanceof Blueprint, Exception::class, 'Unable to find default widget type.');
 
         $attributes = [
             'name' => $name,
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'component' => DemoKitServiceProvider::HomepageSectionRenderable,
             'view_file' => null,
             'meta' => [
@@ -966,11 +966,11 @@ abstract class BaseDemoCreator
             ],
         ];
 
-        $block = Widget::query()->firstOrCreate(['key' => $key], $attributes);
-        $block->forceFill($attributes)->save();
+        $widget = Widget::query()->firstOrCreate(['key' => $key], $attributes);
+        $widget->forceFill($attributes)->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => null,
@@ -979,43 +979,43 @@ abstract class BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
-    protected function homepageBladeBlockType(): Blueprint
+    protected function homepageBladeWidgetType(): Blueprint
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Default);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Default);
 
-        $blockType ??= $this->typeModel::query()
+        $widgetType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Widget->value)
-            ->firstWhere('key', BlockTypeEnum::Default->value);
+            ->firstWhere('key', WidgetTypeEnum::Default->value);
 
-        return $blockType instanceof Blueprint
-            ? $blockType
-            : resolve(TypeCreator::class)->defaultBlockType();
+        return $widgetType instanceof Blueprint
+            ? $widgetType
+            : resolve(TypeCreator::class)->defaultWidgetType();
     }
 
-    protected function ensurePageBottomBannerBlock(): Widget
+    protected function ensurePageBottomBannerWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Default);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Default);
 
-        $blockType ??= $this->typeModel::query()
+        $widgetType ??= $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Widget->value)
-            ->firstWhere('key', BlockTypeEnum::Default->value);
+            ->firstWhere('key', WidgetTypeEnum::Default->value);
 
-        $blockType ??= resolve(TypeCreator::class)->defaultBlockType();
+        $widgetType ??= resolve(TypeCreator::class)->defaultWidgetType();
 
-        throw_unless($blockType instanceof Blueprint, Exception::class, 'Unable to find default block type.');
+        throw_unless($widgetType instanceof Blueprint, Exception::class, 'Unable to find default widget type.');
 
         $attributes = [
             'name' => 'Page bottom banner',
-            'blueprint_id' => $blockType->id,
-            'component' => BlockComponentEnum::Default->value,
+            'blueprint_id' => $widgetType->id,
+            'component' => WidgetComponentEnum::Default->value,
             'view_file' => null,
             'meta' => [
-                'component' => BlockComponentEnum::Default->value,
+                'component' => WidgetComponentEnum::Default->value,
                 'container' => 'full',
                 'margin' => ['t-xl'],
                 'padding' => ['lg'],
@@ -1028,11 +1028,11 @@ abstract class BaseDemoCreator
             'status' => true,
         ];
 
-        $block = Widget::query()->firstOrCreate(['key' => 'page-bottom-banner'], $attributes);
-        $block->forceFill($attributes)->save();
+        $widget = Widget::query()->firstOrCreate(['key' => 'page-bottom-banner'], $attributes);
+        $widget->forceFill($attributes)->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => $attributes['meta']['title'],
@@ -1041,7 +1041,7 @@ abstract class BaseDemoCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
     /**
@@ -1127,8 +1127,8 @@ abstract class BaseDemoCreator
     {
         $content = [
             'About Us' => [
-                'Capell combines Laravel package discipline, Filament editorial workflows, reusable public blocks, and static delivery into one maintainable publishing platform.',
-                'This page pairs portable CMS copy with a reusable public page block so editors can learn where content stops and presentation begins.',
+                'Capell combines Laravel package discipline, Filament editorial workflows, reusable public widgets, and static delivery into one maintainable publishing platform.',
+                'This page pairs portable CMS copy with a reusable public page widget so editors can learn where content stops and presentation begins.',
             ],
             'Homepage 2' => [
                 'This service-led homepage variation keeps the same Capell content model while changing the public layout rhythm.',
@@ -1144,7 +1144,7 @@ abstract class BaseDemoCreator
             ],
             'Team' => [
                 'A team page should prove capability, not just show profiles.',
-                'The profile cards are a reusable block pattern: role, focus area, and proof copy can move between team, services, and case-study pages.',
+                'The profile cards are a reusable widget pattern: role, focus area, and proof copy can move between team, services, and case-study pages.',
             ],
             'FAQ' => [
                 'This page intentionally works without a large hero image.',
@@ -1156,11 +1156,11 @@ abstract class BaseDemoCreator
             ],
             'Testimonials' => [
                 'Customer proof should connect outcomes to the delivery model behind them.',
-                'The testimonial cards show how quote, role, and outcome data can be reused as proof blocks without baking that layout into the page body.',
+                'The testimonial cards show how quote, role, and outcome data can be reused as proof widgets without baking that layout into the page body.',
             ],
             'Projects' => [
                 'Project listings show how Capell can present structured work, media, and calls to action from reusable public templates.',
-                'The index layout teaches the pattern: a portable page body first, then project cards, filters, and calls to action from the public block.',
+                'The index layout teaches the pattern: a portable page body first, then project cards, filters, and calls to action from the public widget.',
             ],
             'Project Detail' => [
                 'A project detail page can explain scope, delivery, results, and ownership without hard-coding the case-study layout into CMS prose.',
@@ -1168,7 +1168,7 @@ abstract class BaseDemoCreator
             ],
             'Blog' => [
                 'Blog listings can use the same editorial rhythm as the rest of the site while staying powered by structured article content.',
-                'The page demonstrates a resource-style listing block while storing only simple page copy in the database.',
+                'The page demonstrates a resource-style listing widget while storing only simple page copy in the database.',
             ],
             'Home, Buildings and Architecture' => [
                 'Blog notes for teams building structured, maintainable Capell websites.',
@@ -1180,7 +1180,7 @@ abstract class BaseDemoCreator
             ],
             'Implementation' => [
                 'A productized Capell implementation gives teams a production CMS foundation, migration confidence, and a clear handover path.',
-                'This child page shows how scope, timeline, risk, and pricing evidence can sit under the main Pricing page as a dedicated layout block.',
+                'This child page shows how scope, timeline, risk, and pricing evidence can sit under the main Pricing page as a dedicated layout widget.',
             ],
             'Resources' => [
                 'Guides, architecture notes, launch checklists, and developer references for teams building Laravel and Filament CMS platforms with Capell.',
@@ -1221,7 +1221,7 @@ abstract class BaseDemoCreator
             [
                 'icon' => 'heroicon-o-light-bulb',
                 'title' => 'Reusable CMS Patterns',
-                'content' => '<p>We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.</p>',
+                'content' => '<p>We use Laravel packages, Filament resources, and reusable widgets to keep CMS implementations maintainable.</p>',
             ],
             [
                 'icon' => 'heroicon-o-academic-cap',
@@ -1553,7 +1553,7 @@ abstract class BaseDemoCreator
         return $teamMembersCollection;
     }
 
-    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createWidgetMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;

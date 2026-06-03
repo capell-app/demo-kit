@@ -18,9 +18,9 @@ final class BuildDemoPageContentViewDataAction
     use AsObject;
 
     /**
-     * @param  array<string, mixed>  $blockData
+     * @param  array<string, mixed>  $widgetData
      */
-    public function handle(?Pageable $pageRecord, Widget $block, string $containerKey, array $blockData): DemoPageContentViewData
+    public function handle(?Pageable $pageRecord, Widget $widget, string $containerKey, array $widgetData): DemoPageContentViewData
     {
         $resolvedPageRecord = $pageRecord ?? Frontend::page();
         $pageRecord = $resolvedPageRecord instanceof Pageable ? $resolvedPageRecord : null;
@@ -40,8 +40,8 @@ final class BuildDemoPageContentViewDataAction
         $pageType = $pageRecord instanceof Model && $pageRecord->relationLoaded('type')
             ? $pageRecord->getRelation('type')
             : null;
-        $occurrence = (int) ($blockData['occurrence'] ?? 1);
-        $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($block, $pageRecord, $containerKey, $occurrence);
+        $occurrence = (int) ($widgetData['occurrence'] ?? 1);
+        $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($widget, $pageRecord, $containerKey, $occurrence);
 
         return new DemoPageContentViewData(
             pageName: $pageName,

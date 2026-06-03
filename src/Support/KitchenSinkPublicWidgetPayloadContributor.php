@@ -6,15 +6,15 @@ namespace Capell\DemoKit\Support;
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 
-final class KitchenSinkPublicBlockPayloadContributor implements PublicBlockPayloadContributor
+final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
 {
     /**
      * @var array<int, string>
      */
-    private const array BlockKeys = [
+    private const array WidgetKeys = [
         'kitchen-sink-structured-text',
         'kitchen-sink-rich-text',
         'kitchen-sink-data-display',
@@ -32,34 +32,34 @@ final class KitchenSinkPublicBlockPayloadContributor implements PublicBlockPaylo
     /**
      * @return array<string, mixed>
      */
-    public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+    public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
         return [];
     }
 
-    public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+    public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        if (! in_array($block->key, self::BlockKeys, true)) {
+        if (! in_array($widget->key, self::WidgetKeys, true)) {
             return null;
         }
 
-        $sourceBlock = Widget::query()
+        $sourceWidget = Widget::query()
             ->with('translations')
-            ->find($block->getKey());
+            ->find($widget->getKey());
 
-        if (! $sourceBlock instanceof Widget) {
+        if (! $sourceWidget instanceof Widget) {
             return null;
         }
 
-        $sections = is_array($sourceBlock->meta['sections'] ?? null) ? $sourceBlock->meta['sections'] : [];
+        $sections = is_array($sourceWidget->meta['sections'] ?? null) ? $sourceWidget->meta['sections'] : [];
 
         if ($sections === []) {
             return null;
         }
 
-        $family = e((string) ($sourceBlock->meta['family'] ?? 'reference'));
-        $translation = $sourceBlock->translations->firstWhere('language_id', $language->getKey())
-            ?? $sourceBlock->translations->first();
+        $family = e((string) ($sourceWidget->meta['family'] ?? 'reference'));
+        $translation = $sourceWidget->translations->firstWhere('language_id', $language->getKey())
+            ?? $sourceWidget->translations->first();
         $html = '<section class="capell-kitchen-sink-reference">';
 
         if ($translation !== null) {

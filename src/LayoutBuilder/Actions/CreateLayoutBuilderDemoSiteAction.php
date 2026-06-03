@@ -42,7 +42,7 @@ class CreateLayoutBuilderDemoSiteAction
         $typeCreator = resolve(TypeCreator::class);
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
-        $typeCreator->createBlockTypes();
+        $typeCreator->createWidgetTypes();
 
         /** @var ContentCreator $contentCreator */
         $contentCreator = resolve(ContentCreator::class);
@@ -83,7 +83,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         $orderedContainers = [];
         $remainingContainers = array_diff_key($containers, array_flip([
-            'ap-blocks',
+            'ap-widgets',
             'hero',
             'main',
             'faq-main',
@@ -92,7 +92,7 @@ class CreateLayoutBuilderDemoSiteAction
             'split-two',
         ]));
 
-        $this->populateAPBlocksContainer($orderedContainers);
+        $this->populateAPWidgetsContainer($orderedContainers);
 
         $containers = [
             ...$orderedContainers,
@@ -107,16 +107,16 @@ class CreateLayoutBuilderDemoSiteAction
     /**
      * @param  array<array-key, mixed>  $containers
      */
-    private function populateAPBlocksContainer(array &$containers): void
+    private function populateAPWidgetsContainer(array &$containers): void
     {
-        $heroBlock = $this->demoCreator->createHomepageHeroCommandCenterBlock();
-        $proofBlock = $this->demoCreator->createHomepageProofStripBlock();
-        $showcaseBlock = $this->demoCreator->createHomepageDemoShowcaseBlock();
-        $widgetsCarouselBlock = $this->demoCreator->createHomepageDemoWidgetsCarouselBlock();
-        $marketplaceBlock = $this->demoCreator->createHomepageMarketplaceBlock();
-        $pipelineBlock = $this->demoCreator->createHomepageTechnicalPipelineBlock();
-        $routeSplitBlock = $this->demoCreator->createHomepageRouteSplitBlock();
-        $finalCtaBlock = $this->demoCreator->createHomepageFinalCtaBlock();
+        $heroWidget = $this->demoCreator->createHomepageHeroCommandCenterWidget();
+        $proofWidget = $this->demoCreator->createHomepageProofStripWidget();
+        $showcaseWidget = $this->demoCreator->createHomepageDemoShowcaseWidget();
+        $widgetsCarouselWidget = $this->demoCreator->createHomepageDemoWidgetsCarouselWidget();
+        $marketplaceWidget = $this->demoCreator->createHomepageMarketplaceWidget();
+        $pipelineWidget = $this->demoCreator->createHomepageTechnicalPipelineWidget();
+        $routeSplitWidget = $this->demoCreator->createHomepageRouteSplitWidget();
+        $finalCtaWidget = $this->demoCreator->createHomepageFinalCtaWidget();
 
         $containers['hero'] = [
             'meta' => [
@@ -124,21 +124,21 @@ class CreateLayoutBuilderDemoSiteAction
                 'container' => ContainerWidthEnum::Full,
             ],
             'widgets' => [
-                ['widget_key' => $heroBlock->key],
+                ['widget_key' => $heroWidget->key],
             ],
         ];
 
-        $containers['ap-blocks'] = [
+        $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $proofBlock->key],
-                ['widget_key' => $showcaseBlock->key],
-                ['widget_key' => $widgetsCarouselBlock->key],
-                ['widget_key' => $marketplaceBlock->key],
-                ['widget_key' => $pipelineBlock->key],
-                ['widget_key' => $routeSplitBlock->key],
+                ['widget_key' => $proofWidget->key],
+                ['widget_key' => $showcaseWidget->key],
+                ['widget_key' => $widgetsCarouselWidget->key],
+                ['widget_key' => $marketplaceWidget->key],
+                ['widget_key' => $pipelineWidget->key],
+                ['widget_key' => $routeSplitWidget->key],
             ],
         ];
 
@@ -149,7 +149,7 @@ class CreateLayoutBuilderDemoSiteAction
                 'html_class' => 'bg-slate-950',
             ],
             'widgets' => [
-                ['widget_key' => $finalCtaBlock->key],
+                ['widget_key' => $finalCtaWidget->key],
             ],
         ];
     }

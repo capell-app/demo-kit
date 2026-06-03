@@ -5,34 +5,34 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Support\Creator;
 
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
-abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
+abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
 {
-    public function createModernFeatureListBlock(): Widget
+    public function createModernFeatureListWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
             'name' => 'Modern Feature List',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApFeatureList,
+                'component' => WidgetComponentEnum::ApFeatureList,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Built for teams who need CMS control and engineering discipline',
@@ -41,7 +41,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $features = [
             ['icon' => 'heroicon-o-rocket-launch', 'title' => 'Static-first public pages', 'description' => 'Serve generated HTML and keep render-time cache work from making the frontend feel brittle.'],
@@ -49,7 +49,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             ['icon' => 'heroicon-o-globe-alt', 'title' => 'Multi-site and multi-language', 'description' => 'One install can support multiple domains, trees, languages, and layouts.'],
             ['icon' => 'heroicon-o-puzzle-piece', 'title' => 'Package-owned runtime', 'description' => 'Every package owns the frontend assets it needs and doctor verifies those builds exist.'],
             ['icon' => 'heroicon-o-code-bracket-square', 'title' => 'Laravel-native extension points', 'description' => 'Actions, DTOs, render hooks, schema extenders, and package manifests keep integrations maintainable.'],
-            ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Install health reporting', 'description' => 'A fresh demo ends with explicit checks for homepage, blocks, assets, users, and generated CSS.'],
+            ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Install health reporting', 'description' => 'A fresh demo ends with explicit checks for homepage, widgets, assets, users, and generated CSS.'],
         ];
 
         foreach ($features as $feature) {
@@ -64,43 +64,43 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernTeamMembersBlock(): Widget
+    public function createModernTeamMembersWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
             'name' => 'Modern Team Members',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApTeamMembers,
+                'component' => WidgetComponentEnum::ApTeamMembers,
                 'columns' => 3,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Our Team'],
             );
         }
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         $members = [
@@ -147,29 +147,29 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernPricingTableBlock(): Widget
+    public function createModernPricingTableWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
             'name' => 'Modern Pricing Table',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApPricingTable,
+                'component' => WidgetComponentEnum::ApPricingTable,
                 'currency' => '$',
                 'billing_options' => 'both',
                 'margin' => ['lg'],
@@ -177,14 +177,14 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Simple, Transparent Pricing'],
             );
         }
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         $plans = [
@@ -196,7 +196,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 'featured' => false,
                 'cta_label' => 'Get Started',
                 'cta_url' => '#',
-                'features' => ['Up to 5 pages', '1 site', 'Email support', 'Basic blocks'],
+                'features' => ['Up to 5 pages', '1 site', 'Email support', 'Basic widgets'],
             ],
             [
                 'name' => 'Professional',
@@ -206,7 +206,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 'featured' => true,
                 'cta_label' => 'Start Free Trial',
                 'cta_url' => '#',
-                'features' => ['Unlimited pages', '5 sites', 'Priority support', 'All blocks', 'Multi-language'],
+                'features' => ['Unlimited pages', '5 sites', 'Priority support', 'All widgets', 'Multi-language'],
             ],
             [
                 'name' => 'Enterprise',
@@ -239,36 +239,36 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernTestimonialsBlock(): Widget
+    public function createModernTestimonialsWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
             'name' => 'Modern Testimonials',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApTestimonials,
+                'component' => WidgetComponentEnum::ApTestimonials,
                 'columns' => 2,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'What a release-ready Capell site should prove',
@@ -277,7 +277,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $testimonials = [
             ['icon' => 'heroicon-o-user-circle', 'author' => 'Content editor', 'position' => 'Homepage owner', 'quote' => 'I can change the hero, cards, media, and CTA from admin records without waiting on a template deployment.'],
@@ -300,35 +300,35 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernFaqBlock(): Widget
+    public function createModernFaqWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-faq'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-faq'], [
             'name' => 'Modern FAQ Section',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApFaqSection,
+                'component' => WidgetComponentEnum::ApFaqSection,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Questions this demo answers',
@@ -337,13 +337,13 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $faqs = [
-            ['category' => 'Editing', 'question' => 'Can every visible homepage section be edited in admin?', 'answer' => 'Yes. The hero, cards, feature list, gallery, testimonials, FAQ, and CTA are backed by block translations, block meta, assets, and media records.'],
+            ['category' => 'Editing', 'question' => 'Can every visible homepage section be edited in admin?', 'answer' => 'Yes. The hero, cards, feature list, gallery, testimonials, FAQ, and CTA are backed by widget translations, widget meta, assets, and media records.'],
             ['category' => 'Frontend', 'question' => 'Does the public theme own its runtime styling and JavaScript?', 'answer' => 'Yes. Foundation registers and publishes its own frontend build assets instead of relying on another package runtime.'],
-            ['category' => 'Install', 'question' => 'How do I know the demo installed correctly?', 'answer' => 'Run capell:doctor --install-summary. It checks tables, packages, homepage data, blocks, runtime assets, generated CSS, and admin access.'],
-            ['category' => 'Architecture', 'question' => 'Is this just a landing page?', 'answer' => 'No. The default demo is a working CMS surface that demonstrates Capell page records, layout containers, blocks, media, and package renderers.'],
+            ['category' => 'Install', 'question' => 'How do I know the demo installed correctly?', 'answer' => 'Run capell:doctor --install-summary. It checks tables, packages, homepage data, widgets, runtime assets, generated CSS, and admin access.'],
+            ['category' => 'Architecture', 'question' => 'Is this just a landing page?', 'answer' => 'No. The default demo is a working CMS surface that demonstrates Capell page records, layout containers, widgets, media, and package renderers.'],
         ];
 
         foreach ($faqs as $faq) {
@@ -358,35 +358,35 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernStatsSectionBlock(): Widget
+    public function createModernStatsSectionWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-stats'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-stats'], [
             'name' => 'Modern Stats Section',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApStatsSection,
+                'component' => WidgetComponentEnum::ApStatsSection,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Proof points for a healthier release',
@@ -395,10 +395,10 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $stats = [
-            ['icon' => 'heroicon-o-squares-2x2', 'label' => 'Homepage blocks', 'value' => '10'],
+            ['icon' => 'heroicon-o-squares-2x2', 'label' => 'Homepage widgets', 'value' => '10'],
             ['icon' => 'heroicon-o-photo', 'label' => 'Demo media records', 'value' => '8+'],
             ['icon' => 'heroicon-o-bolt', 'label' => 'Runtime asset checks', 'value' => '2'],
             ['icon' => 'heroicon-o-check-badge', 'label' => 'Doctor summary', 'value' => 'Pass'],
@@ -416,35 +416,35 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernAlternatingContentBlock(): Widget
+    public function createModernAlternatingContentWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
             'name' => 'Modern Alternating Content',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApAlternatingContent,
+                'component' => WidgetComponentEnum::ApAlternatingContent,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'From model to public page',
@@ -453,11 +453,11 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $steps = [
-            ['icon' => 'heroicon-o-circle-stack', 'position' => 'left', 'title' => 'Model the content', 'description' => 'Define page types, blocks, translations, and media so content stays structured instead of trapped in templates.'],
-            ['icon' => 'heroicon-o-rectangle-group', 'position' => 'right', 'title' => 'Compose the layout', 'description' => 'Place package-owned blocks into layout containers and keep every visible section editable from the admin.'],
+            ['icon' => 'heroicon-o-circle-stack', 'position' => 'left', 'title' => 'Model the content', 'description' => 'Define page types, widgets, translations, and media so content stays structured instead of trapped in templates.'],
+            ['icon' => 'heroicon-o-rectangle-group', 'position' => 'right', 'title' => 'Compose the layout', 'description' => 'Place package-owned widgets into layout containers and keep every visible section editable from the admin.'],
             ['icon' => 'heroicon-o-paper-airplane', 'position' => 'left', 'title' => 'Publish and verify', 'description' => 'Generate frontend resources, warm static output, and let doctor report missing homepage, asset, or fixture problems.'],
         ];
 
@@ -473,48 +473,48 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernProcessStepsBlock(): Widget
+    public function createModernProcessStepsWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
             'name' => 'Modern Process Steps',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApProcessSteps,
+                'component' => WidgetComponentEnum::ApProcessSteps,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'The publishing path Capell demonstrates',
-                    'content' => '<p>The demo homepage should show a real CMS workflow, not a pile of disconnected sample blocks.</p>',
+                    'content' => '<p>The demo homepage should show a real CMS workflow, not a pile of disconnected sample widgets.</p>',
                 ],
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $steps = [
             ['icon' => 'heroicon-o-cog-6-tooth', 'title' => 'Install packages', 'description' => 'Core, frontend, Foundation theme, navigation, search, and content packages register their own setup and runtime surfaces.'],
-            ['icon' => 'heroicon-o-swatch', 'title' => 'Seed the showcase', 'description' => 'Demo fixtures create Capell-specific blocks, sections, media, and translations in the right homepage order.'],
+            ['icon' => 'heroicon-o-swatch', 'title' => 'Seed the showcase', 'description' => 'Demo fixtures create Capell-specific widgets, sections, media, and translations in the right homepage order.'],
             ['icon' => 'heroicon-o-arrow-path', 'title' => 'Rebuild resources', 'description' => 'Tailwind input, published runtime manifests, and static frontend resources are generated after package demo steps.'],
             ['icon' => 'heroicon-o-clipboard-document-check', 'title' => 'Run doctor', 'description' => 'The installer ends with a health summary that catches broken homepage, runtime, and fixture states immediately.'],
         ];
@@ -531,36 +531,36 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createModernImageGalleryBlock(): Widget
+    public function createModernImageGalleryWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::Assets);
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::Assets);
 
-        if ($blockType === null) {
-            $blockType = resolve(TypeCreator::class)->assetsBlockType();
+        if ($widgetType === null) {
+            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
         }
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
             'name' => 'Modern Image Gallery',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApImageGallery,
+                'component' => WidgetComponentEnum::ApImageGallery,
                 'columns' => 3,
                 'margin' => ['lg'],
             ],
         ]);
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A curated media surface, still CMS-owned',
@@ -569,14 +569,14 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
             );
         }
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         for ($i = 1; $i <= 6; $i++) {
-            $this->createBlockMedia($block);
+            $this->createWidgetMedia($widget);
         }
 
-        return $block;
+        return $widget;
     }
 }

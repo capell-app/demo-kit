@@ -16,7 +16,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
-use Capell\LayoutBuilder\Actions\InstallLayoutBuilderBlockCatalogAction;
+use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -33,7 +33,7 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @var array<int, string>
      */
-    private const array LazyBlockKeys = [
+    private const array LazyWidgetKeys = [
         'kitchen-sink-rich-text',
         'kitchen-sink-data-display',
         'kitchen-sink-interactions',
@@ -49,24 +49,24 @@ final class InstallKitchenSinkDemoPageAction
     {
         return [
             'Hero', 'Breadcrumbs', 'Table of contents', 'Paragraph styles', 'Heading hierarchy',
-            'Blockquote / pull quote', 'Pre / code example', 'Unordered list', 'Ordered list',
+            'Widgetquote / pull quote', 'Pre / code example', 'Unordered list', 'Ordered list',
             'Definition list', 'Callout / info box', 'Article card', 'Blog index list', 'News teaser',
-            'Feature grid', 'Statistics strip', 'Testimonial block', 'Logo cloud', 'Pricing table/cards',
+            'Feature grid', 'Statistics strip', 'Testimonial widget', 'Logo cloud', 'Pricing table/cards',
             'FAQ accordion', 'Tabs', 'Carousel/slider', 'Timeline', 'Process steps', 'Gallery',
             'Video embed', 'Audio player', 'Map embed', 'Table of data', 'Complex table',
             'Search results', 'Filter chips/tags', 'Form field demo', 'Full form', 'CTA band',
-            'Alert variants', 'Embed block', 'Empty state', 'Error state', 'Footer',
+            'Alert variants', 'Embed widget', 'Empty state', 'Error state', 'Footer',
         ];
     }
 
     public function handle(?Site $site = null): Page
     {
         $languages = $this->languages();
-        InstallLayoutBuilderBlockCatalogAction::run($languages, extraBlocks: true);
+        InstallLayoutBuilderWidgetCatalogAction::run($languages, extraWidgets: true);
 
         $site ??= $this->site($languages);
         $layout = $this->layout();
-        $this->blocks($languages);
+        $this->widgets($languages);
 
         /** @var Page $page */
         $page = resolve(PageCreator::class)->createPage([
@@ -117,7 +117,7 @@ final class InstallKitchenSinkDemoPageAction
 
     private function layout(): Layout
     {
-        $blockKeys = array_keys($this->blockFamilies());
+        $widgetKeys = array_keys($this->widgetFamilies());
 
         /** @var Layout $layout */
         $layout = Layout::query()->updateOrCreate(
@@ -128,10 +128,10 @@ final class InstallKitchenSinkDemoPageAction
                     'main' => [
                         'meta' => ['landmark' => 'main'],
                         'widgets' => array_map(
-                            fn (string $key): array => in_array($key, self::LazyBlockKeys, true)
-                                ? $this->lazyBlock($key)
-                                : $this->eagerBlock($key),
-                            $blockKeys,
+                            fn (string $key): array => in_array($key, self::LazyWidgetKeys, true)
+                                ? $this->lazyWidget($key)
+                                : $this->eagerWidget($key),
+                            $widgetKeys,
                         ),
                     ],
                 ],
@@ -145,7 +145,7 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @return array{widget_key: string, occurrence: int}
      */
-    private function eagerBlock(string $key): array
+    private function eagerWidget(string $key): array
     {
         return ['widget_key' => $key, 'occurrence' => 1];
     }
@@ -153,7 +153,7 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @return array{widget_key: string, occurrence: int, meta: array{presentation: array{delivery_mode: string, loading_strategy: string}}}
      */
-    private function lazyBlock(string $key): array
+    private function lazyWidget(string $key): array
     {
         return [
             'widget_key' => $key,
@@ -178,26 +178,26 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @param  EloquentCollection<int, Language>  $languages
      */
-    private function blocks(EloquentCollection $languages): void
+    private function widgets(EloquentCollection $languages): void
     {
-        foreach ($this->blockFamilies() as $key => $family) {
-            /** @var Widget|null $block */
-            $block = Widget::query()->firstWhere('key', $key);
+        foreach ($this->widgetFamilies() as $key => $family) {
+            /** @var Widget|null $widget */
+            $widget = Widget::query()->firstWhere('key', $key);
 
-            if (! $block instanceof Widget) {
+            if (! $widget instanceof Widget) {
                 continue;
             }
 
-            $block->forceFill([
+            $widget->forceFill([
                 'meta' => [
-                    ...($block->meta ?? []),
+                    ...($widget->meta ?? []),
                     'family' => $family['family'],
                     'sections' => $this->sections($family['headings']),
                 ],
             ])->save();
 
             foreach ($languages as $language) {
-                $block->translations()->updateOrCreate(
+                $widget->translations()->updateOrCreate(
                     ['language_id' => $language->getKey()],
                     ['title' => $family['title'], 'content' => '<p>' . e($family['summary']) . '</p>'],
                 );
@@ -207,16 +207,16 @@ final class InstallKitchenSinkDemoPageAction
 
     private function syncPageAssets(Page $page): void
     {
-        foreach (array_keys($this->blockFamilies()) as $order => $blockKey) {
-            $block = Widget::query()->firstWhere('key', $blockKey);
+        foreach (array_keys($this->widgetFamilies()) as $order => $widgetKey) {
+            $widget = Widget::query()->firstWhere('key', $widgetKey);
 
-            if (! $block instanceof Widget) {
+            if (! $widget instanceof Widget) {
                 continue;
             }
 
             WidgetAsset::query()->updateOrCreate(
                 [
-                    'widget_id' => $block->getKey(),
+                    'widget_id' => $widget->getKey(),
                     'pageable_type' => $page->getMorphClass(),
                     'pageable_id' => $page->getKey(),
                     'container' => 'main',
@@ -240,8 +240,8 @@ final class InstallKitchenSinkDemoPageAction
         foreach ($languages as $language) {
             $translations[(string) $language->code] = [
                 'title' => self::PageName,
-                'content' => '<h1>Kitchen Sink Demo Page</h1><p>A CMS authoring and rendering reference fixture for Foundation Theme blocks.</p>',
-                'summary' => 'A CMS reference page for testing Foundation Theme block rendering and accessibility.',
+                'content' => '<h1>Kitchen Sink Demo Page</h1><p>A CMS authoring and rendering reference fixture for Foundation Theme widgets.</p>',
+                'summary' => 'A CMS reference page for testing Foundation Theme widget rendering and accessibility.',
                 'meta' => ['slug' => self::PageSlug, 'label' => self::PageName],
             ];
         }
@@ -252,7 +252,7 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @return array<string, array{family: string, title: string, summary: string, headings: array<int, string>}>
      */
-    private function blockFamilies(): array
+    private function widgetFamilies(): array
     {
         return [
             'kitchen-sink-structured-text' => ['family' => 'Structured text', 'title' => 'Structured content reference', 'summary' => 'Hero, breadcrumbs, and table of contents patterns.', 'headings' => array_slice(self::sectionHeadings(), 0, 3)],
@@ -278,8 +278,8 @@ final class InstallKitchenSinkDemoPageAction
             'notes' => [
                 'Purpose' => sprintf('Shows how %s should render in Foundation Theme.', strtolower($heading)),
                 'Layout' => 'Use semantic grouping and predictable heading order.',
-                'Content' => 'Render public copy from block translations, meta, or page-scoped assets.',
-                'Variant rules' => 'Keep variants explicit in block data and avoid editor-only selectors.',
+                'Content' => 'Render public copy from widget translations, meta, or page-scoped assets.',
+                'Variant rules' => 'Keep variants explicit in widget data and avoid editor-only selectors.',
                 'Behavior' => 'Prefer native controls, then enhance progressively.',
                 'Accessibility' => 'Expose labels, captions, scoped headers, and clear text equivalents.',
             ],

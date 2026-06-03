@@ -23,12 +23,12 @@ return [
     ],
 
     'health' => [
-        'minimum_block_count' => 8,
+        'minimum_widget_count' => 8,
         'minimum_media_count' => 8,
-        'homepage_opening_block_keys' => [
+        'homepage_opening_widget_keys' => [
             'capell-home-hero-command-center',
         ],
-        'showcase_block_order' => [
+        'showcase_widget_order' => [
             'capell-home-hero-command-center',
             'capell-home-proof-strip',
             'capell-home-demo-showcase',
@@ -38,7 +38,7 @@ return [
             'capell-home-route-split',
             'capell-home-final-cta',
         ],
-        'block_asset_minimums' => [],
+        'widget_asset_minimums' => [],
         'placeholder_labels' => [
             'AP Card Grid',
             'AP Feature List',

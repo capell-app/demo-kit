@@ -19,20 +19,20 @@ use Capell\DemoKit\Console\Commands\DemoKitDoctorCommand;
 use Capell\DemoKit\Console\Commands\FullDemoCommand;
 use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
-use Capell\DemoKit\Filament\Configurators\Blocks\HomepageSectionBlockConfigurator;
+use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigurator;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Capell\DemoKit\Livewire\ResourcesLibrary;
-use Capell\DemoKit\Support\KitchenSinkPublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\DemoKit\Support\KitchenSinkPublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 {
-    public const string DemoPageContentRenderable = 'capell.block.demo-page-content';
+    public const string DemoPageContentRenderable = 'capell.widget.demo-page-content';
 
-    public const string HomepageSectionRenderable = 'capell.block.homepage-section';
+    public const string HomepageSectionRenderable = 'capell.widget.homepage-section';
 
     public static string $name = 'capell-demo-kit';
 
@@ -62,7 +62,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
 
         $this->registerAdminPanelExtensions();
-        $this->registerPublicBlockPayloadContributors();
+        $this->registerPublicWidgetPayloadContributors();
     }
 
     public function packageBooted(): void
@@ -93,24 +93,24 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::DemoPageContentRenderable,
-            type: 'layout-block',
-            blade: 'capell-demo-kit::block.demo-page-content',
+            type: 'layout-widget',
+            blade: 'capell-demo-kit::widget.demo-page-content',
         ));
 
         $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
             key: self::HomepageSectionRenderable,
-            type: 'layout-block',
-            blade: 'capell-demo-kit::block.homepage-section',
+            type: 'layout-widget',
+            blade: 'capell-demo-kit::widget.homepage-section',
         ));
     }
 
-    private function registerPublicBlockPayloadContributors(): void
+    private function registerPublicWidgetPayloadContributors(): void
     {
-        if (! interface_exists(PublicBlockPayloadContributor::class)) {
+        if (! interface_exists(PublicWidgetPayloadContributor::class)) {
             return;
         }
 
-        $this->app->tag([KitchenSinkPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
+        $this->app->tag([KitchenSinkPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
     }
 
     private function registerAdminPanelExtensions(): void
@@ -127,9 +127,9 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         }
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
-            class: HomepageSectionBlockConfigurator::class,
+            class: HomepageSectionWidgetConfigurator::class,
             group: ConfiguratorTypeEnum::Widget->value,
-            name: HomepageSectionBlockConfigurator::getKey(),
+            name: HomepageSectionWidgetConfigurator::getKey(),
         ));
     }
 
