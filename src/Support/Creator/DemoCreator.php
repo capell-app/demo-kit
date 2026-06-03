@@ -25,7 +25,7 @@ use Illuminate\Support\Traits\Macroable;
 use InvalidArgumentException;
 use Spatie\MediaLibrary\HasMedia;
 
-class DemoCreator extends ApDemoBlockCreator
+class DemoCreator extends ApDemoWidgetCreator
 {
     use Macroable;
 
@@ -42,7 +42,7 @@ class DemoCreator extends ApDemoBlockCreator
         $this->pageModel = Page::class;
         $this->siteModel = Site::class;
         $this->typeModel = Blueprint::class;
-        $this->blockModel = Widget::class;
+        $this->widgetModel = Widget::class;
         $contentModel = CapellCore::hasAsset('Section')
             ? CapellCore::getAsset('Section')->model
             : Page::class;

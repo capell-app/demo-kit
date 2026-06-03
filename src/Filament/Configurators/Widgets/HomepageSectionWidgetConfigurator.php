@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Capell\DemoKit\Filament\Configurators\Blocks;
+namespace Capell\DemoKit\Filament\Configurators\Widgets;
 
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\DefaultBlockConfigurator;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs\Tab;
 use Override;
 
-final class HomepageSectionBlockConfigurator extends DefaultBlockConfigurator
+final class HomepageSectionWidgetConfigurator extends DefaultWidgetConfigurator
 {
     #[Override]
     protected function detailsTab(): Tab

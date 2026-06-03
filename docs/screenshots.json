@@ -18,27 +18,27 @@
             "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page."
         },
         {
-            "id": "demo-page-content-block",
-            "title": "Generated demo page content block.",
+            "id": "demo-page-content-widget",
+            "title": "Generated demo page content widget.",
             "package": "demo-kit",
             "surface": "frontend",
             "targetType": "frontend-render",
-            "target": "capell-demo-kit::components.block.demo-page-content",
+            "target": "capell-demo-kit::components.widget.demo-page-content",
             "required": true,
-            "notes": "Requires Demo Kit generated page data with a layout block using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.",
-            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-block.png",
+            "notes": "Requires Demo Kit generated page data with a layout widget using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget.png",
             "useCase": "A maintainer verifies generated demo pages render designed content through the package-owned Blade view."
         },
         {
-            "id": "homepage-section-block",
-            "title": "Generated homepage section block.",
+            "id": "homepage-section-widget",
+            "title": "Generated homepage section widget.",
             "package": "demo-kit",
             "surface": "frontend",
             "targetType": "frontend-render",
-            "target": "capell-demo-kit::components.block.homepage-section",
+            "target": "capell-demo-kit::components.widget.homepage-section",
             "required": true,
-            "notes": "Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero block.",
-            "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-block.png",
+            "notes": "Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero widget.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget.png",
             "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade."
         }
     ]

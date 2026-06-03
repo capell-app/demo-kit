@@ -45,7 +45,7 @@ function demoHealthCheck(Collection $checks, string $label): DoctorCheckResultDa
 it('passes the showcase order asset and placeholder demo checks for curated homepage data', function (): void {
     $language = Language::factory()->english()->create();
     $site = Site::factory()->default()->language($language)->withTranslations($language)->create();
-    $layout = createDemoHealthLayout($site, showcaseBlockKeys());
+    $layout = createDemoHealthLayout($site, showcaseWidgetKeys());
 
     Page::factory()
         ->home()
@@ -54,21 +54,21 @@ it('passes the showcase order asset and placeholder demo checks for curated home
         ->withTranslations($language, ['title' => 'Home'])
         ->create();
 
-    foreach (showcaseBlockKeys() as $key) {
-        createDemoHealthBlock($key, showcaseBlockTitle($key));
+    foreach (showcaseWidgetKeys() as $key) {
+        createDemoHealthWidget($key, showcaseWidgetTitle($key));
     }
 
     $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
 
-    expect(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo AP block assets')->passed)->toBeTrue()
+    expect(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo AP widget assets')->passed)->toBeTrue()
         ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeTrue();
 });
 
 it('allows applications to configure the homepage health profile', function (): void {
     config()->set('capell-demo-kit.health.minimum_media_count', 0);
-    config()->set('capell-demo-kit.health.homepage_opening_block_keys', ['page-content']);
-    config()->set('capell-demo-kit.health.showcase_block_order', [
+    config()->set('capell-demo-kit.health.homepage_opening_widget_keys', ['page-content']);
+    config()->set('capell-demo-kit.health.showcase_widget_order', [
         'page-content',
         'capell-marketing-hero',
         'capell-marketing-showcase',
@@ -101,8 +101,8 @@ it('allows applications to configure the homepage health profile', function (): 
 
     $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
 
-    expect(demoHealthCheck($checks, 'Homepage starts with a hero block')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeTrue()
+    expect(demoHealthCheck($checks, 'Homepage starts with a hero widget')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeTrue()
         ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeTrue();
 });
 
@@ -118,11 +118,11 @@ it('fails when the homepage keeps generic AP labels or an incomplete showcase or
         ->withTranslations($language, ['title' => 'Home'])
         ->create();
 
-    createDemoHealthBlock('ap-card-grid', 'AP Card Grid');
+    createDemoHealthWidget('ap-card-grid', 'AP Card Grid');
 
     $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
 
-    expect(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeFalse()
+    expect(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeFalse()
         ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeFalse();
 });
 
@@ -131,18 +131,18 @@ it('reports actionable demo health failures before homepage content and media ar
 
     expect(demoHealthCheck($checks, 'Layout Builder demo dependency')->passed)->toBeTrue()
         ->and(demoHealthCheck($checks, 'Default demo homepage exists')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Homepage layout has blocks')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Homepage starts with a hero block')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo showcase block order')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo block count')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo AP block assets')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'Homepage layout has widgets')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Homepage starts with a hero widget')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo widget count')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'Default demo AP widget assets')->passed)->toBeTrue()
         ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeFalse();
 });
 
 /**
  * @return list<string>
  */
-function showcaseBlockKeys(): array
+function showcaseWidgetKeys(): array
 {
     return [
         'capell-home-hero-command-center',
@@ -157,33 +157,33 @@ function showcaseBlockKeys(): array
 }
 
 /**
- * @param  list<string>  $blockKeys
+ * @param  list<string>  $widgetKeys
  */
-function createDemoHealthLayout(Site $site, array $blockKeys): Layout
+function createDemoHealthLayout(Site $site, array $widgetKeys): Layout
 {
     return Layout::factory()
         ->site($site)
         ->create([
             'key' => 'home',
             'containers' => [
-                'ap-blocks' => [
+                'ap-widgets' => [
                     'meta' => ['colspan' => 12],
-                    'blocks' => array_map(
-                        fn (string $blockKey): array => ['block_key' => $blockKey],
-                        $blockKeys,
+                    'widgets' => array_map(
+                        fn (string $widgetKey): array => ['widget_key' => $widgetKey],
+                        $widgetKeys,
                     ),
                 ],
             ],
         ]);
 }
 
-function createDemoHealthBlock(string $key, string $title): Widget
+function createDemoHealthWidget(string $key, string $title): Widget
 {
     $type = Blueprint::factory()->create([
         'type' => LayoutTypeEnum::Widget->value,
     ]);
 
-    $block = Widget::factory()
+    $widget = Widget::factory()
         ->for($type, 'type')
         ->create([
             'key' => $key,
@@ -191,17 +191,17 @@ function createDemoHealthBlock(string $key, string $title): Widget
         ]);
 
     Translation::factory()
-        ->translatable($block)
+        ->translatable($widget)
         ->create([
             'language_id' => Language::query()->firstOrFail()->id,
             'title' => $title,
             'content' => sprintf('<p>%s content</p>', $title),
         ]);
 
-    return $block;
+    return $widget;
 }
 
-function showcaseBlockTitle(string $key): string
+function showcaseWidgetTitle(string $key): string
 {
     return [
         'capell-home-hero-command-center' => 'Capell CMS',
@@ -215,13 +215,13 @@ function showcaseBlockTitle(string $key): string
     ][$key];
 }
 
-function createBlockAssets(string $blockKey, int $count): void
+function createWidgetAssets(string $widgetKey, int $count): void
 {
-    $block = Widget::query()->where('key', $blockKey)->firstOrFail();
+    $widget = Widget::query()->where('key', $widgetKey)->firstOrFail();
 
     for ($index = 0; $index < $count; $index++) {
-        resolve(ConnectionResolverInterface::class)->table('block_assets')->insert([
-            'block_id' => $block->id,
+        resolve(ConnectionResolverInterface::class)->table('widget_assets')->insert([
+            'widget_id' => $widget->id,
             'asset_type' => Page::query()->make()->getMorphClass(),
             'asset_id' => (string) Str::uuid(),
             'order' => $index + 1,

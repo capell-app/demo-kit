@@ -12,7 +12,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\DemoKit\Filament\Configurators\Blocks\HomepageSectionBlockConfigurator;
+use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigurator;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
@@ -133,7 +133,7 @@ function prepareDemoKitWidgetCreatorFixture(): array
     $typeCreator = resolve(TypeCreator::class);
     $typeCreator->createDefaultContentType();
     $typeCreator->createBuilderContentType();
-    $typeCreator->createBlockTypes();
+    $typeCreator->createWidgetTypes();
 
     $language = Language::factory()->english()->create();
     $languages = Language::query()->whereKey($language->getKey())->get();
@@ -190,43 +190,43 @@ function demoKitWidgetCreatorCases(array $fixture): array
     $page = $fixture['page'];
 
     return [
-        'createApHeroBannerBlock' => $creator->createApHeroBannerBlock(...),
-        'createApCardGridBlock' => $creator->createApCardGridBlock(...),
-        'createApFeatureListBlock' => $creator->createApFeatureListBlock(...),
-        'createFeatureListBlock' => $creator->createFeatureListBlock(...),
-        'createApCtaSectionBlock' => $creator->createApCtaSectionBlock(...),
-        'createApImageGalleryBlock' => $creator->createApImageGalleryBlock(...),
-        'createModernFeatureListBlock' => $creator->createModernFeatureListBlock(...),
-        'createModernTeamMembersBlock' => $creator->createModernTeamMembersBlock(...),
-        'createModernPricingTableBlock' => $creator->createModernPricingTableBlock(...),
-        'createModernTestimonialsBlock' => $creator->createModernTestimonialsBlock(...),
-        'createModernFaqBlock' => $creator->createModernFaqBlock(...),
-        'createModernStatsSectionBlock' => $creator->createModernStatsSectionBlock(...),
-        'createModernAlternatingContentBlock' => $creator->createModernAlternatingContentBlock(...),
-        'createModernProcessStepsBlock' => $creator->createModernProcessStepsBlock(...),
-        'createModernImageGalleryBlock' => $creator->createModernImageGalleryBlock(...),
-        'createContentBlock' => fn (): Widget => $creator->createContentBlock($languages),
-        'createSplitContentBlock' => fn (): Widget => $creator->createSplitContentBlock($languages),
-        'createBannerImageBlock' => fn (): Widget => $creator->createBannerImageBlock($languages),
-        'createGalleryBlock' => $creator->createGalleryBlock(...),
-        'createPageCardsBlock' => fn (): Widget => $creator->createPageCardsBlock($page),
-        'createFaqBlock' => fn (): Widget => $creator->createFaqBlock($languages),
-        'createMediaCarouselBlock' => $creator->createMediaCarouselBlock(...),
-        'createStaticNavigationBlock' => fn (): Widget => $creator->createStaticNavigationBlock($languages, $site),
-        'createClientLogosBlock' => fn (): Widget => $creator->createClientLogosBlock($languages),
-        'createBusinessFeaturesBlock' => fn (): Widget => $creator->createBusinessFeaturesBlock($site),
-        'createBannersBlock' => $creator->createBannersBlock(...),
-        'createTestimonialsBlock' => fn (): Widget => $creator->createTestimonialsBlock($languages),
-        'createStatisticsBlock' => $creator->createStatisticsBlock(...),
-        'createTeamPortfolioBlock' => fn (): Widget => $creator->createTeamPortfolioBlock($languages),
-        'createHomepageHeroCommandCenterBlock' => $creator->createHomepageHeroCommandCenterBlock(...),
-        'createHomepageProofStripBlock' => $creator->createHomepageProofStripBlock(...),
-        'createHomepageDemoShowcaseBlock' => $creator->createHomepageDemoShowcaseBlock(...),
-        'createHomepageDemoWidgetsCarouselBlock' => $creator->createHomepageDemoWidgetsCarouselBlock(...),
-        'createHomepageMarketplaceBlock' => $creator->createHomepageMarketplaceBlock(...),
-        'createHomepageTechnicalPipelineBlock' => $creator->createHomepageTechnicalPipelineBlock(...),
-        'createHomepageRouteSplitBlock' => $creator->createHomepageRouteSplitBlock(...),
-        'createHomepageFinalCtaBlock' => $creator->createHomepageFinalCtaBlock(...),
+        'createApHeroBannerWidget' => $creator->createApHeroBannerWidget(...),
+        'createApCardGridWidget' => $creator->createApCardGridWidget(...),
+        'createApFeatureListWidget' => $creator->createApFeatureListWidget(...),
+        'createFeatureListWidget' => $creator->createFeatureListWidget(...),
+        'createApCtaSectionWidget' => $creator->createApCtaSectionWidget(...),
+        'createApImageGalleryWidget' => $creator->createApImageGalleryWidget(...),
+        'createModernFeatureListWidget' => $creator->createModernFeatureListWidget(...),
+        'createModernTeamMembersWidget' => $creator->createModernTeamMembersWidget(...),
+        'createModernPricingTableWidget' => $creator->createModernPricingTableWidget(...),
+        'createModernTestimonialsWidget' => $creator->createModernTestimonialsWidget(...),
+        'createModernFaqWidget' => $creator->createModernFaqWidget(...),
+        'createModernStatsSectionWidget' => $creator->createModernStatsSectionWidget(...),
+        'createModernAlternatingContentWidget' => $creator->createModernAlternatingContentWidget(...),
+        'createModernProcessStepsWidget' => $creator->createModernProcessStepsWidget(...),
+        'createModernImageGalleryWidget' => $creator->createModernImageGalleryWidget(...),
+        'createContentWidget' => fn (): Widget => $creator->createContentWidget($languages),
+        'createSplitContentWidget' => fn (): Widget => $creator->createSplitContentWidget($languages),
+        'createBannerImageWidget' => fn (): Widget => $creator->createBannerImageWidget($languages),
+        'createGalleryWidget' => $creator->createGalleryWidget(...),
+        'createPageCardsWidget' => fn (): Widget => $creator->createPageCardsWidget($page),
+        'createFaqWidget' => fn (): Widget => $creator->createFaqWidget($languages),
+        'createMediaCarouselWidget' => $creator->createMediaCarouselWidget(...),
+        'createStaticNavigationWidget' => fn (): Widget => $creator->createStaticNavigationWidget($languages, $site),
+        'createClientLogosWidget' => fn (): Widget => $creator->createClientLogosWidget($languages),
+        'createBusinessFeaturesWidget' => fn (): Widget => $creator->createBusinessFeaturesWidget($site),
+        'createBannersWidget' => $creator->createBannersWidget(...),
+        'createTestimonialsWidget' => fn (): Widget => $creator->createTestimonialsWidget($languages),
+        'createStatisticsWidget' => $creator->createStatisticsWidget(...),
+        'createTeamPortfolioWidget' => fn (): Widget => $creator->createTeamPortfolioWidget($languages),
+        'createHomepageHeroCommandCenterWidget' => $creator->createHomepageHeroCommandCenterWidget(...),
+        'createHomepageProofStripWidget' => $creator->createHomepageProofStripWidget(...),
+        'createHomepageDemoShowcaseWidget' => $creator->createHomepageDemoShowcaseWidget(...),
+        'createHomepageDemoWidgetsCarouselWidget' => $creator->createHomepageDemoWidgetsCarouselWidget(...),
+        'createHomepageMarketplaceWidget' => $creator->createHomepageMarketplaceWidget(...),
+        'createHomepageTechnicalPipelineWidget' => $creator->createHomepageTechnicalPipelineWidget(...),
+        'createHomepageRouteSplitWidget' => $creator->createHomepageRouteSplitWidget(...),
+        'createHomepageFinalCtaWidget' => $creator->createHomepageFinalCtaWidget(...),
     ];
 }
 
@@ -241,7 +241,7 @@ function publicDemoKitWidgetCreatorMethodNames(): array
                 return false;
             }
 
-            if (! str_ends_with($method->getName(), 'Block')) {
+            if (! str_ends_with($method->getName(), 'Widget')) {
                 return false;
             }
 
@@ -330,7 +330,7 @@ function installContentSectionsForDemoAssets(): void
 function createDemoAssetPage(string $name): Page
 {
     installContentSectionsForDemoAssets();
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -344,19 +344,19 @@ function createDemoAssetPage(string $name): Page
     return $page->refresh()->loadMissing(['layout', 'translation', 'type']);
 }
 
-it('creates homepage demo snippets as layout builder blocks', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+it('creates homepage demo snippets as layout builder widgets', function (): void {
+    resolve(TypeCreator::class)->createWidgetTypes();
 
-    $block = resolve(DemoCreator::class)->createHomepageHeroCommandCenterBlock();
+    $widget = resolve(DemoCreator::class)->createHomepageHeroCommandCenterWidget();
 
-    expect($block)->toBeInstanceOf(Widget::class)
-        ->and($block->getTable())->toBe('widgets')
-        ->and($block->key)->toBe('capell-home-hero-command-center')
-        ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
-        ->and($block->getMeta('container'))->toBe(ContainerWidthEnum::Default->value)
-        ->and($block->getMeta('margin'))->toBe(['none'])
-        ->and($block->getMeta('padding'))->toBe(['none'])
-        ->and($block->getViewFile())->toBeNull();
+    expect($widget)->toBeInstanceOf(Widget::class)
+        ->and($widget->getTable())->toBe('widgets')
+        ->and($widget->key)->toBe('capell-home-hero-command-center')
+        ->and($widget->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($widget->getMeta('container'))->toBe(ContainerWidthEnum::Default->value)
+        ->and($widget->getMeta('margin'))->toBe(['none'])
+        ->and($widget->getMeta('padding'))->toBe(['none'])
+        ->and($widget->getViewFile())->toBeNull();
 });
 
 it('persists every public demo kit widget creator output', function (): void {
@@ -503,21 +503,21 @@ it('can edit every demo kit creator widget through Filament without losing creat
     }
 });
 
-it('creates the interactive homepage widgets carousel block', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+it('creates the interactive homepage widgets carousel widget', function (): void {
+    resolve(TypeCreator::class)->createWidgetTypes();
 
-    $block = resolve(DemoCreator::class)->createHomepageDemoWidgetsCarouselBlock();
-    $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/block/homepage-section.blade.php');
+    $widget = resolve(DemoCreator::class)->createHomepageDemoWidgetsCarouselWidget();
+    $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
 
-    expect($block)->toBeInstanceOf(Widget::class)
-        ->and($block->key)->toBe('capell-home-demo-widgets-carousel')
-        ->and($block->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
-        ->and($block->type?->key)->toBe('homepage-section')
-        ->and($block->type?->admin)->toMatchArray([
-            'configurator' => HomepageSectionBlockConfigurator::getKey(),
+    expect($widget)->toBeInstanceOf(Widget::class)
+        ->and($widget->key)->toBe('capell-home-demo-widgets-carousel')
+        ->and($widget->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
+        ->and($widget->type?->key)->toBe('homepage-section')
+        ->and($widget->type?->admin)->toMatchArray([
+            'configurator' => HomepageSectionWidgetConfigurator::getKey(),
         ])
-        ->and($block->meta)->toHaveKey('content')
-        ->and(data_get($block->meta, 'content.items.0.title'))->toBe('Editorial workflow')
+        ->and($widget->meta)->toHaveKey('content')
+        ->and(data_get($widget->meta, 'content.items.0.title'))->toBe('Editorial workflow')
         ->and($view)->toContain('window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1')
         ->and($view)->toContain('pageCount()')
         ->and($view)->toContain('x-on:touchstart.passive="swipeStart($event)"')
@@ -526,8 +526,8 @@ it('creates the interactive homepage widgets carousel block', function (): void 
         ->and($view)->not->toContain('Editorial workflow');
 });
 
-it('uses a blade-backed demo page content block for designed demo pages', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+it('uses a blade-backed demo page content widget for designed demo pages', function (): void {
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -540,15 +540,15 @@ it('uses a blade-backed demo page content block for designed demo pages', functi
     $page->refresh();
 
     expect($page->layout?->widgets)->toBe(['demo-page-hero', 'breadcrumbs', 'demo-page-content'])
-        ->and(Widget::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.block.demo-page-content')
+        ->and(Widget::query()->where('key', 'demo-page-content')->value('component'))->toBe('capell.widget.demo-page-content')
         ->and(Widget::query()->where('key', 'demo-page-content')->value('view_file'))->toBeNull()
-        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero')
+        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.widget.hero')
         ->and($page->translation?->content)->toContain('<p>Capell combines Laravel package discipline')
         ->and($page->translation?->content)->not->toContain('class=');
 });
 
 it('canonicalizes the old architecture demo page into the platform architecture layout', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -570,11 +570,11 @@ it('canonicalizes the old architecture demo page into the platform architecture 
         ->and($page->translation?->getMeta('hero_title'))->toBe('Platform Architecture')
         ->and($page->translation?->getMeta('hero'))->toBeString()
         ->and($page->translation?->getMeta('hero'))->toStartWith('<p>')
-        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.block.hero');
+        ->and(Widget::query()->where('key', 'demo-page-hero')->value('component'))->toBe('capell.widget.hero');
 });
 
 it('keeps support pages without heroes on content-only layouts', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -594,7 +594,7 @@ it('keeps support pages without heroes on content-only layouts', function (): vo
 });
 
 it('uses a custom hero image layout for pricing', function (): void {
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -614,9 +614,9 @@ it('uses a custom hero image layout for pricing', function (): void {
         ->and($page->media->first()?->file_name)->toBe('pricing.jpg');
 });
 
-it('seeds distinct page scoped assets for reusable demo page content block', function (): void {
+it('seeds distinct page scoped assets for reusable demo page content widget', function (): void {
     installContentSectionsForDemoAssets();
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 
     $language = Language::factory()->default()->create();
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
@@ -636,9 +636,9 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
 
         throw_unless($page instanceof Page);
 
-        $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
+        $widget = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
         $assets = WidgetAsset::query()
-            ->where('widget_id', $block->getKey())
+            ->where('widget_id', $widget->getKey())
             ->where('pageable_type', $page->getMorphClass())
             ->where('pageable_id', $page->getKey())
             ->where('container', 'main')
@@ -655,10 +655,10 @@ it('seeds distinct page scoped assets for reusable demo page content block', fun
 
 it('seeds uniform contact routing content for designed contact pages', function (): void {
     $page = createDemoAssetPage('Contact');
-    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
+    $widget = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
 
     $asset = WidgetAsset::query()
-        ->where('widget_id', $block->getKey())
+        ->where('widget_id', $widget->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
         ->where('container', 'main')
@@ -676,7 +676,7 @@ it('seeds uniform contact routing content for designed contact pages', function 
 
 it('keeps seeded demo page assets idempotent and preserves editor assets', function (): void {
     $page = createDemoAssetPage('Services');
-    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
+    $widget = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
     $sectionType = Blueprint::query()->firstOrCreate([
         'type' => 'section',
         'key' => 'demo-page-content-editor-asset',
@@ -692,7 +692,7 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
         'visible_from' => now()->subDay(),
     ]);
 
-    $block->assets()->create([
+    $widget->assets()->create([
         'pageable_id' => $page->getKey(),
         'pageable_type' => $page->getMorphClass(),
         'container' => 'main',
@@ -708,7 +708,7 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
     $method->invoke($creator, $page, 'Services');
 
     $pageAssets = WidgetAsset::query()
-        ->where('widget_id', $block->getKey())
+        ->where('widget_id', $widget->getKey())
         ->where('pageable_type', $page->getMorphClass())
         ->where('pageable_id', $page->getKey())
         ->where('container', 'main')
@@ -722,10 +722,10 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
         ->and($editorAssetMeta['editor_added'] ?? null)->toBeTrue();
 });
 
-it('preloads asset backed demo page content without lazy loading block assets', function (): void {
+it('preloads asset backed demo page content without lazy loading widget assets', function (): void {
     $page = createDemoAssetPage('Services');
     $language = Language::query()->where('default', true)->firstOrFail();
-    $loadedBlock = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutBlock(
+    $loadedWidget = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutWidget(
         demoCreatorRequiredLayout($page),
         'demo-page-content',
         $language,
@@ -733,19 +733,19 @@ it('preloads asset backed demo page content without lazy loading block assets', 
         'main',
         1,
     ));
-    $firstAsset = demoCreatorRequiredWidgetAsset($loadedBlock->assets->first());
+    $firstAsset = demoCreatorRequiredWidgetAsset($loadedWidget->assets->first());
     $assetMeta = demoCreatorWidgetAssetMeta($firstAsset);
 
-    expect($loadedBlock)->toBeInstanceOf(Widget::class)
-        ->and($loadedBlock->relationLoaded('assets'))->toBeTrue()
-        ->and($loadedBlock->assets)->toHaveCount(1)
+    expect($loadedWidget)->toBeInstanceOf(Widget::class)
+        ->and($loadedWidget->relationLoaded('assets'))->toBeTrue()
+        ->and($loadedWidget->assets)->toHaveCount(1)
         ->and($assetMeta['variant'] ?? null)->toBe('services-workbench');
 });
 
 it('renders asset backed demo page content without exposing layout metadata', function (): void {
     $page = createDemoAssetPage('Services');
     $language = Language::query()->where('default', true)->firstOrFail();
-    $loadedBlock = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutBlock(
+    $loadedWidget = demoCreatorRequiredWidget(resolve(LayoutLoader::class)->getLayoutWidget(
         demoCreatorRequiredLayout($page),
         'demo-page-content',
         $language,
@@ -754,7 +754,7 @@ it('renders asset backed demo page content without exposing layout metadata', fu
         1,
     ));
     $sections = resolve(DemoPageContentAssetSections::class)
-        ->resolve($loadedBlock, $page, 'main', 1);
+        ->resolve($loadedWidget, $page, 'main', 1);
     $classes = [
         'sectionClass' => 'grid gap-6 border-b border-slate-200/70 py-10',
         'splitSectionClass' => 'grid gap-6 border-b border-slate-200/70 py-10 lg:grid-cols-2',
@@ -770,15 +770,15 @@ it('renders asset backed demo page content without exposing layout metadata', fu
         'cardCopyClass' => 'text-base leading-7 text-slate-600',
     ];
 
-    $html = view('capell-demo-kit::components.block.demo-page-content-assets', [
+    $html = view('capell-demo-kit::components.widget.demo-page-content-assets', [
         'sections' => $sections,
         ...$classes,
     ])->render();
 
     expect($html)->toContain('service-delivery-lanes')
         ->and($html)->toContain('Implementation services for complex Capell rollouts')
-        ->and($html)->not->toContain('block_asset')
-        ->and($html)->not->toContain('block_assets')
+        ->and($html)->not->toContain('widget_asset')
+        ->and($html)->not->toContain('widget_assets')
         ->and($html)->not->toContain('pageable_id')
         ->and($html)->not->toContain('pageable_type')
         ->and($html)->not->toContain('asset_id')
@@ -789,11 +789,11 @@ it('renders asset backed demo page content without exposing layout metadata', fu
 
 it('falls back when demo page assets are not preloaded', function (): void {
     $page = createDemoAssetPage('Services');
-    $block = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
+    $widget = Widget::query()->where('key', 'demo-page-content')->firstOrFail();
 
     $sections = resolve(DemoPageContentAssetSections::class)
-        ->resolve($block, $page, 'main', 1);
+        ->resolve($widget, $page, 'main', 1);
 
-    expect($block->relationLoaded('assets'))->toBeFalse()
+    expect($widget->relationLoaded('assets'))->toBeFalse()
         ->and($sections)->toBe([]);
 });

@@ -10,8 +10,8 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -26,7 +26,7 @@ beforeEach(function (): void {
 
     LayoutBuilderInstallPackageAction::run();
     resolve(BlueprintCreator::class)->createPageTypes();
-    resolve(TypeCreator::class)->createBlockTypes();
+    resolve(TypeCreator::class)->createWidgetTypes();
 });
 
 /**
@@ -69,18 +69,18 @@ it('creates demo page layouts for named, footer, contact, and unknown pages', fu
         ->and(baseDemoCreatorPageContentMeta()['page_content'] ?? null)->toBe(['content']);
 });
 
-it('creates missing default block types while building demo page layouts', function (): void {
-    $defaultBlockTypeIds = Blueprint::query()
+it('creates missing default widget types while building demo page layouts', function (): void {
+    $defaultWidgetTypeIds = Blueprint::query()
         ->where('type', LayoutTypeEnum::Widget->value)
-        ->where('key', BlockTypeEnum::Default->value)
+        ->where('key', WidgetTypeEnum::Default->value)
         ->pluck('id');
 
     Widget::query()
-        ->whereIn('blueprint_id', $defaultBlockTypeIds)
+        ->whereIn('blueprint_id', $defaultWidgetTypeIds)
         ->forceDelete();
 
     Blueprint::query()
-        ->whereKey($defaultBlockTypeIds)
+        ->whereKey($defaultWidgetTypeIds)
         ->forceDelete();
 
     $creator = new class extends DemoCreator
@@ -96,7 +96,7 @@ it('creates missing default block types while building demo page layouts', funct
     expect($layout?->widgets)->toBe(['breadcrumbs', 'demo-page-content', 'page-bottom-banner'])
         ->and(Blueprint::query()
             ->where('type', LayoutTypeEnum::Widget->value)
-            ->where('key', BlockTypeEnum::Default->value)
+            ->where('key', WidgetTypeEnum::Default->value)
             ->exists())->toBeTrue()
         ->and(Widget::query()->where('key', 'page-bottom-banner')->exists())->toBeTrue();
 });

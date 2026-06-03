@@ -10,19 +10,19 @@ final class DemoProfileData extends Data
 {
     /**
      * @param  array{sites: int, pages_per_site: array{0: int, 1: int}, languages_per_site: array{0: int, 1: int}, page_depth: array{0: int, 1: int}, media_per_page: array{0: int, 1: int}}  $counts
-     * @param  list<string>  $homepageOpeningBlockKeys
-     * @param  list<string>  $showcaseBlockOrder
-     * @param  array<string, int>  $blockAssetMinimums
+     * @param  list<string>  $homepageOpeningWidgetKeys
+     * @param  list<string>  $showcaseWidgetOrder
+     * @param  array<string, int>  $widgetAssetMinimums
      * @param  list<string>  $placeholderLabels
      */
     public function __construct(
         public readonly ?int $seed,
         public readonly array $counts,
-        public readonly int $minimumBlockCount,
+        public readonly int $minimumWidgetCount,
         public readonly int $minimumMediaCount,
-        public readonly array $homepageOpeningBlockKeys,
-        public readonly array $showcaseBlockOrder,
-        public readonly array $blockAssetMinimums,
+        public readonly array $homepageOpeningWidgetKeys,
+        public readonly array $showcaseWidgetOrder,
+        public readonly array $widgetAssetMinimums,
         public readonly array $placeholderLabels,
     ) {}
 
@@ -31,12 +31,12 @@ final class DemoProfileData extends Data
         return new self(
             seed: config('capell-demo-kit.seed'),
             counts: config('capell-demo-kit.counts'),
-            minimumBlockCount: (int) config('capell-demo-kit.health.minimum_block_count', 8),
+            minimumWidgetCount: (int) config('capell-demo-kit.health.minimum_widget_count', 8),
             minimumMediaCount: (int) config('capell-demo-kit.health.minimum_media_count', 8),
-            homepageOpeningBlockKeys: self::stringList(config('capell-demo-kit.health.homepage_opening_block_keys'), [
+            homepageOpeningWidgetKeys: self::stringList(config('capell-demo-kit.health.homepage_opening_widget_keys'), [
                 'capell-home-hero-command-center',
             ]),
-            showcaseBlockOrder: self::stringList(config('capell-demo-kit.health.showcase_block_order'), [
+            showcaseWidgetOrder: self::stringList(config('capell-demo-kit.health.showcase_widget_order'), [
                 'capell-home-hero-command-center',
                 'capell-home-proof-strip',
                 'capell-home-demo-showcase',
@@ -46,7 +46,7 @@ final class DemoProfileData extends Data
                 'capell-home-route-split',
                 'capell-home-final-cta',
             ]),
-            blockAssetMinimums: self::integerMap(config('capell-demo-kit.health.block_asset_minimums'), []),
+            widgetAssetMinimums: self::integerMap(config('capell-demo-kit.health.widget_asset_minimums'), []),
             placeholderLabels: self::stringList(config('capell-demo-kit.health.placeholder_labels'), [
                 'AP Card Grid',
                 'AP Feature List',

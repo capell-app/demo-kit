@@ -38,14 +38,14 @@ final class AssertDefaultDemoInstallHealthAction
         $this->profile = DemoProfileData::default();
 
         $checks = collect([
-            $this->layoutBuilderBlockModelExists(),
+            $this->layoutBuilderWidgetModelExists(),
             $this->homepageExists(),
-            $this->homepageLayoutHasBlocks(),
+            $this->homepageLayoutHasWidgets(),
             $this->homepageStartsWithHero(),
             $this->homepageUsesShowcaseOrder(),
-            $this->minimumBlockCount(),
-            ...($this->hasLayoutBuilderBlockModel() ? [
-                $this->apBlocksHaveAssets(),
+            $this->minimumWidgetCount(),
+            ...($this->hasLayoutBuilderWidgetModel() ? [
+                $this->apWidgetsHaveAssets(),
                 $this->placeholderLabelsAreAbsent(),
             ] : []),
             $this->minimumMediaCount(),
@@ -58,13 +58,13 @@ final class AssertDefaultDemoInstallHealthAction
         return new DemoInstallHealthData($checks);
     }
 
-    private function layoutBuilderBlockModelExists(): DoctorCheckResultData
+    private function layoutBuilderWidgetModelExists(): DoctorCheckResultData
     {
-        if ($this->hasLayoutBuilderBlockModel()) {
+        if ($this->hasLayoutBuilderWidgetModel()) {
             return new DoctorCheckResultData(
                 label: 'Layout Builder demo dependency',
                 passed: true,
-                message: 'Layout Builder block model is available.',
+                message: 'Layout Builder widget model is available.',
             );
         }
 
@@ -101,125 +101,125 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageLayoutHasBlocks(): DoctorCheckResultData
+    private function homepageLayoutHasWidgets(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $blocks = $this->layoutBlockKeys($layout);
+        $widgets = $this->layoutWidgetKeys($layout);
 
-        if ($blocks === []) {
+        if ($widgets === []) {
             return new DoctorCheckResultData(
-                label: 'Homepage layout has blocks',
+                label: 'Homepage layout has widgets',
                 passed: false,
-                message: 'The homepage layout does not contain any block keys.',
+                message: 'The homepage layout does not contain any widget keys.',
                 remediation: 'Run the selected theme setup/demo command after package setup has completed.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage layout has blocks',
+            label: 'Homepage layout has widgets',
             passed: true,
-            message: sprintf('Homepage layout references %d block occurrence(s).', count($blocks)),
+            message: sprintf('Homepage layout references %d widget occurrence(s).', count($widgets)),
         );
     }
 
-    private function minimumBlockCount(): DoctorCheckResultData
+    private function minimumWidgetCount(): DoctorCheckResultData
     {
-        $count = $this->homepageBlockCount();
+        $count = $this->homepageWidgetCount();
 
-        if ($count < $this->profile->minimumBlockCount) {
+        if ($count < $this->profile->minimumWidgetCount) {
             return new DoctorCheckResultData(
-                label: 'Default demo block count',
+                label: 'Default demo widget count',
                 passed: false,
-                message: sprintf('Homepage has %d block(s); expected at least %d.', $count, $this->profile->minimumBlockCount),
+                message: sprintf('Homepage has %d widget(s); expected at least %d.', $count, $this->profile->minimumWidgetCount),
                 remediation: 'Rerun the demo package step and confirm the demo package runs after setup packages.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo block count',
+            label: 'Default demo widget count',
             passed: true,
-            message: sprintf('Homepage has %d block(s).', $count),
+            message: sprintf('Homepage has %d widget(s).', $count),
         );
     }
 
     private function homepageUsesShowcaseOrder(): DoctorCheckResultData
     {
         $layout = $this->homepageLayout();
-        $blocks = $this->layoutBlockKeys($layout);
-        $actual = array_slice($blocks, 0, count($this->profile->showcaseBlockOrder));
+        $widgets = $this->layoutWidgetKeys($layout);
+        $actual = array_slice($widgets, 0, count($this->profile->showcaseWidgetOrder));
 
-        if ($actual !== $this->profile->showcaseBlockOrder) {
+        if ($actual !== $this->profile->showcaseWidgetOrder) {
             return new DoctorCheckResultData(
-                label: 'Default demo showcase block order',
+                label: 'Default demo showcase widget order',
                 passed: false,
                 message: sprintf(
                     'Homepage starts with [%s]; expected [%s].',
                     implode(', ', $actual),
-                    implode(', ', $this->profile->showcaseBlockOrder),
+                    implode(', ', $this->profile->showcaseWidgetOrder),
                 ),
                 remediation: 'Rerun the demo package step so the curated Foundation showcase homepage layout is rebuilt.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo showcase block order',
+            label: 'Default demo showcase widget order',
             passed: true,
-            message: 'Homepage uses the configured showcase block order.',
+            message: 'Homepage uses the configured showcase widget order.',
         );
     }
 
-    private function apBlocksHaveAssets(): DoctorCheckResultData
+    private function apWidgetsHaveAssets(): DoctorCheckResultData
     {
-        $blockModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+        $widgetModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
 
-        foreach ($this->profile->blockAssetMinimums as $blockKey => $minimum) {
-            $block = $blockModel::query()
-                ->where('key', $blockKey)
+        foreach ($this->profile->widgetAssetMinimums as $widgetKey => $minimum) {
+            $widget = $widgetModel::query()
+                ->where('key', $widgetKey)
                 ->withCount('assets')
                 ->first();
 
-            $assetCount = $block instanceof $blockModel ? (int) $block->getAttribute('assets_count') : 0;
+            $assetCount = $widget instanceof $widgetModel ? (int) $widget->getAttribute('assets_count') : 0;
 
             if ($assetCount < $minimum) {
                 return new DoctorCheckResultData(
-                    label: 'Default demo AP block assets',
+                    label: 'Default demo AP widget assets',
                     passed: false,
-                    message: sprintf('Block "%s" has %d asset(s); expected at least %d.', $blockKey, $assetCount, $minimum),
-                    remediation: 'Rerun the default demo fixtures so AP blocks receive their editable content and media assets.',
+                    message: sprintf('Widget "%s" has %d asset(s); expected at least %d.', $widgetKey, $assetCount, $minimum),
+                    remediation: 'Rerun the default demo fixtures so AP widgets receive their editable content and media assets.',
                 );
             }
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo AP block assets',
+            label: 'Default demo AP widget assets',
             passed: true,
-            message: 'AP showcase blocks have the expected editable assets.',
+            message: 'AP showcase widgets have the expected editable assets.',
         );
     }
 
     private function homepageStartsWithHero(): DoctorCheckResultData
     {
-        $firstBlockKey = $this->firstHomepageBlockKey();
+        $firstWidgetKey = $this->firstHomepageWidgetKey();
 
-        if ($firstBlockKey === null || ! in_array($firstBlockKey, $this->profile->homepageOpeningBlockKeys, true)) {
+        if ($firstWidgetKey === null || ! in_array($firstWidgetKey, $this->profile->homepageOpeningWidgetKeys, true)) {
             return new DoctorCheckResultData(
-                label: 'Homepage starts with a hero block',
+                label: 'Homepage starts with a hero widget',
                 passed: false,
-                message: $firstBlockKey === null
-                    ? 'The homepage layout has no first block.'
+                message: $firstWidgetKey === null
+                    ? 'The homepage layout has no first widget.'
                     : sprintf(
                         'The homepage starts with "%s"; expected one of [%s].',
-                        $firstBlockKey,
-                        implode(', ', $this->profile->homepageOpeningBlockKeys),
+                        $firstWidgetKey,
+                        implode(', ', $this->profile->homepageOpeningWidgetKeys),
                     ),
                 remediation: 'Rerun the demo package step after the selected theme setup so the homepage layout order is rebuilt.',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage starts with a hero block',
+            label: 'Homepage starts with a hero widget',
             passed: true,
-            message: sprintf('Homepage starts with configured opening block "%s".', $firstBlockKey),
+            message: sprintf('Homepage starts with configured opening widget "%s".', $firstWidgetKey),
         );
     }
 
@@ -254,15 +254,15 @@ final class AssertDefaultDemoInstallHealthAction
 
     private function placeholderLabelsAreAbsent(): DoctorCheckResultData
     {
-        $blockModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+        $widgetModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
 
-        $homepageBlockIds = $blockModel::query()
-            ->whereIn('key', $this->layoutBlockKeys($this->homepageLayout()))
+        $homepageWidgetIds = $widgetModel::query()
+            ->whereIn('key', $this->layoutWidgetKeys($this->homepageLayout()))
             ->pluck('id');
 
         $found = Translation::query()
-            ->where('translatable_type', resolve($blockModel)->getMorphClass())
-            ->whereIn('translatable_id', $homepageBlockIds)
+            ->where('translatable_type', resolve($widgetModel)->getMorphClass())
+            ->whereIn('translatable_id', $homepageWidgetIds)
             ->where(function ($query): void {
                 foreach ($this->profile->placeholderLabels as $label) {
                     $query->orWhere('title', 'like', sprintf('%%%s%%', $label))
@@ -367,14 +367,14 @@ final class AssertDefaultDemoInstallHealthAction
         );
     }
 
-    private function homepageBlockCount(): int
+    private function homepageWidgetCount(): int
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
             return 0;
         }
 
-        return count(array_unique($this->layoutBlockKeys($layout)));
+        return count(array_unique($this->layoutWidgetKeys($layout)));
     }
 
     private function homepageLayout(): ?Layout
@@ -389,7 +389,7 @@ final class AssertDefaultDemoInstallHealthAction
         }
     }
 
-    private function firstHomepageBlockKey(): ?string
+    private function firstHomepageWidgetKey(): ?string
     {
         $layout = $this->homepageLayout();
         if (! $layout instanceof Layout) {
@@ -401,18 +401,18 @@ final class AssertDefaultDemoInstallHealthAction
                 continue;
             }
 
-            $blocks = $container['widgets'] ?? $container['blocks'] ?? [];
-            if (! is_array($blocks)) {
+            $widgets = $container['widgets'] ?? [];
+            if (! is_array($widgets)) {
                 continue;
             }
 
-            $block = $blocks[array_key_first($blocks)] ?? null;
+            $widget = $widgets[array_key_first($widgets)] ?? null;
 
-            if (! is_array($block)) {
+            if (! is_array($widget)) {
                 continue;
             }
 
-            $key = (string) ($block['widget_key'] ?? $block['block_key'] ?? $block['key'] ?? '');
+            $key = (string) ($widget['widget_key'] ?? $widget['key'] ?? '');
 
             return $key !== '' ? $key : null;
         }
@@ -423,7 +423,7 @@ final class AssertDefaultDemoInstallHealthAction
     /**
      * @return array<int, string>
      */
-    private function layoutBlockKeys(?Layout $layout): array
+    private function layoutWidgetKeys(?Layout $layout): array
     {
         if (! $layout instanceof Layout) {
             return [];
@@ -435,19 +435,19 @@ final class AssertDefaultDemoInstallHealthAction
                     return [];
                 }
 
-                $blocks = $container['widgets'] ?? $container['blocks'] ?? [];
+                $widgets = $container['widgets'] ?? [];
 
-                return is_array($blocks) ? $blocks : [];
+                return is_array($widgets) ? $widgets : [];
             })
-            ->map(fn (mixed $block): ?string => is_array($block)
-                ? (string) ($block['widget_key'] ?? $block['block_key'] ?? $block['key'] ?? '')
-                : (is_string($block) ? $block : null))
+            ->map(fn (mixed $widget): ?string => is_array($widget)
+                ? (string) ($widget['widget_key'] ?? $widget['key'] ?? '')
+                : (is_string($widget) ? $widget : null))
             ->filter(fn (?string $key): bool => $key !== null && $key !== '')
             ->values()
             ->all();
     }
 
-    private function hasLayoutBuilderBlockModel(): bool
+    private function hasLayoutBuilderWidgetModel(): bool
     {
         return class_exists(self::LAYOUT_BUILDER_ELEMENT_MODEL);
     }

@@ -7,36 +7,36 @@ namespace Capell\DemoKit\Support\Creator;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\Creator\BlockCreator;
+use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Illuminate\Database\Eloquent\Collection;
 
-abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
+abstract class ApDemoWidgetCreator extends HomepageDemoWidgetCreator
 {
-    public function createApHeroBannerBlock(): Widget
+    public function createApHeroBannerWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::HeroBanner)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::HeroBanner)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
-        $blockType = $this->requireBlueprint($blockType, 'AP hero banner widget');
+                ->firstWhere('key', WidgetTypeEnum::Default);
+        $widgetType = $this->requireBlueprint($widgetType, 'AP hero banner widget');
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApHeroBanner,
+                'component' => WidgetComponentEnum::ApHeroBanner,
             ],
         ]);
 
-        $block->forceFill([
+        $widget->forceFill([
             'name' => 'Capell Product Hero',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApHeroBanner,
+                'component' => WidgetComponentEnum::ApHeroBanner,
                 'primary_button_text' => 'Explore the demo',
                 'primary_button_url' => '/admin',
                 'secondary_button_text' => 'Read the docs',
@@ -46,7 +46,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
         ])->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Capell CMS',
@@ -55,39 +55,39 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             );
         }
 
-        $this->createMedia($block, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
+        $this->createMedia($widget, 'sharks', collection: MediaCollectionEnum::BackgroundImage);
 
-        return $block;
+        return $widget;
     }
 
-    public function createApCardGridBlock(): Widget
+    public function createApCardGridWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::CardGrid)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::CardGrid)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
-        $blockType = $this->requireBlueprint($blockType, 'AP card grid widget');
+                ->firstWhere('key', WidgetTypeEnum::Default);
+        $widgetType = $this->requireBlueprint($widgetType, 'AP card grid widget');
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApCardGrid,
+                'component' => WidgetComponentEnum::ApCardGrid,
             ],
         ]);
 
-        $block->forceFill([
+        $widget->forceFill([
             'name' => 'Capell Capability Cards',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApCardGrid,
+                'component' => WidgetComponentEnum::ApCardGrid,
                 'columns' => 3,
                 'margin' => ['none'],
             ],
         ])->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A complete CMS foundation, not a theme demo',
@@ -96,11 +96,11 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $cards = [
-            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, blocks, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
-            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable blocks while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-circle-stack', 'title' => 'Structured content engine', 'description' => 'Model pages, sections, widgets, media, translations, and relationships with clear Laravel records instead of hardcoded templates.', 'link_text' => 'Inspect the model', 'link_url' => '/admin'],
+            ['icon' => 'heroicon-o-rectangle-group', 'title' => 'Visual layout builder', 'description' => 'Compose real frontend sections from editable widgets while keeping rendering package-owned and predictable.', 'link_text' => 'Edit the homepage', 'link_url' => '/admin'],
             ['icon' => 'heroicon-o-bolt', 'title' => 'Static-fast delivery', 'description' => 'Generate frontend HTML, verify runtime assets, and keep public pages fast without giving up CMS control.', 'link_text' => 'Run doctor', 'link_url' => '/docs/installation'],
         ];
 
@@ -120,58 +120,58 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createApFeatureListBlock(): Widget
+    public function createApFeatureListWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::FeatureList)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::FeatureList)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
-        $blockType = $this->requireBlueprint($blockType, 'AP feature list widget');
+                ->firstWhere('key', WidgetTypeEnum::Default);
+        $widgetType = $this->requireBlueprint($widgetType, 'AP feature list widget');
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApFeatureList,
+                'component' => WidgetComponentEnum::ApFeatureList,
             ],
         ]);
 
-        $block->forceFill([
+        $widget->forceFill([
             'name' => 'Capell Workflow Feature List',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApFeatureList,
+                'component' => WidgetComponentEnum::ApFeatureList,
                 'layout' => 'grid',
                 'margin' => ['none'],
             ],
         ])->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Everything visible is backed by editable records',
-                    'content' => '<p>The default homepage is deliberately assembled from Capell blocks, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
+                    'content' => '<p>The default homepage is deliberately assembled from Capell widgets, assets, media, and translations so the admin experience proves the frontend is not a static mockup.</p>',
                 ],
             );
         }
 
-        $block->assets()->delete();
+        $widget->assets()->delete();
 
         $features = [
             ['icon' => 'heroicon-o-language', 'title' => 'Page translations', 'description' => 'Hero titles, body copy, SEO fields, and language variants live in translation records.'],
             ['icon' => 'heroicon-o-photo', 'title' => 'Media-driven surfaces', 'description' => 'Hero backgrounds, gallery items, cards, and section imagery resolve through Capell media records.'],
             ['icon' => 'heroicon-o-pencil-square', 'title' => 'Editor-owned sections', 'description' => 'Homepage cards, feature rows, FAQs, testimonials, and CTAs are all admin-managed content.'],
-            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, blocks, runtime manifests, and generated frontend CSS.'],
+            ['icon' => 'heroicon-o-shield-check', 'title' => 'Release diagnostics', 'description' => 'Doctor checks verify the demo, homepage, widgets, runtime manifests, and generated frontend CSS.'],
         ];
 
         foreach ($features as $feature) {
@@ -186,32 +186,32 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createFeatureListBlock(): Widget
+    public function createFeatureListWidget(): Widget
     {
-        $block = resolve(BlockCreator::class)->featuresBlock();
+        $widget = resolve(WidgetCreator::class)->featuresWidget();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->firstOrCreate(
+            $widget->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
             );
         }
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         $features = [
-            ['icon' => 'heroicon-o-light-bulb', 'title' => 'Reusable CMS Patterns', 'description' => 'We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.'],
+            ['icon' => 'heroicon-o-light-bulb', 'title' => 'Reusable CMS Patterns', 'description' => 'We use Laravel packages, Filament resources, and reusable widgets to keep CMS implementations maintainable.'],
             ['icon' => 'heroicon-o-academic-cap', 'title' => 'Deep Expertise', 'description' => 'Our team brings deep industry knowledge and experience to every project.'],
             ['icon' => 'heroicon-o-user-group', 'title' => 'Client-Centric Approach', 'description' => "We prioritize our clients' needs and work collaboratively to achieve their goals."],
             ['icon' => 'heroicon-o-chart-bar', 'title' => 'Operational Checks', 'description' => 'We ship with checks for content, assets, cache, and frontend output so teams can verify each release.'],
@@ -231,36 +231,36 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
                 );
             }
 
-            $block->assets()->firstOrCreate([
+            $widget->assets()->firstOrCreate([
                 'asset_id' => $section->id,
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createApCtaSectionBlock(): Widget
+    public function createApCtaSectionWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::CTASection)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::CTASection)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
-        $blockType = $this->requireBlueprint($blockType, 'AP CTA section widget');
+                ->firstWhere('key', WidgetTypeEnum::Default);
+        $widgetType = $this->requireBlueprint($widgetType, 'AP CTA section widget');
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApCTASection,
+                'component' => WidgetComponentEnum::ApCTASection,
             ],
         ]);
 
-        $block->forceFill([
+        $widget->forceFill([
             'name' => 'Capell Showcase CTA',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApCTASection,
+                'component' => WidgetComponentEnum::ApCTASection,
                 'primary_button_text' => 'Open the admin',
                 'primary_button_url' => '/admin',
                 'secondary_button_text' => 'Run install doctor',
@@ -270,7 +270,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
         ])->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'A demo site that proves the CMS stack is wired',
@@ -279,30 +279,30 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             );
         }
 
-        return $block;
+        return $widget;
     }
 
-    public function createApImageGalleryBlock(): Widget
+    public function createApImageGalleryWidget(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::ImageGallery)
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', WidgetTypeEnum::ImageGallery)
             ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
-        $blockType = $this->requireBlueprint($blockType, 'AP image gallery widget');
+                ->firstWhere('key', WidgetTypeEnum::Default);
+        $widgetType = $this->requireBlueprint($widgetType, 'AP image gallery widget');
 
-        $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApImageGallery,
+                'component' => WidgetComponentEnum::ApImageGallery,
             ],
         ]);
 
-        $block->forceFill([
+        $widget->forceFill([
             'name' => 'Capell Media Gallery',
-            'blueprint_id' => $blockType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
-                'component' => BlockComponentEnum::ApImageGallery,
+                'component' => WidgetComponentEnum::ApImageGallery,
                 'layout' => 'grid',
                 'columns' => 3,
                 'lightbox' => true,
@@ -311,7 +311,7 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
         ])->save();
 
         foreach (Site::getDefault()->languages ?? [] as $language) {
-            $block->translations()->updateOrCreate(
+            $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Media that stays editable',
@@ -320,15 +320,15 @@ abstract class ApDemoBlockCreator extends HomepageDemoBlockCreator
             );
         }
 
-        if ($block->assets()->exists()) {
-            return $block;
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
 
         for ($i = 1; $i <= 6; $i++) {
-            $this->createBlockMedia($block);
+            $this->createWidgetMedia($widget);
         }
 
-        return $block;
+        return $widget;
     }
 
     public function addSplitTwoBackgroundMedia(Layout $layout): void

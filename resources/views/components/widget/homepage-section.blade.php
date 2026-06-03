@@ -3,7 +3,7 @@
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'block',
+    'widget',
 ])
 
 @php
@@ -11,8 +11,8 @@
     use Capell\Frontend\Facades\Frontend;
     use Capell\Hero\Actions\ResolveHeroBackgroundDataAction;
 
-    $rawHomepageContent = $block->getMeta('content', []);
-    $homepageContent = HomepageDemoContent::mergeForBlock($block->key, is_array($rawHomepageContent) ? $rawHomepageContent : []);
+    $rawHomepageContent = $widget->getMeta('content', []);
+    $homepageContent = HomepageDemoContent::mergeForWidget($widget->key, is_array($rawHomepageContent) ? $rawHomepageContent : []);
     $homepageText = static fn (string $key, string $fallback = ''): string => (string) data_get($homepageContent, $key, $fallback);
     $homepageItems = static function (string $key, array $fallback = []) use ($homepageContent): array {
         $items = data_get($homepageContent, $key, $fallback);
@@ -24,57 +24,57 @@
     $capellHeroBackgroundResolver = ResolveHeroBackgroundDataAction::class;
 
     if (class_exists($capellHeroBackgroundResolver) && view()->exists('capell-hero::components.hero.background')) {
-        $capellHeroBackground = $capellHeroBackgroundResolver::run(Frontend::theme(), $block);
+        $capellHeroBackground = $capellHeroBackgroundResolver::run(Frontend::theme(), $widget);
     }
 @endphp
 
-<x-capell-foundation-theme::block.wrapper
+<x-capell-foundation-theme::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
-    :$block
+    :$widget
     @class([
-        'capell-block-homepage-section relative overflow-hidden text-[#1a1c1b] dark:text-slate-100',
-        'bg-[#faf9f7]' => $block->key !== 'capell-home-final-cta',
-        'bg-transparent' => $block->key === 'capell-home-final-cta',
+        'capell-widget-homepage-section relative overflow-hidden text-[#1a1c1b] dark:text-slate-100',
+        'bg-[#faf9f7]' => $widget->key !== 'capell-home-final-cta',
+        'bg-transparent' => $widget->key === 'capell-home-final-cta',
     ])
 >
     @once
         <style>
-            .dark .capell-block-homepage-section.bg-\[\#faf9f7\] {
+            .dark .capell-widget-homepage-section.bg-\[\#faf9f7\] {
                 background-color: rgb(2 6 23);
             }
 
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(article, div, a, button)[class*='bg-white'],
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(article, div, a, button)[class*='bg-slate-50'] {
                 background-color: rgb(15 23 42 / 0.84);
             }
 
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(article, div, a, button)[class*='border-slate'],
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(article, div, a, button)[class*='border-[#'] {
                 border-color: rgb(255 255 255 / 0.12);
             }
 
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(h2, h3, p, span, a, button)[class*='text-slate-950'],
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(h2, h3, p, span, a, button)[class*='text-[#1a1c1b]'] {
                 color: rgb(248 250 252);
             }
 
             .dark
-                .capell-block-homepage-section
+                .capell-widget-homepage-section
                 :where(p, span)[class*='text-slate-600'] {
                 color: rgb(203 213 225);
             }
@@ -82,11 +82,11 @@
             .capell-home-hero-grid {
                 display: grid;
                 gap: 2.5rem;
-                padding-block: 3rem;
+                padding-widget: 3rem;
             }
 
-            .block-capell-home-hero-command-center .hero-background,
-            .block-capell-home-hero-command-center .capell-hero-background {
+            .widget-capell-home-hero-command-center .hero-background,
+            .widget-capell-home-hero-command-center .capell-hero-background {
                 left: 50%;
                 right: auto;
                 width: 100vw;
@@ -212,7 +212,7 @@
                             30rem,
                             1.18fr
                         );
-                    padding-block: 3.5rem 4rem;
+                    padding-widget: 3.5rem 4rem;
                 }
 
                 .capell-home-hero-title {
@@ -226,11 +226,11 @@
         </style>
     @endonce
 
-    @switch($block->key)
+    @switch($widget->key)
         @case('capell-home-hero-command-center')
             @php
-                $heroCarouselId = 'capell-home-hero-carousel-' . ($block->id ?? $loop->index);
-                $rawHeroSlides = $block->getMeta('hero_slides', []);
+                $heroCarouselId = 'capell-home-hero-carousel-' . ($widget->id ?? $loop->index);
+                $rawHeroSlides = $widget->getMeta('hero_slides', []);
                 $heroSlides = $homepageItems('slides', is_array($rawHeroSlides) ? $rawHeroSlides : []);
                 $heroHighlights = $homepageItems('highlights');
 
@@ -360,12 +360,12 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                     >
                         <strong
-                            class="block font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
+                            class="widget font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
                         >
                             {{ $metric['value'] ?? '' }}
                         </strong>
                         <span
-                            class="mt-2 block text-sm font-bold text-slate-600"
+                            class="widget mt-2 text-sm font-bold text-slate-600"
                         >
                             {{ $metric['label'] ?? '' }}
                         </span>
@@ -395,7 +395,7 @@
                     class="overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
                 >
                     <x-capell::image-source
-                        :image="$block->getMeta('image_source')"
+                        :image="$widget->getMeta('image_source')"
                         alt="{{ $homepageText('image_alt') }}"
                         class="w-full object-cover"
                         style="height: 18rem"
@@ -672,7 +672,7 @@
                         class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
                     >
                         <x-capell::image-source
-                            :image="$block->getMeta('image_source')"
+                            :image="$widget->getMeta('image_source')"
                             alt="{{ $homepageText('image_alt') }}"
                             class="w-full object-cover"
                             style="height: 14rem"
@@ -687,7 +687,7 @@
                             class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                         >
                             <strong>{{ $card['title'] ?? '' }}</strong>
-                            <span class="mt-3 block text-slate-600">
+                            <span class="widget mt-3 text-slate-600">
                                 {{ $card['copy'] ?? '' }}
                             </span>
                         </div>
@@ -753,12 +753,12 @@
                             {{ $item['eyebrow'] ?? '' }}
                         </span>
                         <strong
-                            class="mt-3 block text-xl leading-tight font-extrabold"
+                            class="widget mt-3 text-xl leading-tight font-extrabold"
                         >
                             {{ $item['title'] ?? '' }}
                         </strong>
                         <em
-                            class="mt-4 block text-sm font-bold text-slate-600 not-italic"
+                            class="widget mt-4 text-sm font-bold text-slate-600 not-italic"
                         >
                             {{ $item['cta'] ?? '' }}
                         </em>
@@ -798,4 +798,4 @@
 
             @break
     @endswitch
-</x-capell-foundation-theme::block.wrapper>
+</x-capell-foundation-theme::widget.wrapper>

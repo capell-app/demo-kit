@@ -8,12 +8,12 @@
     'containerWidth' => null,
     'loop',
     'pageRecord' => null,
-    'block',
-    'blockData' => [],
+    'widget',
+    'widgetData' => [],
 ])
 
 @php
-    $demoPageContentData = BuildDemoPageContentViewDataAction::run($pageRecord, $block, $containerKey, $blockData);
+    $demoPageContentData = BuildDemoPageContentViewDataAction::run($pageRecord, $widget, $containerKey, $widgetData);
     $pageName = $demoPageContentData->pageName;
     $pageSlug = $demoPageContentData->pageSlug;
     $pageMeta = $demoPageContentData->pageMeta;
@@ -73,7 +73,7 @@
             'title' => 'What Capell builders say',
             'intro' => 'Customer proof should connect outcomes to the delivery model behind them.',
             'items' => [
-                ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable blocks reduced one-off template work across the site.'],
+                ['label' => 'Agency', 'title' => 'Faster rebuilds', 'copy' => 'Reusable widgets reduced one-off template work across the site.'],
                 ['label' => 'Editor', 'title' => 'Clear ownership', 'copy' => 'Teams can update copy and media without touching implementation details.'],
                 ['label' => 'Engineering', 'title' => 'Cleaner releases', 'copy' => 'Public output remains cacheable and separate from admin tooling.'],
             ],
@@ -120,10 +120,10 @@
     ];
 
     $lessonContent = [
-        'Contact' => ['Contact form', 'Intro copy, routing cards, and form fields are separate blocks so qualification can change without rebuilding the page.'],
+        'Contact' => ['Contact form', 'Intro copy, routing cards, and form fields are separate widgets so qualification can change without rebuilding the page.'],
         'Services' => ['Service layout', 'The atelier view combines a split introduction, service board carousel, proof metrics, and a process timeline.'],
         'Pricing' => ['Pricing layout', 'Plan cards, pricing questions, and implementation scoping live on the pricing route instead of overloading the homepage.'],
-        'Implementation' => ['Scoped child page', 'This child page keeps commercial guardrails under Pricing while reusing the same content renderer. block'],
+        'Implementation' => ['Scoped child page', 'This child page keeps commercial guardrails under Pricing while reusing the same content renderer. widget'],
         'Resources' => ['Resource hub', 'Featured content, category filters, resource cards, and toolkit CTA are assembled as distinct reusable sections.'],
         'FAQ' => ['Support layout', 'A no-hero page can still use saved CMS copy, accordion content, and a calm support template.'],
         'Home, Buildings and Architecture' => ['Article layout', 'Article metadata and body copy stay focused while related proof modules remain in the page template.'],
@@ -135,18 +135,18 @@
     $footer = $footerContent[$pageName] ?? null;
     $lesson = $lessonContent[$pageName] ?? (
         $showcase
-            ? ['Reusable page shape', 'The saved page body stays portable while the Blade block adds the designed public modules for this route.']
-            : ($footer ? ['Footer route', 'Footer pages share one layout block, then swap local copy, proof cards, and navigation labels.'] : null)
+            ? ['Reusable page shape', 'The saved page body stays portable while the Blade widget adds the designed public modules for this route.']
+            : ($footer ? ['Footer route', 'Footer pages share one layout widget, then swap local copy, proof cards, and navigation labels.'] : null)
     );
 @endphp
 
-<x-capell-foundation-theme::block.wrapper
+<x-capell-foundation-theme::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
-    :$block
-    class="capell-block-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility] dark:bg-slate-950 dark:text-slate-100"
+    :$widget
+    class="capell-widget-demo-page-content capell-demo-page-content [container-type:inline-size] overflow-x-clip bg-[#faf8ff] text-[#131b2e] [text-rendering:optimizeLegibility] dark:bg-slate-950 dark:text-slate-100"
     tag="section"
 >
     @once
@@ -247,7 +247,7 @@
         @endif
 
         @if ($hasAssetSections)
-            @include('capell-demo-kit::components.block.demo-page-content-assets', [
+            @include('capell-demo-kit::components.widget.demo-page-content-assets', [
                 'sections' => $assetSections,
                 'sectionClass' => $sectionClass,
                 'splitSectionClass' => $splitSectionClass,
@@ -527,7 +527,7 @@
                     >
                         <span class="{{ $labelClass }}">{{ $label }}</span>
                         <strong
-                            class="mt-1 block text-base font-extrabold text-slate-950"
+                            class="widget mt-1 text-base font-extrabold text-slate-950"
                         >
                             {{ $value }}
                         </strong>
@@ -551,7 +551,7 @@
                 </div>
 
                 <div class="capell-demo-service-board {{ $carouselClass }}">
-                    @foreach ([['Audit board', 'Content model review', 'Map pages, assets, routes, redirects, and ownership before implementation starts.'], ['Build board', 'Layout architecture', 'Create reusable blocks that editors can compose without breaking public output.'], ['Launch board', 'Release checks', 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.']] as [$label, $title, $copy])
+                    @foreach ([['Audit board', 'Content model review', 'Map pages, assets, routes, redirects, and ownership before implementation starts.'], ['Build board', 'Layout architecture', 'Create reusable widgets that editors can compose without breaking public output.'], ['Launch board', 'Release checks', 'Verify cache, navigation, search, SEO, and anonymous page safety before handover.']] as [$label, $title, $copy])
                         <article
                             class="{{ $carouselItemClass }} {{ $cardClass }}"
                         >
@@ -578,12 +578,12 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $value }}
                         </strong>
                         <span
-                            class="mt-2 block text-sm font-bold text-slate-600"
+                            class="widget mt-2 text-sm font-bold text-slate-600"
                         >
                             {{ $label }}
                         </span>
@@ -639,7 +639,7 @@
                 </div>
 
                 <div class="grid gap-4">
-                    @foreach ([['Can a page skip the hero entirely?', 'Yes. Pages can render directly into support, article, pricing, or project layouts without needing a hero block.'], ['Where does the designed markup live?', 'The demo page-content block owns the Blade presentation. The database stores portable content only.'], ['Can editors still update the copy?', 'Yes. The saved page content renders before the template-specific proof modules.']] as [$question, $answer])
+                    @foreach ([['Can a page skip the hero entirely?', 'Yes. Pages can render directly into support, article, pricing, or project layouts without needing a hero widget.'], ['Where does the designed markup live?', 'The demo page-content widget owns the Blade presentation. The database stores portable content only.'], ['Can editors still update the copy?', 'Yes. The saved page content renders before the template-specific proof modules.']] as [$question, $answer])
                         <details
                             class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
                             @if ($loop->first) open @endif
@@ -801,11 +801,11 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="block font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             18 min
                         </strong>
-                        <span class="mt-2 block font-bold text-slate-600">
+                        <span class="widget mt-2 font-bold text-slate-600">
                             Architecture
                         </span>
                     </aside>
@@ -926,7 +926,7 @@
                     <div class="grid gap-5 text-base leading-8 text-slate-600">
                         <p>
                             Capell article pages keep prose portable while the
-                            page block owns the surrounding chrome. Editors
+                            page widget owns the surrounding chrome. Editors
                             write the story; the template supplies hierarchy,
                             metadata, related resources, and safe public
                             rendering.
@@ -961,7 +961,7 @@
                     @foreach ([['Author', 'Capell editorial'], ['Read time', '8 min'], ['Template', 'Single post']] as [$label, $value])
                         <span>
                             <strong
-                                class="block text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase"
+                                class="widget text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase"
                             >
                                 {{ $label }}
                             </strong>
@@ -978,7 +978,7 @@
                             class="{{ $carouselItemClass }} {{ $cardClass }}"
                         >
                             <span class="{{ $labelClass }}">
-                                Related block
+                                Related widget
                             </span>
                             <h3 class="{{ $cardTitleClass }}">
                                 {{ $title }}
@@ -1034,7 +1034,7 @@
 
                 <div class="capell-demo-footer-route-band lg:col-span-2">
                     <div class="{{ $compactCarouselClass }}">
-                        @foreach ([['01', $footer['signal'], 'The first block names the route purpose so visitors know why this footer page exists.'], ['02', $footer['proof'], 'The second block shows the proof or operating evidence that makes the page feel finished.'], ['03', 'Editor handover', 'The final block explains which copy, links, and evidence an editor can maintain in the CMS.']] as [$step, $title, $copy])
+                        @foreach ([['01', $footer['signal'], 'The first widget names the route purpose so visitors know why this footer page exists.'], ['02', $footer['proof'], 'The second widget shows the proof or operating evidence that makes the page feel finished.'], ['03', 'Editor handover', 'The final widget explains which copy, links, and evidence an editor can maintain in the CMS.']] as [$step, $title, $copy])
                             <article
                                 class="{{ $carouselItemClass }} {{ $cardClass }}"
                             >
@@ -1066,4 +1066,4 @@
             </section>
         @endif
     </div>
-</x-capell-foundation-theme::block.wrapper>
+</x-capell-foundation-theme::widget.wrapper>

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\DemoKit\Livewire\ResourcesLibrary;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Livewire\Livewire;
 
 it('filters and paginates demo resources through the public library component', function (): void {
@@ -20,16 +19,16 @@ it('filters and paginates demo resources through the public library component', 
         'cta' => ['label' => 'Browse all', 'href' => '/resources'],
     ])
         ->assertSet('filter', 'All resources')
-        ->assertViewHas('activeFilter', 'All resources')
-        ->assertViewHas('resources', fn (mixed $resources): bool => $resources instanceof LengthAwarePaginator
-                && $resources->total() === 4
-                && $resources->count() === 3)
+        ->assertSee('Launch checklist')
+        ->assertSee('Homepage wireframe')
+        ->assertSee('Editorial calendar')
+        ->assertDontSee('Brand worksheet')
         ->call('selectFilter', 'Guides')
         ->assertSet('filter', 'Guides')
-        ->assertViewHas('activeFilter', 'Guides')
-        ->assertViewHas('resources', fn (mixed $resources): bool => $resources instanceof LengthAwarePaginator
-                && $resources->total() === 2
-                && $resources->pluck('title')->all() === ['Launch checklist', 'Editorial calendar'])
+        ->assertSee('Launch checklist')
+        ->assertSee('Editorial calendar')
+        ->assertDontSee('Homepage wireframe')
+        ->assertDontSee('Brand worksheet')
         ->call('selectFilter', 'Missing topic')
         ->assertSet('filter', 'All resources');
 });

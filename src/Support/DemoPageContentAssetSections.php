@@ -14,13 +14,13 @@ final class DemoPageContentAssetSections
     /**
      * @return list<array<string, mixed>>
      */
-    public function resolve(Widget $block, ?Pageable $page, string $container, int $occurrence): array
+    public function resolve(Widget $widget, ?Pageable $page, string $container, int $occurrence): array
     {
-        if (! $page instanceof Pageable || ! $block->relationLoaded('assets')) {
+        if (! $page instanceof Pageable || ! $widget->relationLoaded('assets')) {
             return [];
         }
 
-        return $block->assets
+        return $widget->assets
             ->filter(fn (mixed $asset): bool => $asset instanceof WidgetAsset)
             ->filter(fn (WidgetAsset $asset): bool => $this->belongsToPosition($asset, $page, $container, $occurrence))
             ->filter(fn (WidgetAsset $asset): bool => ($asset->meta['demo_kit_seed'] ?? false) === true)
