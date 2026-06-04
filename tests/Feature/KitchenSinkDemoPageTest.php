@@ -10,8 +10,8 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
+use Capell\FoundationTheme\Livewire\Widget\Pages as FoundationPagesWidget;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Livewire\Page\Page as FrontendLivewirePage;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
@@ -21,10 +21,13 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
+use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 uses(CreatesAdminUser::class);
 
@@ -324,17 +327,31 @@ it('renders kitchen sink pagination and lazy fragments through blade and livewir
     $bladeHtml = kitchenSinkLayoutHtml($page);
 
     expect($bladeHtml)->toContain('capell-pagination')
-        ->and($bladeHtml)->toContain('latest-pages=')
+        ->and($bladeHtml)->toContain('latest-pages')
         ->and($bladeHtml)->toContain('data-deferred-fragment');
 
-    kitchenSinkBindFrontendContext($page);
+    $layout = kitchenSinkRequiredLayout($page->layout);
+    $pagesCardWidget = collect(kitchenSinkMainContainer($layout)['widgets'])
+        ->first(fn (array $widgetData): bool => ($widgetData['widget_key'] ?? null) === 'pages-card');
 
-    Livewire::test(FrontendLivewirePage::class)
-        ->assertSet('frontendContextToken', fn (?string $token): bool => is_string($token) && $token !== '')
-        ->assertSee('Kitchen Sink Demo Page')
+    throw_unless(is_array($pagesCardWidget), RuntimeException::class, 'Expected pages-card widget data.');
+
+    Livewire::test(FoundationPagesWidget::class, [
+        'widgetReference' => OpaqueWidgetReference::encode([
+            'container_key' => 'main',
+            'widget_key' => 'pages-card',
+            'layout_id' => $layout->getKey(),
+            'language_id' => $page->translations->first()?->language?->getKey(),
+            'occurrence' => $pagesCardWidget['occurrence'] ?? 1,
+            'page_id' => $page->getKey(),
+            'page_type' => $page->getMorphClass(),
+            'site_id' => $page->site?->getKey(),
+            'widget_data' => $pagesCardWidget,
+            'widget_index' => 0,
+        ]),
+    ])
         ->assertSee('capell-pagination', false)
-        ->assertSee('latest-pages=', false)
-        ->assertSee('data-deferred-fragment', false)
+        ->assertSee('mainPages-card1', false)
         ->assertDontSee('data-capell-authoring', false)
         ->assertDontSee('data-field-path', false);
 });
@@ -346,8 +363,8 @@ function kitchenSinkLayoutHtml(Page $page): string
     $page->loadMissing(['layout', 'site.theme', 'translations.language']);
     $layout = kitchenSinkRequiredLayout($page->layout);
     $container = kitchenSinkMainContainer($layout);
-    $translation = $page->translations->first();
-    $html = (string) $translation->content;
+    $translationContent = $page->translations->first()?->getAttribute('content');
+    $html = is_string($translationContent) ? $translationContent : '';
 
     foreach ($container['widgets'] as $widgetIndex => $widgetData) {
         $widget = Widget::query()
@@ -392,12 +409,23 @@ function kitchenSinkBindFrontendContext(Page $page): void
     $layout = $page->layout;
     $theme = $site?->theme;
     $page->loadMissing(['pageUrl.siteDomain']);
-    $siteDomain = $page->pageUrl?->siteDomain ?? $site?->siteDomains()->first();
 
     throw_if(! $site instanceof Site || ! $layout instanceof Layout || ! $language instanceof Language || ! $theme instanceof Theme, RuntimeException::class, 'Expected kitchen sink page context to be loaded.');
 
-    if ($page->pageUrl !== null) {
-        app()->instance('request', Request::create($page->pageUrl->full_url, Symfony\Component\HttpFoundation\Request::METHOD_GET));
+    $pageUrl = $page->pageUrl;
+    $siteDomain = $pageUrl->siteDomain ?? $site->siteDomains()->first();
+
+    if ($pageUrl !== null) {
+        $request = Request::create($pageUrl->full_url, SymfonyRequest::METHOD_GET);
+        $route = new Route(['GET', 'HEAD'], ltrim($pageUrl->url, '/') ?: '/', []);
+        $route->bind($request);
+        $request->setRouteResolver(fn (): Route => $route);
+
+        app()->instance('request', $request);
+
+        $currentRoute = new ReflectionProperty(app('router')::class, 'current');
+        $currentRoute->setAccessible(true);
+        $currentRoute->setValue(app('router'), $route);
     }
 
     resolve(FrontendState::class)

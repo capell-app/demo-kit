@@ -399,12 +399,16 @@ final class InstallKitchenSinkDemoPageAction
 
     private function configureCatalogWidgets(): void
     {
-        $latestPagesWidget = Widget::query()->firstWhere('key', 'latest-pages');
+        foreach (['latest-pages', 'pages-card'] as $widgetKey) {
+            $widget = Widget::query()->firstWhere('key', $widgetKey);
 
-        if ($latestPagesWidget instanceof Widget) {
-            $latestPagesWidget->forceFill([
+            if (! $widget instanceof Widget) {
+                continue;
+            }
+
+            $widget->forceFill([
                 'meta' => [
-                    ...($latestPagesWidget->meta ?? []),
+                    ...($widget->meta ?? []),
                     'limit' => 2,
                     'pagination' => true,
                 ],
