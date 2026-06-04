@@ -98,10 +98,10 @@ final class InstallKitchenSinkDemoPageAction
 
     public function handle(?Site $site = null): Page
     {
-        $languages = $this->languages();
+        $site ??= $this->site();
+        $languages = $this->languages($site);
         InstallLayoutBuilderWidgetCatalogAction::run($languages, extraWidgets: true);
 
-        $site ??= $this->site($languages);
         $this->ensureSiteDomains($site, $languages);
 
         $layout = $this->layout();
@@ -150,16 +150,50 @@ final class InstallKitchenSinkDemoPageAction
     /**
      * @return EloquentCollection<int, Language>
      */
-    private function languages(): EloquentCollection
+    private function languages(Site $site): EloquentCollection
     {
+        $site->loadMissing(['language', 'languages']);
+
+        /** @var EloquentCollection<int, Language> $languages */
+        $languages = $site->languages instanceof EloquentCollection
+            ? $site->languages
+            : new EloquentCollection;
+
+        if ($site->language instanceof Language && $languages->doesntContain('id', $site->language->getKey())) {
+            $languages->prepend($site->language);
+        }
+
+        if ($languages->isNotEmpty()) {
+            return $languages->unique('id')->values();
+        }
+
+        if ($site->language_id !== null) {
+            $language = Language::query()->find($site->language_id);
+
+            if ($language instanceof Language) {
+                return new EloquentCollection([$language]);
+            }
+        }
+
         return CreateDefaultLanguagesAction::run(['en']);
     }
 
-    /**
-     * @param  EloquentCollection<int, Language>  $languages
-     */
-    private function site(EloquentCollection $languages): Site
+    private function site(): Site
     {
+        $existingSite = Site::query()
+            ->with(['language', 'languages', 'siteDomains'])
+            ->default()
+            ->first()
+            ?? Site::query()
+                ->with(['language', 'languages', 'siteDomains'])
+                ->orderBy('id')
+                ->first();
+
+        if ($existingSite instanceof Site) {
+            return $existingSite;
+        }
+
+        $languages = CreateDefaultLanguagesAction::run(['en']);
         $siteType = resolve(BlueprintCreator::class)->createSiteType();
         $language = $languages->first();
 

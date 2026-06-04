@@ -80,6 +80,24 @@ it('installs the kitchen sink demo page idempotently', function (): void {
             ->exists())->toBeTrue();
 });
 
+it('installs the kitchen sink demo page on the default site and primary language', function (): void {
+    $primaryLanguage = Language::factory()->create(['code' => 'de']);
+    $secondaryLanguage = Language::factory()->english()->create();
+    $site = Site::factory()
+        ->language($primaryLanguage)
+        ->default()
+        ->withTranslations(collect([$primaryLanguage, $secondaryLanguage]))
+        ->create(['name' => 'Capell Services']);
+
+    $page = InstallKitchenSinkDemoPageAction::run()->loadMissing(['pageUrl', 'site']);
+
+    expect($page->site->is($site))->toBeTrue()
+        ->and($page->pageUrl?->language_id)->toBe($primaryLanguage->getKey())
+        ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->where('site_id', $site->getKey())->count())->toBe(1)
+        ->and(Site::query()->where('name', 'Kitchen Sink Demo')->exists())->toBeFalse()
+        ->and(Site::query()->count())->toBe(1);
+});
+
 it('repairs missing site domains for an existing kitchen sink site', function (): void {
     $language = Language::factory()->english()->create();
     $site = Site::factory()->language($language)->create(['name' => 'Kitchen Sink Demo']);
