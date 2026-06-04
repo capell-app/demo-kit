@@ -16,7 +16,10 @@ class TrackingDemoCommand extends Command
     /** @var array<string, mixed> */
     public static array $receivedUserByCommand = [];
 
-    public function __construct(string $signature = 'test:demo {--url=} {--user=} {--languages=*} {--sites=*}')
+    /** @var array<string, mixed> */
+    public static array $receivedSeedByCommand = [];
+
+    public function __construct(string $signature = 'test:demo {--url=} {--user=} {--languages=*} {--sites=*} {--seed=}')
     {
         $this->signature = $signature;
 
@@ -28,6 +31,7 @@ class TrackingDemoCommand extends Command
         self::$executionOrder = [];
         self::$queueConversionsByDefault = null;
         self::$receivedUserByCommand = [];
+        self::$receivedSeedByCommand = [];
     }
 
     public function handle(): int
@@ -39,6 +43,10 @@ class TrackingDemoCommand extends Command
 
         if ($this->hasOption('user')) {
             self::$receivedUserByCommand[$commandName] = $this->option('user');
+        }
+
+        if ($this->hasOption('seed')) {
+            self::$receivedSeedByCommand[$commandName] = $this->option('seed');
         }
 
         return Command::SUCCESS;

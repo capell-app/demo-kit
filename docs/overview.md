@@ -65,9 +65,11 @@ php artisan capell:demo-kit-full-demo --url=https://example.test --seed=1234 --f
 
 ## Package Demo Dispatch
 
-`capell:demo` reads installed package metadata and calls each package's declared demo command. It only passes options the package says it accepts, such as `url`, `user`, `languages`, or `sites`.
+`capell:demo` reads installed package metadata and calls each package's declared demo command. It only passes options the package says it accepts, such as `url`, `user`, `seed`, `languages`, or `sites`.
 
 That keeps Demo Kit generic: packages own their demo content, while Demo Kit owns the orchestration and common input prompts.
+
+When `capell:demo-kit-full-demo` resolves a numeric seed, it passes that value into the package demo fan-out. Package demos that declare `seed` in `commands.demoParams` receive the same seed as the admin/core demo plan; packages that do not declare it are left unchanged.
 
 ## Rendering Boundary
 

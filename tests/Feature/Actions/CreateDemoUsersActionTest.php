@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 
 it('refuses to mint known-credential demo users in production', function (): void {
     $originalEnvironment = app()->make('env');
-    app()->bind('env', 'production');
+    app()->detectEnvironment(static fn (): string => 'production');
 
     try {
         expect(fn (): null => CreateDemoUsersAction::run())
@@ -21,7 +21,7 @@ it('refuses to mint known-credential demo users in production', function (): voi
         expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse()
             ->and(User::query()->where('email', 'editor@example.com')->exists())->toBeFalse();
     } finally {
-        app()->bind('env', $originalEnvironment);
+        app()->detectEnvironment(static fn (): string => is_string($originalEnvironment) ? $originalEnvironment : 'testing');
     }
 });
 

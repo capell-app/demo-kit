@@ -68,9 +68,9 @@ This package makes its Composer dependencies visible because they are part of th
 
 ## Commands
 
-- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
-- `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
-- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--allow-production}` creates admin/core demo users, sites, languages, and pages.
+- `capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}` dispatches installed package demo commands and forwards only the options each package declares in `commands.demoParams`.
+- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--seed=} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
 - `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
 - The Kitchen Sink page intentionally server-renders only the structured-text reference widget up front. The remaining reference widget families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
@@ -87,6 +87,8 @@ Useful options:
 - `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
 
 Omit `--seed` for a fresh random demo on each run.
+
+`capell:demo-kit-full-demo` forwards the resolved seed to `capell:demo`, and `capell:demo` forwards it only to package demo commands whose manifest `commands.demoParams` includes `seed`. That keeps packages without seeded demo support compatible while making opted-in package demos deterministic.
 
 ## Kitchen Sink Lighthouse Notes
 

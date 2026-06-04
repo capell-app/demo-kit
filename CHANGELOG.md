@@ -4,6 +4,7 @@ All notable changes to `capell-app/demo-kit` will be documented in this file.
 
 ## Unreleased
 
+- `capell:demo-kit-full-demo` now forwards the resolved seed to `capell:demo`, and `capell:demo` forwards it to package demo commands that declare `seed` in `commands.demoParams`.
 - Prepared package metadata and documentation for ongoing Capell 4.x package work.
 
 ## 2026-06-03

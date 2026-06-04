@@ -77,21 +77,54 @@ it('runs core demo command successfully', function (): void {
 
     $package = CapellCore::getPackage('vendor/example-package');
     $package->demoCommand = 'test:demo';
-    $package->demoParams = ['url', 'user', 'languages', 'sites'];
+    $package->demoParams = ['url', 'user', 'languages', 'sites', 'seed'];
 
     Artisan::registerCommand(new TrackingDemoCommand);
 
     test()->artisan('capell:demo', [
         '--url' => 'https://example.test',
-        '--user' => true,
+        '--user' => 'author@example.com',
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
+        '--seed' => 9876,
         '--packages' => 'vendor/example-package',
     ])
         ->expectsQuestion('Are you sure you want to install example site content?', true)
         ->assertExitCode(0);
 
-    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
+    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo'])
+        ->and(TrackingDemoCommand::$receivedUserByCommand)->toBe(['test:demo' => 'author@example.com'])
+        ->and(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '9876']);
+});
+
+it('only forwards seed to package demos that declare the seed parameter', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::registerPackage(name: 'vendor/seeded-package');
+    CapellCore::registerPackage(name: 'vendor/unseeded-package');
+
+    CapellCore::getPackage('vendor/seeded-package')->demoCommand = 'seeded:demo';
+    CapellCore::getPackage('vendor/seeded-package')->demoParams = ['url', 'seed'];
+    CapellCore::getPackage('vendor/seeded-package')->sort = 10;
+
+    CapellCore::getPackage('vendor/unseeded-package')->demoCommand = 'unseeded:demo';
+    CapellCore::getPackage('vendor/unseeded-package')->demoParams = ['url'];
+    CapellCore::getPackage('vendor/unseeded-package')->sort = 20;
+
+    Artisan::registerCommand(new TrackingDemoCommand('seeded:demo {--url=} {--seed=}'));
+    Artisan::registerCommand(new TrackingDemoCommand('unseeded:demo {--url=}'));
+
+    test()->artisan('capell:demo', [
+        '--url' => 'https://example.test',
+        '--packages' => 'vendor/seeded-package,vendor/unseeded-package',
+        '--languages' => 'en',
+        '--seed' => 4321,
+        '--sites' => 'Main Site',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    expect(TrackingDemoCommand::$executionOrder)->toBe(['seeded:demo', 'unseeded:demo'])
+        ->and(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['seeded:demo' => '4321']);
 });
 
 it('runs demo commands in package workflow order', function (): void {

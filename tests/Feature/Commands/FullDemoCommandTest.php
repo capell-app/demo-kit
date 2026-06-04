@@ -104,7 +104,7 @@ it('creates full multi site and language demo data and runs package demos', func
     CapellCore::registerPackage(name: 'vendor/example-package');
     CapellCore::forcePackageInstalled('vendor/example-package');
     CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:demo';
-    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites'];
+    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites', 'seed'];
 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->twice()
@@ -133,11 +133,13 @@ it('creates full multi site and language demo data and runs package demos', func
         '--url' => 'https://example.test',
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
+        '--seed' => 1234,
         '--force' => true,
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
+    capell_expect(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '1234']);
 });
 
 it('forwards the chosen author username to package demos', function (): void {
@@ -189,7 +191,7 @@ it('forwards the chosen author username to package demos', function (): void {
 
 it('refuses to run in the production environment without an override', function (): void {
     $originalEnvironment = app()->make('env');
-    app()->bind('env', 'production');
+    app()->detectEnvironment(static fn (): string => 'production');
 
     try {
         test()->artisan('capell:demo-kit-full-demo', [
@@ -201,7 +203,7 @@ it('refuses to run in the production environment without an override', function 
 
         capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
     } finally {
-        app()->bind('env', $originalEnvironment);
+        app()->detectEnvironment(static fn (): string => is_string($originalEnvironment) ? $originalEnvironment : 'testing');
     }
 });
 

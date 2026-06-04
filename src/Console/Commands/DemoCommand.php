@@ -31,7 +31,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:demo {--user=} {--languages=} {--packages} {--sites=} {--url} {--allow-production} {--force}';
+    protected $signature = 'capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}';
 
     /**
      * The console command description.
@@ -67,6 +67,7 @@ class DemoCommand extends Command
         $siteUrl = $this->getSiteUrl();
 
         $user = $this->resolveUserOption();
+        $seed = $this->resolveSeedOption();
 
         $packages = $this->getSelectedPackages();
 
@@ -96,7 +97,7 @@ class DemoCommand extends Command
         $this->comment('Installing demo data');
         $this->newLine();
 
-        $this->installDemoPackages($packages, $siteUrl, $user, $languages, $siteOptions);
+        $this->installDemoPackages($packages, $siteUrl, $user, $seed, $languages, $siteOptions);
 
         $this->newLine();
         $this->info('Finished installing demo data.');
@@ -116,6 +117,13 @@ class DemoCommand extends Command
         }
 
         return null;
+    }
+
+    private function resolveSeedOption(): ?int
+    {
+        $seed = $this->option('seed');
+
+        return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
     }
 
     /**
@@ -142,13 +150,13 @@ class DemoCommand extends Command
     /**
      * Install demo data for selected packages.
      *
+     * @param  Collection<array-key, mixed>  $packages
      * @param  array<array-key, mixed>|null  $languages
      * @param  array<array-key, mixed>|null  $sites
-     * @param  Collection<array-key, mixed>  $packages
      */
-    private function installDemoPackages(Collection $packages, string $siteUrl, ?string $user, ?array $languages, ?array $sites): void
+    private function installDemoPackages(Collection $packages, string $siteUrl, ?string $user, ?int $seed, ?array $languages, ?array $sites): void
     {
-        $packages->each(function (PackageData $package) use ($siteUrl, $user, $languages, $sites): void {
+        $packages->each(function (PackageData $package) use ($siteUrl, $user, $seed, $languages, $sites): void {
             if ($package->name === DemoKitServiceProvider::$packageName) {
                 return;
             }
@@ -168,6 +176,10 @@ class DemoCommand extends Command
 
             if ($user !== null && in_array('user', $package->getDemoParams(), true)) {
                 $params['--user'] = $user;
+            }
+
+            if ($seed !== null && in_array('seed', $package->getDemoParams(), true)) {
+                $params['--seed'] = $seed;
             }
 
             if (in_array('languages', $package->getDemoParams(), true) && is_array($languages) && $languages !== []) {

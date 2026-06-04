@@ -128,6 +128,10 @@ final class FullDemoCommand extends Command
                 $packageDemoParams['--user'] = $user;
             }
 
+            if ($plan->seed !== null) {
+                $packageDemoParams['--seed'] = $plan->seed;
+            }
+
             if ($this->option('allow-production') === true) {
                 $packageDemoParams['--allow-production'] = true;
             }
