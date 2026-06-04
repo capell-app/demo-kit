@@ -13,6 +13,7 @@ use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\BlueprintCreator;
@@ -30,11 +31,9 @@ final class InstallKitchenSinkDemoPageAction
 
     private const string PageName = 'Kitchen Sink Demo Page';
 
-    private const string PageSlug = 'kitchen-sink-demo';
+    private const string PageSlug = 'kitchen-sink-showcase';
 
-    private const string ParentPageName = 'Kitchen Sink Showcase';
-
-    private const string ParentPageSlug = 'kitchen-sink-showcase';
+    private const string LegacyParentPageName = 'Kitchen Sink Showcase';
 
     /**
      * @var array<int, string>
@@ -106,16 +105,14 @@ final class InstallKitchenSinkDemoPageAction
 
         $layout = $this->layout();
         $this->widgets($languages);
-        $parentPage = $this->parentPage($site, $layout, $languages);
 
-        $this->adoptExistingKitchenSinkPage($site, $layout, $parentPage);
+        $this->adoptLegacyKitchenSinkShowcasePage($site, $layout);
 
         /** @var Page $page */
         $page = resolve(PageCreator::class)->createPage([
             'name' => self::PageName,
             'layout_id' => $layout->getKey(),
             'type_key' => PageTypeEnum::Default,
-            'parent_id' => $parentPage->getKey(),
             'visible_from' => now()->subDay()->format('Y-m-d'),
             'meta' => ['demo_fixture' => 'kitchen-sink'],
             'translations' => $this->pageTranslations($languages),
@@ -123,10 +120,11 @@ final class InstallKitchenSinkDemoPageAction
 
         $page->forceFill(['order' => 20])->save();
 
-        $contextPages = $this->contextPages($site, $layout, $languages, $parentPage, $page);
+        $contextPages = $this->contextPages($site, $layout, $languages, $page);
         $this->syncPageAssets($page);
         $this->syncPageSelectionAssets($page, $contextPages);
         SetupPageUrlsAction::run($page);
+        $this->deleteLegacyNestedPageUrls($site);
 
         return $page->refresh();
     }
@@ -258,55 +256,63 @@ final class InstallKitchenSinkDemoPageAction
         return $layout;
     }
 
-    /**
-     * @param  EloquentCollection<int, Language>  $languages
-     */
-    private function parentPage(Site $site, Layout $layout, EloquentCollection $languages): Page
+    private function adoptLegacyKitchenSinkShowcasePage(Site $site, Layout $layout): void
     {
-        /** @var Page $page */
-        $page = resolve(PageCreator::class)->createPage([
-            'name' => self::ParentPageName,
-            'layout_id' => $layout->getKey(),
-            'type_key' => PageTypeEnum::Default,
-            'visible_from' => now()->subDay()->format('Y-m-d'),
-            'meta' => ['demo_fixture' => 'kitchen-sink-parent'],
-            'translations' => $this->simplePageTranslations(
-                languages: $languages,
-                title: self::ParentPageName,
-                slug: self::ParentPageSlug,
-                summary: 'A parent page that gives the Kitchen Sink fixture a real page hierarchy.',
-            ),
-        ], $site, $languages);
+        $legacyParentPage = Page::query()
+            ->where('site_id', $site->getKey())
+            ->where('layout_id', $layout->getKey())
+            ->where('name', self::LegacyParentPageName)
+            ->where('meta->demo_fixture', 'kitchen-sink-parent')
+            ->first();
 
-        $page->forceFill(['order' => 10])->save();
-        SetupPageUrlsAction::run($page);
-
-        return $page->refresh();
-    }
-
-    private function adoptExistingKitchenSinkPage(Site $site, Layout $layout, Page $parentPage): void
-    {
-        $page = Page::query()
+        $legacyPage = Page::query()
             ->where('site_id', $site->getKey())
             ->where('layout_id', $layout->getKey())
             ->where('name', self::PageName)
             ->first();
 
-        if (! $page instanceof Page || (int) $page->parent_id === (int) $parentPage->getKey()) {
+        if ($legacyParentPage instanceof Page) {
+            if ($legacyPage instanceof Page) {
+                Page::query()
+                    ->where('parent_id', $legacyPage->getKey())
+                    ->update(['parent_id' => $legacyParentPage->getKey()]);
+
+                $legacyPage->pageUrls()->withTrashed()->delete();
+                $legacyPage->delete();
+            }
+
+            $legacyParentPage->forceFill([
+                'name' => self::PageName,
+                'meta' => ['demo_fixture' => 'kitchen-sink'],
+                'order' => 20,
+            ])->save();
+
             return;
         }
 
-        $page->forceFill(['parent_id' => $parentPage->getKey()])->save();
+        if (! $legacyPage instanceof Page || $legacyPage->parent_id === null) {
+            return;
+        }
+
+        $legacyPage->forceFill(['parent_id' => null])->save();
+    }
+
+    private function deleteLegacyNestedPageUrls(Site $site): void
+    {
+        PageUrl::query()
+            ->where('site_id', $site->getKey())
+            ->where('url', '/' . self::PageSlug . '/kitchen-sink-demo')
+            ->delete();
     }
 
     /**
      * @param  EloquentCollection<int, Language>  $languages
      * @return array<int, Page>
      */
-    private function contextPages(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage, Page $page): array
+    private function contextPages(Site $site, Layout $layout, EloquentCollection $languages, Page $page): array
     {
         $pages = [
-            ...$this->siblingPages($site, $layout, $languages, $parentPage),
+            ...$this->siblingPages($site, $layout, $languages, $page),
             ...$this->childPages($site, $layout, $languages, $page),
         ];
 

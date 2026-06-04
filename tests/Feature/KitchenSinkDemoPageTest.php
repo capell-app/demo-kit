@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Actions\SetupPageUrlsAction;
 use Capell\Core\Enums\ContainerWidthEnum;
+use Capell\Core\Enums\PageTypeEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
+use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\FoundationTheme\Livewire\Widget\Pages as FoundationPagesWidget;
 use Capell\Frontend\Facades\Frontend;
@@ -68,9 +72,9 @@ it('installs the kitchen sink demo page idempotently', function (): void {
 
     expect($secondPage->getKey())->toBe($firstPage->getKey())
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->count())->toBe(1)
-        ->and($secondPage->parent_id)->not->toBeNull()
-        ->and($secondPage->children)->toHaveCount(3)
-        ->and($secondPage->siblings->reject(fn (Page $sibling): bool => $sibling->is($secondPage))->values())->toHaveCount(3)
+        ->and($secondPage->parent_id)->toBeNull()
+        ->and($secondPage->pageUrl?->url)->toBe('/kitchen-sink-showcase')
+        ->and($secondPage->children)->toHaveCount(6)
         ->and($layout)->not->toBeNull()
         ->and(kitchenSinkMainContainer($layout)['widgets'])->toHaveCount(kitchenSinkExpectedLayoutWidgetCount())
         ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(7)
@@ -93,9 +97,70 @@ it('installs the kitchen sink demo page on the default site and primary language
 
     expect($page->site->is($site))->toBeTrue()
         ->and($page->pageUrl?->language_id)->toBe($primaryLanguage->getKey())
+        ->and($page->pageUrl?->url)->toBe('/kitchen-sink-showcase')
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->where('site_id', $site->getKey())->count())->toBe(1)
         ->and(Site::query()->where('name', 'Kitchen Sink Demo')->exists())->toBeFalse()
         ->and(Site::query()->count())->toBe(1);
+});
+
+it('promotes legacy nested kitchen sink installs to the showcase url', function (): void {
+    $language = Language::factory()->english()->create();
+    $site = Site::factory()
+        ->language($language)
+        ->default()
+        ->withTranslations(collect([$language]))
+        ->create(['name' => 'Capell Services']);
+    $layout = Layout::factory()->create([
+        'key' => 'kitchen-sink-demo',
+        'containers' => ['main' => ['widgets' => []]],
+        'status' => true,
+    ]);
+
+    /** @var Page $legacyParent */
+    $legacyParent = resolve(PageCreator::class)->createPage([
+        'name' => 'Kitchen Sink Showcase',
+        'layout_id' => $layout->getKey(),
+        'type_key' => PageTypeEnum::Default,
+        'meta' => ['demo_fixture' => 'kitchen-sink-parent'],
+        'translations' => [
+            'en' => [
+                'title' => 'Kitchen Sink Showcase',
+                'content' => '<p>Legacy overview.</p>',
+                'summary' => 'Legacy overview.',
+                'meta' => ['slug' => 'kitchen-sink-showcase'],
+            ],
+        ],
+    ], $site, collect([$language]));
+    SetupPageUrlsAction::run($legacyParent);
+
+    /** @var Page $legacyPage */
+    $legacyPage = resolve(PageCreator::class)->createPage([
+        'name' => 'Kitchen Sink Demo Page',
+        'layout_id' => $layout->getKey(),
+        'type_key' => PageTypeEnum::Default,
+        'parent_id' => $legacyParent->getKey(),
+        'meta' => ['demo_fixture' => 'kitchen-sink'],
+        'translations' => [
+            'en' => [
+                'title' => 'Kitchen Sink Demo Page',
+                'content' => '<p>Legacy nested demo.</p>',
+                'summary' => 'Legacy nested demo.',
+                'meta' => ['slug' => 'kitchen-sink-demo'],
+            ],
+        ],
+    ], $site, collect([$language]));
+    SetupPageUrlsAction::run($legacyPage);
+
+    $page = InstallKitchenSinkDemoPageAction::run($site)->loadMissing(['children', 'pageUrl']);
+
+    expect($page->getKey())->toBe($legacyParent->getKey())
+        ->and($page->name)->toBe('Kitchen Sink Demo Page')
+        ->and($page->parent_id)->toBeNull()
+        ->and($page->pageUrl?->url)->toBe('/kitchen-sink-showcase')
+        ->and($page->children)->toHaveCount(6)
+        ->and(Page::query()->whereKey($legacyPage->getKey())->exists())->toBeFalse()
+        ->and(PageUrl::query()->where('url', '/kitchen-sink-showcase/kitchen-sink-demo')->exists())->toBeFalse()
+        ->and(PageUrl::query()->withTrashed()->where('url', '/kitchen-sink-showcase/kitchen-sink-demo')->whereNotNull('deleted_at')->exists())->toBeTrue();
 });
 
 it('repairs missing site domains for an existing kitchen sink site', function (): void {
