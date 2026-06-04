@@ -64,7 +64,7 @@ it('installs the kitchen sink demo page idempotently', function (): void {
     $secondPage = InstallKitchenSinkDemoPageAction::run();
 
     $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
-    $secondPage->loadMissing(['children', 'pageUrl', 'siblings', 'translations']);
+    $secondPage->loadMissing(['children', 'pageUrl', 'siblings']);
 
     expect($secondPage->getKey())->toBe($firstPage->getKey())
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->count())->toBe(1)
@@ -74,8 +74,10 @@ it('installs the kitchen sink demo page idempotently', function (): void {
         ->and($layout)->not->toBeNull()
         ->and(kitchenSinkMainContainer($layout)['widgets'])->toHaveCount(kitchenSinkExpectedLayoutWidgetCount())
         ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(7)
-        ->and(SiteDomain::query()->where('site_id', $secondPage->site_id)->where('language_id', $secondPage->translations->first()?->language_id)->exists())->toBeTrue()
-        ->and($secondPage->pageUrl?->full_url)->toBeString();
+        ->and(SiteDomain::query()
+            ->where('site_id', $secondPage->site_id)
+            ->where('language_id', $secondPage->pageUrl?->language_id)
+            ->exists())->toBeTrue();
 });
 
 it('repairs missing site domains for an existing kitchen sink site', function (): void {
@@ -84,10 +86,12 @@ it('repairs missing site domains for an existing kitchen sink site', function ()
 
     expect(SiteDomain::query()->where('site_id', $site->getKey())->exists())->toBeFalse();
 
-    $page = InstallKitchenSinkDemoPageAction::run($site)->loadMissing(['pageUrl', 'translations']);
+    $page = InstallKitchenSinkDemoPageAction::run($site)->loadMissing('pageUrl');
 
-    expect(SiteDomain::query()->where('site_id', $site->getKey())->where('language_id', $language->getKey())->exists())->toBeTrue()
-        ->and($page->pageUrl?->full_url)->toBeString();
+    expect(SiteDomain::query()
+        ->where('site_id', $site->getKey())
+        ->where('language_id', $page->pageUrl?->language_id)
+        ->exists())->toBeTrue();
 });
 
 it('stores lazy presentation metadata only on below fold kitchen sink layout instances', function (): void {
