@@ -52,8 +52,8 @@ it('builds the kitchen sink demo layout graph within a bounded query budget with
     $serialized = json_encode($graph, JSON_THROW_ON_ERROR);
 
     expect($graph)->toBeInstanceOf(PublicLayoutGraphData::class)
-        ->and($renderedWidgetCount)->toBe(7)
-        ->and($queryCount)->toBeLessThan(26)
+        ->and($renderedWidgetCount)->toBe(count(InstallKitchenSinkDemoPageAction::layoutWidgetKeys()))
+        ->and($queryCount)->toBeLessThan(32)
         ->and($serialized)->not->toContain('admin_schema')
         ->and($serialized)->not->toContain('signed_url')
         ->and($serialized)->not->toContain('widget_settings')

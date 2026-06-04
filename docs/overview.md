@@ -18,6 +18,7 @@ Use it when a developer needs a populated Capell install quickly without committ
 - Health checks for validating generated demo installs.
 - A `DemoKitPage` Filament page for admin-triggered demo generation workflows.
 - Package-owned Blade widget views for designed demo page content.
+- A hierarchy-aware Kitchen Sink fixture that installs the full Layout Builder default and extra widget catalogs with realistic parent, sibling, child, and page-selection context.
 
 ## Admin Surface
 
@@ -42,6 +43,12 @@ Those views keep presentation markup in Blade while database records keep only p
 | `capell:demo-kit-doctor --json` | Checks demo health and can return JSON for automation.                     |
 
 In non-interactive environments, demo generation requires `--force`.
+
+## Kitchen Sink Fixture
+
+`capell:demo-kit-kitchen-sink` installs `Kitchen Sink Showcase` as the parent page, `Kitchen Sink Demo Page` beneath it, and sibling/child context pages for hierarchy-aware widgets. The fixture attaches those context pages as widget assets for page-selection widgets so admin previews, public rendering checks, screenshots, and accessibility audits exercise realistic page-card, navigation, gallery, and related-content states.
+
+The layout catalog comes from Layout Builder's default and extra widget definitions. The first above-fold reference widget renders eagerly, while the remaining widget instances are stored as `lazy_fragment` placeholders to keep initial HTML size and Lighthouse checks representative.
 
 ## Repeatable Demo Plans
 

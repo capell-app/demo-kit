@@ -14,9 +14,11 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
+use Capell\LayoutBuilder\Data\WidgetDefinitionData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -30,6 +32,10 @@ final class InstallKitchenSinkDemoPageAction
 
     private const string PageSlug = 'kitchen-sink-demo';
 
+    private const string ParentPageName = 'Kitchen Sink Showcase';
+
+    private const string ParentPageSlug = 'kitchen-sink-showcase';
+
     /**
      * @var array<int, string>
      */
@@ -40,6 +46,13 @@ final class InstallKitchenSinkDemoPageAction
         'kitchen-sink-embeds',
         'kitchen-sink-forms',
         'kitchen-sink-utility-states',
+    ];
+
+    /**
+     * @var array<int, string>
+     */
+    private const array PageAssetWidgetKeys = [
+        'pages-card',
     ];
 
     /**
@@ -59,6 +72,30 @@ final class InstallKitchenSinkDemoPageAction
         ];
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public static function layoutWidgetKeys(): array
+    {
+        $referenceWidgetKeys = array_keys(self::widgetFamilies());
+        $definitions = [
+            ...WidgetDefinitionData::defaultCatalog(),
+            ...WidgetDefinitionData::extraCatalog(),
+        ];
+
+        $catalogWidgetKeys = collect($definitions)
+            ->map(static fn (WidgetDefinitionData $definition): string => $definition->key)
+            ->reject(static fn (string $key): bool => in_array($key, $referenceWidgetKeys, true))
+            ->unique()
+            ->values()
+            ->all();
+
+        return [
+            ...$catalogWidgetKeys,
+            ...$referenceWidgetKeys,
+        ];
+    }
+
     public function handle(?Site $site = null): Page
     {
         $languages = $this->languages();
@@ -67,21 +104,45 @@ final class InstallKitchenSinkDemoPageAction
         $site ??= $this->site($languages);
         $layout = $this->layout();
         $this->widgets($languages);
+        $parentPage = $this->parentPage($site, $layout, $languages);
+
+        $this->adoptExistingKitchenSinkPage($site, $layout, $parentPage);
 
         /** @var Page $page */
         $page = resolve(PageCreator::class)->createPage([
             'name' => self::PageName,
             'layout_id' => $layout->getKey(),
             'type_key' => PageTypeEnum::Default,
+            'parent_id' => $parentPage->getKey(),
             'visible_from' => now()->subDay()->format('Y-m-d'),
             'meta' => ['demo_fixture' => 'kitchen-sink'],
             'translations' => $this->pageTranslations($languages),
         ], $site, $languages);
 
+        $page->forceFill(['order' => 20])->save();
+
+        $contextPages = $this->contextPages($site, $layout, $languages, $parentPage, $page);
         $this->syncPageAssets($page);
+        $this->syncPageSelectionAssets($page, $contextPages);
         SetupPageUrlsAction::run($page);
 
         return $page->refresh();
+    }
+
+    /**
+     * @return array<string, array{family: string, title: string, summary: string, headings: array<int, string>}>
+     */
+    private static function widgetFamilies(): array
+    {
+        return [
+            'kitchen-sink-structured-text' => ['family' => 'Structured text', 'title' => 'Structured content reference', 'summary' => 'Hero, breadcrumbs, and table of contents patterns.', 'headings' => array_slice(self::sectionHeadings(), 0, 3)],
+            'kitchen-sink-rich-text' => ['family' => 'Rich text', 'title' => 'Rich text reference', 'summary' => 'Text, hierarchy, quote, code, list, and callout patterns.', 'headings' => array_slice(self::sectionHeadings(), 3, 8)],
+            'kitchen-sink-data-display' => ['family' => 'Data display', 'title' => 'Data display reference', 'summary' => 'Card, listing, teaser, feature, statistics, proof, logo, and pricing patterns.', 'headings' => array_slice(self::sectionHeadings(), 11, 8)],
+            'kitchen-sink-interactions' => ['family' => 'Interactions', 'title' => 'Interaction reference', 'summary' => 'Accordion, tabs, carousel, timeline, and process behavior contracts.', 'headings' => array_slice(self::sectionHeadings(), 19, 5)],
+            'kitchen-sink-embeds' => ['family' => 'Embeds', 'title' => 'Embeds reference', 'summary' => 'Gallery, media, map, and table contracts.', 'headings' => array_slice(self::sectionHeadings(), 24, 5)],
+            'kitchen-sink-forms' => ['family' => 'Forms', 'title' => 'Forms reference', 'summary' => 'Complex table, search, filter, field, full-form, and CTA examples.', 'headings' => array_slice(self::sectionHeadings(), 29, 6)],
+            'kitchen-sink-utility-states' => ['family' => 'Utility states', 'title' => 'Utility states reference', 'summary' => 'Alert, embed, empty, error, and footer state contracts.', 'headings' => array_slice(self::sectionHeadings(), 35, 5)],
+        ];
     }
 
     /**
@@ -112,12 +173,25 @@ final class InstallKitchenSinkDemoPageAction
             ],
         );
 
+        foreach ($languages as $siteLanguage) {
+            SiteDomain::query()->firstOrCreate([
+                'site_id' => $site->getKey(),
+                'language_id' => $siteLanguage->getKey(),
+            ], [
+                'domain' => null,
+                'scheme' => null,
+                'path' => null,
+                'default' => ! SiteDomain::query()->where('site_id', $site->getKey())->exists(),
+                'status' => true,
+            ]);
+        }
+
         return $site;
     }
 
     private function layout(): Layout
     {
-        $widgetKeys = array_keys($this->widgetFamilies());
+        $widgetKeys = self::layoutWidgetKeys();
 
         /** @var Layout $layout */
         $layout = Layout::query()->updateOrCreate(
@@ -140,6 +214,122 @@ final class InstallKitchenSinkDemoPageAction
         );
 
         return $layout;
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
+    private function parentPage(Site $site, Layout $layout, EloquentCollection $languages): Page
+    {
+        /** @var Page $page */
+        $page = resolve(PageCreator::class)->createPage([
+            'name' => self::ParentPageName,
+            'layout_id' => $layout->getKey(),
+            'type_key' => PageTypeEnum::Default,
+            'visible_from' => now()->subDay()->format('Y-m-d'),
+            'meta' => ['demo_fixture' => 'kitchen-sink-parent'],
+            'translations' => $this->simplePageTranslations(
+                languages: $languages,
+                title: self::ParentPageName,
+                slug: self::ParentPageSlug,
+                summary: 'A parent page that gives the Kitchen Sink fixture a real page hierarchy.',
+            ),
+        ], $site, $languages);
+
+        $page->forceFill(['order' => 10])->save();
+        SetupPageUrlsAction::run($page);
+
+        return $page->refresh();
+    }
+
+    private function adoptExistingKitchenSinkPage(Site $site, Layout $layout, Page $parentPage): void
+    {
+        $page = Page::query()
+            ->where('site_id', $site->getKey())
+            ->where('layout_id', $layout->getKey())
+            ->where('name', self::PageName)
+            ->first();
+
+        if (! $page instanceof Page || (int) $page->parent_id === (int) $parentPage->getKey()) {
+            return;
+        }
+
+        $page->forceFill(['parent_id' => $parentPage->getKey()])->save();
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     * @return array<int, Page>
+     */
+    private function contextPages(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage, Page $page): array
+    {
+        $pages = [
+            ...$this->siblingPages($site, $layout, $languages, $parentPage),
+            ...$this->childPages($site, $layout, $languages, $page),
+        ];
+
+        foreach ($pages as $contextPage) {
+            SetupPageUrlsAction::run($contextPage);
+        }
+
+        return $pages;
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     * @return array<int, Page>
+     */
+    private function siblingPages(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage): array
+    {
+        return collect([
+            ['name' => 'Kitchen Sink Content Patterns', 'slug' => 'kitchen-sink-content-patterns', 'summary' => 'A sibling page for content pattern widgets.', 'order' => 30],
+            ['name' => 'Kitchen Sink Interaction Patterns', 'slug' => 'kitchen-sink-interaction-patterns', 'summary' => 'A sibling page for interactive widget patterns.', 'order' => 40],
+            ['name' => 'Kitchen Sink Media Patterns', 'slug' => 'kitchen-sink-media-patterns', 'summary' => 'A sibling page for media and embed widget patterns.', 'order' => 50],
+        ])
+            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $parentPage, $data))
+            ->all();
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     * @return array<int, Page>
+     */
+    private function childPages(Site $site, Layout $layout, EloquentCollection $languages, Page $page): array
+    {
+        return collect([
+            ['name' => 'Kitchen Sink Child Overview', 'slug' => 'kitchen-sink-child-overview', 'summary' => 'A child page for hierarchy-aware widgets.', 'order' => 10],
+            ['name' => 'Kitchen Sink Child Detail', 'slug' => 'kitchen-sink-child-detail', 'summary' => 'A child page for selected page-card widgets.', 'order' => 20],
+            ['name' => 'Kitchen Sink Child Reference', 'slug' => 'kitchen-sink-child-reference', 'summary' => 'A child page for related asset widgets.', 'order' => 30],
+        ])
+            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $page, $data))
+            ->all();
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     * @param  array{name: string, slug: string, summary: string, order: int}  $data
+     */
+    private function contextPage(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage, array $data): Page
+    {
+        /** @var Page $page */
+        $page = resolve(PageCreator::class)->createPage([
+            'name' => $data['name'],
+            'layout_id' => $layout->getKey(),
+            'type_key' => PageTypeEnum::Default,
+            'parent_id' => $parentPage->getKey(),
+            'visible_from' => now()->subDay()->format('Y-m-d'),
+            'meta' => ['demo_fixture' => 'kitchen-sink-context'],
+            'translations' => $this->simplePageTranslations(
+                languages: $languages,
+                title: $data['name'],
+                slug: $data['slug'],
+                summary: $data['summary'],
+            ),
+        ], $site, $languages);
+
+        $page->forceFill(['order' => $data['order']])->save();
+
+        return $page->refresh();
     }
 
     /**
@@ -180,7 +370,9 @@ final class InstallKitchenSinkDemoPageAction
      */
     private function widgets(EloquentCollection $languages): void
     {
-        foreach ($this->widgetFamilies() as $key => $family) {
+        $this->configureCatalogWidgets();
+
+        foreach (self::widgetFamilies() as $key => $family) {
             /** @var Widget|null $widget */
             $widget = Widget::query()->firstWhere('key', $key);
 
@@ -205,9 +397,24 @@ final class InstallKitchenSinkDemoPageAction
         }
     }
 
+    private function configureCatalogWidgets(): void
+    {
+        $latestPagesWidget = Widget::query()->firstWhere('key', 'latest-pages');
+
+        if ($latestPagesWidget instanceof Widget) {
+            $latestPagesWidget->forceFill([
+                'meta' => [
+                    ...($latestPagesWidget->meta ?? []),
+                    'limit' => 2,
+                    'pagination' => true,
+                ],
+            ])->save();
+        }
+    }
+
     private function syncPageAssets(Page $page): void
     {
-        foreach (array_keys($this->widgetFamilies()) as $order => $widgetKey) {
+        foreach (array_keys(self::widgetFamilies()) as $order => $widgetKey) {
             $widget = Widget::query()->firstWhere('key', $widgetKey);
 
             if (! $widget instanceof Widget) {
@@ -226,6 +433,35 @@ final class InstallKitchenSinkDemoPageAction
                 ],
                 ['order' => $order + 1, 'meta' => ['scope' => 'kitchen-sink-demo']],
             );
+        }
+    }
+
+    /**
+     * @param  array<int, Page>  $pages
+     */
+    private function syncPageSelectionAssets(Page $page, array $pages): void
+    {
+        foreach (self::PageAssetWidgetKeys as $widgetKey) {
+            $widget = Widget::query()->firstWhere('key', $widgetKey);
+
+            if (! $widget instanceof Widget) {
+                continue;
+            }
+
+            foreach ($pages as $order => $assetPage) {
+                WidgetAsset::query()->updateOrCreate(
+                    [
+                        'widget_id' => $widget->getKey(),
+                        'pageable_type' => $page->getMorphClass(),
+                        'pageable_id' => $page->getKey(),
+                        'container' => 'main',
+                        'occurrence' => 1,
+                        'asset_type' => $assetPage->getMorphClass(),
+                        'asset_id' => $assetPage->getKey(),
+                    ],
+                    ['order' => $order + 1, 'meta' => ['scope' => 'kitchen-sink-demo-page-selection']],
+                );
+            }
         }
     }
 
@@ -250,19 +486,23 @@ final class InstallKitchenSinkDemoPageAction
     }
 
     /**
-     * @return array<string, array{family: string, title: string, summary: string, headings: array<int, string>}>
+     * @param  EloquentCollection<int, Language>  $languages
+     * @return array<string, array<string, mixed>>
      */
-    private function widgetFamilies(): array
+    private function simplePageTranslations(EloquentCollection $languages, string $title, string $slug, string $summary): array
     {
-        return [
-            'kitchen-sink-structured-text' => ['family' => 'Structured text', 'title' => 'Structured content reference', 'summary' => 'Hero, breadcrumbs, and table of contents patterns.', 'headings' => array_slice(self::sectionHeadings(), 0, 3)],
-            'kitchen-sink-rich-text' => ['family' => 'Rich text', 'title' => 'Rich text reference', 'summary' => 'Text, hierarchy, quote, code, list, and callout patterns.', 'headings' => array_slice(self::sectionHeadings(), 3, 8)],
-            'kitchen-sink-data-display' => ['family' => 'Data display', 'title' => 'Data display reference', 'summary' => 'Card, listing, teaser, feature, statistics, proof, logo, and pricing patterns.', 'headings' => array_slice(self::sectionHeadings(), 11, 8)],
-            'kitchen-sink-interactions' => ['family' => 'Interactions', 'title' => 'Interaction reference', 'summary' => 'Accordion, tabs, carousel, timeline, and process behavior contracts.', 'headings' => array_slice(self::sectionHeadings(), 19, 5)],
-            'kitchen-sink-embeds' => ['family' => 'Embeds', 'title' => 'Embeds reference', 'summary' => 'Gallery, media, map, and table contracts.', 'headings' => array_slice(self::sectionHeadings(), 24, 5)],
-            'kitchen-sink-forms' => ['family' => 'Forms', 'title' => 'Forms reference', 'summary' => 'Complex table, search, filter, field, full-form, and CTA examples.', 'headings' => array_slice(self::sectionHeadings(), 29, 6)],
-            'kitchen-sink-utility-states' => ['family' => 'Utility states', 'title' => 'Utility states reference', 'summary' => 'Alert, embed, empty, error, and footer state contracts.', 'headings' => array_slice(self::sectionHeadings(), 35, 5)],
-        ];
+        $translations = [];
+
+        foreach ($languages as $language) {
+            $translations[(string) $language->code] = [
+                'title' => $title,
+                'content' => '<p>' . e($summary) . '</p>',
+                'summary' => $summary,
+                'meta' => ['slug' => $slug, 'label' => $title],
+            ];
+        }
+
+        return $translations;
     }
 
     /**

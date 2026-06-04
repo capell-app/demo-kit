@@ -72,7 +72,7 @@ This package makes its Composer dependencies visible because they are part of th
 - `capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}` dispatches installed package demo commands and forwards only the options each package declares in `commands.demoParams`.
 - `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--seed=} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
 - `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
-- The Kitchen Sink page intentionally server-renders only the structured-text reference widget up front. The remaining reference widget families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
+- The Kitchen Sink fixture includes the full Layout Builder default and extra widget catalogs, plus parent, sibling, and child context pages for page-selection widgets. It intentionally server-renders only the first above-fold reference widget up front; the remaining widget instances are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation
@@ -93,6 +93,8 @@ Omit `--seed` for a fresh random demo on each run.
 ## Kitchen Sink Lighthouse Notes
 
 The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Docker/web-server or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
+
+The fixture is intentionally hierarchy-aware. `Kitchen Sink Showcase` is created as the parent page, `Kitchen Sink Demo Page` is installed beneath it, and sibling/child context pages are attached as widget assets so page-card, navigation, asset-list, and related-content widgets have realistic selectable pages during admin and frontend checks.
 
 ## Content Rendering Boundary
 
