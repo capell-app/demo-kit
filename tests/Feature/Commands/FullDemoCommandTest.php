@@ -188,8 +188,8 @@ it('forwards the chosen author username to package demos', function (): void {
 });
 
 it('refuses to run in the production environment without an override', function (): void {
-    $originalEnvironment = app()['env'];
-    app()['env'] = 'production';
+    $originalEnvironment = app()->make('env');
+    app()->bind('env', 'production');
 
     try {
         test()->artisan('capell:demo-kit-full-demo', [
@@ -201,7 +201,7 @@ it('refuses to run in the production environment without an override', function 
 
         capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
     } finally {
-        app()['env'] = $originalEnvironment;
+        app()->bind('env', $originalEnvironment);
     }
 });
 
