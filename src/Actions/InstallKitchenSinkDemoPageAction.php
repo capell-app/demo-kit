@@ -312,7 +312,7 @@ final class InstallKitchenSinkDemoPageAction
     private function contextPages(Site $site, Layout $layout, EloquentCollection $languages, Page $page): array
     {
         $pages = [
-            ...$this->siblingPages($site, $layout, $languages, $page),
+            ...$this->siblingPages($site, $layout, $languages),
             ...$this->childPages($site, $layout, $languages, $page),
         ];
 
@@ -327,14 +327,14 @@ final class InstallKitchenSinkDemoPageAction
      * @param  EloquentCollection<int, Language>  $languages
      * @return array<int, Page>
      */
-    private function siblingPages(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage): array
+    private function siblingPages(Site $site, Layout $layout, EloquentCollection $languages): array
     {
         return collect([
             ['name' => 'Kitchen Sink Content Patterns', 'slug' => 'kitchen-sink-content-patterns', 'summary' => 'A sibling page for content pattern widgets.', 'order' => 30],
             ['name' => 'Kitchen Sink Interaction Patterns', 'slug' => 'kitchen-sink-interaction-patterns', 'summary' => 'A sibling page for interactive widget patterns.', 'order' => 40],
             ['name' => 'Kitchen Sink Media Patterns', 'slug' => 'kitchen-sink-media-patterns', 'summary' => 'A sibling page for media and embed widget patterns.', 'order' => 50],
         ])
-            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $parentPage, $data))
+            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, null, $data))
             ->all();
     }
 
@@ -357,14 +357,14 @@ final class InstallKitchenSinkDemoPageAction
      * @param  EloquentCollection<int, Language>  $languages
      * @param  array{name: string, slug: string, summary: string, order: int}  $data
      */
-    private function contextPage(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage, array $data): Page
+    private function contextPage(Site $site, Layout $layout, EloquentCollection $languages, ?Page $parentPage, array $data): Page
     {
         /** @var Page $page */
         $page = resolve(PageCreator::class)->createPage([
             'name' => $data['name'],
             'layout_id' => $layout->getKey(),
             'type_key' => PageTypeEnum::Default,
-            'parent_id' => $parentPage->getKey(),
+            'parent_id' => $parentPage?->getKey(),
             'visible_from' => now()->subDay()->format('Y-m-d'),
             'meta' => ['demo_fixture' => 'kitchen-sink-context'],
             'translations' => $this->simplePageTranslations(
