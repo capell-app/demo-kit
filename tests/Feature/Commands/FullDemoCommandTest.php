@@ -10,6 +10,7 @@ use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
@@ -140,6 +141,8 @@ it('creates full multi site and language demo data and runs package demos', func
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
     capell_expect(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '1234']);
+    capell_expect(Page::query()->where('name', 'Kitchen Sink Demo Page')->exists())->toBeTrue();
+    capell_expect(Layout::query()->where('key', 'kitchen-sink-demo')->exists())->toBeTrue();
 });
 
 it('forwards the chosen author username to package demos', function (): void {

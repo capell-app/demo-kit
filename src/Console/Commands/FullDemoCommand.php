@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Console\Commands;
 use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
+use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
@@ -142,6 +143,8 @@ final class FullDemoCommand extends Command
                 return $packageDemoExitCode;
             }
         }
+
+        InstallKitchenSinkDemoPageAction::run();
 
         $this->info('Full example site data created successfully.');
 
