@@ -121,7 +121,7 @@ class AdminDemoCommand extends Command
             $this->line('Adding demo languages');
             CreateDemoLanguagesAction::run($plan->languageCodes);
 
-            $this->createDemoSites($plan, $siteUrl, $pageCreator);
+            $this->createDemoSites($plan, $siteUrl, $pageCreator, $user);
 
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
@@ -278,7 +278,7 @@ class AdminDemoCommand extends Command
         $this->info('Editor user created with editor role');
     }
 
-    private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator): void
+    private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator, ?User $user): void
     {
         $sitesCount = count($plan->sites);
 
@@ -332,6 +332,7 @@ class AdminDemoCommand extends Command
                     new DemoSitePlanData(
                         site: $site,
                         contentTree: $sitePlan->toContentTree(),
+                        user: $user,
                     ),
                 ));
             }
