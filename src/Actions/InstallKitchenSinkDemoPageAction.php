@@ -102,6 +102,8 @@ final class InstallKitchenSinkDemoPageAction
         InstallLayoutBuilderWidgetCatalogAction::run($languages, extraWidgets: true);
 
         $site ??= $this->site($languages);
+        $this->ensureSiteDomains($site, $languages);
+
         $layout = $this->layout();
         $this->widgets($languages);
         $parentPage = $this->parentPage($site, $layout, $languages);
@@ -173,6 +175,14 @@ final class InstallKitchenSinkDemoPageAction
             ],
         );
 
+        return $site;
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
+    private function ensureSiteDomains(Site $site, EloquentCollection $languages): void
+    {
         foreach ($languages as $siteLanguage) {
             SiteDomain::query()->firstOrCreate([
                 'site_id' => $site->getKey(),
@@ -185,8 +195,6 @@ final class InstallKitchenSinkDemoPageAction
                 'status' => true,
             ]);
         }
-
-        return $site;
     }
 
     private function layout(): Layout

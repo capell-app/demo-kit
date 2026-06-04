@@ -8,6 +8,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\FoundationTheme\Livewire\Widget\Pages as FoundationPagesWidget;
@@ -63,7 +64,7 @@ it('installs the kitchen sink demo page idempotently', function (): void {
     $secondPage = InstallKitchenSinkDemoPageAction::run();
 
     $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
-    $secondPage->loadMissing(['children', 'siblings']);
+    $secondPage->loadMissing(['children', 'pageUrl', 'siblings', 'translations']);
 
     expect($secondPage->getKey())->toBe($firstPage->getKey())
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->count())->toBe(1)
@@ -72,7 +73,21 @@ it('installs the kitchen sink demo page idempotently', function (): void {
         ->and($secondPage->siblings->reject(fn (Page $sibling): bool => $sibling->is($secondPage))->values())->toHaveCount(3)
         ->and($layout)->not->toBeNull()
         ->and(kitchenSinkMainContainer($layout)['widgets'])->toHaveCount(kitchenSinkExpectedLayoutWidgetCount())
-        ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(7);
+        ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(7)
+        ->and(SiteDomain::query()->where('site_id', $secondPage->site_id)->where('language_id', $secondPage->translations->first()?->language_id)->exists())->toBeTrue()
+        ->and($secondPage->pageUrl?->full_url)->toBeString();
+});
+
+it('repairs missing site domains for an existing kitchen sink site', function (): void {
+    $language = Language::factory()->english()->create();
+    $site = Site::factory()->language($language)->create(['name' => 'Kitchen Sink Demo']);
+
+    expect(SiteDomain::query()->where('site_id', $site->getKey())->exists())->toBeFalse();
+
+    $page = InstallKitchenSinkDemoPageAction::run($site)->loadMissing(['pageUrl', 'translations']);
+
+    expect(SiteDomain::query()->where('site_id', $site->getKey())->where('language_id', $language->getKey())->exists())->toBeTrue()
+        ->and($page->pageUrl?->full_url)->toBeString();
 });
 
 it('stores lazy presentation metadata only on below fold kitchen sink layout instances', function (): void {
