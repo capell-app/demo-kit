@@ -25,6 +25,7 @@ use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -300,7 +301,7 @@ it('fetches each lazy kitchen sink fragment through the public fragment route', 
 
     $fragmentHtml = '';
 
-    foreach ($matches[1] as $fragmentIndex => $fragmentUrl) {
+    foreach ($matches[1] as $fragmentUrl) {
         $path = (string) parse_url(html_entity_decode($fragmentUrl), PHP_URL_PATH);
 
         $response = $this->get($path);
@@ -423,9 +424,8 @@ function kitchenSinkBindFrontendContext(Page $page): void
 
         app()->instance('request', $request);
 
-        $currentRoute = new ReflectionProperty(app('router')::class, 'current');
-        $currentRoute->setAccessible(true);
-        $currentRoute->setValue(app('router'), $route);
+        $currentRoute = new ReflectionProperty(resolve(Router::class)::class, 'current');
+        $currentRoute->setValue(resolve(Router::class), $route);
     }
 
     resolve(FrontendState::class)

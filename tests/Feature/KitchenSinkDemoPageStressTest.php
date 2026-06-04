@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
