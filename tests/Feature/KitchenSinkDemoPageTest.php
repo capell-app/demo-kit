@@ -40,6 +40,11 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 uses(CreatesAdminUser::class);
 
+beforeEach(function (): void {
+    config()->set('capell-demo-kit.kitchen_sink.target_widget_count', 40);
+    config()->set('capell-demo-kit.kitchen_sink.eager_widget_limit', 12);
+});
+
 function kitchenSinkRequiredLayout(?Layout $layout): Layout
 {
     throw_unless($layout instanceof Layout, RuntimeException::class, 'Expected the kitchen sink layout to exist.');
@@ -66,6 +71,11 @@ function kitchenSinkExpectedLayoutWidgetCount(): int
     return count(InstallKitchenSinkDemoPageAction::layoutWidgetKeys());
 }
 
+function kitchenSinkEagerWidgetLimit(): int
+{
+    return InstallKitchenSinkDemoPageAction::eagerWidgetLimit();
+}
+
 function kitchenSinkExpectedContextPageCount(): int
 {
     return 24;
@@ -85,7 +95,7 @@ it('installs the kitchen sink demo page idempotently', function (): void {
         ->and($secondPage->children)->toHaveCount(kitchenSinkExpectedContextPageCount())
         ->and($layout)->not->toBeNull()
         ->and(kitchenSinkMainContainer($layout)['widgets'])->toHaveCount(kitchenSinkExpectedLayoutWidgetCount())
-        ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(120)
+        ->and(WidgetAsset::query()->where('pageable_id', $secondPage->getKey())->count())->toBeGreaterThan(kitchenSinkExpectedLayoutWidgetCount())
         ->and(SiteDomain::query()
             ->where('site_id', $secondPage->site_id)
             ->where('language_id', $secondPage->pageUrl?->language_id)
@@ -199,16 +209,16 @@ it('stores lazy presentation metadata only on below fold kitchen sink layout ins
     $layout = kitchenSinkRequiredLayout(Layout::query()->firstWhere('key', 'kitchen-sink-demo'));
     $layoutWidgets = kitchenSinkMainContainer($layout)['widgets'];
 
-    $eagerWidgets = collect($layoutWidgets)->take(20);
-    $lazyWidgets = collect($layoutWidgets)->skip(20);
+    $eagerWidgets = collect($layoutWidgets)->take(kitchenSinkEagerWidgetLimit());
+    $lazyWidgets = collect($layoutWidgets)->skip(kitchenSinkEagerWidgetLimit());
     $expectedLazyPresentation = [
         'delivery_mode' => PresentationDeliveryMode::LazyFragment->value,
         'loading_strategy' => 'visible',
     ];
 
-    expect($layoutWidgets)->toHaveCount(120)
+    expect($layoutWidgets)->toHaveCount(kitchenSinkExpectedLayoutWidgetCount())
         ->and($eagerWidgets->filter(fn (array $widget): bool => isset($widget['meta']['presentation'])))->toHaveCount(0)
-        ->and($lazyWidgets->filter(fn (array $widget): bool => ($widget['meta']['presentation'] ?? null) === $expectedLazyPresentation))->toHaveCount(100)
+        ->and($lazyWidgets->filter(fn (array $widget): bool => ($widget['meta']['presentation'] ?? null) === $expectedLazyPresentation))->toHaveCount(kitchenSinkExpectedLayoutWidgetCount() - kitchenSinkEagerWidgetLimit())
         ->and(collect($layoutWidgets)->pluck('widget_key')->all())->toBe(InstallKitchenSinkDemoPageAction::layoutWidgetKeys());
 });
 
@@ -524,11 +534,11 @@ function kitchenSinkLayoutHtml(Page $page): string
 
         $widget->assets->each(function (WidgetAsset $widgetAsset): void {
             if ($widgetAsset->asset instanceof Page) {
-                $widgetAsset->asset->loadMissing(['children', 'pageUrl', 'parent.translation', 'translation', 'type']);
+                $widgetAsset->asset->loadMissing(['children', 'image', 'media', 'pageUrl', 'parent.translation', 'translation', 'type']);
             }
         });
 
-        $html .= view('capell-layout-builder::components.layout.widget', [
+        $widgetHtml = view('capell-layout-builder::components.layout.widget', [
             'component' => $widget->getComponent(),
             'containerColspan' => 12,
             'container' => $container,
@@ -543,6 +553,8 @@ function kitchenSinkLayoutHtml(Page $page): string
             'widgetData' => $widgetData,
             'pageSlot' => null,
         ])->render();
+
+        $html .= $widgetHtml;
     }
 
     return $html;

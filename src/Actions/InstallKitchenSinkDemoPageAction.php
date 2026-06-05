@@ -43,9 +43,9 @@ final class InstallKitchenSinkDemoPageAction
 
     private const string LegacyParentPageName = 'Kitchen Sink Showcase';
 
-    private const int EagerWidgetLimit = 20;
+    private const int DefaultEagerWidgetLimit = 20;
 
-    private const int TargetWidgetCount = 120;
+    private const int DefaultTargetWidgetCount = 120;
 
     private const string LivewireStressWidgetKey = 'kitchen-sink-livewire-stress';
 
@@ -109,6 +109,16 @@ final class InstallKitchenSinkDemoPageAction
             ->all();
     }
 
+    public static function targetWidgetCount(): int
+    {
+        return max(1, (int) config('capell-demo-kit.kitchen_sink.target_widget_count', self::DefaultTargetWidgetCount));
+    }
+
+    public static function eagerWidgetLimit(): int
+    {
+        return max(1, (int) config('capell-demo-kit.kitchen_sink.eager_widget_limit', self::DefaultEagerWidgetLimit));
+    }
+
     /**
      * @return array<int, array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}>
      */
@@ -155,7 +165,10 @@ final class InstallKitchenSinkDemoPageAction
         $entries = [];
         $sourceOccurrences = [];
 
-        while (count($entries) < self::TargetWidgetCount) {
+        $targetWidgetCount = self::targetWidgetCount();
+        $eagerWidgetLimit = self::eagerWidgetLimit();
+
+        while (count($entries) < $targetWidgetCount) {
             foreach ($sourceKeys as $sourceKey) {
                 $sourceOccurrences[$sourceKey] = ($sourceOccurrences[$sourceKey] ?? 0) + 1;
                 $stressIndex = count($entries) + 1;
@@ -166,10 +179,10 @@ final class InstallKitchenSinkDemoPageAction
                     'occurrence' => $sourceOccurrences[$sourceKey],
                     'stress_index' => $stressIndex,
                     'variant' => self::variantName($stressIndex),
-                    'lazy' => $stressIndex > self::EagerWidgetLimit,
+                    'lazy' => $stressIndex > $eagerWidgetLimit,
                 ];
 
-                if (count($entries) >= self::TargetWidgetCount) {
+                if (count($entries) >= $targetWidgetCount) {
                     break;
                 }
             }
@@ -584,6 +597,7 @@ final class InstallKitchenSinkDemoPageAction
                     'secondary_button_url' => '#kitchen-sink-lazy-fragments',
                     'hero_height' => 'clamp(34rem, 72vh, 48rem)',
                     'hero_asset_source' => 'widget',
+                    'heading_tag' => 'h2',
                     'margin' => ['none'],
                 ],
                 'image' => 'pricing',
@@ -599,6 +613,7 @@ final class InstallKitchenSinkDemoPageAction
                     'secondary_button_url' => '#kitchen-sink-media-density',
                     'hero_height' => '32rem',
                     'hero_asset_source' => 'widget',
+                    'heading_tag' => 'h2',
                     'margin' => ['xl'],
                 ],
                 'image' => 'fresh-water',
@@ -614,6 +629,7 @@ final class InstallKitchenSinkDemoPageAction
                     'secondary_button_url' => '#',
                     'hero_height' => '30rem',
                     'hero_asset_source' => 'widget',
+                    'heading_tag' => 'h2',
                     'margin' => ['xl'],
                 ],
                 'image' => 'salt-water',
@@ -765,6 +781,7 @@ final class InstallKitchenSinkDemoPageAction
             'background_color' => $tone,
             'columns' => $columns,
             'content_divider' => $stressIndex % 2 === 0 ? 'below_heading' : 'none',
+            'heading_size' => 'h2',
             'heading_style' => $stressIndex % 3 === 0 ? 'primary' : 'secondary',
             'limit' => $entry['source_key'] === self::LivewireLatestPagesWidgetKey ? 12 : max(4, min(12, $columns * 3)),
             'margin' => [$stressIndex % 2 === 0 ? 'lg' : 'xl'],

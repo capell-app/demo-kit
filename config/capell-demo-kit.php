@@ -22,6 +22,11 @@ return [
         'media_per_page' => [0, 2],
     ],
 
+    'kitchen_sink' => [
+        'target_widget_count' => 120,
+        'eager_widget_limit' => 20,
+    ],
+
     'health' => [
         'minimum_widget_count' => 8,
         'minimum_media_count' => 8,

@@ -96,11 +96,19 @@ final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPay
         $content = (string) ($translation?->content ?? '');
         $source = e(str($sourceWidgetKey)->headline()->toString());
         $variant = e((string) data_get($widget->meta, 'kitchen_sink.variant', 'lazy fragment'));
+        $stressIndex = e((string) data_get($widget->meta, 'kitchen_sink.stress_index', ''));
 
         return '<section class="capell-kitchen-sink-fragment" data-source="' . e($sourceWidgetKey) . '">'
+            . '<header>'
             . '<p>' . $source . ' / ' . $variant . '</p>'
             . '<h2>' . $title . '</h2>'
-            . $content
+            . '</header>'
+            . '<dl>'
+            . '<div><dt>Source</dt><dd>' . $source . '</dd></div>'
+            . '<div><dt>Variant</dt><dd>' . $variant . '</dd></div>'
+            . '<div><dt>Case</dt><dd>' . ($stressIndex !== '' ? $stressIndex : 'deferred') . '</dd></div>'
+            . '</dl>'
+            . '<div class="capell-kitchen-sink-fragment__content">' . $content . '</div>'
             . '</section>';
     }
 
