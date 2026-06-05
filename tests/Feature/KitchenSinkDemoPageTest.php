@@ -142,6 +142,29 @@ it('installs the kitchen sink demo page on the default site and primary language
         ->and(Site::query()->count())->toBe(1);
 });
 
+it('installs the kitchen sink demo page on the services demo site when available', function (): void {
+    $german = Language::factory()->create(['code' => 'de']);
+    $english = Language::factory()->english()->create();
+
+    Site::factory()
+        ->language($german)
+        ->default()
+        ->withTranslations(collect([$german]))
+        ->create(['name' => 'Capell Ruby']);
+
+    $services = Site::factory()
+        ->language($english)
+        ->withTranslations(collect([$english]))
+        ->create(['name' => 'Capell Services']);
+
+    $page = InstallKitchenSinkDemoPageAction::run()->loadMissing(['pageUrl', 'site']);
+
+    expect($page->site->is($services))->toBeTrue()
+        ->and($page->pageUrl?->language_id)->toBe($english->getKey())
+        ->and($page->pageUrl?->url)->toBe('/kitchen-sink-showcase')
+        ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->where('site_id', $services->getKey())->count())->toBe(1);
+});
+
 it('promotes legacy nested kitchen sink installs to the showcase url', function (): void {
     $language = Language::factory()->english()->create();
     $site = Site::factory()

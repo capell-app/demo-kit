@@ -309,10 +309,11 @@ final class InstallKitchenSinkDemoPageAction
 
     private function site(): Site
     {
-        $existingSite = Site::query()
-            ->with(['language', 'languages', 'siteDomains'])
-            ->default()
-            ->first()
+        $existingSite = $this->preferredDemoSite()
+            ?? Site::query()
+                ->with(['language', 'languages', 'siteDomains'])
+                ->default()
+                ->first()
             ?? Site::query()
                 ->with(['language', 'languages', 'siteDomains'])
                 ->orderBy('id')
@@ -337,6 +338,17 @@ final class InstallKitchenSinkDemoPageAction
                 'default' => ! Site::query()->default()->exists(),
             ],
         );
+
+        return $site;
+    }
+
+    private function preferredDemoSite(): ?Site
+    {
+        /** @var Site|null $site */
+        $site = Site::query()
+            ->with(['language', 'languages', 'siteDomains'])
+            ->where('name', 'Capell Services')
+            ->first();
 
         return $site;
     }
@@ -370,7 +382,7 @@ final class InstallKitchenSinkDemoPageAction
                 'containers' => [
                     'main' => [
                         'meta' => ['landmark' => 'main'],
-                        'widgets' => array_map(fn (array $entry): array => $this->layoutWidget($entry), self::layoutWidgetEntries()),
+                        'widgets' => array_map($this->layoutWidget(...), self::layoutWidgetEntries()),
                     ],
                 ],
                 'status' => true,
