@@ -127,6 +127,33 @@ it('only forwards seed to package demos that declare the seed parameter', functi
         ->and(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['seeded:demo' => '4321']);
 });
 
+it('reports selected packages that do not declare a demo command', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::registerPackage(name: 'vendor/with-demo');
+    CapellCore::registerPackage(name: 'vendor/missing-demo');
+
+    CapellCore::getPackage('vendor/with-demo')->demoCommand = 'with-demo:demo';
+    CapellCore::getPackage('vendor/with-demo')->demoParams = ['url'];
+    CapellCore::getPackage('vendor/with-demo')->sort = 10;
+    CapellCore::getPackage('vendor/missing-demo')->sort = 20;
+
+    Artisan::registerCommand(new TrackingDemoCommand('with-demo:demo {--url=}'));
+
+    test()->artisan('capell:demo', [
+        '--url' => 'https://example.test',
+        '--packages' => 'vendor/with-demo,vendor/missing-demo',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--force' => true,
+    ])
+        ->expectsOutput('Packages without demo commands: vendor/missing-demo')
+        ->expectsOutput('Add commands.demo to each package manifest to include it in the demo fan-out.')
+        ->assertExitCode(0);
+
+    expect(TrackingDemoCommand::$executionOrder)->toBe(['with-demo:demo']);
+});
+
 it('runs demo commands in package workflow order', function (): void {
     TrackingDemoCommand::reset();
 

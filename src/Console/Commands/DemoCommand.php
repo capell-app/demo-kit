@@ -156,17 +156,20 @@ class DemoCommand extends Command
      */
     private function installDemoPackages(Collection $packages, string $siteUrl, ?string $user, ?int $seed, ?array $languages, ?array $sites): void
     {
-        $packages->each(function (PackageData $package) use ($siteUrl, $user, $seed, $languages, $sites): void {
+        $missingDemoPackages = [];
+
+        $packages->each(function (PackageData $package) use ($siteUrl, $user, $seed, $languages, $sites, &$missingDemoPackages): void {
             if ($package->name === DemoKitServiceProvider::$packageName) {
                 return;
             }
 
-            $this->comment(sprintf('Installing %s demo...', $package->name));
+            if (! $this->packageHasDemoCommand($package)) {
+                $missingDemoPackages[] = $package->name;
 
-            if (in_array($package->getDemoCommand(), [null, '', '0'], true)) {
                 return;
             }
 
+            $this->comment(sprintf('Installing %s demo...', $package->name));
             $this->comment('Running command: ' . $package->getDemoCommand());
             $params = [];
 
@@ -195,5 +198,29 @@ class DemoCommand extends Command
             $this->comment('Successfully setup demo: ' . $package->name);
             $this->newLine();
         });
+
+        $this->reportMissingDemoCommands($missingDemoPackages);
+    }
+
+    private function packageHasDemoCommand(PackageData $package): bool
+    {
+        return ! in_array($package->getDemoCommand(), [null, '', '0'], true);
+    }
+
+    /**
+     * @param  list<string>  $packageNames
+     */
+    private function reportMissingDemoCommands(array $packageNames): void
+    {
+        if ($packageNames === []) {
+            return;
+        }
+
+        sort($packageNames);
+
+        $this->warn((string) __('capell-demo-kit::commands.missing_demo_commands_heading', [
+            'packages' => implode(', ', $packageNames),
+        ]));
+        $this->line((string) __('capell-demo-kit::commands.missing_demo_commands_hint'));
     }
 }
