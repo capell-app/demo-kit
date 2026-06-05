@@ -27,11 +27,12 @@ it('builds the kitchen sink demo layout graph within a bounded query budget with
     $site = $page->site;
     $language = $page->translations->first()?->language;
 
-    expect($layout)->toBeInstanceOf(Layout::class)
-        ->and($site)->toBeInstanceOf(Site::class)
-        ->and($language)->toBeInstanceOf(Language::class);
+    expect($layout)->toBeInstanceOf(Layout::class);
+    expect($site instanceof Site)->toBeTrue();
+    expect($language instanceof Language)->toBeTrue();
 
     assert($layout instanceof Layout);
+    assert($site instanceof Site);
     assert($language instanceof Language);
 
     // Avoid a lazy site reload skewing the measured query count.

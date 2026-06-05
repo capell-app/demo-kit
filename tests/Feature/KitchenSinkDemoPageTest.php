@@ -15,6 +15,7 @@ use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
+use Capell\Core\Models\Translation;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\FoundationTheme\View\Components\Footer\LatestPages;
@@ -133,8 +134,10 @@ it('installs the kitchen sink demo page on the default site and primary language
         ->create(['name' => 'Capell Services']);
 
     $page = InstallKitchenSinkDemoPageAction::run()->loadMissing(['pageUrl', 'site']);
+    $pageSite = $page->site;
+    throw_unless($pageSite instanceof Site, RuntimeException::class, 'Expected the kitchen sink page site to be loaded.');
 
-    expect($page->site->is($site))->toBeTrue()
+    expect($pageSite->is($site))->toBeTrue()
         ->and($page->pageUrl?->language_id)->toBe($primaryLanguage->getKey())
         ->and($page->pageUrl?->url)->toBe('/kitchen-sink-showcase')
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->where('site_id', $site->getKey())->count())->toBe(1)
@@ -158,8 +161,10 @@ it('installs the kitchen sink demo page on the services demo site when available
         ->create(['name' => 'Capell Services']);
 
     $page = InstallKitchenSinkDemoPageAction::run()->loadMissing(['pageUrl', 'site']);
+    $pageSite = $page->site;
+    throw_unless($pageSite instanceof Site, RuntimeException::class, 'Expected the kitchen sink page site to be loaded.');
 
-    expect($page->site->is($services))->toBeTrue()
+    expect($pageSite->is($services))->toBeTrue()
         ->and($page->pageUrl?->language_id)->toBe($english->getKey())
         ->and($page->pageUrl?->url)->toBe('/kitchen-sink-showcase')
         ->and(Page::query()->where('name', 'Kitchen Sink Demo Page')->where('site_id', $services->getKey())->count())->toBe(1);
@@ -298,15 +303,13 @@ it('stores one page h1 and all forty reference section headings', function (): v
 
     $page = InstallKitchenSinkDemoPageAction::run();
     $translation = $page->translations()->first();
+    $content = $translation?->content;
+    throw_unless(is_string($content), RuntimeException::class, 'Expected the kitchen sink page translation content to exist.');
 
-    expect(substr_count((string) $translation?->content, '<h1>'))->toBe(1);
+    expect(substr_count($content, '<h1>'))->toBe(1);
 
-    $layoutContainers = $page->layout?->containers;
-    expect(is_array($layoutContainers))->toBeTrue();
-
-    $layoutWidgets = is_array($layoutContainers['main']) && is_array($layoutContainers['main']['widgets'] ?? null)
-        ? $layoutContainers['main']['widgets']
-        : [];
+    $layout = kitchenSinkRequiredLayout($page->layout);
+    $layoutWidgets = kitchenSinkMainContainer($layout)['widgets'];
 
     $headings = collect($layoutWidgets)
         ->pluck('widget_key')
@@ -324,17 +327,15 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
     test()->actingAsAdmin();
     resolve(LayoutBuilderAdminRegistrar::class)->register();
 
-    $page = InstallKitchenSinkDemoPageAction::run()->loadMissing(['layout', 'translations.language']);
+    $page = InstallKitchenSinkDemoPageAction::run();
+    $page->loadMissing(['layout', 'translations.language']);
+
     $language = $page->translations->first()?->language;
 
-    expect($language)->not->toBeNull();
+    throw_unless($language instanceof Language, RuntimeException::class, 'Expected the kitchen sink page language to be loaded.');
 
-    $layout = $page->layout;
-    expect($layout)->toBeInstanceOf(Layout::class);
-
-    $layoutWidgets = is_array($layout->containers['main']['widgets'] ?? null)
-        ? $layout->containers['main']['widgets']
-        : [];
+    $layout = kitchenSinkRequiredLayout($page->layout);
+    $layoutWidgets = kitchenSinkMainContainer($layout)['widgets'];
 
     expect($layoutWidgets)->toHaveCount(kitchenSinkExpectedLayoutWidgetCount());
 
@@ -369,11 +370,14 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
             ->and($originalSections)->toBeArray($widgetKey)
             ->and($originalSections)->not->toBeEmpty($widgetKey);
 
-        $existingTranslation = $widget->translations->firstWhere('language_id', $language?->getKey());
+        $existingTranslation = $widget->translations->firstWhere('language_id', $language->getKey());
         $editedTitle = $widget->name . ' edited title';
         $editedContent = '<p>Edited kitchen sink widget content for ' . e($widget->key) . '.</p>';
 
         expect($existingTranslation)->not->toBeNull($widgetKey);
+        throw_unless($existingTranslation instanceof Translation, RuntimeException::class, 'Expected a widget translation to edit.');
+        $existingTranslationKey = $existingTranslation->getKey();
+        throw_unless(is_int($existingTranslationKey) || is_string($existingTranslationKey), RuntimeException::class, 'Expected a widget translation key.');
 
         Livewire::test(EditWidget::class, ['record' => $widget->getRouteKey()])
             ->assertSuccessful()
@@ -381,8 +385,8 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
                 'name' => $editedName,
                 'status' => (bool) $widget->status,
             ])
-            ->set('data.translations.record-' . $existingTranslation?->getKey() . '.title', $editedTitle)
-            ->set('data.translations.record-' . $existingTranslation?->getKey() . '.content', $editedContent)
+            ->set('data.translations.record-' . $existingTranslationKey . '.title', $editedTitle)
+            ->set('data.translations.record-' . $existingTranslationKey . '.content', $editedContent)
             ->set('data.meta.family', $editedFamily)
             ->set('data.meta.sections', $editedSections)
             ->call('save')
@@ -399,7 +403,7 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
             ->and($editedWidget->assets->pluck('id')->sort()->values()->all())->toBe($originalAssetIds, $widgetKey);
 
         $editedTranslation = $editedWidget->translations()
-            ->where('language_id', $language?->getKey())
+            ->where('language_id', $language->getKey())
             ->first();
 
         expect($editedTranslation?->title)->toBe($editedTitle, $widgetKey)

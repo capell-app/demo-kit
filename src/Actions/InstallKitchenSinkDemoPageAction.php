@@ -33,6 +33,9 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\MediaLibrary\HasMedia;
 
+/**
+ * @method static Page run(?Site $site = null)
+ */
 final class InstallKitchenSinkDemoPageAction
 {
     use AsObject;
