@@ -70,14 +70,14 @@ Demo Kit is an internal/tooling package (`tier: free`, `bundle: foundation`, `co
 
 | Item                                                                                        | Bucket | Effort | Impact | Section ref |
 | ------------------------------------------------------------------------------------------- | ------ | ------ | ------ | ----------- |
-| Add production environment guard + no known-password superadmin outside local/testing       | Now    | S      | High   | §4          |
-| Fix `--user` forwarded as boolean to `capell:demo`                                          | Now    | S      | High   | §2.1        |
-| Add test asserting `--user` value reaches package demos                                     | Now    | S      | Med    | §4          |
+| Add production environment guard + no known-password superadmin outside local/testing       | Done   | S      | High   | §4 — closed 2026-06-05: demo commands now share a production guard with explicit `--allow-production` override and regression coverage. |
+| Fix `--user` forwarded as boolean to `capell:demo`                                          | Done   | S      | High   | §2.1 — closed 2026-06-05: `capell:demo` accepts `{--user=}` and full-demo forwards the selected author value to package demos. |
+| Add test asserting `--user` value reaches package demos                                     | Done   | S      | Med    | §4 — closed 2026-06-05: `FullDemoCommandTest` asserts the package demo receives the author email verbatim. |
 | Drive per-package `commands.demo` coverage (campaign + "missing demo" report)               | Now    | L      | High   | §3          |
-| Thread `--seed` through `capell:demo` package fan-out (or document boundary)                | Next   | M      | High   | §2.2        |
+| Thread `--seed` through `capell:demo` package fan-out (or document boundary)                | Done   | M      | High   | §2.2 — closed 2026-06-05: full-demo forwards the resolved seed to package demos and `DemoCommandTest` covers seed forwarding only for packages that declare the parameter. |
 | Surface `AssertDefaultDemoInstallHealthAction` in Diagnostics admin, not CLI-only           | Next   | M      | High   | §3, §2.4    |
-| Reword manifest healthCheck label to match marker behaviour                                 | Now    | S      | Low    | §2.4        |
-| Rewrite marketplace summary + composer description                                          | Next   | S      | Med    | §5          |
+| Reword manifest healthCheck label to match marker behaviour                                 | Done   | S      | Low    | §2.4 — closed 2026-06-05: manifest health copy now states the API-version compatibility contract instead of over-claiming install probes. |
+| Rewrite marketplace summary + composer description                                          | Done   | S      | Med    | §5 — closed 2026-06-05: manifest/composer copy now leads with deterministic demo-data orchestration, multi-site/language seeding, and per-package fan-out. |
 | Populate marketplace screenshots to match `screenshots.json` (3 targets) + commit baselines | Next   | M      | Med    | §5          |
 | Localize seeded site meta (footer/business/phone) via locale-aware content                  | Next   | M      | Med    | §4          |
 | Guard against demo-key drift: test that Foundation showcase widget keys exist               | Next   | M      | Med    | §2.5, §4    |
