@@ -14,7 +14,7 @@ final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPay
     /**
      * @var array<int, string>
      */
-    private const array WidgetKeys = [
+    private const array ReferenceSourceWidgetKeys = [
         'kitchen-sink-structured-text',
         'kitchen-sink-rich-text',
         'kitchen-sink-data-display',
@@ -39,27 +39,32 @@ final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPay
 
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        if (! in_array($widget->key, self::WidgetKeys, true)) {
-            return null;
+        $sourceWidgetKey = $this->sourceWidgetKey($widget);
+
+        if (! in_array($sourceWidgetKey, self::ReferenceSourceWidgetKeys, true)) {
+            return $this->fallbackHtml($widget, $language, $sourceWidgetKey);
         }
 
-        $sourceWidget = Widget::query()
+        $renderWidget = is_array($widget->meta['sections'] ?? null) ? $widget : Widget::query()
             ->with('translations')
             ->find($widget->getKey());
 
-        if (! $sourceWidget instanceof Widget) {
+        if (! $renderWidget instanceof Widget) {
             return null;
         }
 
-        $sections = is_array($sourceWidget->meta['sections'] ?? null) ? $sourceWidget->meta['sections'] : [];
+        $renderWidget->loadMissing('translations');
+
+        $sections = is_array($renderWidget->meta['sections'] ?? null) ? $renderWidget->meta['sections'] : [];
 
         if ($sections === []) {
             return null;
         }
 
-        $family = e((string) ($sourceWidget->meta['family'] ?? 'reference'));
-        $translation = $sourceWidget->translations->firstWhere('language_id', $language->getKey())
-            ?? $sourceWidget->translations->first();
+        $family = e((string) ($renderWidget->meta['family'] ?? 'reference'));
+        $translation = $renderWidget->translation
+            ?? $renderWidget->translations->firstWhere('language_id', $language->getKey())
+            ?? $renderWidget->translations->first();
         $html = '<section class="capell-kitchen-sink-reference">';
 
         if ($translation !== null) {
@@ -73,6 +78,45 @@ final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPay
         }
 
         return $html . '</section>';
+    }
+
+    private function fallbackHtml(Widget $widget, Language $language, string $sourceWidgetKey): ?string
+    {
+        if (! str_starts_with($widget->key, 'kitchen-sink-')) {
+            return null;
+        }
+
+        $widget->loadMissing('translations');
+
+        $translation = $widget->translation
+            ?? $widget->translations->firstWhere('language_id', $language->getKey())
+            ?? $widget->translations->first();
+
+        $title = e((string) ($translation?->title ?? $widget->name));
+        $content = (string) ($translation?->content ?? '');
+        $source = e(str($sourceWidgetKey)->headline()->toString());
+        $variant = e((string) data_get($widget->meta, 'kitchen_sink.variant', 'lazy fragment'));
+
+        return '<section class="capell-kitchen-sink-fragment" data-source="' . e($sourceWidgetKey) . '">'
+            . '<p>' . $source . ' / ' . $variant . '</p>'
+            . '<h2>' . $title . '</h2>'
+            . $content
+            . '</section>';
+    }
+
+    private function sourceWidgetKey(Widget $widget): string
+    {
+        if (in_array($widget->key, self::ReferenceSourceWidgetKeys, true)) {
+            return $widget->key;
+        }
+
+        $matches = [];
+
+        if (preg_match('/\Akitchen-sink-\d{3}-(?<source>.+)\z/', $widget->key, $matches) !== 1) {
+            return $widget->key;
+        }
+
+        return is_string($matches['source'] ?? null) ? $matches['source'] : $widget->key;
     }
 
     /**
