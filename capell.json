@@ -47,6 +47,7 @@
             "sites",
             "site-count",
             "page-count",
+            "theme",
             "seed",
             "allow-production",
             "force"

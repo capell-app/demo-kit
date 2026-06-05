@@ -27,6 +27,7 @@ final class FullDemoCommand extends Command
         {--site-count=}
         {--page-count=}
         {--packages=}
+        {--theme=}
         {--seed=}
         {--allow-production}
         {--force}';
@@ -242,6 +243,17 @@ final class FullDemoCommand extends Command
         return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
     }
 
+    private function resolveThemeOption(): ?string
+    {
+        $theme = $this->option('theme');
+
+        if (! is_scalar($theme) || (string) $theme === '') {
+            return null;
+        }
+
+        return (string) $theme;
+    }
+
     /**
      * @return list<string>
      */
@@ -249,6 +261,7 @@ final class FullDemoCommand extends Command
     {
         $selectedPackageNames = $this->parseCsvOption('packages');
         $selectedPackages = $selectedPackageNames === [] ? null : array_fill_keys($selectedPackageNames, true);
+        $selectedThemeKey = $this->resolveThemeOption();
 
         /** @var Collection<string, PackageData> $packages */
         $packages = CapellCore::getInstalledPackages();
@@ -259,6 +272,13 @@ final class FullDemoCommand extends Command
                 $selectedPackages !== null,
                 fn (Collection $packages): Collection => $packages->filter(
                     static fn (PackageData $package): bool => isset($selectedPackages[$package->name]),
+                ),
+            )
+            ->when(
+                $selectedThemeKey !== null,
+                fn (Collection $packages): Collection => $packages->filter(
+                    static fn (PackageData $package): bool => $package->getThemeKey() === null
+                        || $package->getThemeKey() === $selectedThemeKey,
                 ),
             )
             ->reject(fn (PackageData $package): bool => in_array($package->getDemoCommand(), [null, '', '0'], true))

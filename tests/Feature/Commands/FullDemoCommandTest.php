@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Actions\DemoPackageAction;
+use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -258,6 +259,67 @@ it('only runs package demos selected by packages option', function (): void {
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:selected-demo']);
+});
+
+it('runs non theme package demos and only the selected theme demo when theme option is provided', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/example-package');
+    CapellCore::forcePackageInstalled('vendor/example-package');
+    CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:package-demo';
+
+    CapellCore::registerPackage(name: 'capell-app/theme-agency', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-agency');
+    CapellCore::getPackage('capell-app/theme-agency')->demoCommand = 'test:agency-demo';
+    CapellCore::getPackage('capell-app/theme-agency')->themeKey = 'agency';
+
+    CapellCore::registerPackage(name: 'capell-app/theme-saas', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-saas');
+    CapellCore::getPackage('capell-app/theme-saas')->demoCommand = 'test:saas-demo';
+    CapellCore::getPackage('capell-app/theme-saas')->themeKey = 'saas';
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:package-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:agency-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:saas-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--page-count' => 1,
+        '--theme' => 'agency',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)
+        ->toHaveCount(2)
+        ->toContain('test:package-demo')
+        ->toContain('test:agency-demo')
+        ->not->toContain('test:saas-demo');
 });
 
 it('requires force when running non interactively', function (): void {
