@@ -25,6 +25,8 @@ return [
     'kitchen_sink' => [
         'target_widget_count' => 120,
         'eager_widget_limit' => 20,
+        'context_page_count' => 24,
+        'context_asset_limit' => 12,
     ],
 
     'health' => [

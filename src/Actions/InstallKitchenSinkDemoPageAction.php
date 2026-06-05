@@ -47,6 +47,10 @@ final class InstallKitchenSinkDemoPageAction
 
     private const int DefaultTargetWidgetCount = 120;
 
+    private const int DefaultContextPageCount = 24;
+
+    private const int DefaultContextAssetLimit = 12;
+
     private const string LivewireStressWidgetKey = 'kitchen-sink-livewire-stress';
 
     private const string LivewireLatestPagesWidgetKey = 'kitchen-sink-livewire-latest-pages';
@@ -119,6 +123,16 @@ final class InstallKitchenSinkDemoPageAction
         return max(1, (int) config('capell-demo-kit.kitchen_sink.eager_widget_limit', self::DefaultEagerWidgetLimit));
     }
 
+    public static function contextPageCount(): int
+    {
+        return max(1, (int) config('capell-demo-kit.kitchen_sink.context_page_count', self::DefaultContextPageCount));
+    }
+
+    public static function contextAssetLimit(): int
+    {
+        return max(1, (int) config('capell-demo-kit.kitchen_sink.context_asset_limit', self::DefaultContextAssetLimit));
+    }
+
     /**
      * @return array<int, array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}>
      */
@@ -126,6 +140,7 @@ final class InstallKitchenSinkDemoPageAction
     {
         $sourceKeys = collect([
             self::HeroTopWidgetKey,
+            'kitchen-sink-structured-text',
             'breadcrumbs',
             'announcement-bar',
             'page-content',
@@ -149,7 +164,7 @@ final class InstallKitchenSinkDemoPageAction
             'siblings',
             'assets-widget',
             'default',
-            ...array_keys(self::widgetFamilies()),
+            ...array_diff(array_keys(self::widgetFamilies()), ['kitchen-sink-structured-text']),
             self::HeroDeepWidgetKey,
         ])
             ->merge(
@@ -420,10 +435,9 @@ final class InstallKitchenSinkDemoPageAction
      */
     private function contextPages(Site $site, Layout $layout, EloquentCollection $languages, Page $page): array
     {
-        $pages = [
-            ...$this->siblingPages($site, $layout, $languages, $page),
-            ...$this->childPages($site, $layout, $languages, $page),
-        ];
+        $pages = collect(array_slice($this->contextPageDefinitions(), 0, self::contextPageCount()))
+            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $page, $data))
+            ->all();
 
         foreach ($pages as $index => $contextPage) {
             $this->ensureDemoMedia($contextPage, $this->imageNameForIndex($index + 1), MediaCollectionEnum::Image);
@@ -434,12 +448,22 @@ final class InstallKitchenSinkDemoPageAction
     }
 
     /**
-     * @param  EloquentCollection<int, Language>  $languages
-     * @return array<int, Page>
+     * @return array<int, array{name: string, slug: string, summary: string, order: int}>
      */
-    private function siblingPages(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage): array
+    private function contextPageDefinitions(): array
     {
-        return collect([
+        return [
+            ...$this->siblingPageDefinitions(),
+            ...$this->childPageDefinitions(),
+        ];
+    }
+
+    /**
+     * @return array<int, array{name: string, slug: string, summary: string, order: int}>
+     */
+    private function siblingPageDefinitions(): array
+    {
+        return [
             ['name' => 'Kitchen Sink Content Patterns', 'slug' => 'kitchen-sink-content-patterns', 'summary' => 'Content, rich text, callout, and editorial widget patterns.', 'order' => 30],
             ['name' => 'Kitchen Sink Interaction Patterns', 'slug' => 'kitchen-sink-interaction-patterns', 'summary' => 'Accordion, tab, carousel, pagination, and Livewire interaction patterns.', 'order' => 40],
             ['name' => 'Kitchen Sink Media Patterns', 'slug' => 'kitchen-sink-media-patterns', 'summary' => 'Image, gallery, carousel, video, and responsive media patterns.', 'order' => 50],
@@ -452,18 +476,15 @@ final class InstallKitchenSinkDemoPageAction
             ['name' => 'Kitchen Sink Lazy Patterns', 'slug' => 'kitchen-sink-lazy-patterns', 'summary' => 'Lazy fragment, below-fold, and deferred payload stress patterns.', 'order' => 120],
             ['name' => 'Kitchen Sink Long Copy Patterns', 'slug' => 'kitchen-sink-long-copy-patterns', 'summary' => 'Long labels, long words, and dense copy fitting patterns.', 'order' => 130],
             ['name' => 'Kitchen Sink Builder Patterns', 'slug' => 'kitchen-sink-builder-patterns', 'summary' => 'Layout composition, repeated widgets, and rendering stress patterns.', 'order' => 140],
-        ])
-            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $parentPage, $data))
-            ->all();
+        ];
     }
 
     /**
-     * @param  EloquentCollection<int, Language>  $languages
-     * @return array<int, Page>
+     * @return array<int, array{name: string, slug: string, summary: string, order: int}>
      */
-    private function childPages(Site $site, Layout $layout, EloquentCollection $languages, Page $page): array
+    private function childPageDefinitions(): array
     {
-        return collect([
+        return [
             ['name' => 'Kitchen Sink Child Overview', 'slug' => 'kitchen-sink-child-overview', 'summary' => 'A child page for hierarchy-aware widgets.', 'order' => 150],
             ['name' => 'Kitchen Sink Child Detail', 'slug' => 'kitchen-sink-child-detail', 'summary' => 'A child page for selected page-card widgets.', 'order' => 160],
             ['name' => 'Kitchen Sink Child Reference', 'slug' => 'kitchen-sink-child-reference', 'summary' => 'A child page for related asset widgets.', 'order' => 170],
@@ -476,9 +497,7 @@ final class InstallKitchenSinkDemoPageAction
             ['name' => 'Kitchen Sink Child Fallbacks', 'slug' => 'kitchen-sink-child-fallbacks', 'summary' => 'A child page for missing content and fallback states.', 'order' => 240],
             ['name' => 'Kitchen Sink Child Deep Link', 'slug' => 'kitchen-sink-child-deep-link', 'summary' => 'A child page for deep linking and anchor navigation.', 'order' => 250],
             ['name' => 'Kitchen Sink Child Stress Result', 'slug' => 'kitchen-sink-child-stress-result', 'summary' => 'A child page for final stress-render verification.', 'order' => 260],
-        ])
-            ->map(fn (array $data): Page => $this->contextPage($site, $layout, $languages, $page, $data))
-            ->all();
+        ];
     }
 
     /**
@@ -867,7 +886,7 @@ final class InstallKitchenSinkDemoPageAction
      */
     private function syncPageSelectionAssets(Page $page, array $pages): void
     {
-        $pages = array_slice($pages, 0, 12);
+        $pages = array_slice($pages, 0, self::contextAssetLimit());
         $assetWidgetKeys = collect(self::layoutWidgetEntries())
             ->filter(fn (array $entry): bool => in_array($entry['source_key'], self::PageAssetWidgetKeys, true))
             ->pluck('widget_key')
@@ -925,7 +944,7 @@ final class InstallKitchenSinkDemoPageAction
                 continue;
             }
 
-            foreach (array_slice($pages, 0, 12) as $order => $assetPage) {
+            foreach (array_slice($pages, 0, self::contextAssetLimit()) as $order => $assetPage) {
                 $rows[] = $this->widgetAssetRow(
                     page: $page,
                     widget: $widget,
@@ -1054,7 +1073,10 @@ final class InstallKitchenSinkDemoPageAction
         foreach ($languages as $language) {
             $translations[(string) $language->code] = [
                 'title' => self::PageName,
-                'content' => '<h1>Kitchen Sink Demo Page</h1><p>A 120-widget stress fixture covering Capell layout rendering, media assets, Livewire widgets, page lists, lazy fragments, reusable content, and accessibility edge cases.</p>',
+                'content' => sprintf(
+                    '<h1>Kitchen Sink Demo Page</h1><p>A %d-widget stress fixture covering Capell layout rendering, media assets, Livewire widgets, page lists, lazy fragments, reusable content, and accessibility edge cases.</p>',
+                    self::targetWidgetCount(),
+                ),
                 'summary' => 'A CMS stress fixture for testing Capell widget rendering, lazy loading, media, and accessibility.',
                 'meta' => [
                     'slug' => self::PageSlug,
