@@ -122,6 +122,7 @@ class AdminDemoCommand extends Command
             CreateDemoLanguagesAction::run($plan->languageCodes);
 
             $this->createDemoSites($plan, $siteUrl, $pageCreator, $user);
+            $this->ensureDemoSitesSupportAllLanguages($plan);
 
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
@@ -339,6 +340,28 @@ class AdminDemoCommand extends Command
 
             $bar->finish();
             $this->newLine();
+        }
+    }
+
+    private function ensureDemoSitesSupportAllLanguages(DemoGenerationPlanData $plan): void
+    {
+        /** @var Collection<int, Language> $languages */
+        $languages = Language::query()
+            ->whereIn('code', $plan->languageCodes)
+            ->get();
+
+        if ($languages->isEmpty()) {
+            return;
+        }
+
+        foreach ($plan->sites as $sitePlan) {
+            $site = Site::query()->where('name', $sitePlan->name)->first();
+
+            if (! $site instanceof Site) {
+                continue;
+            }
+
+            $this->demoCreator->setupSite($site, $languages);
         }
     }
 

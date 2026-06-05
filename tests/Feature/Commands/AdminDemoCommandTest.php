@@ -89,7 +89,7 @@ it('runs demo command successfully', function (): void {
         $mock->shouldAllowMockingProtectedMethods();
         $mock->shouldReceive('setupRelatedSites')->andReturnNull();
         $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
-        $mock->shouldReceive('setupSite')->andReturnNull();
+        $mock->shouldReceive('setupSite')->times(4)->andReturnNull();
         $mock->shouldReceive('setupMainNavigation')->andReturnNull();
         $mock->shouldReceive('setupFooterNavigation')->andReturnNull();
         $mock->shouldReceive('subFooterNavigation')->andReturnNull();
