@@ -30,6 +30,7 @@ Generated demo content and media kit for Capell.
 - Demo content provider for admin and frontend package setup.
 - Demo assets that help validate a package install quickly.
 - Package-owned doctor checks surfaced through Diagnostics and the `capell:demo-kit-doctor` command.
+- Locale-aware seeded site metadata for footer copy, business names, phone numbers, and descriptions.
 
 ## Why It Matters
 
