@@ -29,7 +29,7 @@ Generated demo content and media kit for Capell.
 - Randomised example site content and media for local Capell demos.
 - Demo content provider for admin and frontend package setup.
 - Demo assets that help validate a package install quickly.
-- A package-owned doctor command for validating generated demo installs.
+- Package-owned doctor checks surfaced through Diagnostics and the `capell:demo-kit-doctor` command.
 
 ## Why It Matters
 
