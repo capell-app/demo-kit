@@ -15,6 +15,7 @@ use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
 use Capell\DemoKit\Actions\CreateDemoUsersAction;
+use Capell\DemoKit\Actions\ResetDemoSitesAction;
 use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
@@ -68,6 +69,7 @@ class AdminDemoCommand extends Command
         {--site-count=}
         {--page-count=}
         {--seed=}
+        {--reset}
         {--allow-production}';
 
     private DemoCreator $demoCreator;
@@ -110,6 +112,7 @@ class AdminDemoCommand extends Command
             $user = $this->resolveUser();
 
             $this->outputDemoSetupInfo($plan);
+            $this->resetDemoSites($plan);
             $this->createDemoUsers();
             $this->demoCreator = app()->make(DemoCreator::class, [
                 'url' => $siteUrl,
@@ -277,6 +280,20 @@ class AdminDemoCommand extends Command
         CreateDemoUsersAction::run();
         $this->info('Demo admin created with super admin role: demo@example.com');
         $this->info('Editor user created with editor role');
+    }
+
+    private function resetDemoSites(DemoGenerationPlanData $plan): void
+    {
+        if ($this->option('reset') !== true) {
+            return;
+        }
+
+        $deleted = ResetDemoSitesAction::run(array_map(
+            static fn (DemoSiteGenerationPlanData $site): string => $site->name,
+            $plan->sites,
+        ));
+
+        $this->info(sprintf('Reset %d existing demo site(s).', $deleted));
     }
 
     private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator, ?User $user): void

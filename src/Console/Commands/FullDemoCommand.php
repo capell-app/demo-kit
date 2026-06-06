@@ -30,6 +30,7 @@ final class FullDemoCommand extends Command
         {--theme=}
         {--seed=}
         {--quick}
+        {--reset}
         {--allow-production}
         {--force}';
 
@@ -104,6 +105,10 @@ final class FullDemoCommand extends Command
 
         if ($plan->seed !== null) {
             $adminDemoParams['--seed'] = $plan->seed;
+        }
+
+        if ($this->option('reset') === true) {
+            $adminDemoParams['--reset'] = true;
         }
 
         if ($user !== null) {

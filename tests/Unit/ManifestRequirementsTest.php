@@ -23,6 +23,7 @@ describe('demo kit capell.json manifest', function (): void {
                 'theme',
                 'seed',
                 'quick',
+                'reset',
                 'allow-production',
                 'force',
             ]);

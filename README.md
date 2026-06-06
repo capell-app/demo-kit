@@ -69,9 +69,9 @@ This package makes its Composer dependencies visible because they are part of th
 
 ## Commands
 
-- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--allow-production}` creates admin/core demo users, sites, languages, and pages.
+- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--reset} {--allow-production}` creates admin/core demo users, sites, languages, and pages.
 - `capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}` dispatches installed package demo commands and forwards only the options each package declares in `commands.demoParams`.
-- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--theme=} {--seed=} {--quick} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
+- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--theme=} {--seed=} {--quick} {--reset} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
 - `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
 - The Kitchen Sink fixture includes the full Layout Builder default and extra widget catalogs, plus parent, sibling, and child context pages for page-selection widgets. It intentionally server-renders only the first above-fold reference widget up front; the remaining widget instances are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
@@ -86,6 +86,7 @@ Useful options:
 - `--page-count=30` creates that many generated pages per site.
 - `--languages=all`, `--languages=en,fr`, or `--languages=random:3` controls the language pool.
 - `--quick` uses a compact CI/screenshot profile when counts are omitted: one site, English only, and three pages per site.
+- `--reset` deletes existing sites whose names match the generated plan before recreating them, keeping repeated screenshot and QA runs stable without touching unrelated sites.
 - `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
 
 Omit `--seed` for a fresh random demo on each run.
