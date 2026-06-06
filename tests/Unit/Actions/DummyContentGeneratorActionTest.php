@@ -7,12 +7,16 @@ use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 it('returns a non-empty html paragraph for supported languages', function (): void {
     $en = DummyContentGeneratorAction::run('en');
     $fr = DummyContentGeneratorAction::run('fr');
+    $ar = DummyContentGeneratorAction::run('ar');
 
     expect($en)->toBeString()->not()->toBe('')
         ->and($en)->toStartWith('<p>')->toEndWith('</p>')
         ->and($fr)->toBeString()->not()->toBe('')
         ->and($fr)->toStartWith('<p>')->toEndWith('</p>')
-        ->and($en)->toContain('<strong>')->and($fr)->toContain('<strong>');
+        ->and($ar)->toBeString()->not()->toBe('')
+        ->and($ar)->toStartWith('<p>')->toEndWith('</p>')
+        ->and($en)->toContain('<strong>')->and($fr)->toContain('<strong>')
+        ->and($ar)->toContain('<strong>');
 
 });
 
