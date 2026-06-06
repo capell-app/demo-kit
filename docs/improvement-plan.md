@@ -14,7 +14,7 @@ Current marketplace `summary` leads with Demo Kit as the deterministic demo engi
 
 2. **Forward `--seed` to package demos for true determinism** — `FullDemoCommand` forwards `--seed` to `capell:admin-demo` (line 90) but **not** to the `capell:demo` package fan-out (lines 106-113). README states `--seed` "makes the generated plan repeatable for screenshots, tests, and bug reports," but package-owned demo content (address, blog) is generated non-deterministically regardless of seed. Either thread the seed through `capell:demo` → each package's demo command, or document the boundary explicitly. — `src/Console/Commands/FullDemoCommand.php:106-113`; README "Demo Generation" — M
 
-3. **Remove duplicated option parse** — `resolvePositiveIntegerOption('page-count')` is computed twice (lines 64 and 84) inside `createFullDemo()`; the first result is already in `$options`/`$plan`. Reuse the value. Minor, but it is dead duplication in the hottest command. — `src/Console/Commands/FullDemoCommand.php:64,84` — S
+3. **Done/Shipped: removed duplicated option parse.** `capell:demo-kit-full-demo` now resolves `--page-count` once, reuses it for the generated plan and admin demo call, and the changelog records the fix. — `src/Console/Commands/FullDemoCommand.php`, `CHANGELOG.md` — S
 
 4. **Tighten the manifest health-check label to match behaviour** — `capell.json` `healthChecks[0].label` claims Demo Kit "surfaces, providers, and install health are discoverable by Diagnostics," but `DemoKitHealthCheck` only implements `compatibleCapellApiVersion()` (the suite-wide `ChecksExtensionHealth` marker pattern, same as `SeoSuiteHealthCheck`/`DiagnosticsHealthCheck`). The substantive 13-check logic lives in `AssertDefaultDemoInstallHealthAction` and is reachable only via the `capell:demo-kit-doctor` CLI. Reword the label to describe the API-version contract, and surface the doctor action through Diagnostics (see §3). — `capell.json` (healthChecks), `src/Health/DemoKitHealthCheck.php` — S
 
@@ -48,7 +48,7 @@ Current marketplace `summary` leads with Demo Kit as the deterministic demo engi
 
 - **Done/Shipped: locale-aware seeded site meta.** `DemoCreator::setupSite()` now derives global site meta from the default demo language and stores per-translation localized business name, description, footer content/copy, and phone fields for English, French, German, Italian, and Spanish demo sites. — `src/Support/Creator/DemoCreator.php`
 
-- **Empty CHANGELOG.** `CHANGELOG.md` has only an "Unreleased" stub ("Prepared package metadata and documentation…"). No released history to anchor support or upgrade notes.
+- **Done/Shipped: CHANGELOG has real package history.** `CHANGELOG.md` records seed forwarding, production guards, user forwarding, the duplicated page-count parse fix, marketplace copy, and health-label changes.
 
 ## 5. Marketplace & Positioning
 
@@ -84,4 +84,4 @@ Demo Kit is an internal/tooling package (`tier: free`, `bundle: foundation`, `co
 | Add idempotent/reset path for re-runnable seeding                                           | Later  | M      | Med    | §3                                                                                                                                                                            |
 | Add `--quick` seed profile for CI/screenshot speed                                          | Later  | M      | Low    | §4                                                                                                                                                                            |
 | Broaden curated locale pool + add RTL demo coverage                                         | Later  | M      | Low    | §3                                                                                                                                                                            |
-| Remove duplicated `page-count` parse + start a real CHANGELOG                               | Later  | S      | Low    | §2.3, §4                                                                                                                                                                      |
+| Done/Shipped: Remove duplicated `page-count` parse + start a real CHANGELOG                 | Done   | S      | Low    | §2.3, §4                                                                                                                                                                      |
