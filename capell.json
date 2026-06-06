@@ -91,6 +91,36 @@
                 "path": "docs/assets/marketplace/extension-card.jpg",
                 "alt": "Demo Kit extension preview image",
                 "caption": "Demo Kit extension preview"
+            },
+            {
+                "path": "docs/screenshots/demo-kit-admin-page.png",
+                "alt": "Demo Kit admin page for deterministic content generation",
+                "caption": "Start repeatable demo generation from Capell Admin"
+            },
+            {
+                "path": "docs/screenshots/demo-page-content-widget.png",
+                "alt": "Generated demo page content rendered by Demo Kit",
+                "caption": "Package-owned Blade presentation for generated demo pages"
+            },
+            {
+                "path": "docs/screenshots/homepage-section-widget.png",
+                "alt": "Generated homepage section rendered by Demo Kit",
+                "caption": "Foundation showcase content rendered from portable CMS data"
+            },
+            {
+                "path": "docs/screenshots/demo-kit-admin-page-dark.png",
+                "alt": "Demo Kit admin page in dark mode",
+                "caption": "Dark-mode admin capture for demo generation"
+            },
+            {
+                "path": "docs/screenshots/demo-page-content-widget-dark.png",
+                "alt": "Generated demo page content rendered in dark mode",
+                "caption": "Dark-mode frontend capture for generated demo content"
+            },
+            {
+                "path": "docs/screenshots/homepage-section-widget-dark.png",
+                "alt": "Generated homepage section rendered in dark mode",
+                "caption": "Dark-mode frontend capture for the showcase homepage section"
             }
         ],
         "categories": ["admin", "foundation", "frontend"]
