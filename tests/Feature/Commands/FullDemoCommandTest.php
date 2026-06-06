@@ -261,6 +261,52 @@ it('only runs package demos selected by packages option', function (): void {
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:selected-demo']);
 });
 
+it('uses a compact quick profile when full demo counts are omitted', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/quick-package');
+    CapellCore::forcePackageInstalled('vendor/quick-package');
+    CapellCore::getPackage('vendor/quick-package')->demoCommand = 'test:quick-demo';
+    CapellCore::getPackage('vendor/quick-package')->demoParams = ['url', 'languages', 'sites'];
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:quick-demo {--url=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->times(3)->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->once()->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--packages' => 'vendor/quick-package',
+        '--quick' => true,
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:quick-demo'])
+        ->and(TrackingDemoCommand::$receivedLanguagesByCommand)->toBe(['test:quick-demo' => ['en']])
+        ->and(TrackingDemoCommand::$receivedSitesByCommand['test:quick-demo'] ?? [])->toHaveCount(1);
+});
+
 it('runs non theme package demos and only the selected theme demo when theme option is provided', function (): void {
     TrackingDemoCommand::reset();
 

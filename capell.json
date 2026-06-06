@@ -49,6 +49,7 @@
             "page-count",
             "theme",
             "seed",
+            "quick",
             "allow-production",
             "force"
         ],
