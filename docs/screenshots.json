@@ -17,7 +17,8 @@
             "required": true,
             "notes": "Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page.png",
-            "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page."
+            "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page.",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-page-dark.png"
         },
         {
             "id": "insights-consent-prime",
@@ -47,7 +48,8 @@
             "required": true,
             "notes": "Requires Demo Kit generated page data with a layout widget using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget.png",
-            "useCase": "A maintainer verifies generated demo pages render designed content through the package-owned Blade view."
+            "useCase": "A maintainer verifies generated demo pages render designed content through the package-owned Blade view.",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-page-content-widget-dark.png"
         },
         {
             "id": "homepage-section-widget",
@@ -60,7 +62,8 @@
             "required": true,
             "notes": "Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero widget.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget.png",
-            "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade."
+            "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade.",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget-dark.png"
         }
     ]
 }
