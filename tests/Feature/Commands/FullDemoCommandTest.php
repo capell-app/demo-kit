@@ -136,12 +136,14 @@ it('creates full multi site and language demo data and runs package demos', func
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
         '--seed' => 1234,
+        '--skip-demo-users' => true,
         '--force' => true,
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
     capell_expect(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '1234']);
+    capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
     capell_expect(Page::query()->where('name', 'Kitchen Sink Demo Page')->exists())->toBeTrue();
     capell_expect(Layout::query()->where('key', 'kitchen-sink-demo')->exists())->toBeTrue();
 });
@@ -303,8 +305,8 @@ it('uses a compact quick profile when full demo counts are omitted', function ()
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:quick-demo'])
-        ->and(TrackingDemoCommand::$receivedLanguagesByCommand)->toBe(['test:quick-demo' => ['en']])
-        ->and(TrackingDemoCommand::$receivedSitesByCommand['test:quick-demo'] ?? [])->toHaveCount(1);
+        ->and((array) (TrackingDemoCommand::$receivedLanguagesByCommand['test:quick-demo'] ?? []))->toBe(['en'])
+        ->and((array) (TrackingDemoCommand::$receivedSitesByCommand['test:quick-demo'] ?? []))->toHaveCount(1);
 });
 
 it('runs non theme package demos and only the selected theme demo when theme option is provided', function (): void {
