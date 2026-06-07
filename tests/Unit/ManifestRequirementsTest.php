@@ -20,7 +20,11 @@ describe('demo kit capell.json manifest', function (): void {
                 'sites',
                 'site-count',
                 'page-count',
+                'theme',
                 'seed',
+                'quick',
+                'reset',
+                'allow-production',
                 'force',
             ]);
     });

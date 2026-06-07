@@ -89,7 +89,7 @@ it('runs demo command successfully', function (): void {
         $mock->shouldAllowMockingProtectedMethods();
         $mock->shouldReceive('setupRelatedSites')->andReturnNull();
         $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
-        $mock->shouldReceive('setupSite')->andReturnNull();
+        $mock->shouldReceive('setupSite')->times(4)->andReturnNull();
         $mock->shouldReceive('setupMainNavigation')->andReturnNull();
         $mock->shouldReceive('setupFooterNavigation')->andReturnNull();
         $mock->shouldReceive('subFooterNavigation')->andReturnNull();
@@ -99,7 +99,8 @@ it('runs demo command successfully', function (): void {
 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->twice()
-        ->with(Mockery::on(fn (DemoSitePlanData $plan): bool => $plan->contentTree['children'] !== []))
+        ->with(Mockery::on(fn (DemoSitePlanData $plan): bool => $plan->contentTree['children'] !== []
+            && $plan->user?->is($user)))
         ->andReturn(true);
 
     test()->artisan('capell:admin-demo', [

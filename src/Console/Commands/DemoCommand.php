@@ -8,6 +8,7 @@ use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Console\Commands\Concerns\HasPackageSelection;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Data\PackageData;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
@@ -19,6 +20,7 @@ use function Laravel\Prompts\text;
 
 class DemoCommand extends Command
 {
+    use GuardsAgainstProduction;
     use HasLanguagesOption;
     use HasPackageSelection;
     use HasSitesOption;
@@ -29,7 +31,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}';
+    protected $signature = 'capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}';
 
     /**
      * The console command description.
@@ -43,6 +45,10 @@ class DemoCommand extends Command
      */
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return Command::FAILURE;
+        }
+
         if (! $this->option('force')
             && $this->input->isInteractive()
             && ! confirm('Are you sure you want to install example site content?', false)
@@ -60,7 +66,8 @@ class DemoCommand extends Command
 
         $siteUrl = $this->getSiteUrl();
 
-        $user = $this->option('user');
+        $user = $this->resolveUserOption();
+        $seed = $this->resolveSeedOption();
 
         $packages = $this->getSelectedPackages();
 
@@ -90,12 +97,33 @@ class DemoCommand extends Command
         $this->comment('Installing demo data');
         $this->newLine();
 
-        $this->installDemoPackages($packages, $siteUrl, $user !== null, $languages, $siteOptions);
+        $this->installDemoPackages($packages, $siteUrl, $user, $seed, $languages, $siteOptions);
 
         $this->newLine();
         $this->info('Finished installing demo data.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Resolve the author identifier (email or id) supplied via --user, if any.
+     */
+    private function resolveUserOption(): ?string
+    {
+        $user = $this->option('user');
+
+        if (is_scalar($user) && (string) $user !== '') {
+            return (string) $user;
+        }
+
+        return null;
+    }
+
+    private function resolveSeedOption(): ?int
+    {
+        $seed = $this->option('seed');
+
+        return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
     }
 
     /**
@@ -122,23 +150,26 @@ class DemoCommand extends Command
     /**
      * Install demo data for selected packages.
      *
+     * @param  Collection<array-key, mixed>  $packages
      * @param  array<array-key, mixed>|null  $languages
      * @param  array<array-key, mixed>|null  $sites
-     * @param  Collection<array-key, mixed>  $packages
      */
-    private function installDemoPackages(Collection $packages, string $siteUrl, bool $user, ?array $languages, ?array $sites): void
+    private function installDemoPackages(Collection $packages, string $siteUrl, ?string $user, ?int $seed, ?array $languages, ?array $sites): void
     {
-        $packages->each(function (PackageData $package) use ($siteUrl, $user, $languages, $sites): void {
+        $missingDemoPackages = [];
+
+        $packages->each(function (PackageData $package) use ($siteUrl, $user, $seed, $languages, $sites, &$missingDemoPackages): void {
             if ($package->name === DemoKitServiceProvider::$packageName) {
                 return;
             }
 
-            $this->comment(sprintf('Installing %s demo...', $package->name));
+            if (! $this->packageHasDemoCommand($package)) {
+                $missingDemoPackages[] = $package->name;
 
-            if (in_array($package->getDemoCommand(), [null, '', '0'], true)) {
                 return;
             }
 
+            $this->comment(sprintf('Installing %s demo...', $package->name));
             $this->comment('Running command: ' . $package->getDemoCommand());
             $params = [];
 
@@ -146,8 +177,12 @@ class DemoCommand extends Command
                 $params['--url'] = $siteUrl;
             }
 
-            if (in_array('user', $package->getDemoParams(), true)) {
+            if ($user !== null && in_array('user', $package->getDemoParams(), true)) {
                 $params['--user'] = $user;
+            }
+
+            if ($seed !== null && in_array('seed', $package->getDemoParams(), true)) {
+                $params['--seed'] = $seed;
             }
 
             if (in_array('languages', $package->getDemoParams(), true) && is_array($languages) && $languages !== []) {
@@ -163,5 +198,29 @@ class DemoCommand extends Command
             $this->comment('Successfully setup demo: ' . $package->name);
             $this->newLine();
         });
+
+        $this->reportMissingDemoCommands($missingDemoPackages);
+    }
+
+    private function packageHasDemoCommand(PackageData $package): bool
+    {
+        return ! in_array($package->getDemoCommand(), [null, '', '0'], true);
+    }
+
+    /**
+     * @param  list<string>  $packageNames
+     */
+    private function reportMissingDemoCommands(array $packageNames): void
+    {
+        if ($packageNames === []) {
+            return;
+        }
+
+        sort($packageNames);
+
+        $this->warn((string) __('capell-demo-kit::commands.missing_demo_commands_heading', [
+            'packages' => implode(', ', $packageNames),
+        ]));
+        $this->line((string) __('capell-demo-kit::commands.missing_demo_commands_hint'));
     }
 }

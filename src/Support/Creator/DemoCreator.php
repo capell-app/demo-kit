@@ -67,6 +67,12 @@ class DemoCreator extends ApDemoWidgetCreator
             ->get();
 
         $title = ctype_digit($site->name[0]) ? $site->name : Str::title($site->name);
+        $defaultLanguage = $languages->first(fn (Language $language): bool => $language->default)
+            ?? $languages->first();
+        $defaultSiteMeta = $this->localizedSiteMeta(
+            $defaultLanguage instanceof Language ? (string) $defaultLanguage->code : 'en',
+            $title,
+        );
 
         $meta = [
             'brand_color' => null,
@@ -78,10 +84,10 @@ class DemoCreator extends ApDemoWidgetCreator
             ...($site->meta ?? []),
         ];
 
-        $meta['business_name'] = $title . ' ltd';
+        $meta['business_name'] = $defaultSiteMeta['business_name'];
         $meta['email'] = config('mail.from.address');
-        $meta['phone'] = '0123456789';
-        $meta['footer_content'] = 'Footer content here';
+        $meta['phone'] = $defaultSiteMeta['phone'];
+        $meta['footer_content'] = $defaultSiteMeta['footer_content'];
         $meta['social_links'] = [
             [
                 'type' => 'facebook',
@@ -106,13 +112,18 @@ class DemoCreator extends ApDemoWidgetCreator
         $site->update(['meta' => $meta]);
 
         foreach ($languages as $language) {
+            $localizedMeta = $this->localizedSiteMeta((string) $language->code, $title);
+
             $site->translations()->updateOrCreate(['language_id' => $language->id], [
                 'title' => $title,
                 'meta' => [
                     'title_after_text' => null,
-                    'description' => 'Description for ' . $title,
-                    'footer_copy' => sprintf('<p>&copy; :year %s</p>', $title),
+                    'business_name' => $localizedMeta['business_name'],
+                    'description' => $localizedMeta['description'],
+                    'footer_content' => $localizedMeta['footer_content'],
+                    'footer_copy' => $localizedMeta['footer_copy'],
                     'label' => null,
+                    'phone' => $localizedMeta['phone'],
                     'ai_discovery' => [
                         'llms_txt_enabled' => false,
                         'llms_full_txt_enabled' => false,
@@ -147,6 +158,52 @@ class DemoCreator extends ApDemoWidgetCreator
                 'default' => $site->siteDomains()->doesntExist(),
             ]);
         }
+    }
+
+    /**
+     * @return array{business_name: string, description: string, footer_content: string, footer_copy: string, phone: string}
+     */
+    private function localizedSiteMeta(string $languageCode, string $title): array
+    {
+        $content = match ($languageCode) {
+            'fr' => [
+                'business_name' => $title . ' SARL',
+                'description' => 'Site de demonstration pour ' . $title . ', avec contenu, pages et medias Capell localises.',
+                'footer_content' => 'Contenu de pied de page pour ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Tous droits reserves.</p>', $title),
+                'phone' => '+33 1 23 45 67 89',
+            ],
+            'de' => [
+                'business_name' => $title . ' GmbH',
+                'description' => 'Demo-Website fur ' . $title . ' mit lokalisierten Capell-Inhalten, Seiten und Medien.',
+                'footer_content' => 'Fusszeileninhalt fur ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Alle Rechte vorbehalten.</p>', $title),
+                'phone' => '+49 30 123456',
+            ],
+            'it' => [
+                'business_name' => $title . ' SRL',
+                'description' => 'Sito demo per ' . $title . ' con contenuti, pagine e media Capell localizzati.',
+                'footer_content' => 'Contenuto del footer per ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Tutti i diritti riservati.</p>', $title),
+                'phone' => '+39 02 1234 5678',
+            ],
+            'es' => [
+                'business_name' => $title . ' SL',
+                'description' => 'Sitio demo para ' . $title . ' con contenido, paginas y medios Capell localizados.',
+                'footer_content' => 'Contenido de pie de pagina para ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Todos los derechos reservados.</p>', $title),
+                'phone' => '+34 91 123 45 67',
+            ],
+            default => [
+                'business_name' => $title . ' Ltd',
+                'description' => 'Demo site for ' . $title . ' with localized Capell content, pages, and media.',
+                'footer_content' => 'Footer content for ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. All rights reserved.</p>', $title),
+                'phone' => '+44 20 1234 5678',
+            ],
+        };
+
+        return $content;
     }
 
     /**

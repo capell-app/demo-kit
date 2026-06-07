@@ -29,7 +29,8 @@ Generated demo content and media kit for Capell.
 - Randomised example site content and media for local Capell demos.
 - Demo content provider for admin and frontend package setup.
 - Demo assets that help validate a package install quickly.
-- A package-owned doctor command for validating generated demo installs.
+- Package-owned doctor checks surfaced through Diagnostics and the `capell:demo-kit-doctor` command.
+- Locale-aware seeded site metadata for footer copy, business names, phone numbers, and descriptions.
 
 ## Why It Matters
 
@@ -68,11 +69,11 @@ This package makes its Composer dependencies visible because they are part of th
 
 ## Commands
 
-- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=}` (packages/demo-kit/src/Console/Commands/AdminDemoCommand.php)
-- `capell:demo {--user} {--languages=} {--packages} {--sites=} {--url} {--force}` (packages/demo-kit/src/Console/Commands/DemoCommand.php)
-- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--force}` (packages/demo-kit/src/Console/Commands/FullDemoCommand.php)
+- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--reset} {--allow-production}` creates admin/core demo users, sites, languages, and pages.
+- `capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}` dispatches installed package demo commands and forwards only the options each package declares in `commands.demoParams`.
+- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--theme=} {--seed=} {--quick} {--reset} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
 - `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
-- The Kitchen Sink page intentionally server-renders only the structured-text reference widget up front. The remaining reference widget families are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
+- The Kitchen Sink fixture includes the full Layout Builder default and extra widget catalogs, plus parent, sibling, and child context pages for page-selection widgets. It intentionally server-renders only the first above-fold reference widget up front; the remaining widget instances are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
 - `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
 
 ## Demo Generation
@@ -84,13 +85,19 @@ Useful options:
 - `--site-count=5` creates a random set of site names from the package pool.
 - `--page-count=30` creates that many generated pages per site.
 - `--languages=all`, `--languages=en,fr`, or `--languages=random:3` controls the language pool.
+- `--quick` uses a compact CI/screenshot profile when counts are omitted: one site, English only, and three pages per site.
+- `--reset` deletes existing sites whose names match the generated plan before recreating them, keeping repeated screenshot and QA runs stable without touching unrelated sites.
 - `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
 
 Omit `--seed` for a fresh random demo on each run.
 
+`capell:demo-kit-full-demo` forwards the resolved seed to `capell:demo`, and `capell:demo` forwards it only to package demo commands whose manifest `commands.demoParams` includes `seed`. That keeps packages without seeded demo support compatible while making opted-in package demos deterministic.
+
 ## Kitchen Sink Lighthouse Notes
 
 The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Docker/web-server or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
+
+The fixture is intentionally hierarchy-aware. `Kitchen Sink Showcase` is created as the parent page, `Kitchen Sink Demo Page` is installed beneath it, and sibling/child context pages are attached as widget assets so page-card, navigation, asset-list, and related-content widgets have realistic selectable pages during admin and frontend checks.
 
 ## Content Rendering Boundary
 

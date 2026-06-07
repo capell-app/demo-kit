@@ -25,6 +25,7 @@ class DummyContentGeneratorAction
             'de' => 'Capell-Demoinhalte zeigen reale Veröffentlichungsbereiche: wiederverwendbare Abschnitte, strukturierte Zusammenfassungen, Layout-Widgete und redaktionelle Abläufe. Teams erhalten prüfbare Inhalte ohne Platzhaltertext.',
             'it' => 'I contenuti demo di Capell mostrano superfici editoriali reali: sezioni riutilizzabili, riepiloghi strutturati, widgeti di layout e flussi di lavoro redazionali. Offrono testo utile da verificare senza contenuti segnaposto.',
             'es' => 'El contenido demo de Capell muestra superficies de publicación reales: secciones reutilizables, resúmenes estructurados, widgetos de diseño y flujos editoriales. Ofrece texto práctico para revisar sin contenido de relleno.',
+            'ar' => 'يعرض محتوى كابيل التجريبي مسارات نشر حقيقية: أقسام قابلة لإعادة الاستخدام، ملخصات منظمة، ودجات تخطيط، وسير عمل تحريرية. يمنح الفرق نصا عمليا للمراجعة مع تغطية اتجاه الكتابة من اليمين إلى اليسار.',
         ];
 
         $base = $samples[$languageCode] ?? $samples['en'];
@@ -46,6 +47,7 @@ class DummyContentGeneratorAction
             'de' => 5,
             'it' => 5,
             'es' => 5,
+            'ar' => 5,
         ];
 
         $max = $maxMap[$languageCode] ?? 4;

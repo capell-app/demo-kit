@@ -18,6 +18,7 @@ Use it when a developer needs a populated Capell install quickly without committ
 - Health checks for validating generated demo installs.
 - A `DemoKitPage` Filament page for admin-triggered demo generation workflows.
 - Package-owned Blade widget views for designed demo page content.
+- A hierarchy-aware Kitchen Sink fixture that installs the full Layout Builder default and extra widget catalogs with realistic parent, sibling, child, and page-selection context.
 
 ## Admin Surface
 
@@ -43,6 +44,12 @@ Those views keep presentation markup in Blade while database records keep only p
 
 In non-interactive environments, demo generation requires `--force`.
 
+## Kitchen Sink Fixture
+
+`capell:demo-kit-kitchen-sink` installs `Kitchen Sink Showcase` as the parent page, `Kitchen Sink Demo Page` beneath it, and sibling/child context pages for hierarchy-aware widgets. The fixture attaches those context pages as widget assets for page-selection widgets so admin previews, public rendering checks, screenshots, and accessibility audits exercise realistic page-card, navigation, gallery, and related-content states.
+
+The layout catalog comes from Layout Builder's default and extra widget definitions. The first above-fold reference widget renders eagerly, while the remaining widget instances are stored as `lazy_fragment` placeholders to keep initial HTML size and Lighthouse checks representative.
+
 ## Repeatable Demo Plans
 
 The publishable config lives at `packages/demo-kit/config/capell-demo-kit.php`.
@@ -65,9 +72,11 @@ php artisan capell:demo-kit-full-demo --url=https://example.test --seed=1234 --f
 
 ## Package Demo Dispatch
 
-`capell:demo` reads installed package metadata and calls each package's declared demo command. It only passes options the package says it accepts, such as `url`, `user`, `languages`, or `sites`.
+`capell:demo` reads installed package metadata and calls each package's declared demo command. It only passes options the package says it accepts, such as `url`, `user`, `seed`, `languages`, or `sites`.
 
 That keeps Demo Kit generic: packages own their demo content, while Demo Kit owns the orchestration and common input prompts.
+
+When `capell:demo-kit-full-demo` resolves a numeric seed, it passes that value into the package demo fan-out. Package demos that declare `seed` in `commands.demoParams` receive the same seed as the admin/core demo plan; packages that do not declare it are left unchanged.
 
 ## Rendering Boundary
 

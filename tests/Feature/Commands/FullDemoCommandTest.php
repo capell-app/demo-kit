@@ -9,7 +9,9 @@ use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Actions\DemoPackageAction;
+use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
@@ -19,6 +21,7 @@ use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
+use Capell\Tests\Fixtures\Models\User;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
@@ -103,7 +106,7 @@ it('creates full multi site and language demo data and runs package demos', func
     CapellCore::registerPackage(name: 'vendor/example-package');
     CapellCore::forcePackageInstalled('vendor/example-package');
     CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:demo';
-    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites'];
+    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites', 'seed'];
 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->twice()
@@ -132,11 +135,237 @@ it('creates full multi site and language demo data and runs package demos', func
         '--url' => 'https://example.test',
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
+        '--seed' => 1234,
         '--force' => true,
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:demo']);
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
+    capell_expect(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '1234']);
+    capell_expect(Page::query()->where('name', 'Kitchen Sink Demo Page')->exists())->toBeTrue();
+    capell_expect(Layout::query()->where('key', 'kitchen-sink-demo')->exists())->toBeTrue();
+});
+
+it('forwards the chosen author username to package demos', function (): void {
+    TrackingDemoCommand::reset();
+
+    $author = User::factory()->create(['email' => 'author@example.com']);
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/example-package');
+    CapellCore::forcePackageInstalled('vendor/example-package');
+    CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:demo';
+    CapellCore::getPackage('vendor/example-package')->demoParams = ['url', 'user', 'languages', 'sites'];
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand);
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--user' => $author->email,
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$receivedUserByCommand)->toBe(['test:demo' => 'author@example.com']);
+});
+
+it('refuses to run in the production environment without an override', function (): void {
+    $originalEnvironment = app()->make('env');
+    app()->detectEnvironment(static fn (): string => 'production');
+
+    try {
+        test()->artisan('capell:demo-kit-full-demo', [
+            '--url' => 'https://example.test',
+            '--languages' => 'en',
+            '--sites' => 'Main Site',
+            '--force' => true,
+        ])->assertExitCode(1);
+
+        capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
+    } finally {
+        app()->detectEnvironment(static fn (): string => is_string($originalEnvironment) ? $originalEnvironment : 'testing');
+    }
+});
+
+it('only runs package demos selected by packages option', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    foreach (['vendor/selected-package', 'vendor/skipped-package'] as $packageName) {
+        CapellCore::registerPackage(name: $packageName);
+        CapellCore::forcePackageInstalled($packageName);
+        CapellCore::getPackage($packageName)->demoCommand = $packageName === 'vendor/selected-package'
+            ? 'test:selected-demo'
+            : 'test:skipped-demo';
+    }
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:selected-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:skipped-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--page-count' => 1,
+        '--packages' => 'vendor/selected-package',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:selected-demo']);
+});
+
+it('uses a compact quick profile when full demo counts are omitted', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/quick-package');
+    CapellCore::forcePackageInstalled('vendor/quick-package');
+    CapellCore::getPackage('vendor/quick-package')->demoCommand = 'test:quick-demo';
+    CapellCore::getPackage('vendor/quick-package')->demoParams = ['url', 'languages', 'sites'];
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:quick-demo {--url=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->times(3)->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->once()->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--packages' => 'vendor/quick-package',
+        '--quick' => true,
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)->toBe(['test:quick-demo'])
+        ->and(TrackingDemoCommand::$receivedLanguagesByCommand)->toBe(['test:quick-demo' => ['en']])
+        ->and(TrackingDemoCommand::$receivedSitesByCommand['test:quick-demo'] ?? [])->toHaveCount(1);
+});
+
+it('runs non theme package demos and only the selected theme demo when theme option is provided', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::forcePackageInstalled('capell-app/content-sections');
+    CapellCore::forcePackageInstalled('capell-app/layout-builder');
+
+    CapellCore::registerPackage(name: 'vendor/example-package');
+    CapellCore::forcePackageInstalled('vendor/example-package');
+    CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:package-demo';
+
+    CapellCore::registerPackage(name: 'capell-app/theme-agency', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-agency');
+    CapellCore::getPackage('capell-app/theme-agency')->demoCommand = 'test:agency-demo';
+    CapellCore::getPackage('capell-app/theme-agency')->themeKey = 'agency';
+
+    CapellCore::registerPackage(name: 'capell-app/theme-saas', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-saas');
+    CapellCore::getPackage('capell-app/theme-saas')->demoCommand = 'test:saas-demo';
+    CapellCore::getPackage('capell-app/theme-saas')->themeKey = 'saas';
+
+    CreateLayoutBuilderDemoSiteAction::shouldRun()
+        ->once()
+        ->andReturn(true);
+
+    Artisan::registerCommand(new TrackingDemoCommand('test:package-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:agency-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:saas-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:demo-kit-full-demo', [
+        '--url' => 'https://example.test',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--page-count' => 1,
+        '--theme' => 'agency',
+        '--force' => true,
+    ])->assertExitCode(0);
+
+    capell_expect(TrackingDemoCommand::$executionOrder)
+        ->toHaveCount(2)
+        ->toContain('test:package-demo')
+        ->toContain('test:agency-demo')
+        ->not->toContain('test:saas-demo');
 });
 
 it('requires force when running non interactively', function (): void {

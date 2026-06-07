@@ -15,6 +15,8 @@ use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
 use Capell\DemoKit\Actions\CreateDemoUsersAction;
+use Capell\DemoKit\Actions\ResetDemoSitesAction;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\DemoKit\Data\DemoGenerationPlanData;
@@ -36,6 +38,7 @@ use Throwable;
 
 class AdminDemoCommand extends Command
 {
+    use GuardsAgainstProduction;
     use HasLanguagesOption;
     use HasSitesOption;
     use PromptsWithOptionFallback;
@@ -65,7 +68,9 @@ class AdminDemoCommand extends Command
         {--sites=}
         {--site-count=}
         {--page-count=}
-        {--seed=}';
+        {--seed=}
+        {--reset}
+        {--allow-production}';
 
     private DemoCreator $demoCreator;
 
@@ -74,6 +79,10 @@ class AdminDemoCommand extends Command
      */
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return Command::FAILURE;
+        }
+
         if (! CapellCore::isPackageInstalled('capell-app/admin')) {
             $this->warn('Capell Admin is not installed, skipping admin example site content.');
 
@@ -103,6 +112,7 @@ class AdminDemoCommand extends Command
             $user = $this->resolveUser();
 
             $this->outputDemoSetupInfo($plan);
+            $this->resetDemoSites($plan);
             $this->createDemoUsers();
             $this->demoCreator = app()->make(DemoCreator::class, [
                 'url' => $siteUrl,
@@ -114,7 +124,8 @@ class AdminDemoCommand extends Command
             $this->line('Adding demo languages');
             CreateDemoLanguagesAction::run($plan->languageCodes);
 
-            $this->createDemoSites($plan, $siteUrl, $pageCreator);
+            $this->createDemoSites($plan, $siteUrl, $pageCreator, $user);
+            $this->ensureDemoSitesSupportAllLanguages($plan);
 
             $this->line('Setting up related sites');
             $this->demoCreator->setupRelatedSites();
@@ -271,7 +282,21 @@ class AdminDemoCommand extends Command
         $this->info('Editor user created with editor role');
     }
 
-    private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator): void
+    private function resetDemoSites(DemoGenerationPlanData $plan): void
+    {
+        if ($this->option('reset') !== true) {
+            return;
+        }
+
+        $deleted = ResetDemoSitesAction::run(array_map(
+            static fn (DemoSiteGenerationPlanData $site): string => $site->name,
+            $plan->sites,
+        ));
+
+        $this->info(sprintf('Reset %d existing demo site(s).', $deleted));
+    }
+
+    private function createDemoSites(DemoGenerationPlanData $plan, string $siteUrl, PageCreator $pageCreator, ?User $user): void
     {
         $sitesCount = count($plan->sites);
 
@@ -325,12 +350,35 @@ class AdminDemoCommand extends Command
                     new DemoSitePlanData(
                         site: $site,
                         contentTree: $sitePlan->toContentTree(),
+                        user: $user,
                     ),
                 ));
             }
 
             $bar->finish();
             $this->newLine();
+        }
+    }
+
+    private function ensureDemoSitesSupportAllLanguages(DemoGenerationPlanData $plan): void
+    {
+        /** @var Collection<int, Language> $languages */
+        $languages = Language::query()
+            ->whereIn('code', $plan->languageCodes)
+            ->get();
+
+        if ($languages->isEmpty()) {
+            return;
+        }
+
+        foreach ($plan->sites as $sitePlan) {
+            $site = Site::query()->where('name', $sitePlan->name)->first();
+
+            if (! $site instanceof Site) {
+                continue;
+            }
+
+            $this->demoCreator->setupSite($site, $languages);
         }
     }
 

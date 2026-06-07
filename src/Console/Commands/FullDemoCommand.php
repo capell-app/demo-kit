@@ -7,6 +7,8 @@ namespace Capell\DemoKit\Console\Commands;
 use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
+use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Illuminate\Console\Command;
@@ -15,6 +17,8 @@ use InvalidArgumentException;
 
 final class FullDemoCommand extends Command
 {
+    use GuardsAgainstProduction;
+
     protected $signature = 'capell:demo-kit-full-demo
         {--url=}
         {--user=}
@@ -22,13 +26,22 @@ final class FullDemoCommand extends Command
         {--sites=}
         {--site-count=}
         {--page-count=}
+        {--packages=}
+        {--theme=}
         {--seed=}
+        {--quick}
+        {--reset}
+        {--allow-production}
         {--force}';
 
     protected $description = 'Create full multi-site and multi-language example data.';
 
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return Command::FAILURE;
+        }
+
         if (! $this->option('force') && ! $this->input->isInteractive()) {
             $this->error('Creating full example site data requires --force in non-interactive mode.');
 
@@ -58,11 +71,15 @@ final class FullDemoCommand extends Command
         $siteCount = $this->resolvePositiveIntegerOption('site-count');
         if ($siteCount !== null) {
             $options['site_count'] = $siteCount;
+        } elseif ($this->option('quick') === true && $this->parseCsvOption('sites') === []) {
+            $options['site_count'] = 1;
         }
 
         $pageCount = $this->resolvePositiveIntegerOption('page-count');
         if ($pageCount !== null) {
             $options['pages'] = $pageCount;
+        } elseif ($this->option('quick') === true) {
+            $options['pages'] = 3;
         }
 
         $plan = BuildDemoGenerationPlanAction::run($options);
@@ -74,13 +91,14 @@ final class FullDemoCommand extends Command
 
         $this->info('Creating full example sites and languages.');
 
+        $user = $this->resolveUserOption();
+
         $adminDemoParams = [
             '--url' => $url,
             '--languages' => implode(',', $languages),
             '--sites' => implode(',', $sites),
         ];
 
-        $pageCount = $this->resolvePositiveIntegerOption('page-count');
         if ($pageCount !== null) {
             $adminDemoParams['--page-count'] = $pageCount;
         }
@@ -89,8 +107,16 @@ final class FullDemoCommand extends Command
             $adminDemoParams['--seed'] = $plan->seed;
         }
 
-        if ($this->option('user') !== null) {
-            $adminDemoParams['--user'] = $this->option('user');
+        if ($this->option('reset') === true) {
+            $adminDemoParams['--reset'] = true;
+        }
+
+        if ($user !== null) {
+            $adminDemoParams['--user'] = $user;
+        }
+
+        if ($this->option('allow-production') === true) {
+            $adminDemoParams['--allow-production'] = true;
         }
 
         $adminDemoExitCode = $this->call('capell:admin-demo', $adminDemoParams);
@@ -102,23 +128,54 @@ final class FullDemoCommand extends Command
         $packageNames = $this->demoPackageNames();
 
         if ($packageNames !== []) {
-            $packageDemoExitCode = $this->call('capell:demo', [
+            $packageDemoParams = [
                 '--url' => $url,
-                '--user' => $this->option('user') !== null,
                 '--languages' => implode(',', $languages),
                 '--sites' => implode(',', $sites),
                 '--packages' => implode(',', $packageNames),
                 '--force' => true,
-            ]);
+            ];
+
+            if ($user !== null) {
+                $packageDemoParams['--user'] = $user;
+            }
+
+            if ($plan->seed !== null) {
+                $packageDemoParams['--seed'] = $plan->seed;
+            }
+
+            if ($this->option('allow-production') === true) {
+                $packageDemoParams['--allow-production'] = true;
+            }
+
+            $packageDemoExitCode = $this->call('capell:demo', $packageDemoParams);
 
             if ($packageDemoExitCode !== Command::SUCCESS) {
                 return $packageDemoExitCode;
             }
         }
 
+        InstallKitchenSinkDemoPageAction::run();
+
         $this->info('Full example site data created successfully.');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Resolve the chosen author identifier so it can be forwarded verbatim to
+     * both capell:admin-demo and capell:demo, ensuring package-contributed demo
+     * content is attributed to the same author.
+     */
+    private function resolveUserOption(): ?string
+    {
+        $user = $this->option('user');
+
+        if (is_scalar($user) && (string) $user !== '') {
+            return (string) $user;
+        }
+
+        return null;
     }
 
     private function resolveUrl(): string
@@ -141,6 +198,10 @@ final class FullDemoCommand extends Command
 
         if ($languages !== []) {
             return $languages;
+        }
+
+        if ($this->option('quick') === true) {
+            return ['en'];
         }
 
         return ['all'];
@@ -196,16 +257,44 @@ final class FullDemoCommand extends Command
         return is_scalar($seed) && (string) $seed !== '' ? (int) $seed : null;
     }
 
+    private function resolveThemeOption(): ?string
+    {
+        $theme = $this->option('theme');
+
+        if (! is_scalar($theme) || (string) $theme === '') {
+            return null;
+        }
+
+        return (string) $theme;
+    }
+
     /**
      * @return list<string>
      */
     private function demoPackageNames(): array
     {
+        $selectedPackageNames = $this->parseCsvOption('packages');
+        $selectedPackages = $selectedPackageNames === [] ? null : array_fill_keys($selectedPackageNames, true);
+        $selectedThemeKey = $this->resolveThemeOption();
+
         /** @var Collection<string, PackageData> $packages */
         $packages = CapellCore::getInstalledPackages();
 
         return array_values($packages
             ->reject(fn (PackageData $package): bool => $package->name === DemoKitServiceProvider::$packageName)
+            ->when(
+                $selectedPackages !== null,
+                fn (Collection $packages): Collection => $packages->filter(
+                    static fn (PackageData $package): bool => isset($selectedPackages[$package->name]),
+                ),
+            )
+            ->when(
+                $selectedThemeKey !== null,
+                fn (Collection $packages): Collection => $packages->filter(
+                    static fn (PackageData $package): bool => $package->getThemeKey() === null
+                        || $package->getThemeKey() === $selectedThemeKey,
+                ),
+            )
             ->reject(fn (PackageData $package): bool => in_array($package->getDemoCommand(), [null, '', '0'], true))
             ->keys()
             ->values()

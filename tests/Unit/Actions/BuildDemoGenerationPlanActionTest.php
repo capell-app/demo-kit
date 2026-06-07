@@ -84,6 +84,18 @@ it('builds generated plans within requested scale controls', function (): void {
     }
 });
 
+it('includes curated rtl languages in generated demo plans', function (): void {
+    $plan = BuildDemoGenerationPlanAction::run([
+        'site_count' => 1,
+        'pages' => 3,
+        'languages' => ['ar'],
+        'seed' => 246,
+    ]);
+
+    expect($plan->languageCodes)->toBe(['ar'])
+        ->and($plan->sites[0]->languageCodes)->toBe(['ar']);
+});
+
 it('honours page counts larger than the base page name pool', function (): void {
     $plan = BuildDemoGenerationPlanAction::run([
         'site_count' => 1,

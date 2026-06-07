@@ -21,6 +21,7 @@ use Capell\DemoKit\Console\Commands\KitchenSinkDemoCommand;
 use Capell\DemoKit\Console\Commands\RefreshDemoStitchPagesCommand;
 use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigurator;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
+use Capell\DemoKit\Livewire\KitchenSinkStressWidget;
 use Capell\DemoKit\Livewire\ResourcesLibrary;
 use Capell\DemoKit\Support\KitchenSinkPublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
@@ -33,6 +34,8 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     public const string DemoPageContentRenderable = 'capell.widget.demo-page-content';
 
     public const string HomepageSectionRenderable = 'capell.widget.homepage-section';
+
+    public const string KitchenSinkLivewireStressRenderable = 'capell-demo-kit.widget.kitchen-sink-livewire-stress';
 
     public static string $name = 'capell-demo-kit';
 
@@ -57,9 +60,9 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     public function registeringPackage(): void
     {
         $package = CapellCore::getPackage(self::$packageName);
-        $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
+        $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'theme', 'seed', 'force'];
         $package->demoCommand = 'capell:demo-kit-full-demo';
-        $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'seed', 'force'];
+        $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'theme', 'seed', 'force'];
 
         $this->registerAdminPanelExtensions();
         $this->registerPublicWidgetPayloadContributors();
@@ -76,6 +79,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     private function registerLivewireComponents(): void
     {
         Livewire::component('capell-demo-kit.resources-library', ResourcesLibrary::class);
+        Livewire::component('capell-demo-kit.kitchen-sink-stress-widget', KitchenSinkStressWidget::class);
     }
 
     private function registerTailwindSources(): void
@@ -101,6 +105,12 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             key: self::HomepageSectionRenderable,
             type: 'layout-widget',
             blade: 'capell-demo-kit::widget.homepage-section',
+        ));
+
+        $this->app->make(RenderableRegistry::class)->register(new RenderableDefinitionData(
+            key: self::KitchenSinkLivewireStressRenderable,
+            type: 'layout-widget',
+            livewire: 'capell-demo-kit.kitchen-sink-stress-widget',
         ));
     }
 

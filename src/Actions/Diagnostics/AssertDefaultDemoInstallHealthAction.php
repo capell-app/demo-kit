@@ -45,6 +45,7 @@ final class AssertDefaultDemoInstallHealthAction
             $this->homepageUsesShowcaseOrder(),
             $this->minimumWidgetCount(),
             ...($this->hasLayoutBuilderWidgetModel() ? [
+                $this->configuredShowcaseWidgetsExist(),
                 $this->apWidgetsHaveAssets(),
                 $this->placeholderLabelsAreAbsent(),
             ] : []),
@@ -165,6 +166,38 @@ final class AssertDefaultDemoInstallHealthAction
             label: 'Default demo showcase widget order',
             passed: true,
             message: 'Homepage uses the configured showcase widget order.',
+        );
+    }
+
+    private function configuredShowcaseWidgetsExist(): DoctorCheckResultData
+    {
+        $widgetModel = self::LAYOUT_BUILDER_ELEMENT_MODEL;
+        $expectedKeys = array_values(array_unique([
+            ...$this->profile->homepageOpeningWidgetKeys,
+            ...$this->profile->showcaseWidgetOrder,
+            ...array_keys($this->profile->widgetAssetMinimums),
+        ]));
+
+        $existingKeys = $widgetModel::query()
+            ->whereIn('key', $expectedKeys)
+            ->pluck('key')
+            ->all();
+
+        $missingKeys = array_values(array_diff($expectedKeys, array_filter($existingKeys, is_string(...))));
+
+        if ($missingKeys !== []) {
+            return new DoctorCheckResultData(
+                label: 'Default demo showcase widget keys',
+                passed: false,
+                message: sprintf('Missing configured demo widget key(s): %s.', implode(', ', $missingKeys)),
+                remediation: 'Update capell-demo-kit health config or rerun the Foundation showcase demo so configured widget keys exist.',
+            );
+        }
+
+        return new DoctorCheckResultData(
+            label: 'Default demo showcase widget keys',
+            passed: true,
+            message: sprintf('All %d configured showcase widget key(s) exist.', count($expectedKeys)),
         );
     }
 
