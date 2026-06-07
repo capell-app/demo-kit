@@ -31,6 +31,7 @@ final class FullDemoCommand extends Command
         {--seed=}
         {--quick}
         {--reset}
+        {--skip-demo-users}
         {--allow-production}
         {--force}';
 
@@ -109,6 +110,10 @@ final class FullDemoCommand extends Command
 
         if ($this->option('reset') === true) {
             $adminDemoParams['--reset'] = true;
+        }
+
+        if ($this->option('skip-demo-users') === true) {
+            $adminDemoParams['--skip-demo-users'] = true;
         }
 
         if ($user !== null) {

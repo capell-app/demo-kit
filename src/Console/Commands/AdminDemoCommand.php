@@ -70,6 +70,7 @@ class AdminDemoCommand extends Command
         {--page-count=}
         {--seed=}
         {--reset}
+        {--skip-demo-users}
         {--allow-production}';
 
     private DemoCreator $demoCreator;
@@ -276,6 +277,12 @@ class AdminDemoCommand extends Command
 
     private function createDemoUsers(): void
     {
+        if ($this->option('skip-demo-users') === true) {
+            $this->line('Skipping default demo users');
+
+            return;
+        }
+
         $this->line('Creating demo users');
         CreateDemoUsersAction::run();
         $this->info('Demo admin created with super admin role: demo@example.com');

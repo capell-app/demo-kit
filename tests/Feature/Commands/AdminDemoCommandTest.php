@@ -156,6 +156,40 @@ it('skips layout builder demo when the layout demo packages are not installed', 
     ])->assertExitCode(0);
 });
 
+it('skips default demo users when requested', function (): void {
+    CapellCore::forcePackageInstalled('capell-app/content-sections', false);
+    CapellCore::forcePackageInstalled('capell-app/layout-builder', false);
+
+    $user = User::factory()->create(['email' => 'admin@example.com']);
+
+    app()->bind(PageCreator::class, function (): PageCreator {
+        $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
+        $mock->shouldReceive('createHomePage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('createErrorPage')->andReturnUsing(fn (): Page => new Page);
+
+        return $mock;
+    });
+
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $mock->shouldReceive('setupRelatedSites')->andReturnNull();
+        $mock->shouldReceive('createPage')->andReturnUsing(fn (): Page => new Page);
+        $mock->shouldReceive('setupSite')->andReturnNull();
+
+        return $mock;
+    });
+
+    test()->artisan('capell:admin-demo', [
+        '--url' => 'https://example.test',
+        '--user' => $user->email,
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--skip-demo-users' => true,
+    ])->assertExitCode(0);
+
+    expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
+});
+
 it('rejects invalid numeric demo scale options', function (): void {
     expect(fn () => test()->artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
