@@ -17,7 +17,7 @@ final class ResetDemoSitesAction
     public function handle(array $siteNames): int
     {
         $siteNames = array_values(array_unique(array_filter(
-            array_map(static fn (string $siteName): string => trim($siteName), $siteNames),
+            array_map(trim(...), $siteNames),
             static fn (string $siteName): bool => $siteName !== '',
         )));
 
