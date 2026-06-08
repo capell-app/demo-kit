@@ -7,6 +7,9 @@ namespace Capell\DemoKit\Actions;
 use Capell\Core\Models\Site;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static int run(list<string> $siteNames)
+ */
 final class ResetDemoSitesAction
 {
     use AsAction;
