@@ -34,6 +34,9 @@
             "providers": [
                 "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-main": "4.x-dev"
         }
     },
     "config": {
