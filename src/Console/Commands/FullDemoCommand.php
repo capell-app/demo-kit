@@ -77,10 +77,12 @@ final class FullDemoCommand extends Command
         }
 
         $pageCount = $this->resolvePositiveIntegerOption('page-count');
-        if ($pageCount !== null) {
-            $options['pages'] = $pageCount;
+        $adminPageCount = $pageCount;
+        if ($adminPageCount !== null) {
+            $options['pages'] = $adminPageCount;
         } elseif ($this->option('quick') === true) {
-            $options['pages'] = 3;
+            $adminPageCount = 3;
+            $options['pages'] = $adminPageCount;
         }
 
         $plan = BuildDemoGenerationPlanAction::run($options);
@@ -100,8 +102,8 @@ final class FullDemoCommand extends Command
             '--sites' => implode(',', $sites),
         ];
 
-        if ($pageCount !== null) {
-            $adminDemoParams['--page-count'] = $pageCount;
+        if ($adminPageCount !== null) {
+            $adminDemoParams['--page-count'] = $adminPageCount;
         }
 
         if ($plan->seed !== null) {

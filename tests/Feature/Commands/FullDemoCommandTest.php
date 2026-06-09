@@ -292,7 +292,7 @@ it('uses a compact quick profile when full demo counts are omitted', function ()
         $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
         $mock->shouldReceive('setupRelatedSites')->andReturnNull();
         $mock->shouldReceive('createPage')->times(3)->andReturnUsing(fn (): Page => new Page);
-        $mock->shouldReceive('setupSite')->once()->andReturnNull();
+        $mock->shouldReceive('setupSite')->twice()->andReturnNull();
 
         return $mock;
     });

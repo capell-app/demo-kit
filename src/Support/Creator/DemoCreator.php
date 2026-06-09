@@ -161,52 +161,6 @@ class DemoCreator extends ApDemoWidgetCreator
     }
 
     /**
-     * @return array{business_name: string, description: string, footer_content: string, footer_copy: string, phone: string}
-     */
-    private function localizedSiteMeta(string $languageCode, string $title): array
-    {
-        $content = match ($languageCode) {
-            'fr' => [
-                'business_name' => $title . ' SARL',
-                'description' => 'Site de demonstration pour ' . $title . ', avec contenu, pages et medias Capell localises.',
-                'footer_content' => 'Contenu de pied de page pour ' . $title,
-                'footer_copy' => sprintf('<p>&copy; :year %s. Tous droits reserves.</p>', $title),
-                'phone' => '+33 1 23 45 67 89',
-            ],
-            'de' => [
-                'business_name' => $title . ' GmbH',
-                'description' => 'Demo-Website fur ' . $title . ' mit lokalisierten Capell-Inhalten, Seiten und Medien.',
-                'footer_content' => 'Fusszeileninhalt fur ' . $title,
-                'footer_copy' => sprintf('<p>&copy; :year %s. Alle Rechte vorbehalten.</p>', $title),
-                'phone' => '+49 30 123456',
-            ],
-            'it' => [
-                'business_name' => $title . ' SRL',
-                'description' => 'Sito demo per ' . $title . ' con contenuti, pagine e media Capell localizzati.',
-                'footer_content' => 'Contenuto del footer per ' . $title,
-                'footer_copy' => sprintf('<p>&copy; :year %s. Tutti i diritti riservati.</p>', $title),
-                'phone' => '+39 02 1234 5678',
-            ],
-            'es' => [
-                'business_name' => $title . ' SL',
-                'description' => 'Sitio demo para ' . $title . ' con contenido, paginas y medios Capell localizados.',
-                'footer_content' => 'Contenido de pie de pagina para ' . $title,
-                'footer_copy' => sprintf('<p>&copy; :year %s. Todos los derechos reservados.</p>', $title),
-                'phone' => '+34 91 123 45 67',
-            ],
-            default => [
-                'business_name' => $title . ' Ltd',
-                'description' => 'Demo site for ' . $title . ' with localized Capell content, pages, and media.',
-                'footer_content' => 'Footer content for ' . $title,
-                'footer_copy' => sprintf('<p>&copy; :year %s. All rights reserved.</p>', $title),
-                'phone' => '+44 20 1234 5678',
-            ],
-        };
-
-        return $content;
-    }
-
-    /**
      * @param  array<array-key, mixed>  $languages
      */
     public function createDefaultLanguages(?array $languages = null): void
@@ -404,6 +358,50 @@ class DemoCreator extends ApDemoWidgetCreator
 
             $site->related()->attach($relatedSites)->save();
         });
+    }
+
+    /**
+     * @return array{business_name: string, description: string, footer_content: string, footer_copy: string, phone: string}
+     */
+    private function localizedSiteMeta(string $languageCode, string $title): array
+    {
+        return match ($languageCode) {
+            'fr' => [
+                'business_name' => $title . ' SARL',
+                'description' => 'Site de demonstration pour ' . $title . ', avec contenu, pages et medias Capell localises.',
+                'footer_content' => 'Contenu de pied de page pour ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Tous droits reserves.</p>', $title),
+                'phone' => '+33 1 23 45 67 89',
+            ],
+            'de' => [
+                'business_name' => $title . ' GmbH',
+                'description' => 'Demo-Website fur ' . $title . ' mit lokalisierten Capell-Inhalten, Seiten und Medien.',
+                'footer_content' => 'Fusszeileninhalt fur ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Alle Rechte vorbehalten.</p>', $title),
+                'phone' => '+49 30 123456',
+            ],
+            'it' => [
+                'business_name' => $title . ' SRL',
+                'description' => 'Sito demo per ' . $title . ' con contenuti, pagine e media Capell localizzati.',
+                'footer_content' => 'Contenuto del footer per ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Tutti i diritti riservati.</p>', $title),
+                'phone' => '+39 02 1234 5678',
+            ],
+            'es' => [
+                'business_name' => $title . ' SL',
+                'description' => 'Sitio demo para ' . $title . ' con contenido, paginas y medios Capell localizados.',
+                'footer_content' => 'Contenido de pie de pagina para ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. Todos los derechos reservados.</p>', $title),
+                'phone' => '+34 91 123 45 67',
+            ],
+            default => [
+                'business_name' => $title . ' Ltd',
+                'description' => 'Demo site for ' . $title . ' with localized Capell content, pages, and media.',
+                'footer_content' => 'Footer content for ' . $title,
+                'footer_copy' => sprintf('<p>&copy; :year %s. All rights reserved.</p>', $title),
+                'phone' => '+44 20 1234 5678',
+            ],
+        };
     }
 
     /**

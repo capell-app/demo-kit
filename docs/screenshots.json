@@ -26,9 +26,7 @@
             "package": "demo-kit",
             "surface": "frontend",
             "user": false,
-            "colorSchemes": [
-                "light"
-            ],
+            "colorSchemes": ["light"],
             "targetType": "frontend-render",
             "target": "capell-demo-kit::components.widget.demo-page-content",
             "click": "text=Reject non-essential",
