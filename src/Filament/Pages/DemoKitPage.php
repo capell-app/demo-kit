@@ -8,6 +8,7 @@ use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
+use Capell\DemoKit\Actions\RedactDemoKitErrorMessageAction;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
@@ -74,7 +75,7 @@ final class DemoKitPage extends Page
                     try {
                         InsertExampleSiteDataAction::run($data);
                     } catch (Throwable $throwable) {
-                        $action->failureNotificationBody($throwable->getMessage());
+                        $action->failureNotificationBody((new RedactDemoKitErrorMessageAction)->handle($throwable));
                         $action->failure();
 
                         return;

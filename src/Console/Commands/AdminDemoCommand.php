@@ -15,6 +15,7 @@ use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
 use Capell\DemoKit\Actions\CreateDemoUsersAction;
+use Capell\DemoKit\Actions\RedactDemoKitErrorMessageAction;
 use Capell\DemoKit\Actions\ResetDemoSitesAction;
 use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Capell\DemoKit\Console\Commands\Concerns\HasLanguagesOption;
@@ -135,7 +136,7 @@ class AdminDemoCommand extends Command
 
             $this->error(sprintf(
                 'Demo command failed: %s in %s:%d',
-                $throwable->getMessage(),
+                (new RedactDemoKitErrorMessageAction)->handle($throwable),
                 $throwable->getFile(),
                 $throwable->getLine(),
             ));

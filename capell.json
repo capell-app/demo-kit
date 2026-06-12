@@ -73,7 +73,11 @@
         "sensitiveData": {
             "encryptedFields": [],
             "hashedTokenFields": [],
-            "redactedOutputClasses": [],
+            "redactedOutputClasses": [
+                "Capell\\DemoKit\\Console\\Commands\\AdminDemoCommand",
+                "Capell\\DemoKit\\Filament\\Pages\\DemoKitPage",
+                "Capell\\DemoKit\\Actions\\RedactDemoKitErrorMessageAction"
+            ],
             "plaintextJustifications": []
         },
         "publicOutput": {
