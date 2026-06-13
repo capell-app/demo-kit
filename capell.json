@@ -74,9 +74,9 @@
             "encryptedFields": [],
             "hashedTokenFields": [],
             "redactedOutputClasses": [
+                "Capell\\DemoKit\\Actions\\RedactDemoKitErrorMessageAction",
                 "Capell\\DemoKit\\Console\\Commands\\AdminDemoCommand",
-                "Capell\\DemoKit\\Filament\\Pages\\DemoKitPage",
-                "Capell\\DemoKit\\Actions\\RedactDemoKitErrorMessageAction"
+                "Capell\\DemoKit\\Filament\\Pages\\DemoKitPage"
             ],
             "plaintextJustifications": []
         },
