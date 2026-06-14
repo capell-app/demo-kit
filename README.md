@@ -1,145 +1,98 @@
 # Demo Kit
 
-Demo content and media kit for Capell.
+<!-- prettier-ignore-start -->
 
-## At A Glance
+## What This Plugin Adds
 
-- Package: `capell-app/demo-kit`
-- Namespace: `Capell\DemoKit\`
-- Surfaces: Filament admin, console
-- Service providers: `packages/demo-kit/src/Providers/DemoKitServiceProvider.php`
-- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
+Demo Kit is an **Available**, **No schema impact** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend.
 
-## Why It Helps Your Capell Workflow
+Deterministic demo-data orchestration for Capell - seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.
 
-- Creates repeatable demo content and media so package demos, sales reviews, screenshots, and QA runs start from known data.
-- Helps owners and stakeholders see a realistic Capell site without hand-building fixture pages every time.
-- Keeps demo creation in package Actions and setup flows so production content boundaries stay separate from presentation examples.
+After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
 
-## Best Used With
+Status details:
 
-- [Foundation Theme](../foundation-theme/README.md)
-- [Layout Builder](../layout-builder/README.md)
-- [Content Sections](../content-sections/README.md)
-
-## What It Adds
-
-Generated demo content and media kit for Capell.
-
-- Randomised example site content and media for local Capell demos.
-- Demo content provider for admin and frontend package setup.
-- Demo assets that help validate a package install quickly.
-- Package-owned doctor checks surfaced through Diagnostics and the `capell:demo-kit-doctor` command.
-- Locale-aware seeded site metadata for footer copy, business names, phone numbers, and descriptions.
+- Status: Available
+- Tier: free
+- Bundle: foundation
+- Composer package: `capell-app/demo-kit`
+- Namespace: `Capell\DemoKit`
+- Theme key: not applicable
 
 ## Why It Matters
 
-**For developers:** Keeps Demo Kit package responsibilities isolated behind providers, actions, data objects, and package-owned resources where the package needs them.
+**For developers:** The package gives developers package-owned service providers, Actions, Data objects, Filament classes, and Blade views instead of pushing this behaviour into core or application code.
 
-**For teams:** Makes the Capell Foundation capability easier to explain, install, and verify during package selection.
+**For teams:** The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data.
 
-## Built With
+## Screens And Workflow
 
-This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+Screenshot contract: `docs/screenshots.json`.
 
-**Capell packages used here**
+- Demo Kit admin page (admin, required).
+- Insights consent priming capture (frontend, optional).
+- Generated demo page content widget (frontend, required).
+- Generated homepage section widget (frontend, required).
 
-- [Capell Admin](https://github.com/capell-app/admin)
-- [Capell Core](https://github.com/capell-app/core)
-- [Capell Frontend](https://github.com/capell-app/frontend)
+## Technical Shape
 
-**Open-source packages used here**
+- Service providers: `Capell\DemoKit\Providers\DemoKitServiceProvider`.
+- Config files: `packages/demo-kit/config/capell-demo-kit.php`.
+- Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
+- Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
+- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoUsersAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
+- Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
+- Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
+- Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
+- Health checks: `Capell\DemoKit\Health\DemoKitHealthCheck`.
+- Blade views: `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`, `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`, `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`, `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`, `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`, `packages/demo-kit/resources/views/livewire/resources-library.blade.php`.
+- Cache tags: `demo-kit`.
 
-- No extra third-party Composer package beyond the Capell package stack is required here.
+## Data Model
 
-## Code Map
+This package has no schema impact. It does not declare package-owned migrations or required tables.
 
-| Area      | Path                              | Purpose                                                           |
-| --------- | --------------------------------- | ----------------------------------------------------------------- |
-| Actions   | `packages/demo-kit/src/Actions`   | Domain operations. Test these directly where possible.            |
-| Filament  | `packages/demo-kit/src/Filament`  | Admin resources, pages, widgets, and settings UI.                 |
-| Providers | `packages/demo-kit/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
-| Resources | `packages/demo-kit/resources`     | Views, translations, assets, and package resources.               |
-| Config    | `packages/demo-kit/config`        | Package configuration and publishable config.                     |
-| Tests     | `packages/demo-kit/tests`         | Package-level Pest coverage.                                      |
+Docs gap: document extension points here if the package delegates persistence to a host package.
 
-## Admin Surface
+## Install Impact
 
-- Pages: `DemoKitPage`.
+- Admin navigation: adds package-owned Filament classes when registered.
+- Permissions: none declared in `capell.json`.
+- Public routes: none detected in package route files.
+- Database changes: no package migrations declared.
+- Settings: no package settings declared.
+- Queues or schedules: none detected in standard package paths.
+- Cache tags: `demo-kit`.
+- Commands: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 
-## Commands
+## Common Pitfalls
 
-- `capell:admin-demo {--user=} {--languages=} {--url=} {--sites=} {--site-count=} {--page-count=} {--seed=} {--reset} {--allow-production}` creates admin/core demo users, sites, languages, and pages.
-- `capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}` dispatches installed package demo commands and forwards only the options each package declares in `commands.demoParams`.
-- `capell:demo-kit-full-demo {--url=} {--user=} {--languages=} {--sites=} {--site-count=} {--page-count=} {--packages=} {--theme=} {--seed=} {--quick} {--reset} {--allow-production} {--force}` builds the deterministic plan, runs `capell:admin-demo`, then fans out to package demos.
-- `capell:demo-kit-kitchen-sink` installs the `kitchen-sink-demo` CMS authoring/reference fixture. It is for widget, asset, accessibility, and rendered HTML inspection, not as a production landing page template.
-- The Kitchen Sink fixture includes the full Layout Builder default and extra widget catalogs, plus parent, sibling, and child context pages for page-selection widgets. It intentionally server-renders only the first above-fold reference widget up front; the remaining widget instances are seeded as Layout Builder `lazy_fragment` instances with `visible` loading so local Lighthouse runs measure the page against a smaller initial HTML payload.
-- `capell:demo-kit-doctor {--json}` validates the package-owned demo health checks.
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
 
-## Demo Generation
+## Troubleshooting
 
-Demo Kit keeps publishable config focused on scale and archive safety. The actual demo content pools live in code so the package can generate varied demos without forcing a huge static page tree into application config.
+| Symptom | Likely cause | Check | Fix |
+| --- | --- | --- | --- |
+| Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
+| Background work does not run | Queue worker or scheduled command is not active | Check package jobs, commands, and host scheduler configuration | Start the queue or scheduler, then run the focused command or package test |
+| Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
 
-Useful options:
+## Quick Start
 
-- `--site-count=5` creates a random set of site names from the package pool.
-- `--page-count=30` creates that many generated pages per site.
-- `--languages=all`, `--languages=en,fr`, or `--languages=random:3` controls the language pool.
-- `--quick` uses a compact CI/screenshot profile when counts are omitted: one site, English only, and three pages per site.
-- `--reset` deletes existing sites whose names match the generated plan before recreating them, keeping repeated screenshot and QA runs stable without touching unrelated sites.
-- `--seed=1234` makes the generated plan repeatable for screenshots, tests, and bug reports.
+1. Install the package: `composer require capell-app/demo-kit`.
+2. Run the required setup: `php artisan capell:demo-kit-full-demo`.
+3. Open the related Capell admin surface and verify Demo Kit appears.
 
-Omit `--seed` for a fresh random demo on each run.
+## Next Steps
 
-`capell:demo-kit-full-demo` forwards the resolved seed to `capell:demo`, and `capell:demo` forwards it only to package demo commands whose manifest `commands.demoParams` includes `seed`. That keeps packages without seeded demo support compatible while making opted-in package demos deterministic.
+- [Package docs](docs/README.md)
+- [Overview](docs/overview.md)
+- [Screenshot contract](docs/screenshots.json)
+- [Marketplace assets](docs/assets/marketplace/)
+- [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
+- [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
+- [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
+- Focused tests: `vendor/bin/pest packages/demo-kit/tests --configuration=phpunit.xml`.
 
-## Kitchen Sink Lighthouse Notes
-
-The Kitchen Sink fixture expects the serving layer to provide text compression for realistic Lighthouse scoring. Local Docker/web-server or production proxies should enable gzip or Brotli for HTML, CSS, and JavaScript before comparing scores against the `kitchen-sink-demo` baseline.
-
-The fixture is intentionally hierarchy-aware. `Kitchen Sink Showcase` is created as the parent page, `Kitchen Sink Demo Page` is installed beneath it, and sibling/child context pages are attached as widget assets so page-card, navigation, asset-list, and related-content widgets have realistic selectable pages during admin and frontend checks.
-
-## Content Rendering Boundary
-
-Demo Kit must keep saved CMS content portable. `DemoCreator` should only persist minimal editable copy in content fields: simple paragraphs, headings, lists, links, and light emphasis are fine. Do not store designed HTML, utility classes, component classes, layout wrappers, tables, cards, pricing grids, hero sections, or other presentation structures in page or widget translations.
-
-When demo content needs a designed public surface, create or reuse a Capell Layout Builder widget and render it from package Blade under `packages/demo-kit/resources/views`. The seeded database record should point at that widget or view through Capell metadata, while the Blade view owns the markup and classes.
-
-Current examples:
-
-- `demo-page-content` renders designed demo pages through `capell-demo-kit::components.widget.demo-page-content`.
-- Homepage demo sections render through `capell-demo-kit::components.widget.homepage-section`.
-
-## Data And Persistence
-
-- Config: `packages/demo-kit/config/capell-demo-kit.php`.
-- Content pools: `packages/demo-kit/src/Support/DemoContentPool.php`.
-- Generated plan: `packages/demo-kit/src/Actions/BuildDemoGenerationPlanAction.php`.
-- Designed public markup: `packages/demo-kit/resources/views/components/widget`.
-
-## Extension Points
-
-- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
-
-## Install And Setup
-
-- Install with `composer require capell-app/demo-kit` in the host Capell application.
-- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
-
-## Docs
-
-- [docs index](docs/README.md)
-- [overview.md](docs/overview.md)
-- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
-
-## Testing
-
-Run package tests from the repository root:
-
-```bash
-vendor/bin/pest packages/demo-kit/tests --configuration=phpunit.xml
-```
-
-## Maintenance Notes
-
-- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+<!-- prettier-ignore-end -->

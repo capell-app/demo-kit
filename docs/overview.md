@@ -1,102 +1,97 @@
----
-title: 'Demo Kit Overview'
-description: 'How the Capell Demo Kit package creates repeatable local demo sites, languages, pages, media, and package demo content.'
----
+# Demo Kit
 
-# Demo Kit Overview
+<!-- prettier-ignore-start -->
 
-Demo Kit creates example Capell content for local demos, screenshots, package testing, and bug reports. It can build repeatable multi-site and multi-language demo plans, then call package-owned demo commands for installed packages.
+## What This Plugin Adds
 
-Use it when a developer needs a populated Capell install quickly without committing demo fixtures into the host app.
+Demo Kit is an **Available**, **No schema impact** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend.
 
-## What It Adds
+Deterministic demo-data orchestration for Capell - seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.
 
-- Demo site, language, user, page, and media generation actions.
-- Commands for admin-only demos, package demos, full demos, and demo health checks.
-- Repeatable generation through a numeric seed.
-- A package demo dispatcher that calls installed packages with the options they declare in their manifest.
-- Health checks for validating generated demo installs.
-- A `DemoKitPage` Filament page for admin-triggered demo generation workflows.
-- Package-owned Blade widget views for designed demo page content.
-- A hierarchy-aware Kitchen Sink fixture that installs the full Layout Builder default and extra widget catalogs with realistic parent, sibling, child, and page-selection context.
+After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
 
-## Admin Surface
+Status details:
 
-Demo Kit registers `DemoKitPage` at the `demo-kit` admin slug in the system navigation group. Access is limited to users allowed to manage demo generation.
+- Status: Available
+- Tier: free
+- Bundle: foundation
+- Composer package: `capell-app/demo-kit`
+- Namespace: `Capell\DemoKit`
+- Theme key: not applicable
 
-## Frontend Surface
+## Why It Matters
 
-Demo Kit does not add standalone public routes. Its frontend surface appears through seeded Capell content that references package-owned widget views:
+**For developers:** The package gives developers package-owned service providers, Actions, Data objects, Filament classes, and Blade views instead of pushing this behaviour into core or application code.
 
-- `capell-demo-kit::components.widget.demo-page-content`
-- `capell-demo-kit::components.widget.homepage-section`
+**For teams:** The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data.
 
-Those views keep presentation markup in Blade while database records keep only portable editable copy and render metadata.
+## Screens And Workflow
 
-## Commands
+Screenshot contract: `screenshots.json`.
 
-| Command                         | Purpose                                                                    |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| `capell:admin-demo`             | Creates admin/core demo data such as users, sites, languages, and pages.   |
-| `capell:demo`                   | Runs selected package demo commands for installed packages.                |
-| `capell:demo-kit-full-demo`     | Builds a full demo plan, creates admin demo data, then runs package demos. |
-| `capell:demo-kit-doctor --json` | Checks demo health and can return JSON for automation.                     |
+- Demo Kit admin page (admin, required).
+- Insights consent priming capture (frontend, optional).
+- Generated demo page content widget (frontend, required).
+- Generated homepage section widget (frontend, required).
 
-In non-interactive environments, demo generation requires `--force`.
+## Technical Shape
 
-## Kitchen Sink Fixture
+- Service providers: `Capell\DemoKit\Providers\DemoKitServiceProvider`.
+- Config files: `packages/demo-kit/config/capell-demo-kit.php`.
+- Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
+- Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
+- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoUsersAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
+- Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
+- Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
+- Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
+- Health checks: `Capell\DemoKit\Health\DemoKitHealthCheck`.
+- Blade views: `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`, `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`, `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`, `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`, `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`, `packages/demo-kit/resources/views/livewire/resources-library.blade.php`.
+- Cache tags: `demo-kit`.
 
-`capell:demo-kit-kitchen-sink` installs `Kitchen Sink Showcase` as the parent page, `Kitchen Sink Demo Page` beneath it, and sibling/child context pages for hierarchy-aware widgets. The fixture attaches those context pages as widget assets for page-selection widgets so admin previews, public rendering checks, screenshots, and accessibility audits exercise realistic page-card, navigation, gallery, and related-content states.
+## Data Model
 
-The layout catalog comes from Layout Builder's default and extra widget definitions. The first above-fold reference widget renders eagerly, while the remaining widget instances are stored as `lazy_fragment` placeholders to keep initial HTML size and Lighthouse checks representative.
+This package has no schema impact. It does not declare package-owned migrations or required tables.
 
-## Repeatable Demo Plans
+Docs gap: document extension points here if the package delegates persistence to a host package.
 
-The publishable config lives at `packages/demo-kit/config/capell-demo-kit.php`.
+## Install Impact
 
-| Config                      | Default               | Purpose                                                              |
-| --------------------------- | --------------------- | -------------------------------------------------------------------- |
-| `seed`                      | `null`                | Leave null for random demos or set an integer for repeatable output. |
-| `counts.sites`              | `3`                   | Default number of generated sites.                                   |
-| `counts.languages_per_site` | `[1, 4]`              | Range for language generation.                                       |
-| `counts.pages_per_site`     | `[12, 30]`            | Range for generated pages.                                           |
-| `counts.page_depth`         | `[1, 4]`              | Range for generated page tree depth.                                 |
-| `counts.media_per_page`     | `[0, 2]`              | Range for generated media attachments.                               |
-| `archive.*`                 | demo archive metadata | Download source, checksum, and size guard for archived demo assets.  |
+- Admin navigation: adds package-owned Filament classes when registered.
+- Permissions: none declared in `capell.json`.
+- Public routes: none detected in package route files.
+- Database changes: no package migrations declared.
+- Settings: no package settings declared.
+- Queues or schedules: none detected in standard package paths.
+- Cache tags: `demo-kit`.
+- Commands: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 
-For screenshot runs or bug reproduction, pass a seed:
+## Common Pitfalls
 
-```bash
-php artisan capell:demo-kit-full-demo --url=https://example.test --seed=1234 --force
-```
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
 
-## Package Demo Dispatch
+## Troubleshooting
 
-`capell:demo` reads installed package metadata and calls each package's declared demo command. It only passes options the package says it accepts, such as `url`, `user`, `seed`, `languages`, or `sites`.
+| Symptom | Likely cause | Check | Fix |
+| --- | --- | --- | --- |
+| Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
+| Background work does not run | Queue worker or scheduled command is not active | Check package jobs, commands, and host scheduler configuration | Start the queue or scheduler, then run the focused command or package test |
+| Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
 
-That keeps Demo Kit generic: packages own their demo content, while Demo Kit owns the orchestration and common input prompts.
+## Quick Start
 
-When `capell:demo-kit-full-demo` resolves a numeric seed, it passes that value into the package demo fan-out. Package demos that declare `seed` in `commands.demoParams` receive the same seed as the admin/core demo plan; packages that do not declare it are left unchanged.
+1. Install the package: `composer require capell-app/demo-kit`.
+2. Run the required setup: `php artisan capell:demo-kit-full-demo`.
+3. Open the related Capell admin surface and verify Demo Kit appears.
 
-## Rendering Boundary
+## Next Steps
 
-Demo Kit seeds CMS records, but it should not seed designed frontend markup into content columns. Keep page and widget translations portable: simple paragraphs, headings, lists, links, and emphasis are acceptable because editors and themes can preserve them.
+- [Package docs index](README.md)
+- [Screenshot contract](screenshots.json)
+- [Marketplace assets](assets/marketplace/)
+- [Capell content language plan](../../../docs/CONTENT_LANGUAGE_PLAN.md)
+- [Capell documentation design system](../../../docs/DESIGN_SYSTEM.md)
+- [Capell and package ERD notes](../../../docs/erd/capell-and-package-erds.md)
+- Focused tests: `vendor/bin/pest packages/demo-kit/tests --configuration=phpunit.xml`.
 
-Put public presentation in Capell rendering surfaces instead:
-
-- use Layout Builder widgets for page regions;
-- put designed markup and classes in package Blade files under `packages/demo-kit/resources/views`;
-- store only the widget key, component, `view_file`, and simple editable copy in the database;
-- add a focused test when a demo layout switches from stored content to a Blade-backed widget.
-
-`DemoCreator` currently uses `demo-page-content` for designed demo pages and `homepage-section` for homepage-specific sections. Follow that pattern for future demos instead of adding heredoc HTML to `DemoCreator`.
-
-## Screenshot Coverage
-
-The screenshot contract is stored in [screenshots.json](screenshots.json). Final capture should include the Demo Kit admin page and at least one generated public demo page using each package-owned widget view.
-
-## Maintenance Notes
-
-Keep demo content pools in code when they need variety or generation logic. Use config for scale, archive safety, and repeatability settings that host apps may need to override.
-
-Test generation plans through `BuildDemoGenerationPlanAction` first. Command tests should focus on option parsing, non-interactive guards, and package dispatch behaviour.
+<!-- prettier-ignore-end -->
