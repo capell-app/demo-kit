@@ -46,29 +46,38 @@ describe('demo kit capell.json manifest', function (): void {
 
     it('declares concrete manifest contribution classes for shipped extension surfaces', function () use ($demoKitManifest): void {
         $manifest = $demoKitManifest();
+        $contributes = $manifest['contributes'] ?? [];
+
+        throw_unless(is_array($contributes), RuntimeException::class, 'Demo Kit contributions must be an array.');
 
         expect($manifest['surfaces'])->toBe(['admin', 'frontend', 'console'])
             ->and($manifest['contributionTraceability']['deferredContributions'])->toBe([])
-            ->and($manifest['contributes'])->not->toBeEmpty();
+            ->and($contributes)->not->toBeEmpty();
 
-        $contributionTypes = collect($manifest['contributes'])->pluck('type')->all();
+        $contributionTypes = collect($contributes)->pluck('type')->all();
 
         expect($contributionTypes)->toBe([
             'admin-page',
             'configurator',
             'asset',
             'frontend-component',
-            'widget',
+            'dashboard-widget',
             'console-command',
             'health-check',
         ]);
 
-        collect($manifest['contributes'])
+        collect($contributes)
             ->pluck('class')
-            ->each(function (string $class): void {
-                expect(class_exists($class))->toBeTrue()
-                    ->and(is_subclass_of($class, ExtensionContribution::class))->toBeTrue()
-                    ->and($class::compatibleCapellApiVersion())->toBe('^4.0');
+            ->each(function (mixed $class): void {
+                throw_unless(is_string($class), RuntimeException::class, 'Demo Kit contribution class must be a string.');
+
+                $compatibleVersion = $class::compatibleCapellApiVersion();
+
+                throw_unless(is_string($compatibleVersion), RuntimeException::class, 'Demo Kit contribution API version must be a string.');
+
+                expect(class_exists($class))->toBeTrue();
+                expect(is_subclass_of($class, ExtensionContribution::class))->toBeTrue();
+                expect($compatibleVersion)->toBe('^4.0');
             });
     });
 });
