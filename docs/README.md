@@ -1,6 +1,6 @@
 # Demo Kit Docs
 
-Demo Kit provides example content and media for local Capell demos.
+Demo Kit provides deterministic demo-data orchestration for Capell: multi-site and multi-language sample content, package demo fan-out, screenshot-ready fixtures, and a health doctor for repeatable QA runs.
 
 Start at the [package README](../README.md) when deciding whether to install this package. Use the docs below for setup, extension, debugging, and verification details.
 

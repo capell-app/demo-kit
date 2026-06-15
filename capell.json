@@ -13,7 +13,7 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\DemoKit",
-    "surfaces": ["admin", "frontend"],
+    "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -30,7 +30,81 @@
         "admin": [],
         "frontend": []
     },
-    "contributes": [],
+    "contributes": [
+        {
+            "type": "admin-page",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitAdminPageContribution",
+            "pageClass": "Capell\\DemoKit\\Filament\\Pages\\DemoKitPage",
+            "labelKey": "capell-demo-kit::page.title"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitConfiguratorContribution",
+            "configuratorClasses": [
+                "Capell\\DemoKit\\Filament\\Configurators\\Widgets\\HomepageSectionWidgetConfigurator"
+            ],
+            "groups": ["layout-widget"]
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitAssetsContribution",
+            "surface": "frontend",
+            "assets": [
+                "resources/views/**/*.blade.php",
+                "resources/css/demo-homepage.css",
+                "demo/img/test.svg",
+                "demo/video/SampleVideo_1280x720_1mb.mp4"
+            ]
+        },
+        {
+            "type": "frontend-component",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitFrontendComponentsContribution",
+            "componentClasses": [
+                "Capell\\DemoKit\\Livewire\\KitchenSinkStressWidget",
+                "Capell\\DemoKit\\Livewire\\ResourcesLibrary",
+                "Capell\\DemoKit\\Support\\KitchenSinkPublicWidgetPayloadContributor"
+            ]
+        },
+        {
+            "type": "dashboard-widget",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitRenderablesContribution",
+            "renderableKeys": [
+                "capell.widget.demo-page-content",
+                "capell.widget.homepage-section",
+                "capell-demo-kit.widget.kitchen-sink-livewire-stress"
+            ],
+            "bladeViews": [
+                "capell-demo-kit::widget.demo-page-content",
+                "capell-demo-kit::widget.homepage-section"
+            ],
+            "livewireComponents": ["capell-demo-kit.kitchen-sink-stress-widget"]
+        },
+        {
+            "type": "console-command",
+            "class": "Capell\\DemoKit\\Manifest\\DemoKitConsoleCommandsContribution",
+            "commands": [
+                "capell:demo",
+                "capell:admin-demo",
+                "capell:demo-kit-full-demo",
+                "capell:demo-kit-doctor",
+                "capell:demo-kit-refresh-stitch-pages",
+                "capell:kitchen-sink-demo"
+            ],
+            "commandClasses": [
+                "Capell\\DemoKit\\Console\\Commands\\DemoCommand",
+                "Capell\\DemoKit\\Console\\Commands\\AdminDemoCommand",
+                "Capell\\DemoKit\\Console\\Commands\\FullDemoCommand",
+                "Capell\\DemoKit\\Console\\Commands\\DemoKitDoctorCommand",
+                "Capell\\DemoKit\\Console\\Commands\\RefreshDemoStitchPagesCommand",
+                "Capell\\DemoKit\\Console\\Commands\\KitchenSinkDemoCommand"
+            ]
+        },
+        {
+            "type": "health-check",
+            "class": "Capell\\DemoKit\\Health\\DemoKitHealthCheck",
+            "checkClass": "Capell\\DemoKit\\Health\\DemoKitHealthCheck"
+        }
+    ],
     "database": {
         "migrations": false,
         "settings": false,
@@ -47,10 +121,12 @@
             "sites",
             "site-count",
             "page-count",
+            "packages",
             "theme",
             "seed",
             "quick",
             "reset",
+            "skip-demo-users",
             "allow-production",
             "force"
         ],
@@ -144,9 +220,21 @@
                 "caption": "Dark-mode admin capture for demo generation"
             }
         ],
-        "categories": ["admin", "foundation", "frontend"]
+        "categories": ["admin", "console", "foundation", "frontend"],
+        "keywords": [
+            "demo-data",
+            "seeding",
+            "fixtures",
+            "screenshot-automation",
+            "multi-site",
+            "multi-language",
+            "deterministic-seed",
+            "qa-tooling",
+            "showcase",
+            "foundation"
+        ]
     },
     "contributionTraceability": {
-        "deferredContributions": ["admin-page", "asset", "configurator"]
+        "deferredContributions": []
     }
 }
