@@ -4,9 +4,14 @@
     "keywords": [
         "capell",
         "demo",
+        "demo-data",
+        "deterministic-seed",
+        "fixtures",
         "laravel",
         "filamentphp",
-        "cms"
+        "cms",
+        "qa-tooling",
+        "screenshot-automation"
     ],
     "homepage": "https://github.com/capell-app/demo-kit",
     "license": "proprietary",

@@ -31,7 +31,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:demo {--user=} {--languages=} {--packages} {--seed=} {--sites=} {--url} {--allow-production} {--force}';
+    protected $signature = 'capell:demo {--user=} {--languages=} {--packages=} {--seed=} {--sites=} {--url} {--allow-production} {--force}';
 
     /**
      * The console command description.
