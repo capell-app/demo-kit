@@ -34,6 +34,42 @@ Screenshot contract: `screenshots.json`.
 - Generated demo page content widget (frontend, required).
 - Generated homepage section widget (frontend, required).
 
+## Screenshot Evidence
+
+These captures are the package-owned visual contract for the admin pages, public pages, actions, workflows, and feature surfaces described above. Keep this section aligned with `docs/screenshots.json` whenever the package surface changes.
+
+### Demo Kit admin page
+
+![Demo Kit admin page](screenshots/demo-kit-admin-page.png)
+
+- Surface: admin · Target: DemoKitPage.
+- Documents: An administrator starts deterministic demo content generation from the package-owned admin page.
+- Capture notes: Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state.
+
+### Insights consent priming capture
+
+![Insights consent priming capture](screenshots/insights-consent-prime.png)
+
+- Surface: frontend · Target: capell-demo-kit::components.widget.demo-page-content.
+- Documents: The screenshot runner sets anonymous visitor consent state so public Demo Kit captures do not include analytics consent chrome.
+- Capture notes: Runner-only warm-up capture that dismisses the Insights consent banner before marketplace-facing public screenshots are taken.
+
+### Generated demo page content widget
+
+![Generated demo page content widget](screenshots/demo-page-content-widget.png)
+
+- Surface: frontend · Target: capell-demo-kit::components.widget.demo-page-content.
+- Documents: A maintainer verifies generated demo pages render designed content through the package-owned Blade view.
+- Capture notes: Requires Demo Kit generated page data with a layout widget using the demo-page-content renderable. Public output should show package Blade presentation, not stored Tailwind markup from database content.
+
+### Generated homepage section widget
+
+![Generated homepage section widget](screenshots/homepage-section-widget.png)
+
+- Surface: frontend · Target: capell-demo-kit::components.widget.homepage-section.
+- Documents: A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade.
+- Capture notes: Requires a generated homepage layout that includes a homepage-section renderable such as the command-centre hero widget.
+
 ## Technical Shape
 
 - Service providers: `Capell\DemoKit\Providers\DemoKitServiceProvider`.
