@@ -62,7 +62,7 @@
             "componentClasses": [
                 "Capell\\DemoKit\\Livewire\\KitchenSinkStressWidget",
                 "Capell\\DemoKit\\Livewire\\ResourcesLibrary",
-                "Capell\\DemoKit\\Support\\KitchenSinkPublicWidgetPayloadContributor"
+                "Capell\\DemoKit\\Support\\KitchenSinkPublicLayoutWidgetPayloadContributor"
             ]
         },
         {

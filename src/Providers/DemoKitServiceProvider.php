@@ -23,8 +23,8 @@ use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigura
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Capell\DemoKit\Livewire\KitchenSinkStressWidget;
 use Capell\DemoKit\Livewire\ResourcesLibrary;
-use Capell\DemoKit\Support\KitchenSinkPublicWidgetPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\DemoKit\Support\KitchenSinkPublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
@@ -65,7 +65,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
 
         $this->registerAdminPanelExtensions();
-        $this->registerPublicWidgetPayloadContributors();
+        $this->registerPublicLayoutWidgetPayloadContributors();
     }
 
     public function packageBooted(): void
@@ -114,13 +114,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         ));
     }
 
-    private function registerPublicWidgetPayloadContributors(): void
+    private function registerPublicLayoutWidgetPayloadContributors(): void
     {
-        if (! interface_exists(PublicWidgetPayloadContributor::class)) {
+        if (! interface_exists(PublicLayoutWidgetPayloadContributor::class)) {
             return;
         }
 
-        $this->app->tag([KitchenSinkPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
+        $this->app->tag([KitchenSinkPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
     }
 
     private function registerAdminPanelExtensions(): void

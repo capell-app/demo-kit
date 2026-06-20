@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Manifest;
 
-use Capell\Core\Contracts\Extensions\RegistersExtensionWidget;
+use Capell\Core\Contracts\Extensions\RegistersExtensionFilamentWidget;
 
-final class DemoKitRenderablesContribution implements RegistersExtensionWidget
+final class DemoKitRenderablesContribution implements RegistersExtensionFilamentWidget
 {
     public static function compatibleCapellApiVersion(): string
     {

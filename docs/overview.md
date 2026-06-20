@@ -8,7 +8,7 @@ Demo Kit is an **Available**, **No schema impact** Capell package in the **Capel
 
 Deterministic demo-data orchestration for Capell - seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.
 
-After install, developers and QA teams get console seeding commands, admins get a package-owned management page, and public users may see generated demo content that uses package-owned widget views.
+After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
 
 Status details:
 
@@ -42,9 +42,9 @@ Screenshot contract: `screenshots.json`.
 - Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
 - Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoUsersAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
 - Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
-- Manifest contributions: admin page, homepage widget configurator, frontend assets, Livewire/demo payload components, layout widget renderables, console commands, and health check.
-- Command signatures: `capell:demo`, `capell:admin-demo`, `capell:demo-kit-full-demo`, `capell:demo-kit-doctor`, `capell:demo-kit-refresh-stitch-pages`, `capell:kitchen-sink-demo`.
+- Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 - Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
+- Manifest contributions: `admin-page: Capell\DemoKit\Manifest\DemoKitAdminPageContribution`, `asset: Capell\DemoKit\Manifest\DemoKitAssetsContribution`, `configurator: Capell\DemoKit\Manifest\DemoKitConfiguratorContribution`, `console-command: Capell\DemoKit\Manifest\DemoKitConsoleCommandsContribution`, `dashboard-widget: Capell\DemoKit\Manifest\DemoKitRenderablesContribution`, `frontend-component: Capell\DemoKit\Manifest\DemoKitFrontendComponentsContribution`, `health-check: Capell\DemoKit\Health\DemoKitHealthCheck`.
 - Health checks: `Capell\DemoKit\Health\DemoKitHealthCheck`.
 - Blade views: `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`, `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`, `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`, `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`, `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`, `packages/demo-kit/resources/views/livewire/resources-library.blade.php`.
 - Cache tags: `demo-kit`.
@@ -53,7 +53,7 @@ Screenshot contract: `screenshots.json`.
 
 This package has no schema impact. It does not declare package-owned migrations or required tables.
 
-Demo Kit delegates persistence to Capell Core/Admin/Frontend models and Layout Builder widgets. Its package-owned extension points are command orchestration, manifest-declared admin/frontend surfaces, renderable widget views, runtime assets, and the diagnostics health contract.
+Docs gap: document extension points here if the package delegates persistence to a host package.
 
 ## Install Impact
 
@@ -64,24 +64,12 @@ Demo Kit delegates persistence to Capell Core/Admin/Frontend models and Layout B
 - Settings: no package settings declared.
 - Queues or schedules: none detected in standard package paths.
 - Cache tags: `demo-kit`.
-- Commands: `capell:demo`, `capell:admin-demo`, `capell:demo-kit-full-demo`, `capell:demo-kit-doctor`, `capell:demo-kit-refresh-stitch-pages`, `capell:kitchen-sink-demo`.
-
-## Commands
-
-| Command | Role |
-| --- | --- |
-| `capell:demo-kit-full-demo` | Canonical entry point. Builds the deterministic site/language/page plan, runs admin seeding, fans out to package demos, and installs the Kitchen Sink reference page. |
-| `capell:admin-demo` | Seeds core/admin demo data: users, languages, sites, pages, media, and the Foundation showcase homepage. |
-| `capell:demo` | Fan-out runner for installed packages that declare `commands.demo` in `capell.json`; forwards only parameters each package declares. |
-| `capell:demo-kit-doctor` | Runs Demo Kit health checks for showcase widgets, media, assets, package capabilities, cache eligibility, and public render safety. |
-| `capell:demo-kit-refresh-stitch-pages` | Refreshes generated Stitch demo page assets used by the Demo Kit workflow. |
-| `capell:kitchen-sink-demo` | Installs or refreshes the Kitchen Sink stress page for public rendering coverage. |
-
-The canonical demo parameters are `url`, `user`, `languages`, `sites`, `site-count`, `page-count`, `packages`, `theme`, `seed`, `quick`, `reset`, `skip-demo-users`, `allow-production`, and `force`.
+- Commands: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 
 ## Common Pitfalls
 
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Run package commands from the host app; in this repository use `vendor/bin/pest` for package tests.
 - Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
 
 ## Troubleshooting
