@@ -6,10 +6,10 @@ namespace Capell\DemoKit\Support;
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 
-final class KitchenSinkPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
+final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
     /**
      * @var array<int, string>

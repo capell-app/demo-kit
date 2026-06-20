@@ -20,7 +20,7 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
-use Capell\LayoutBuilder\Data\WidgetDefinitionData;
+use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -172,9 +172,9 @@ final class InstallKitchenSinkDemoPageAction
         ])
             ->merge(
                 collect([
-                    ...WidgetDefinitionData::defaultCatalog(),
-                    ...WidgetDefinitionData::extraCatalog(),
-                ])->map(static fn (WidgetDefinitionData $definition): string => $definition->key),
+                    ...LayoutWidgetCatalogDefinitionData::defaultCatalog(),
+                    ...LayoutWidgetCatalogDefinitionData::extraCatalog(),
+                ])->map(static fn (LayoutWidgetCatalogDefinitionData $definition): string => $definition->key),
             )
             ->unique()
             ->values()

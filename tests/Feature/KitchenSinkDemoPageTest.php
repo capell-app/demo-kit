@@ -273,15 +273,15 @@ it('installs custom heroes and livewire kitchen sink widgets in the matrix', fun
     $heroWidgets = $layoutWidgets->filter(
         fn (array $widget): bool => str_contains((string) data_get($widget, 'meta.kitchen_sink.source_key'), 'hero'),
     );
-    $livewireStressLayoutWidget = $layoutWidgets->first(
+    $livewireStressWidget = $layoutWidgets->first(
         fn (array $widget): bool => data_get($widget, 'meta.kitchen_sink.source_key') === 'kitchen-sink-livewire-stress',
     );
-    $livewireLatestPagesLayoutWidget = $layoutWidgets->first(
+    $livewireLatestPagesWidget = $layoutWidgets->first(
         fn (array $widget): bool => data_get($widget, 'meta.kitchen_sink.source_key') === 'kitchen-sink-livewire-latest-pages',
     );
 
-    throw_unless(is_array($livewireStressLayoutWidget), RuntimeException::class, 'Expected a Livewire stress layout widget.');
-    throw_unless(is_array($livewireLatestPagesLayoutWidget), RuntimeException::class, 'Expected a Livewire latest pages layout widget.');
+    throw_unless(is_array($livewireStressWidget), RuntimeException::class, 'Expected a Livewire stress layout widget.');
+    throw_unless(is_array($livewireLatestPagesWidget), RuntimeException::class, 'Expected a Livewire latest pages layout widget.');
 
     $livewireStressWidget = Widget::query()->firstWhere('key', $livewireStressLayoutWidget['widget_key']);
     $livewireLatestPagesWidget = Widget::query()
