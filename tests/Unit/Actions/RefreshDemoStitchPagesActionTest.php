@@ -110,22 +110,25 @@ it('deactivates duplicate active urls left behind by refreshed pages', function 
     $contact = Page::factory()->site($site)->type($pageType)->withTranslations($language)->create(['name' => 'Contact']);
     $duplicate = Page::factory()->site($site)->type($pageType)->withTranslations($language)->create(['name' => 'Duplicate Contact']);
 
-    PageUrl::query()->create([
-        'site_id' => $site->getKey(),
-        'language_id' => $language->getKey(),
-        'pageable_type' => $contact->getMorphClass(),
-        'pageable_id' => $contact->getKey(),
-        'url' => '/contact',
-        'status' => true,
-    ]);
-    $duplicateUrl = PageUrl::query()->create([
-        'site_id' => $site->getKey(),
-        'language_id' => $language->getKey(),
-        'pageable_type' => $duplicate->getMorphClass(),
-        'pageable_id' => $duplicate->getKey(),
-        'url' => '/contact',
-        'status' => true,
-    ]);
+    $duplicateUrl = PageUrl::withoutEvents(function () use ($site, $language, $contact, $duplicate): PageUrl {
+        PageUrl::query()->create([
+            'site_id' => $site->getKey(),
+            'language_id' => $language->getKey(),
+            'pageable_type' => $contact->getMorphClass(),
+            'pageable_id' => $contact->getKey(),
+            'url' => '/contact',
+            'status' => true,
+        ]);
+
+        return PageUrl::query()->create([
+            'site_id' => $site->getKey(),
+            'language_id' => $language->getKey(),
+            'pageable_type' => $duplicate->getMorphClass(),
+            'pageable_id' => $duplicate->getKey(),
+            'url' => '/contact',
+            'status' => true,
+        ]);
+    });
 
     RefreshDemoStitchPagesAction::run(force: true);
 

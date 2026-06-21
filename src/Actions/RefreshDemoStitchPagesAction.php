@@ -10,6 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Support\Creator\DemoCreator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -73,6 +74,8 @@ final class RefreshDemoStitchPagesAction
             $rootPages = [];
             $childPages = collect();
 
+            $this->deactivateDuplicateActiveUrlsForSite($site);
+
             foreach (self::RootPageNames as $pageName) {
                 $page = $this->findOrCreatePage($creator, $site, $languages, $pageName);
                 $refreshedPage = $creator->refreshDemoPage($page, $languages, refreshUrls: false);
@@ -88,15 +91,23 @@ final class RefreshDemoStitchPagesAction
                 $childPages->push($refreshedPage);
             }
 
+            $refreshedSitePages = collect($rootPages)->values()->merge($childPages);
+
+            $this->deactivateDuplicateActiveUrls($refreshedSitePages);
+
             collect($rootPages)->each(function (Page $page): void {
+                $this->deactivateConflictingUrlsForPage($page);
+
                 SetupPageUrlsAction::run($page);
             });
 
             $childPages->each(function (Page $page): void {
+                $this->deactivateConflictingUrlsForPage($page);
+
                 SetupPageUrlsAction::run($page);
             });
 
-            $this->deactivateDuplicateActiveUrls(collect($rootPages)->values()->merge($childPages));
+            $this->deactivateDuplicateActiveUrls($refreshedSitePages);
         });
 
         return $refreshedPages;
@@ -190,6 +201,61 @@ final class RefreshDemoStitchPagesAction
         }
 
         return $page;
+    }
+
+    private function deactivateConflictingUrlsForPage(Page $page): void
+    {
+        $page->loadMissing(['translations.language']);
+
+        $page->translations->each(function (Model $translation) use ($page): void {
+            $language = $translation->language;
+
+            if ($language === null) {
+                return;
+            }
+
+            $url = $page->getParentUrl($language);
+            $slug = $translation->slug;
+
+            if (! str_starts_with($url, '/')) {
+                $url = '/' . $url;
+            }
+
+            if ($slug !== '/') {
+                if (! str_ends_with($url, '/')) {
+                    $url .= '/';
+                }
+
+                $url .= $slug;
+            }
+
+            PageUrl::query()
+                ->where('site_id', $page->site_id)
+                ->where('language_id', $translation->language_id)
+                ->where('url', $url)
+                ->where('status', true)
+                ->where(function (Builder $query) use ($page): void {
+                    $query
+                        ->where('pageable_type', '!=', $page->getMorphClass())
+                        ->orWhere('pageable_id', '!=', $page->getKey());
+                })
+                ->update(['status' => false]);
+        });
+    }
+
+    private function deactivateDuplicateActiveUrlsForSite(Site $site): void
+    {
+        PageUrl::query()
+            ->where('site_id', $site->getKey())
+            ->where('status', true)
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (PageUrl $pageUrl): string => $pageUrl->language_id . '|' . $pageUrl->url)
+            ->each(function (Collection $pageUrls): void {
+                PageUrl::query()
+                    ->whereKey($pageUrls->skip(1)->pluck('id')->all())
+                    ->update(['status' => false]);
+            });
     }
 
     /**
