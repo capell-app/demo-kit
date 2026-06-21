@@ -449,7 +449,14 @@ it('can edit every demo kit creator widget through Filament without losing creat
         $editedTitle = $widget->name . ' edited title';
         $editedHtml = '<p>Edited demo creator widget content for ' . e($widget->key) . '.</p>';
         $editedContent = $widget->type?->content_structure === ContentStructure::Blocks
-            ? [['type' => 'content', 'data' => ['content' => $editedHtml]]]
+            ? [[
+                'type' => 'content',
+                'data' => [
+                    'content' => $editedHtml,
+                    'mediaAlign' => null,
+                    'mediaOrdering' => null,
+                ],
+            ]]
             : $editedHtml;
 
         try {

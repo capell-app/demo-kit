@@ -283,10 +283,10 @@ it('installs custom heroes and livewire kitchen sink widgets in the matrix', fun
     throw_unless(is_array($livewireStressWidget), RuntimeException::class, 'Expected a Livewire stress layout widget.');
     throw_unless(is_array($livewireLatestPagesWidget), RuntimeException::class, 'Expected a Livewire latest pages layout widget.');
 
-    $livewireStressWidget = Widget::query()->firstWhere('key', $livewireStressLayoutWidget['widget_key']);
+    $livewireStressWidget = Widget::query()->firstWhere('key', $livewireStressWidget['widget_key']);
     $livewireLatestPagesWidget = Widget::query()
         ->with('assets')
-        ->firstWhere('key', $livewireLatestPagesLayoutWidget['widget_key']);
+        ->firstWhere('key', $livewireLatestPagesWidget['widget_key']);
 
     expect($heroWidgets->count())->toBeGreaterThanOrEqual(3)
         ->and($livewireStressWidget)->toBeInstanceOf(Widget::class)
