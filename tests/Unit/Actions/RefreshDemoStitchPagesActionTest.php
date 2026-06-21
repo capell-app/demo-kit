@@ -110,7 +110,9 @@ it('deactivates duplicate active urls left behind by refreshed pages', function 
     $contact = Page::factory()->site($site)->type($pageType)->withTranslations($language)->create(['name' => 'Contact']);
     $duplicate = Page::factory()->site($site)->type($pageType)->withTranslations($language)->create(['name' => 'Duplicate Contact']);
 
-    $duplicateUrl = PageUrl::withoutEvents(function () use ($site, $language, $contact, $duplicate): PageUrl {
+    $duplicateUrl = new PageUrl;
+
+    PageUrl::withoutEvents(function () use ($site, $language, $contact, $duplicate, &$duplicateUrl): void {
         PageUrl::query()->create([
             'site_id' => $site->getKey(),
             'language_id' => $language->getKey(),
@@ -120,7 +122,7 @@ it('deactivates duplicate active urls left behind by refreshed pages', function 
             'status' => true,
         ]);
 
-        return PageUrl::query()->create([
+        $duplicateUrl = PageUrl::query()->create([
             'site_id' => $site->getKey(),
             'language_id' => $language->getKey(),
             'pageable_type' => $duplicate->getMorphClass(),
