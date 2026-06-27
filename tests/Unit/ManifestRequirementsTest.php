@@ -44,6 +44,29 @@ describe('demo kit capell.json manifest', function (): void {
             ->and($registeredPackage->demoParams)->toBe($manifest['commands']['demoParams']);
     });
 
+    it('keeps the showcase frontend output cacheable with invalidation metadata', function () use ($demoKitManifest): void {
+        // Demo Kit's public showcase output is cache-safe, so it must not veto
+        // the origin HTML cache. The cacheable flag has to agree with the
+        // public-output contract and declare invalidation sources, or the
+        // manifest validator rejects it and the whole site stops caching.
+        $manifest = $demoKitManifest();
+        $cacheSafety = $manifest['performance']['cacheSafety'] ?? null;
+
+        throw_unless(is_array($cacheSafety), RuntimeException::class, 'Expected Demo Kit cacheSafety metadata array.');
+
+        expect($cacheSafety['cacheable'])->toBeTrue()
+            ->and($cacheSafety['sensitiveOutput'])->toBeFalse()
+            ->and($manifest['security']['publicOutput']['cacheSafe'])->toBeTrue()
+            ->and($cacheSafety['invalidationSources'])->not->toBeEmpty();
+
+        $invalidationModels = collect($cacheSafety['invalidationSources'])->pluck('model')->all();
+
+        expect($invalidationModels)->toContain(
+            'Capell\\Core\\Models\\Page',
+            'Capell\\Core\\Models\\PageUrl',
+        );
+    });
+
     it('declares concrete manifest contribution classes for shipped extension surfaces', function () use ($demoKitManifest): void {
         $manifest = $demoKitManifest();
         $contributes = $manifest['contributes'] ?? [];
