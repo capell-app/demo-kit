@@ -134,7 +134,7 @@
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
+    "capabilities": ["frontend-rendering"],
     "security": {
         "riskTier": "standard",
         "publicSurface": {
