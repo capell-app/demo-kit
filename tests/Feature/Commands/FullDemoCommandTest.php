@@ -319,23 +319,23 @@ it('runs non theme package demos and only the selected theme demo when theme opt
     CapellCore::forcePackageInstalled('vendor/example-package');
     CapellCore::getPackage('vendor/example-package')->demoCommand = 'test:package-demo';
 
-    CapellCore::registerPackage(name: 'capell-app/theme-agency', type: PackageTypeEnum::Theme);
-    CapellCore::forcePackageInstalled('capell-app/theme-agency');
-    CapellCore::getPackage('capell-app/theme-agency')->demoCommand = 'test:agency-demo';
-    CapellCore::getPackage('capell-app/theme-agency')->themeKey = 'agency';
+    CapellCore::registerPackage(name: 'capell-app/theme-liquid-glass', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-liquid-glass');
+    CapellCore::getPackage('capell-app/theme-liquid-glass')->demoCommand = 'test:liquid-glass-demo';
+    CapellCore::getPackage('capell-app/theme-liquid-glass')->themeKey = 'liquid-glass';
 
-    CapellCore::registerPackage(name: 'capell-app/theme-saas', type: PackageTypeEnum::Theme);
-    CapellCore::forcePackageInstalled('capell-app/theme-saas');
-    CapellCore::getPackage('capell-app/theme-saas')->demoCommand = 'test:saas-demo';
-    CapellCore::getPackage('capell-app/theme-saas')->themeKey = 'saas';
+    CapellCore::registerPackage(name: 'capell-app/theme-dark-product-system', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-dark-product-system');
+    CapellCore::getPackage('capell-app/theme-dark-product-system')->demoCommand = 'test:dark-product-system-demo';
+    CapellCore::getPackage('capell-app/theme-dark-product-system')->themeKey = 'dark-product-system';
 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->once()
         ->andReturn(true);
 
     Artisan::registerCommand(new TrackingDemoCommand('test:package-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
-    Artisan::registerCommand(new TrackingDemoCommand('test:agency-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
-    Artisan::registerCommand(new TrackingDemoCommand('test:saas-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:liquid-glass-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:dark-product-system-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
 
     app()->bind(PageCreator::class, function (): PageCreator {
         $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
