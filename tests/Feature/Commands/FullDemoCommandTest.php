@@ -359,15 +359,15 @@ it('runs non theme package demos and only the selected theme demo when theme opt
         '--languages' => 'en',
         '--sites' => 'Main Site',
         '--page-count' => 1,
-        '--theme' => 'agency',
+        '--theme' => 'liquid-glass',
         '--force' => true,
     ])->assertExitCode(0);
 
     capell_expect(TrackingDemoCommand::$executionOrder)
         ->toHaveCount(2)
         ->toContain('test:package-demo')
-        ->toContain('test:agency-demo')
-        ->not->toContain('test:saas-demo');
+        ->toContain('test:liquid-glass-demo')
+        ->not->toContain('test:dark-product-system-demo');
 });
 
 it('requires force when running non interactively', function (): void {
