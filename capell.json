@@ -134,7 +134,7 @@
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
+    "capabilities": ["frontend-rendering"],
     "security": {
         "riskTier": "standard",
         "publicSurface": {
@@ -179,10 +179,27 @@
         "adminQueryBudget": 40,
         "cacheTags": ["demo-kit"],
         "cacheSafety": {
-            "cacheable": false,
-            "variesBy": ["site", "locale"],
+            "cacheable": true,
+            "variesBy": [],
             "sensitiveOutput": false,
-            "invalidationSources": [],
+            "invalidationSources": [
+                {
+                    "model": "Capell\\Core\\Models\\Page",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\PageUrl",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\SiteDomain",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\Translation",
+                    "events": ["saved", "deleted"]
+                }
+            ],
             "queueInvalidation": true
         }
     },
