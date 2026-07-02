@@ -140,7 +140,7 @@
     );
 @endphp
 
-<x-capell-foundation-theme::widget.wrapper
+<x-capell-theme-foundation::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
@@ -1066,4 +1066,4 @@
             </section>
         @endif
     </div>
-</x-capell-foundation-theme::widget.wrapper>
+</x-capell-theme-foundation::widget.wrapper>
