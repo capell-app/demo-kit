@@ -28,7 +28,7 @@
     }
 @endphp
 
-<x-capell-theme-foundation::widget.wrapper
+<x-capell-foundation-theme::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
@@ -798,4 +798,4 @@
 
             @break
     @endswitch
-</x-capell-theme-foundation::widget.wrapper>
+</x-capell-foundation-theme::widget.wrapper>

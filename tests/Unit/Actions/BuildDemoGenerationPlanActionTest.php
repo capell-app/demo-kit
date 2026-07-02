@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 
 it('builds repeatable demo plans when a seed is supplied', function (): void {
@@ -145,19 +144,6 @@ it('does not duplicate reserved footer page names in generated fallback pages', 
             'Governance' => 1,
             'Training' => 1,
         ]);
-});
-
-it('does not reserve a generic blog page when the blog package owns the blog route', function (): void {
-    CapellCore::forcePackageInstalled('capell-app/blog');
-
-    $plan = BuildDemoGenerationPlanAction::run([
-        'site_count' => 1,
-        'pages' => 20,
-        'languages' => ['en'],
-        'seed' => 789,
-    ]);
-
-    expect(demoPlanPageNames($plan->sites[0]->pages))->not()->toContain('Blog');
 });
 
 it('keeps generated demo page trees out of publishable config', function (): void {

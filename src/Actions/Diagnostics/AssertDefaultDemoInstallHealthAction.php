@@ -348,7 +348,7 @@ final class AssertDefaultDemoInstallHealthAction
         $graph = BuildPackageCapabilityGraphAction::run();
 
         if ($graph->packageHas('capell-app/frontend', PackageCapability::PublicStatic)
-            || $graph->packageHas('capell-app/theme-foundation', PackageCapability::FrontendAssets)) {
+            || $graph->packageHas('capell-app/foundation-theme', PackageCapability::FrontendAssets)) {
             return new DoctorCheckResultData(
                 label: 'Default demo package capabilities',
                 passed: true,
