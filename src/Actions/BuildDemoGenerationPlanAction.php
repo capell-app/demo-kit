@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Actions;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Data\DemoGenerationPlanData;
 use Capell\DemoKit\Data\DemoPagePlanData;
 use Capell\DemoKit\Data\DemoProfileData;
@@ -241,7 +242,7 @@ final class BuildDemoGenerationPlanAction
      */
     private function specialDemoPages(): array
     {
-        return [
+        $pages = [
             new DemoPagePlanData(
                 name: $this->translatedName('Contact'),
                 mediaCount: 0,
@@ -287,10 +288,6 @@ final class BuildDemoGenerationPlanAction
                 mediaCount: 3,
             ),
             new DemoPagePlanData(
-                name: $this->translatedName('Blog'),
-                mediaCount: 3,
-            ),
-            new DemoPagePlanData(
                 name: $this->translatedName('Home, Buildings and Architecture'),
                 mediaCount: 2,
             ),
@@ -333,6 +330,17 @@ final class BuildDemoGenerationPlanAction
                 mediaCount: 0,
             ),
         ];
+
+        if (! CapellCore::isPackageInstalled('capell-app/blog')) {
+            array_splice($pages, 11, 0, [
+                new DemoPagePlanData(
+                    name: $this->translatedName('Blog'),
+                    mediaCount: 3,
+                ),
+            ]);
+        }
+
+        return $pages;
     }
 
     /**
