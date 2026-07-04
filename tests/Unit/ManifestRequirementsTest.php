@@ -59,7 +59,10 @@ describe('demo kit capell.json manifest', function (): void {
             ->and($manifest['security']['publicOutput']['cacheSafe'])->toBeTrue()
             ->and($cacheSafety['invalidationSources'])->not->toBeEmpty();
 
-        $invalidationModels = collect($cacheSafety['invalidationSources'])->pluck('model')->all();
+        $invalidationSources = $cacheSafety['invalidationSources'] ?? [];
+        throw_unless(is_array($invalidationSources), RuntimeException::class, 'Expected Demo Kit invalidation sources array.');
+
+        $invalidationModels = collect($invalidationSources)->pluck('model')->all();
 
         expect($invalidationModels)->toContain(
             'Capell\\Core\\Models\\Page',
