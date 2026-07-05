@@ -324,10 +324,10 @@ it('runs non theme package demos and only the selected theme demo when theme opt
     CapellCore::getPackage('capell-app/theme-liquid-glass')->demoCommand = 'test:liquid-glass-demo';
     CapellCore::getPackage('capell-app/theme-liquid-glass')->themeKey = 'liquid-glass';
 
-    CapellCore::registerPackage(name: 'capell-app/theme-dark-product-system', type: PackageTypeEnum::Theme);
-    CapellCore::forcePackageInstalled('capell-app/theme-dark-product-system');
-    CapellCore::getPackage('capell-app/theme-dark-product-system')->demoCommand = 'test:dark-product-system-demo';
-    CapellCore::getPackage('capell-app/theme-dark-product-system')->themeKey = 'dark-product-system';
+    CapellCore::registerPackage(name: 'capell-app/theme-night-shift', type: PackageTypeEnum::Theme);
+    CapellCore::forcePackageInstalled('capell-app/theme-night-shift');
+    CapellCore::getPackage('capell-app/theme-night-shift')->demoCommand = 'test:night-shift-demo';
+    CapellCore::getPackage('capell-app/theme-night-shift')->themeKey = 'night-shift';
 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->once()
@@ -335,7 +335,7 @@ it('runs non theme package demos and only the selected theme demo when theme opt
 
     Artisan::registerCommand(new TrackingDemoCommand('test:package-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
     Artisan::registerCommand(new TrackingDemoCommand('test:liquid-glass-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
-    Artisan::registerCommand(new TrackingDemoCommand('test:dark-product-system-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
+    Artisan::registerCommand(new TrackingDemoCommand('test:night-shift-demo {--url=} {--user=} {--languages=*} {--sites=*}'));
 
     app()->bind(PageCreator::class, function (): PageCreator {
         $mock = Mockery::mock(PageCreator::class . '[createHomePage,createErrorPage]');
@@ -367,7 +367,7 @@ it('runs non theme package demos and only the selected theme demo when theme opt
         ->toHaveCount(2)
         ->toContain('test:package-demo')
         ->toContain('test:liquid-glass-demo')
-        ->not->toContain('test:dark-product-system-demo');
+        ->not->toContain('test:night-shift-demo');
 });
 
 it('requires force when running non interactively', function (): void {
