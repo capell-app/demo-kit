@@ -31,7 +31,7 @@
             "targetType": "frontend-render",
             "target": "capell-demo-kit::components.widget.demo-page-content",
             "url": "/screenshot-fixtures/demo-kit/insights-consent-prime",
-            "waitFor": ".demo-kit-consent-banner",
+            "waitFor": "body",
             "click": "text=Reject non-essential",
             "required": false,
             "notes": "Runner-only warm-up capture that dismisses the Insights consent banner before marketplace-facing public screenshots are taken.",
