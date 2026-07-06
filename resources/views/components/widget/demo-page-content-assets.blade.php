@@ -1,4 +1,4 @@
-@props([
+@props ([
     'sections',
     'sectionClass',
     'splitSectionClass',
@@ -36,9 +36,7 @@
 
             <div class="capell-demo-service-board {{ $carouselClass }}">
                 @foreach ($items as $item)
-                    <article
-                        class="{{ $carouselItemClass }} {{ $cardClass }}"
-                    >
+                    <article class="{{ $carouselItemClass }} {{ $cardClass }}">
                         <span class="{{ $labelClass }}">
                             {{ $item['label'] }}
                         </span>
@@ -47,9 +45,7 @@
                         >
                             {{ $item['title'] }}
                         </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $item['copy'] }}
-                        </p>
+                        <p class="{{ $cardCopyClass }}">{{ $item['copy'] }}</p>
                     </article>
                 @endforeach
             </div>
@@ -125,7 +121,7 @@
             <div class="capell-demo-pricing-grid {{ $carouselClass }}">
                 @foreach ($items as $item)
                     <article
-                        @class([$carouselItemClass, $cardClass, 'min-h-72', 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $loop->iteration === 2])
+                        @class ([$carouselItemClass, $cardClass, 'min-h-72', 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $loop->iteration === 2])
                     >
                         <span
                             class="{{ $loop->iteration === 2 ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
@@ -137,9 +133,7 @@
                         >
                             {{ $item['title'] }}
                         </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $item['copy'] }}
-                        </p>
+                        <p class="{{ $cardCopyClass }}">{{ $item['copy'] }}</p>
                     </article>
                 @endforeach
             </div>
@@ -177,7 +171,7 @@
             </div>
 
             @if (($items[0] ?? null) !== null)
-                @php($featured = $items[0])
+                @php ($featured = $items[0])
                 <article
                     class="grid gap-6 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-end md:p-8"
                 >
@@ -311,9 +305,7 @@
                         <h3 class="{{ $cardTitleClass }}">
                             {{ $item['title'] }}
                         </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $item['copy'] }}
-                        </p>
+                        <p class="{{ $cardCopyClass }}">{{ $item['copy'] }}</p>
                     </article>
                 @endforeach
             </div>
@@ -355,9 +347,7 @@
                         <h3 class="{{ $cardTitleClass }}">
                             {{ $step['title'] }}
                         </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $step['copy'] }}
-                        </p>
+                        <p class="{{ $cardCopyClass }}">{{ $step['copy'] }}</p>
                     </li>
                 @endforeach
             </ol>
@@ -376,18 +366,14 @@
                 class="{{ in_array($layout, ['compact-route', 'quote-board'], true) ? $compactCarouselClass : $carouselClass }}"
             >
                 @foreach ($items as $item)
-                    <article
-                        class="{{ $carouselItemClass }} {{ $cardClass }}"
-                    >
+                    <article class="{{ $carouselItemClass }} {{ $cardClass }}">
                         <span class="{{ $labelClass }}">
                             {{ $item['label'] }}
                         </span>
                         <h3 class="{{ $cardTitleClass }}">
                             {{ $item['title'] }}
                         </h3>
-                        <p class="{{ $cardCopyClass }}">
-                            {{ $item['copy'] }}
-                        </p>
+                        <p class="{{ $cardCopyClass }}">{{ $item['copy'] }}</p>
                     </article>
                 @endforeach
             </div>
