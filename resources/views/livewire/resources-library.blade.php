@@ -10,7 +10,7 @@
                 <button
                     type="button"
                     wire:click="selectFilter('{{ $filter }}')"
-                    @class([
+                    @class ([
                         'rounded-lg border px-4 py-2 text-sm font-extrabold transition',
                         'border-[#0f766e] bg-[#0f766e] text-white' => $activeFilter === $filter,
                         'border-slate-200 bg-white text-slate-950 hover:border-[#0f766e]' => $activeFilter !== $filter,
@@ -24,7 +24,7 @@
     @endif
 
     <div
-        class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
+        class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:[grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))] md:overflow-visible md:pb-0"
     >
         @forelse ($resources as $item)
             <article
@@ -49,9 +49,7 @@
         @empty
             <p
                 class="rounded-lg border border-slate-200 bg-white p-5 text-base font-bold text-slate-600"
-            >
-                No resources found.
-            </p>
+            >No resources found.</p>
         @endforelse
     </div>
 

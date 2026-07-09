@@ -1,4 +1,4 @@
-@props([
+@props ([
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -226,8 +226,8 @@
         </style>
     @endonce
 
-    @switch($widget->key)
-        @case('capell-home-hero-command-center')
+    @switch ($widget->key)
+        @case ('capell-home-hero-command-center')
             @php
                 $heroCarouselId = 'capell-home-hero-carousel-' . ($widget->id ?? $loop->index);
                 $rawHeroSlides = $widget->getMeta('hero_slides', []);
@@ -348,11 +348,10 @@
                     </div>
                 </section>
             </div>
-
             @break
-        @case('capell-home-proof-strip')
+        @case ('capell-home-proof-strip')
             <div
-                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible"
                 aria-label="{{ $homepageText('label') }}"
             >
                 @foreach ($homepageItems('metrics') as $metric)
@@ -372,9 +371,8 @@
                     </div>
                 @endforeach
             </div>
-
             @break
-        @case('capell-home-demo-showcase')
+        @case ('capell-home-demo-showcase')
             <div class="grid gap-6 py-10 md:py-14">
                 <div class="max-w-3xl">
                     <p
@@ -402,7 +400,7 @@
                     />
                 </div>
                 <div
-                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
+                    class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:grid-cols-3 md:overflow-visible md:pb-0"
                 >
                     @foreach ($homepageItems('cards') as $card)
                         <article
@@ -458,9 +456,8 @@
                     @endforeach
                 </div>
             </div>
-
             @break
-        @case('capell-home-demo-widgets-carousel')
+        @case ('capell-home-demo-widgets-carousel')
             @php
                 $demoWidgets = $homepageItems('items');
             @endphp
@@ -640,7 +637,11 @@
                         <button
                             type="button"
                             class="h-2.5 rounded-full transition-all"
-                            x-bind:class="activePage() === index - 1 ? 'w-8 bg-[#315f8f]' : 'w-2.5 bg-slate-300'"
+                            x-bind:class="
+                                activePage() === index - 1
+                                    ? 'w-8 bg-[#315f8f]'
+                                    : 'w-2.5 bg-slate-300'
+                            "
                             x-on:click="goPage(index - 1)"
                             x-bind:aria-label="`{{ $homepageText('page_button_label') }} ${index}`"
                             x-bind:aria-selected="activePage() === index - 1"
@@ -648,9 +649,8 @@
                     </template>
                 </div>
             </section>
-
             @break
-        @case('capell-extension-marketplace-showcase')
+        @case ('capell-extension-marketplace-showcase')
             <div
                 class="grid gap-6 py-10 md:py-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-start"
             >
@@ -680,7 +680,7 @@
                     </div>
                 </div>
                 <div
-                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
+                    class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto pb-3 md:grid md:overflow-visible md:pb-0"
                 >
                     @foreach ($homepageItems('cards') as $card)
                         <div
@@ -694,9 +694,8 @@
                     @endforeach
                 </div>
             </div>
-
             @break
-        @case('capell-home-technical-pipeline')
+        @case ('capell-home-technical-pipeline')
             <div
                 class="grid gap-6 py-10 md:py-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-start"
             >
@@ -716,11 +715,11 @@
                     </p>
                 </div>
                 <ol
-                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                    class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible"
                 >
                     @foreach ($homepageItems('steps') as $step)
                         <li
-                            @class([
+                            @class ([
                                 'grid min-w-full snap-start gap-2 p-5 md:min-w-0',
                                 'border-b border-slate-200 md:border-r md:border-b-0' => ! $loop->last,
                             ])
@@ -736,11 +735,10 @@
                     @endforeach
                 </ol>
             </div>
-
             @break
-        @case('capell-home-route-split')
+        @case ('capell-home-route-split')
             <div
-                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-10 md:grid md:grid-cols-3 md:overflow-visible md:py-14 [&::-webkit-scrollbar]:hidden"
+                class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto py-10 md:grid md:grid-cols-3 md:overflow-visible md:py-14"
             >
                 @foreach ($homepageItems('items') as $item)
                     <a
@@ -765,9 +763,8 @@
                     </a>
                 @endforeach
             </div>
-
             @break
-        @case('capell-home-final-cta')
+        @case ('capell-home-final-cta')
             <div
                 class="grid gap-8 py-20 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:py-28"
             >
@@ -795,7 +792,7 @@
                     {{ $homepageText('action_label') }}
                 </a>
             </div>
-
             @break
+
     @endswitch
 </x-capell-theme-foundation::widget.wrapper>

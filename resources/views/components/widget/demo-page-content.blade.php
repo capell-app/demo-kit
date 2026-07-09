@@ -2,7 +2,7 @@
     use Capell\DemoKit\Actions\BuildDemoPageContentViewDataAction;
 @endphp
 
-@props([
+@props ([
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -241,13 +241,11 @@
         class="capell-demo-page capell-demo-page--{{ $pageSlug }} mx-auto max-w-[1200px] px-[6%] xl:px-0"
     >
         @if (! $hasVisibleHero && $pageName !== '')
-            <h1 class="sr-only">
-                {{ $pageName }}
-            </h1>
+            <h1 class="sr-only">{{ $pageName }}</h1>
         @endif
 
         @if ($hasAssetSections)
-            @include('capell-demo-kit::components.widget.demo-page-content-assets', [
+            @include ('capell-demo-kit::components.widget.demo-page-content-assets', [
                 'sections' => $assetSections,
                 'sectionClass' => $sectionClass,
                 'splitSectionClass' => $splitSectionClass,
@@ -267,9 +265,9 @@
                 class="grid gap-4 border-b border-slate-200/70 py-8 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] md:items-start md:py-10"
             >
                 <div>
-                    <p class="{{ $eyebrowClass }}">
-                        How this page is assembled
-                    </p>
+                    <p
+                        class="{{ $eyebrowClass }}"
+                    >How this page is assembled</p>
                     <h2
                         class="mt-3 max-w-[18ch] font-[Manrope] text-2xl leading-tight font-extrabold tracking-normal text-slate-950 md:text-3xl"
                     >
@@ -337,9 +335,7 @@
                     <div class="grid gap-5">
                         <p
                             class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase"
-                        >
-                            Contact
-                        </p>
+                        >Contact</p>
                         <h2
                             class="max-w-[10ch] font-[Manrope] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
                         >
@@ -347,12 +343,7 @@
                         </h2>
                         <p
                             class="max-w-2xl text-lg leading-8 text-pretty text-slate-600 md:text-xl md:leading-9"
-                        >
-                            Tell us what you are planning, fixing, moving, or
-                            partnering on. One governed contact page routes
-                            project scoping, technical support, migrations, and
-                            partnerships to the right Capell team.
-                        </p>
+                        >Tell us what you are planning, fixing, moving, or partnering on. One governed contact page routes project scoping, technical support, migrations, and partnerships to the right Capell team.</p>
                     </div>
 
                     <div
@@ -372,11 +363,7 @@
                         <div class="grid gap-5">
                             <p
                                 class="text-base leading-7 text-pretty text-slate-600"
-                            >
-                                Remote-first delivery with UK timezone handover.
-                                Send an enquiry and the form builder passes it
-                                into the right follow-up path.
-                            </p>
+                            >Remote-first delivery with UK timezone handover. Send an enquiry and the form builder passes it into the right follow-up path.</p>
                             <dl
                                 class="grid gap-3 text-sm font-bold text-slate-700 sm:grid-cols-2"
                             >
@@ -443,11 +430,7 @@
                         >
                             Send an enquiry
                         </h2>
-                        <p class="text-sm leading-6 text-slate-600">
-                            Share the context once. We will route it to the
-                            right delivery, support, migration, or partnership
-                            lead.
-                        </p>
+                        <p class="text-sm leading-6 text-slate-600">Share the context once. We will route it to the right delivery, support, migration, or partnership lead.</p>
                     </div>
 
                     <form
@@ -543,11 +526,9 @@
                     <h2 class="{{ $headingClass }}">
                         Implementation services for complex Capell rollouts
                     </h2>
-                    <p class="{{ $introClass }}">
-                        Content modelling, migration paths, layout architecture,
-                        package boundaries, and launch verification stay
-                        connected in one delivery path.
-                    </p>
+                    <p
+                        class="{{ $introClass }}"
+                    >Content modelling, migration paths, layout architecture, package boundaries, and launch verification stay connected in one delivery path.</p>
                 </div>
 
                 <div class="capell-demo-service-board {{ $carouselClass }}">
@@ -570,7 +551,7 @@
             </section>
 
             <section
-                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0 [&::-webkit-scrollbar]:hidden"
+                class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-y border-slate-200 bg-white py-4 md:grid md:grid-cols-4 md:gap-0 md:overflow-visible md:py-0"
                 aria-label="Service proof points"
             >
                 @foreach ([['6 wk', 'typical build sprint'], ['12+', 'page shapes mapped'], ['0', 'admin metadata leaks'], ['4', 'handover checkpoints']] as [$value, $label])
@@ -599,14 +580,12 @@
                     <h2 class="{{ $headingClass }}">
                         A delivery path that stays visible
                     </h2>
-                    <p class="{{ $introClass }}">
-                        The services page should feel like an implementation
-                        workbench: decisions, sequence, risks, and launch
-                        criteria are laid out before anyone commits to a build.
-                    </p>
+                    <p
+                        class="{{ $introClass }}"
+                    >The services page should feel like an implementation workbench: decisions, sequence, risks, and launch criteria are laid out before anyone commits to a build.</p>
                 </div>
                 <ol
-                    class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                    class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible"
                 >
                     @foreach ([['01', 'Audit the content model', 'Inventory pages, media, routes, redirects, permissions, integrations, and editorial risks.'], ['02', 'Shape reusable layouts', 'Turn page intent into governed sections instead of another stack of bespoke templates.'], ['03', 'Build package-owned surfaces', 'Keep Blade, render data, cache, and tests close to the package that owns the behaviour.'], ['04', 'Verify public output', 'Check anonymous rendering, navigation, search, SEO, and visual regressions before handover.']] as [$step, $title, $copy])
                         <li
@@ -664,18 +643,15 @@
                         Pricing that separates access, support, and delivery
                         risk
                     </h2>
-                    <p class="{{ $introClass }}">
-                        Compare the commercial model with the same discipline as
-                        a CMS rollout: product access first, operational support
-                        second, scoped implementation work only when the risk is
-                        visible.
-                    </p>
+                    <p
+                        class="{{ $introClass }}"
+                    >Compare the commercial model with the same discipline as a CMS rollout: product access first, operational support second, scoped implementation work only when the risk is visible.</p>
                 </div>
 
                 <div class="capell-demo-pricing-grid {{ $carouselClass }}">
                     @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production teams that need support, package confidence, and release guidance.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, migrations, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
                         <article
-                            @class([
+                            @class ([
                                 $carouselItemClass,
                                 $cardClass,
                                 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $featured,
@@ -711,9 +687,7 @@
                             <h3 class="{{ $cardTitleClass }} mt-3">
                                 {{ $title }}
                             </h3>
-                            <p class="{{ $cardCopyClass }} mt-3">
-                                {{ $copy }}
-                            </p>
+                            <p class="{{ $cardCopyClass }} mt-3">{{ $copy }}</p>
                         </article>
                     @endforeach
                 </section>
@@ -725,9 +699,7 @@
                 <div class="grid gap-5">
                     <p
                         class="text-xs font-black tracking-normal text-blue-200 uppercase"
-                    >
-                        Implementation scoping
-                    </p>
+                    >Implementation scoping</p>
                     <h2
                         class="max-w-[16ch] text-3xl leading-[1.02] font-black tracking-normal text-balance text-white md:text-5xl xl:text-6xl"
                     >
@@ -735,10 +707,7 @@
                     </h2>
                     <p
                         class="max-w-3xl text-base leading-8 text-pretty text-blue-100 md:text-lg"
-                    >
-                        Turn scope, timeline, risk, and price confidence into a
-                        visible delivery surface.
-                    </p>
+                    >Turn scope, timeline, risk, and price confidence into a visible delivery surface.</p>
                 </div>
 
                 <div
@@ -776,11 +745,9 @@
                     <h2 class="{{ $headingClass }}">
                         Resource library for Capell builders
                     </h2>
-                    <p class="{{ $introClass }}">
-                        Resource index pages need dense but readable cards,
-                        filters, article metadata, and implementation
-                        references.
-                    </p>
+                    <p
+                        class="{{ $introClass }}"
+                    >Resource index pages need dense but readable cards, filters, article metadata, and implementation references.</p>
                 </div>
 
                 <div
@@ -793,11 +760,7 @@
                         >
                             Scaling Laravel CMS architecture for 1M+ records
                         </h3>
-                        <p class="mt-4 text-base leading-7 text-slate-600">
-                            A dense implementation note on content modelling,
-                            search, cache invalidation, and public rendering at
-                            scale.
-                        </p>
+                        <p class="mt-4 text-base leading-7 text-slate-600">A dense implementation note on content modelling, search, cache invalidation, and public rendering at scale.</p>
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
@@ -813,12 +776,12 @@
             </section>
 
             <section
-                class="flex [scrollbar-width:none] gap-2 overflow-x-auto border-b border-slate-200 py-5 [&::-webkit-scrollbar]:hidden"
+                class="[&::-webkit-scrollbar]:hidden flex [scrollbar-width:none] gap-2 overflow-x-auto border-b border-slate-200 py-5"
                 aria-label="Resource categories"
             >
                 @foreach (['All resources', 'Architecture', 'Migration', 'Publishing', 'Theme systems'] as $filter)
                     <a
-                        @class([
+                        @class ([
                             'flex-none rounded-lg border px-4 py-2 text-sm font-extrabold no-underline',
                             'border-[#0f766e] bg-[#0f766e] text-white' => $loop->first,
                             'border-slate-200 bg-white text-slate-950' => ! $loop->first,
@@ -832,12 +795,10 @@
             </section>
 
             <section
-                class="flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-b border-slate-200 py-8 md:grid md:grid-cols-4 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+                class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto border-b border-slate-200 py-8 md:grid md:grid-cols-4 md:overflow-visible"
             >
                 @foreach ([['Architecture', 'Content models, domains, layouts, and package contracts.', '14 resources'], ['Migration', 'Imports, redirects, media moves, and validation evidence.', '9 resources'], ['Publishing', 'Approval flows, preview discipline, cache, and release checks.', '12 resources'], ['Theme systems', 'Blade surfaces, Tailwind composition, and visual QA.', '8 resources']] as [$title, $copy, $count])
-                    <article
-                        class="{{ $carouselItemClass }} {{ $cardClass }}"
-                    >
+                    <article class="{{ $carouselItemClass }} {{ $cardClass }}">
                         <span class="{{ $labelClass }}">{{ $count }}</span>
                         <h3 class="{{ $cardTitleClass }}">{{ $title }}</h3>
                         <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
@@ -863,9 +824,7 @@
                             <span class="{{ $labelClass }}">
                                 {{ $label }}
                             </span>
-                            <h3 class="{{ $cardTitleClass }}">
-                                {{ $title }}
-                            </h3>
+                            <h3 class="{{ $cardTitleClass }}">{{ $title }}</h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             <em
                                 class="mt-auto text-sm font-extrabold text-slate-600 not-italic"
@@ -883,19 +842,13 @@
                 <div>
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase"
-                    >
-                        Implementation toolkit
-                    </p>
+                    >Implementation toolkit</p>
                     <h2
                         class="mt-3 font-[Manrope] text-3xl leading-tight font-extrabold text-white md:text-4xl"
                     >
                         Build faster with architectural blueprints.
                     </h2>
-                    <p class="mt-4 text-base leading-7 text-slate-300">
-                        Turn the resource library into a practical operating
-                        surface: migration checklists, page model maps, QA
-                        plans, and launch evidence in one route.
-                    </p>
+                    <p class="mt-4 text-base leading-7 text-slate-300">Turn the resource library into a practical operating surface: migration checklists, page model maps, QA plans, and launch evidence in one route.</p>
                 </div>
                 <a
                     class="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#0f766e] px-5 font-extrabold text-white no-underline hover:bg-[#005c55]"
@@ -913,30 +866,17 @@
                     <h2 class="{{ $headingClass }}">
                         Home, buildings and architecture
                     </h2>
-                    <p class="{{ $introClass }}">
-                        A finished article surface should teach the shape of the
-                        template while still reading like editorial content:
-                        metadata first, body sections next, then related routes.
-                    </p>
+                    <p
+                        class="{{ $introClass }}"
+                    >A finished article surface should teach the shape of the template while still reading like editorial content: metadata first, body sections next, then related routes.</p>
                 </header>
 
                 <div
                     class="grid gap-6 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-[minmax(0,1fr)_14rem] md:p-8"
                 >
                     <div class="grid gap-5 text-base leading-8 text-slate-600">
-                        <p>
-                            Capell article pages keep prose portable while the
-                            page widget owns the surrounding chrome. Editors
-                            write the story; the template supplies hierarchy,
-                            metadata, related resources, and safe public
-                            rendering.
-                        </p>
-                        <p>
-                            Use this pattern when a long-form page needs to sit
-                            beside resource hubs, archives, and topic navigation
-                            without inheriting homepage modules or commercial
-                            pricing content.
-                        </p>
+                        <p>Capell article pages keep prose portable while the page widget owns the surrounding chrome. Editors write the story; the template supplies hierarchy, metadata, related resources, and safe public rendering.</p>
+                        <p>Use this pattern when a long-form page needs to sit beside resource hubs, archives, and topic navigation without inheriting homepage modules or commercial pricing content.</p>
                     </div>
                     <aside
                         class="grid content-start gap-4 border-l-4 border-[#0f766e] bg-teal-50 p-4"
@@ -980,9 +920,7 @@
                             <span class="{{ $labelClass }}">
                                 Related widget
                             </span>
-                            <h3 class="{{ $cardTitleClass }}">
-                                {{ $title }}
-                            </h3>
+                            <h3 class="{{ $cardTitleClass }}">{{ $title }}</h3>
                             <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                         </article>
                     @endforeach
@@ -994,9 +932,7 @@
             >
                 <div class="capell-demo-footer-editorial grid gap-5">
                     <p class="{{ $eyebrowClass }}">{{ $pageName }}</p>
-                    <h2 class="{{ $headingClass }}">
-                        {{ $footer['title'] }}
-                    </h2>
+                    <h2 class="{{ $headingClass }}">{{ $footer['title'] }}</h2>
                     <p class="{{ $introClass }}">{{ $footer['copy'] }}</p>
                 </div>
 
@@ -1044,9 +980,7 @@
                                 <h3 class="{{ $cardTitleClass }}">
                                     {{ $title }}
                                 </h3>
-                                <p class="{{ $cardCopyClass }}">
-                                    {{ $copy }}
-                                </p>
+                                <p class="{{ $cardCopyClass }}">{{ $copy }}</p>
                             </article>
                         @endforeach
                     </div>
