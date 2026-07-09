@@ -20,7 +20,6 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
-use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -141,72 +140,10 @@ final class InstallKitchenSinkDemoPageAction
      */
     public static function layoutWidgetEntries(): array
     {
-        $sourceKeys = collect([
-            self::HeroTopWidgetKey,
-            'kitchen-sink-structured-text',
-            'breadcrumbs',
-            'announcement-bar',
-            'page-content',
-            'snippet',
-            'gallery',
-            'media-carousel',
-            'pages-card',
-            self::LivewireStressWidgetKey,
-            self::LivewireLatestPagesWidgetKey,
-            'assets',
-            'assets-accordion',
-            'assets-banner',
-            'asset-features',
-            'asset-testimonials',
-            'widget-navigation',
-            'widget-navigation-tabs',
-            'banner-image',
-            self::HeroMiddleWidgetKey,
-            'latest-pages',
-            'children',
-            'siblings',
-            'assets-widget',
-            'default',
-            ...array_diff(array_keys(self::widgetFamilies()), ['kitchen-sink-structured-text']),
-            self::HeroDeepWidgetKey,
-        ])
-            ->merge(
-                collect([
-                    ...LayoutWidgetCatalogDefinitionData::defaultCatalog(),
-                    ...LayoutWidgetCatalogDefinitionData::extraCatalog(),
-                ])->map(static fn (LayoutWidgetCatalogDefinitionData $definition): string => $definition->key),
-            )
-            ->unique()
-            ->values()
-            ->all();
-
-        $entries = [];
-        $sourceOccurrences = [];
-
-        $targetWidgetCount = self::targetWidgetCount();
-        $eagerWidgetLimit = self::eagerWidgetLimit();
-
-        while (count($entries) < $targetWidgetCount) {
-            foreach ($sourceKeys as $sourceKey) {
-                $sourceOccurrences[$sourceKey] = ($sourceOccurrences[$sourceKey] ?? 0) + 1;
-                $stressIndex = count($entries) + 1;
-
-                $entries[] = [
-                    'widget_key' => sprintf('kitchen-sink-%03d-%s', $stressIndex, Str::slug($sourceKey)),
-                    'source_key' => $sourceKey,
-                    'occurrence' => $sourceOccurrences[$sourceKey],
-                    'stress_index' => $stressIndex,
-                    'variant' => self::variantName($stressIndex),
-                    'lazy' => $stressIndex > $eagerWidgetLimit,
-                ];
-
-                if (count($entries) >= $targetWidgetCount) {
-                    break;
-                }
-            }
-        }
-
-        return $entries;
+        return BuildKitchenSinkLayoutWidgetEntriesAction::run(
+            self::targetWidgetCount(),
+            self::eagerWidgetLimit(),
+        );
     }
 
     public function handle(?Site $site = null): Page
@@ -259,24 +196,6 @@ final class InstallKitchenSinkDemoPageAction
             'kitchen-sink-forms' => ['family' => 'Forms', 'title' => 'Forms reference', 'summary' => 'Complex table, search, filter, field, full-form, and CTA examples.', 'headings' => array_slice(self::sectionHeadings(), 29, 6)],
             'kitchen-sink-utility-states' => ['family' => 'Utility states', 'title' => 'Utility states reference', 'summary' => 'Alert, embed, empty, error, and footer state contracts.', 'headings' => array_slice(self::sectionHeadings(), 35, 5)],
         ];
-    }
-
-    private static function variantName(int $stressIndex): string
-    {
-        return [
-            'baseline',
-            'dense content',
-            'image heavy',
-            'high contrast',
-            'pagination',
-            'carousel',
-            'compact',
-            'wide',
-            'long label',
-            'empty state guard',
-            'dark surface',
-            'nested assets',
-        ][($stressIndex - 1) % 12];
     }
 
     /**
