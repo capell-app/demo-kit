@@ -127,6 +127,36 @@ it('only forwards seed to package demos that declare the seed parameter', functi
         ->and(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['seeded:demo' => '4321']);
 });
 
+it('only forwards allow-production to package demos that declare the allow-production parameter', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::registerPackage(name: 'vendor/production-aware-package');
+    CapellCore::registerPackage(name: 'vendor/production-unaware-package');
+
+    CapellCore::getPackage('vendor/production-aware-package')->demoCommand = 'production-aware:demo';
+    CapellCore::getPackage('vendor/production-aware-package')->demoParams = ['url', 'allow-production'];
+    CapellCore::getPackage('vendor/production-aware-package')->sort = 10;
+
+    CapellCore::getPackage('vendor/production-unaware-package')->demoCommand = 'production-unaware:demo';
+    CapellCore::getPackage('vendor/production-unaware-package')->demoParams = ['url'];
+    CapellCore::getPackage('vendor/production-unaware-package')->sort = 20;
+
+    Artisan::registerCommand(new TrackingDemoCommand('production-aware:demo {--url=} {--allow-production}'));
+    Artisan::registerCommand(new TrackingDemoCommand('production-unaware:demo {--url=}'));
+
+    test()->artisan('capell:demo', [
+        '--url' => 'https://example.test',
+        '--packages' => 'vendor/production-aware-package,vendor/production-unaware-package',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--force' => true,
+        '--allow-production' => true,
+    ])->assertExitCode(0);
+
+    expect(TrackingDemoCommand::$executionOrder)->toBe(['production-aware:demo', 'production-unaware:demo'])
+        ->and(TrackingDemoCommand::$receivedAllowProductionByCommand)->toBe(['production-aware:demo' => true]);
+});
+
 it('reports selected packages that do not declare a demo command', function (): void {
     TrackingDemoCommand::reset();
 
