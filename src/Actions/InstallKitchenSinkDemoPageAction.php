@@ -21,8 +21,6 @@ use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Models\WidgetAsset;
-use DateTimeInterface;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
@@ -177,9 +175,14 @@ final class InstallKitchenSinkDemoPageAction
             $page,
             self::contextPageCount(),
         );
-        $this->syncPageAssets($page);
-        $this->syncPageSelectionAssets($page, $contextPages);
-        $this->syncLivewireLatestPageAssets($page, $contextPages);
+        SyncKitchenSinkPageAssetsAction::run(
+            $page,
+            $contextPages,
+            self::layoutWidgetEntries(),
+            self::PageAssetWidgetKeys,
+            self::LivewireLatestPagesWidgetKey,
+            self::contextAssetLimit(),
+        );
         SetupPageUrlsAction::run($page);
         $this->deleteLegacyNestedPageUrls($site);
 
@@ -454,160 +457,6 @@ final class InstallKitchenSinkDemoPageAction
                     'pagination' => true,
                 ],
             ])->save();
-        }
-    }
-
-    private function syncPageAssets(Page $page): void
-    {
-        WidgetAsset::query()
-            ->where('pageable_type', $page->getMorphClass())
-            ->where('pageable_id', $page->getKey())
-            ->delete();
-
-        $rows = [];
-        $timestamp = now();
-
-        foreach (self::layoutWidgetEntries() as $order => $entry) {
-            if ($entry['source_key'] === self::LivewireLatestPagesWidgetKey) {
-                continue;
-            }
-
-            $widget = Widget::query()->firstWhere('key', $entry['widget_key']);
-
-            if (! $widget instanceof Widget) {
-                continue;
-            }
-
-            $rows[] = $this->widgetAssetRow(
-                page: $page,
-                widget: $widget,
-                asset: $page,
-                order: $order + 1,
-                meta: [
-                    'scope' => 'kitchen-sink-demo',
-                    'caption' => sprintf('Primary page asset for stress widget %03d', $order + 1),
-                    'role' => 'primary-page',
-                    'accent' => ['teal', 'blue', 'slate', 'amber'][$order % 4],
-                ],
-                timestamp: $timestamp,
-            );
-        }
-
-        $this->insertWidgetAssetRows($rows);
-    }
-
-    /**
-     * @param  array<int, Page>  $pages
-     */
-    private function syncPageSelectionAssets(Page $page, array $pages): void
-    {
-        $pages = array_slice($pages, 0, self::contextAssetLimit());
-        $assetWidgetKeys = collect(self::layoutWidgetEntries())
-            ->filter(fn (array $entry): bool => in_array($entry['source_key'], self::PageAssetWidgetKeys, true))
-            ->pluck('widget_key')
-            ->values();
-
-        $rows = [];
-        $timestamp = now();
-
-        foreach ($assetWidgetKeys as $widgetKey) {
-            $widget = Widget::query()->firstWhere('key', $widgetKey);
-
-            if (! $widget instanceof Widget) {
-                continue;
-            }
-
-            foreach ($pages as $order => $assetPage) {
-                $rows[] = $this->widgetAssetRow(
-                    page: $page,
-                    widget: $widget,
-                    asset: $assetPage,
-                    order: $order + 1,
-                    meta: [
-                        'scope' => 'kitchen-sink-demo-page-selection',
-                        'caption' => $assetPage->translation?->title ?? $assetPage->name,
-                        'content' => $assetPage->translation?->summary ?? $assetPage->name,
-                        'role' => 'selected-page',
-                        'accent' => ['teal', 'blue', 'slate', 'amber'][$order % 4],
-                        'crop_preset' => ['thumbnail', 'card', 'hero'][$order % 3],
-                    ],
-                    timestamp: $timestamp,
-                );
-            }
-        }
-
-        $this->insertWidgetAssetRows($rows);
-    }
-
-    /**
-     * @param  array<int, Page>  $pages
-     */
-    private function syncLivewireLatestPageAssets(Page $page, array $pages): void
-    {
-        $widgetKeys = collect(self::layoutWidgetEntries())
-            ->filter(fn (array $entry): bool => $entry['source_key'] === self::LivewireLatestPagesWidgetKey)
-            ->pluck('widget_key')
-            ->values();
-
-        $rows = [];
-        $timestamp = now();
-
-        foreach ($widgetKeys as $widgetKey) {
-            $widget = Widget::query()->firstWhere('key', $widgetKey);
-
-            if (! $widget instanceof Widget) {
-                continue;
-            }
-
-            foreach (array_slice($pages, 0, self::contextAssetLimit()) as $order => $assetPage) {
-                $rows[] = $this->widgetAssetRow(
-                    page: $page,
-                    widget: $widget,
-                    asset: $assetPage,
-                    order: $order + 1,
-                    meta: [
-                        'scope' => 'kitchen-sink-livewire-latest-pages',
-                        'caption' => $assetPage->translation?->title ?? $assetPage->name,
-                        'content' => $assetPage->translation?->summary ?? $assetPage->name,
-                        'role' => 'selected-page',
-                    ],
-                    timestamp: $timestamp,
-                );
-            }
-        }
-
-        $this->insertWidgetAssetRows($rows);
-    }
-
-    /**
-     * @param  array<string, mixed>  $meta
-     * @return array<string, mixed>
-     */
-    private function widgetAssetRow(Page $page, Widget $widget, Page $asset, int $order, array $meta, DateTimeInterface $timestamp): array
-    {
-        return [
-            'workspace_id' => 0,
-            'widget_id' => $widget->getKey(),
-            'pageable_type' => $page->getMorphClass(),
-            'pageable_id' => $page->getKey(),
-            'container' => 'main',
-            'occurrence' => 1,
-            'asset_type' => $asset->getMorphClass(),
-            'asset_id' => $asset->getKey(),
-            'order' => $order,
-            'meta' => json_encode($meta, JSON_THROW_ON_ERROR),
-            'created_at' => $timestamp,
-            'updated_at' => $timestamp,
-        ];
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $rows
-     */
-    private function insertWidgetAssetRows(array $rows): void
-    {
-        foreach (array_chunk($rows, 500) as $chunk) {
-            WidgetAsset::query()->insert($chunk);
         }
     }
 
