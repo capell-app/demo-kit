@@ -20,10 +20,8 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
-use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -411,7 +409,7 @@ final class InstallKitchenSinkDemoPageAction
     private function widgets(EloquentCollection $languages): void
     {
         $this->configureCatalogWidgets();
-        $this->createKitchenSinkSourceWidgets($languages);
+        CreateKitchenSinkSourceWidgetsAction::run($languages);
 
         foreach (self::widgetFamilies() as $key => $family) {
             /** @var Widget|null $widget */
@@ -438,120 +436,6 @@ final class InstallKitchenSinkDemoPageAction
         }
 
         $this->createKitchenSinkVariantWidgets($languages);
-    }
-
-    /**
-     * @param  EloquentCollection<int, Language>  $languages
-     */
-    private function createKitchenSinkSourceWidgets(EloquentCollection $languages): void
-    {
-        $type = resolve(TypeCreator::class)->defaultWidgetType();
-
-        $sources = [
-            self::HeroTopWidgetKey => [
-                'name' => 'Kitchen Sink Opening Hero',
-                'meta' => [
-                    'component' => WidgetComponentEnum::ApHeroBanner->value,
-                    'primary_button_text' => 'Inspect widget matrix',
-                    'primary_button_url' => '#kitchen-sink-widget-matrix',
-                    'secondary_button_text' => 'Test lazy fragments',
-                    'secondary_button_url' => '#kitchen-sink-lazy-fragments',
-                    'hero_height' => 'clamp(34rem, 72vh, 48rem)',
-                    'hero_asset_source' => 'widget',
-                    'heading_tag' => 'h2',
-                    'margin' => ['none'],
-                ],
-                'image' => 'pricing',
-                'livewire' => false,
-            ],
-            self::HeroMiddleWidgetKey => [
-                'name' => 'Kitchen Sink Middle Hero',
-                'meta' => [
-                    'component' => WidgetComponentEnum::ApHeroBanner->value,
-                    'primary_button_text' => 'Continue stress pass',
-                    'primary_button_url' => '#kitchen-sink-lazy-fragments',
-                    'secondary_button_text' => 'Review media',
-                    'secondary_button_url' => '#kitchen-sink-media-density',
-                    'hero_height' => '32rem',
-                    'hero_asset_source' => 'widget',
-                    'heading_tag' => 'h2',
-                    'margin' => ['xl'],
-                ],
-                'image' => 'fresh-water',
-                'livewire' => false,
-            ],
-            self::HeroDeepWidgetKey => [
-                'name' => 'Kitchen Sink Deep Hero',
-                'meta' => [
-                    'component' => WidgetComponentEnum::ApHeroBanner->value,
-                    'primary_button_text' => 'Finish render pass',
-                    'primary_button_url' => '#footer',
-                    'secondary_button_text' => 'Open child page',
-                    'secondary_button_url' => '#',
-                    'hero_height' => '30rem',
-                    'hero_asset_source' => 'widget',
-                    'heading_tag' => 'h2',
-                    'margin' => ['xl'],
-                ],
-                'image' => 'salt-water',
-                'livewire' => false,
-            ],
-            self::LivewireStressWidgetKey => [
-                'name' => 'Kitchen Sink Livewire Stress Widget',
-                'meta' => [
-                    'component' => 'capell-demo-kit.widget.kitchen-sink-livewire-stress',
-                    'livewire' => true,
-                    'margin' => ['lg'],
-                    'padding' => ['lg'],
-                ],
-                'image' => null,
-                'livewire' => true,
-            ],
-            self::LivewireLatestPagesWidgetKey => [
-                'name' => 'Kitchen Sink Livewire Latest Pages Widget',
-                'meta' => [
-                    'component' => 'capell.widget.pages',
-                    'livewire' => true,
-                    'limit' => 12,
-                    'pagination' => true,
-                    'with_image' => true,
-                    'with_link_text' => true,
-                    'with_summary' => true,
-                    'margin' => ['lg'],
-                    'padding' => ['lg'],
-                ],
-                'image' => null,
-                'livewire' => true,
-            ],
-        ];
-
-        foreach ($sources as $key => $source) {
-            /** @var Widget $widget */
-            $widget = Widget::query()->updateOrCreate(
-                ['key' => $key],
-                [
-                    'name' => $source['name'],
-                    'blueprint_id' => $type->getKey(),
-                    'meta' => $source['meta'],
-                    'is_livewire' => $source['livewire'],
-                    'status' => true,
-                ],
-            );
-
-            foreach ($languages as $language) {
-                $widget->translations()->updateOrCreate(
-                    ['language_id' => $language->getKey()],
-                    [
-                        'title' => $source['name'],
-                        'content' => '<p>Purpose-built Kitchen Sink fixture content for layout, media, and runtime stress testing.</p>',
-                    ],
-                );
-            }
-
-            if (is_string($source['image'] ?? null)) {
-                $this->ensureDemoMedia($widget, $source['image'], MediaCollectionEnum::BackgroundImage);
-            }
-        }
     }
 
     /**
