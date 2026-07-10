@@ -35,6 +35,11 @@
             "Capell\\DemoKit\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\DemoKit\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
