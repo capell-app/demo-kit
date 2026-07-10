@@ -6,6 +6,7 @@ namespace Capell\DemoKit\Support;
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Security\PublicHtmlSanitizer;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 
@@ -34,7 +35,13 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
      */
     public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        return [];
+        if (! str_starts_with($widget->key, 'kitchen-sink-') || ! $widget->relationLoaded('translation')) {
+            return [];
+        }
+
+        return [
+            'content' => $this->sanitizeHtml($widget->translation?->content),
+        ];
     }
 
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
@@ -45,30 +52,22 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             return $this->fallbackHtml($widget, $language, $sourceWidgetKey);
         }
 
-        $renderWidget = is_array($widget->meta['sections'] ?? null) ? $widget : Widget::query()
-            ->with('translations')
-            ->find($widget->getKey());
-
-        if (! $renderWidget instanceof Widget) {
+        if (! $widget->relationLoaded('translation')) {
             return null;
         }
 
-        $renderWidget->loadMissing('translations');
-
-        $sections = is_array($renderWidget->meta['sections'] ?? null) ? $renderWidget->meta['sections'] : [];
+        $sections = is_array($widget->meta['sections'] ?? null) ? $widget->meta['sections'] : [];
 
         if ($sections === []) {
             return null;
         }
 
-        $family = e((string) ($renderWidget->meta['family'] ?? 'reference'));
-        $translation = $renderWidget->translation
-            ?? $renderWidget->translations->firstWhere('language_id', $language->getKey())
-            ?? $renderWidget->translations->first();
+        $family = e((string) ($widget->meta['family'] ?? 'reference'));
+        $translation = $widget->translation;
         $html = '<section class="capell-kitchen-sink-reference">';
 
         if ($translation !== null) {
-            $html .= '<div>' . $translation->content . '</div>';
+            $html .= '<div>' . $this->sanitizeHtml($translation->content) . '</div>';
         }
 
         foreach ($sections as $section) {
@@ -86,14 +85,14 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             return null;
         }
 
-        $widget->loadMissing('translations');
+        if (! $widget->relationLoaded('translation')) {
+            return null;
+        }
 
-        $translation = $widget->translation
-            ?? $widget->translations->firstWhere('language_id', $language->getKey())
-            ?? $widget->translations->first();
+        $translation = $widget->translation;
 
         $title = e((string) ($translation?->title ?? $widget->name));
-        $content = (string) ($translation?->content ?? '');
+        $content = $this->sanitizeHtml($translation?->content);
         $source = e(str($sourceWidgetKey)->headline()->toString());
         $variant = e((string) data_get($widget->meta, 'kitchen_sink.variant', 'lazy fragment'));
         $stressIndex = e((string) data_get($widget->meta, 'kitchen_sink.stress_index', ''));
@@ -153,5 +152,10 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             'form-field-demo', 'full-form' => '<form action="#" method="post"><label for="' . $escapedKey . '-email">Work email</label><input id="' . $escapedKey . '-email" name="email" type="email" aria-describedby="' . $escapedKey . '-email-help ' . $escapedKey . '-email-error"><p id="' . $escapedKey . '-email-help">Use a visible label and helper text.</p><p id="' . $escapedKey . '-email-error" role="alert">Example validation message.</p><button type="button">Submit demo form</button></form>',
             default => '<p aria-labelledby="' . $escapedKey . '-heading">Reference output.</p>',
         };
+    }
+
+    private function sanitizeHtml(mixed $html): string
+    {
+        return resolve(PublicHtmlSanitizer::class)->sanitize(is_string($html) ? $html : '');
     }
 }
