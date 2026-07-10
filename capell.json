@@ -134,7 +134,11 @@
     },
     "settings": [],
     "permissions": [],
-    "capabilities": ["frontend-rendering"],
+    "capabilities": [
+        "frontend-rendering",
+        "demo-site-provenance",
+        "production-admin-seeding-block"
+    ],
     "security": {
         "riskTier": "standard",
         "publicSurface": {

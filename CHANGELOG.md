@@ -4,6 +4,8 @@ All notable changes to `capell-app/demo-kit` will be documented in this file.
 
 ## Unreleased
 
+- Blocked the Filament seeding surface outside local/testing environments and enforced the same guard inside its Action boundary.
+- Marked Demo Kit sites with explicit provenance; reset and reseed now refuse to delete or reuse an unmarked site even when its name matches the demo plan.
 - Added a `--reset` path for `capell:demo-kit-full-demo` and `capell:admin-demo` that deletes only sites named by the generated plan before reseeding.
 - Added a `--quick` profile for `capell:demo-kit-full-demo` that uses one site, English only, and three pages when counts are omitted.
 - Added Arabic/RTL coverage to the curated demo language pool and dummy content generator.

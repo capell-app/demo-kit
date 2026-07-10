@@ -43,7 +43,8 @@ final class DemoKitPage extends Page
     #[Override]
     public static function canAccess(): bool
     {
-        return ExtensionsPage::canManageExtensions();
+        return app()->environment(['local', 'testing'])
+            && ExtensionsPage::canManageExtensions();
     }
 
     #[Override]
@@ -65,7 +66,7 @@ final class DemoKitPage extends Page
             Action::make('insertExampleSiteData')
                 ->label(__('capell-demo-kit::actions.insert_example_site_data'))
                 ->icon(Heroicon::OutlinedCircleStack)
-                ->authorize(fn (): bool => ExtensionsPage::canManageExtensions())
+                ->authorize(fn (): bool => self::canAccess())
                 ->schema(fn (): array => resolve(ExampleSiteDataActionSchema::class)->schema())
                 ->modalHeading(__('capell-demo-kit::actions.insert_example_site_data_heading'))
                 ->modalDescription(__('capell-demo-kit::actions.insert_example_site_data_description'))

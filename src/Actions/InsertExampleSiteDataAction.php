@@ -19,6 +19,10 @@ final class InsertExampleSiteDataAction
      */
     public function handle(array $data): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            throw new RuntimeException((string) __('capell-demo-kit::actions.example_site_data_environment_blocked'));
+        }
+
         $package = CapellCore::getPackage(DemoKitServiceProvider::$packageName);
         $demoCommand = $package->getDemoCommand();
 

@@ -33,6 +33,10 @@ final class ResetDemoSitesAction
         Site::query()
             ->whereIn('name', $siteNames)
             ->eachById(function (Site $site) use (&$deleted): void {
+                if (! HasDemoSiteProvenanceAction::run($site)) {
+                    return;
+                }
+
                 $site->delete();
 
                 $deleted++;
