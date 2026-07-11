@@ -448,7 +448,7 @@ it('can edit every demo kit creator widget through Filament without losing creat
         $editedName = $widget->name . ' Edited';
         $editedTitle = $widget->name . ' edited title';
         $editedHtml = '<p>Edited demo creator widget content for ' . e($widget->key) . '.</p>';
-        $editedContent = $widget->type?->content_structure === ContentStructure::Blocks
+        $editedContent = $widget->blueprint?->content_structure === ContentStructure::Blocks
             ? [[
                 'type' => 'content',
                 'data' => [
@@ -492,7 +492,7 @@ it('can edit every demo kit creator widget through Filament without losing creat
         if ($existingTranslation instanceof Translation) {
             expect($editedTranslation?->title)->toBe($editedTitle, $method);
 
-            if ($widget->type?->content_structure === ContentStructure::Blocks) {
+            if ($widget->blueprint?->content_structure === ContentStructure::Blocks) {
                 expect(json_decode((string) $editedTranslation?->getRawOriginal('content'), true))
                     ->toBe($editedContent, $method);
             } else {
@@ -519,8 +519,8 @@ it('creates the interactive homepage widgets carousel widget', function (): void
     expect($widget)->toBeInstanceOf(Widget::class)
         ->and($widget->key)->toBe('capell-home-demo-widgets-carousel')
         ->and($widget->component)->toBe(DemoKitServiceProvider::HomepageSectionRenderable)
-        ->and($widget->type?->key)->toBe('homepage-section')
-        ->and($widget->type?->admin)->toMatchArray([
+        ->and($widget->blueprint?->key)->toBe('homepage-section')
+        ->and($widget->blueprint?->admin)->toMatchArray([
             'configurator' => HomepageSectionWidgetConfigurator::getKey(),
         ])
         ->and($widget->meta)->toHaveKey('content')

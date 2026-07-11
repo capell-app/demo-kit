@@ -37,7 +37,7 @@ final class BuildDemoPageContentViewDataAction
         $pageTranslation = $pageRecord instanceof Model && $pageRecord->relationLoaded('translation')
             ? $pageRecord->getRelation('translation')
             : null;
-        $pageType = $pageRecord instanceof Model && $pageRecord->relationLoaded('type')
+        $pageType = $pageRecord instanceof Model && $pageRecord->relationLoaded('blueprint')
             ? $pageRecord->getRelation('type')
             : null;
         $occurrence = (int) ($widgetData['occurrence'] ?? 1);
