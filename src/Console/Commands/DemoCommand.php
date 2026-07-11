@@ -173,6 +173,10 @@ class DemoCommand extends Command
             $this->comment('Running command: ' . $package->getDemoCommand());
             $params = [];
 
+            if ($this->option('allow-production') === true && in_array('allow-production', $package->getDemoParams(), true)) {
+                $params['--allow-production'] = true;
+            }
+
             if (in_array('url', $package->getDemoParams(), true)) {
                 $params['--url'] = $siteUrl;
             }

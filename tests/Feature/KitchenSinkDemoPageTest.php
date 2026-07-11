@@ -350,7 +350,7 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
         expect($widget)->toBeInstanceOf(Widget::class);
         assert($widget instanceof Widget);
 
-        if ($widget->type?->key !== WidgetTypeEnum::KitchenSinkReference->value) {
+        if ($widget->blueprint?->key !== WidgetTypeEnum::KitchenSinkReference->value) {
             continue;
         }
 
@@ -365,7 +365,7 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
         $editedSections[0]['heading'] = $editedSectionHeading;
         $originalAssetIds = $widget->assets->pluck('id')->sort()->values()->all();
 
-        expect($widget->type->key)->toBe(WidgetTypeEnum::KitchenSinkReference->value, $widgetKey)
+        expect($widget->blueprint->key)->toBe(WidgetTypeEnum::KitchenSinkReference->value, $widgetKey)
             ->and($originalFamily)->toBeString($widgetKey)
             ->and($originalSections)->toBeArray($widgetKey)
             ->and($originalSections)->not->toBeEmpty($widgetKey);

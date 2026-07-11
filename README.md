@@ -40,7 +40,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Config files: `packages/demo-kit/config/capell-demo-kit.php`.
 - Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
 - Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
-- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoUsersAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
+- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `HasDemoSiteProvenanceAction`, `MarkDemoSiteProvenanceAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
 - Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
 - Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 - Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
@@ -51,7 +51,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Data Model
 
-This package has no schema impact. It does not declare package-owned migrations or required tables.
+This package has no schema impact. It does not declare package-owned migrations or required tables. Demo-created sites carry `meta.demo_kit.provisioned` provenance in the Core `sites` table so destructive reset operations cannot match customer sites by name alone.
 
 Docs gap: document extension points here if the package delegates persistence to a host package.
 
@@ -68,6 +68,8 @@ Docs gap: document extension points here if the package delegates persistence to
 
 ## Common Pitfalls
 
+- The Filament seeding surface is intentionally unavailable outside local/testing environments. Production overrides remain console-only and explicit.
+- Reset only removes requested sites with Demo Kit provenance; it refuses to reuse a matching unmarked site.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
 - Run package commands from the host app; in this repository use `vendor/bin/pest` for package tests.
 - Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.

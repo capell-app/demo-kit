@@ -59,10 +59,12 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
-        $package = CapellCore::getPackage(self::$packageName);
-        $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
-        $package->demoCommand = 'capell:demo-kit-full-demo';
-        $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
+        if (CapellCore::hasPackage(self::$packageName)) {
+            $package = CapellCore::getPackage(self::$packageName);
+            $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
+            $package->demoCommand = 'capell:demo-kit-full-demo';
+            $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
+        }
 
         $this->registerAdminPanelExtensions();
         $this->registerPublicLayoutWidgetPayloadContributors();

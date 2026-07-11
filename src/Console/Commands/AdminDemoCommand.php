@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Console\Commands;
 
-use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
@@ -14,6 +13,7 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Actions\CreateDemoLanguagesAction;
+use Capell\DemoKit\Actions\CreateDemoSiteAction;
 use Capell\DemoKit\Actions\CreateDemoUsersAction;
 use Capell\DemoKit\Actions\RedactDemoKitErrorMessageAction;
 use Capell\DemoKit\Actions\ResetDemoSitesAction;
@@ -327,7 +327,7 @@ class AdminDemoCommand extends Command
             $this->newLine();
             $this->info(sprintf('%d/%d. Site %s...', $siteNumber, $sitesCount, $name));
 
-            $site = CreateSiteAction::run(
+            $site = CreateDemoSiteAction::run(
                 $sitePlan->name,
                 url: rtrim($siteUrl, '/') . ($siteIndex > 0 ? '/' . str()->slug($sitePlan->name) : ''),
                 language: $defaultLanguage,

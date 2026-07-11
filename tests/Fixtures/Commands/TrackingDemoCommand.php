@@ -25,6 +25,9 @@ class TrackingDemoCommand extends Command
     /** @var array<string, mixed> */
     public static array $receivedSitesByCommand = [];
 
+    /** @var array<string, mixed> */
+    public static array $receivedAllowProductionByCommand = [];
+
     public function __construct(string $signature = 'test:demo {--url=} {--user=} {--languages=*} {--sites=*} {--seed=}')
     {
         $this->signature = $signature;
@@ -40,6 +43,7 @@ class TrackingDemoCommand extends Command
         self::$receivedSeedByCommand = [];
         self::$receivedLanguagesByCommand = [];
         self::$receivedSitesByCommand = [];
+        self::$receivedAllowProductionByCommand = [];
     }
 
     public function handle(): int
@@ -63,6 +67,10 @@ class TrackingDemoCommand extends Command
 
         if ($this->hasOption('sites')) {
             self::$receivedSitesByCommand[$commandName] = $this->option('sites');
+        }
+
+        if ($this->hasOption('allow-production')) {
+            self::$receivedAllowProductionByCommand[$commandName] = $this->option('allow-production');
         }
 
         return Command::SUCCESS;
