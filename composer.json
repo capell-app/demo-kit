@@ -1,0 +1,62 @@
+{
+    "name": "capell-app/demo-kit",
+    "description": "Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
+    "keywords": [
+        "capell",
+        "demo",
+        "demo-data",
+        "deterministic-seed",
+        "fixtures",
+        "laravel",
+        "filamentphp",
+        "cms",
+        "qa-tooling",
+        "screenshot-automation"
+    ],
+    "homepage": "https://github.com/capell-app/demo-kit",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "capell.app26@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "capell-app/admin": "^0.0.4 || 0.0.x-dev",
+        "capell-app/core": "^0.0.4 || 0.0.x-dev",
+        "capell-app/frontend": "^0.0.4 || 0.0.x-dev",
+        "capell-app/layout-builder": "^0.0.4 || 0.0.x-dev",
+        "fakerphp/faker": "^1.24.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\DemoKit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\DemoKit\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "0.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true,
+    "type": "library",
+    "support": {
+        "source": "https://github.com/capell-app/capell-packages",
+        "docs": "https://docs.capell.app/packages/demo-kit"
+    }
+}

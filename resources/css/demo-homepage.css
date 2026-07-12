@@ -1,0 +1,11 @@
+@layer components {
+    .capell-widget-demo-page-content {
+        container: capell-demo-page / inline-size;
+    }
+
+    @container capell-demo-page (inline-size <= 28rem) {
+        .capell-widget-demo-page-content h2 {
+            overflow-wrap: anywhere;
+        }
+    }
+}
