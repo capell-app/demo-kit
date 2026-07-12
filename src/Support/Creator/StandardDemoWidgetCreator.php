@@ -215,7 +215,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         }
 
         $relatedPages = $this->pageModel::query()
-            ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->default())
+            ->whereHas('blueprint', fn (BuilderContract $query): BuilderContract => $query->default())
             ->whereHas('image')
             ->where('site_id', $page->site_id)
             ->notHomePage()
@@ -406,7 +406,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             )
             ->withWhereHas(
                 'children',
-                fn (BuilderContract $query): BuilderContract => $query->whereHas('type')->limit(2),
+                fn (BuilderContract $query): BuilderContract => $query->whereHas('blueprint')->limit(2),
             )
             ->limit(4)
             ->get();

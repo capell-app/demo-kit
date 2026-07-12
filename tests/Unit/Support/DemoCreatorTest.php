@@ -341,7 +341,7 @@ function createDemoAssetPage(string $name): Page
 
     throw_unless($page instanceof Page);
 
-    return $page->refresh()->loadMissing(['layout', 'translation', 'type']);
+    return $page->refresh()->loadMissing(['layout', 'translation', 'blueprint']);
 }
 
 it('creates homepage demo snippets as layout builder widgets', function (): void {
@@ -367,7 +367,7 @@ it('persists every public demo kit widget creator output', function (): void {
         ->toBe(publicDemoKitWidgetCreatorMethodNames());
 
     foreach ($cases as $method => $createWidget) {
-        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'type']);
+        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'blueprint']);
         $persistedWidget = Widget::query()
             ->with(['translations', 'assets', 'media'])
             ->whereKey($widget->getKey())
@@ -439,7 +439,7 @@ it('can edit every demo kit creator widget through Filament without losing creat
     assert($language instanceof Language);
 
     foreach (demoKitWidgetCreatorCases($fixture) as $method => $createWidget) {
-        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'type']);
+        $widget = $createWidget()->refresh()->loadMissing(['translations', 'assets', 'media', 'blueprint']);
         $originalMeta = $widget->meta;
         $originalAdmin = $widget->admin;
         $originalAssetIds = $widget->assets->pluck('id')->sort()->values()->all();
