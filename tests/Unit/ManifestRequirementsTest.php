@@ -103,7 +103,7 @@ describe('demo kit capell.json manifest', function (): void {
 
                 expect(class_exists($class))->toBeTrue();
                 expect(is_subclass_of($class, ExtensionContribution::class))->toBeTrue();
-                expect($compatibleVersion)->toBe('^0.0');
+                expect($compatibleVersion)->toBe('^4.0');
             });
     });
 });
