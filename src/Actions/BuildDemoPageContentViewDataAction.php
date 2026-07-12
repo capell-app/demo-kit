@@ -38,7 +38,7 @@ final class BuildDemoPageContentViewDataAction
             ? $pageRecord->getRelation('translation')
             : null;
         $pageType = $pageRecord instanceof Model && $pageRecord->relationLoaded('blueprint')
-            ? $pageRecord->getRelation('type')
+            ? $pageRecord->getRelation('blueprint')
             : null;
         $occurrence = (int) ($widgetData['occurrence'] ?? 1);
         $assetSections = resolve(DemoPageContentAssetSections::class)->resolve($widget, $pageRecord, $containerKey, $occurrence);

@@ -344,7 +344,7 @@ it('can edit a kitchen sink layout widget without losing demo creator data', fun
     foreach ($layoutWidgets as $layoutWidget) {
         $widgetKey = $layoutWidget['widget_key'];
         $widget = Widget::query()
-            ->with(['translations', 'assets', 'type'])
+            ->with(['translations', 'assets', 'blueprint'])
             ->firstWhere('key', $widgetKey);
 
         expect($widget)->toBeInstanceOf(Widget::class);
@@ -548,7 +548,7 @@ it('mounts kitchen sink pages widget assets and lazy fragments through public bl
     throw_unless(is_array($pagesCardWidget), RuntimeException::class, 'Expected pages-card widget data.');
 
     $widget = Widget::query()
-        ->with(['assets', 'translations', 'type'])
+        ->with(['assets', 'translations', 'blueprint'])
         ->firstWhere('key', $pagesCardWidget['widget_key']);
 
     expect($widget)->toBeInstanceOf(Widget::class);
@@ -572,7 +572,7 @@ function kitchenSinkLayoutHtml(Page $page): string
 
     foreach ($container['widgets'] as $widgetIndex => $widgetData) {
         $widget = Widget::query()
-            ->with(['assets.asset', 'assets.media', 'translations', 'type'])
+            ->with(['assets.asset', 'assets.media', 'translations', 'blueprint'])
             ->firstWhere('key', $widgetData['widget_key']);
 
         if (! $widget instanceof Widget) {
@@ -581,7 +581,7 @@ function kitchenSinkLayoutHtml(Page $page): string
 
         $widget->assets->each(function (WidgetAsset $widgetAsset): void {
             if ($widgetAsset->asset instanceof Page) {
-                $widgetAsset->asset->loadMissing(['children', 'image', 'media', 'pageUrl', 'parent.translation', 'translation', 'type']);
+                $widgetAsset->asset->loadMissing(['children', 'image', 'media', 'pageUrl', 'parent.translation', 'translation', 'blueprint']);
             }
         });
 
