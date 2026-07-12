@@ -2,7 +2,7 @@
 
 <!-- prettier-ignore-start -->
 
-## What This Extension Adds
+## What This Plugin Adds
 
 Demo Kit is an **Available**, **No schema impact** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
 
@@ -29,6 +29,10 @@ Status details:
 
 Screenshot contract: `docs/screenshots.json`.
 
+![Demo Kit admin page](docs/screenshots/demo-kit-admin-page.png)
+
+![Generated demo page content widget](docs/screenshots/demo-page-content-widget.png)
+
 - Demo Kit admin page (admin, required).
 - Insights consent priming capture (frontend, optional).
 - Generated demo page content widget (frontend, required).
@@ -40,7 +44,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Config files: `packages/demo-kit/config/capell-demo-kit.php`.
 - Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
 - Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
-- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `HasDemoSiteProvenanceAction`, `MarkDemoSiteProvenanceAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `DummyContentGeneratorAction`, `InsertExampleSiteDataAction`, `InstallKitchenSinkDemoPageAction`, `RedactDemoKitErrorMessageAction`, `RefreshDemoStitchPagesAction`, `ResetDemoSitesAction`.
+- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `BuildKitchenSinkLayoutWidgetEntriesAction`, `ConfigureKitchenSinkReferenceWidgetsAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `CreateKitchenSinkContextPagesAction`, `CreateKitchenSinkSourceWidgetsAction`, `CreateKitchenSinkVariantWidgetsAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `and 9 more`.
 - Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
 - Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 - Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
@@ -51,7 +55,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Data Model
 
-This package has no schema impact. It does not declare package-owned migrations or required tables. Demo-created sites carry `meta.demo_kit.provisioned` provenance in the Core `sites` table so destructive reset operations cannot match customer sites by name alone.
+This package has no schema impact. It does not declare package-owned migrations or required tables.
 
 Docs gap: document extension points here if the package delegates persistence to a host package.
 
@@ -68,8 +72,6 @@ Docs gap: document extension points here if the package delegates persistence to
 
 ## Common Pitfalls
 
-- The Filament seeding surface is intentionally unavailable outside local/testing environments. Production overrides remain console-only and explicit.
-- Reset only removes requested sites with Demo Kit provenance; it refuses to reuse a matching unmarked site.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
 - Run package commands from the host app; in this repository use `vendor/bin/pest` for package tests.
 - Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
@@ -97,6 +99,7 @@ Docs gap: document extension points here if the package delegates persistence to
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
+- Related packages: [Layout Builder](../layout-builder/README.md).
 - Focused tests: `vendor/bin/pest packages/demo-kit/tests --configuration=phpunit.xml`.
 
 <!-- prettier-ignore-end -->

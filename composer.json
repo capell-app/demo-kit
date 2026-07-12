@@ -24,10 +24,10 @@
     ],
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^0.0 || 0.0.x-dev",
-        "capell-app/core": "^0.0 || 0.0.x-dev",
-        "capell-app/frontend": "^0.0 || 0.0.x-dev",
-        "capell-app/layout-builder": "^0.0 || 0.0.x-dev",
+        "capell-app/admin": "^0.0",
+        "capell-app/core": "^0.0",
+        "capell-app/frontend": "^0.0",
+        "capell-app/layout-builder": "^0.0",
         "fakerphp/faker": "^1.24.1"
     },
     "autoload": {
