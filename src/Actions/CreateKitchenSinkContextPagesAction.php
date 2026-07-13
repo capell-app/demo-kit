@@ -32,9 +32,9 @@ final class CreateKitchenSinkContextPagesAction
      */
     public function handle(Site $site, Layout $layout, EloquentCollection $languages, Page $parentPage, int $limit): array
     {
-        $pages = collect(array_slice($this->pageDefinitions(), 0, max(1, $limit)))
+        $pages = array_values(collect(array_slice($this->pageDefinitions(), 0, max(1, $limit)))
             ->map(fn (array $data): Page => $this->createPage($site, $layout, $languages, $parentPage, $data))
-            ->all();
+            ->all());
 
         foreach ($pages as $index => $page) {
             $this->ensureDemoMedia($page, $this->imageNameForIndex($index + 1));

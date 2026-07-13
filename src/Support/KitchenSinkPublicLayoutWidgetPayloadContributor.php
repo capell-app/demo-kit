@@ -7,8 +7,10 @@ namespace Capell\DemoKit\Support;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Security\PublicHtmlSanitizer;
+use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
+use Illuminate\Database\Eloquent\Model;
 
 final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
@@ -35,12 +37,15 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
      */
     public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
-        if (! str_starts_with($widget->key, 'kitchen-sink-') || ! $widget->relationLoaded('translation')) {
+        if (! str_starts_with($widget->key, 'kitchen-sink-')) {
             return [];
         }
 
+        $translation = $this->translation($widget, $language);
+
         return [
-            'content' => $this->sanitizeHtml($widget->translation?->content),
+            'widget_key' => $widget->key,
+            'content' => $this->sanitizeHtml($translation instanceof Model ? $translation->getAttribute('content') : null),
         ];
     }
 
@@ -52,22 +57,18 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             return $this->fallbackHtml($widget, $language, $sourceWidgetKey);
         }
 
-        if (! $widget->relationLoaded('translation')) {
-            return null;
-        }
-
         $sections = is_array($widget->meta['sections'] ?? null) ? $widget->meta['sections'] : [];
 
         if ($sections === []) {
-            return null;
+            $sections = $this->referenceSections($sourceWidgetKey);
         }
 
         $family = e((string) ($widget->meta['family'] ?? 'reference'));
-        $translation = $widget->translation;
+        $translation = $this->translation($widget, $language);
         $html = '<section class="capell-kitchen-sink-reference">';
 
-        if ($translation !== null) {
-            $html .= '<div>' . $this->sanitizeHtml($translation->content) . '</div>';
+        if ($translation instanceof Model) {
+            $html .= '<div>' . $this->sanitizeHtml($translation->getAttribute('content')) . '</div>';
         }
 
         foreach ($sections as $section) {
@@ -85,14 +86,10 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             return null;
         }
 
-        if (! $widget->relationLoaded('translation')) {
-            return null;
-        }
+        $translation = $this->translation($widget, $language);
 
-        $translation = $widget->translation;
-
-        $title = e((string) ($translation?->title ?? $widget->name));
-        $content = $this->sanitizeHtml($translation?->content);
+        $title = e((string) ($translation instanceof Model ? $translation->getAttribute('title') : $widget->name));
+        $content = $this->sanitizeHtml($translation instanceof Model ? $translation->getAttribute('content') : null);
         $source = e(str($sourceWidgetKey)->headline()->toString());
         $variant = e((string) data_get($widget->meta, 'kitchen_sink.variant', 'lazy fragment'));
         $stressIndex = e((string) data_get($widget->meta, 'kitchen_sink.stress_index', ''));
@@ -131,13 +128,14 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
      */
     private function sectionHtml(array $section, string $family): string
     {
-        $key = e((string) ($section['key'] ?? 'reference-section'));
+        $sectionKey = is_string($section['key'] ?? null) ? $section['key'] : 'reference-section';
+        $key = e($sectionKey);
         $heading = e((string) ($section['heading'] ?? 'Reference section'));
         $summary = e((string) ($section['summary'] ?? $heading . ' reference section.'));
 
         return '<article id="' . $key . '">'
             . '<header><p>' . $family . '</p><h2 id="' . $key . '-heading">' . $heading . '</h2><p>' . $summary . '</p></header>'
-            . $this->accessibilitySample((string) ($section['key'] ?? ''))
+            . $this->accessibilitySample($sectionKey)
             . '</article>';
     }
 
@@ -154,8 +152,50 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         };
     }
 
+    /** @return list<array{key: string, heading: string, summary: string}> */
+    private function referenceSections(string $sourceWidgetKey): array
+    {
+        $ranges = [
+            'kitchen-sink-structured-text' => [0, 3],
+            'kitchen-sink-rich-text' => [3, 8],
+            'kitchen-sink-data-display' => [11, 8],
+            'kitchen-sink-interactions' => [19, 5],
+            'kitchen-sink-embeds' => [24, 5],
+            'kitchen-sink-forms' => [29, 6],
+            'kitchen-sink-utility-states' => [35, 5],
+        ];
+        $range = $ranges[$sourceWidgetKey] ?? null;
+
+        if ($range === null) {
+            return [];
+        }
+
+        return array_values(array_map(static fn (string $heading): array => [
+            'key' => str($heading)->slug()->toString(),
+            'heading' => $heading,
+            'summary' => $heading . ' reference section.',
+        ], array_slice(InstallKitchenSinkDemoPageAction::sectionHeadings(), $range[0], $range[1])));
+    }
+
     private function sanitizeHtml(mixed $html): string
     {
         return resolve(PublicHtmlSanitizer::class)->sanitize(is_string($html) ? $html : '');
+    }
+
+    private function translation(Widget $widget, Language $language): ?Model
+    {
+        if ($widget->relationLoaded('translation') && $widget->translation instanceof Model) {
+            return $widget->translation;
+        }
+
+        if (! $widget->relationLoaded('translations')) {
+            return null;
+        }
+
+        $translation = $widget->translations->first(
+            static fn (Model $candidate): bool => $candidate->getAttribute('language_id') === $language->getKey(),
+        );
+
+        return $translation instanceof Model ? $translation : null;
     }
 }

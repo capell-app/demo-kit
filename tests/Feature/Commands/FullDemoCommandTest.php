@@ -23,11 +23,24 @@ use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
 use Capell\Tests\Fixtures\Models\User;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Artisan;
 
 beforeEach(function (): void {
+    app(Kernel::class)->registerCommand(
+        new class extends Command
+        {
+            protected $signature = 'capell:navigation-demo {--sites=} {--languages=}';
+
+            public function handle(): int
+            {
+                return self::SUCCESS;
+            }
+        },
+    );
     DemoPackageAction::resetProcessFactory();
     DemoPackageAction::setProcessFactory(fn (array $command): object => new readonly class($command)
     {

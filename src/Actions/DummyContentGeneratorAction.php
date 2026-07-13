@@ -72,10 +72,6 @@ class DummyContentGeneratorAction
 
             $pool = $candidates !== [] ? $candidates : $tokens;
 
-            if ($pool === []) {
-                return '<p>' . $content . '</p>';
-            }
-
             $pickIndex = random_int(0, count($pool) - 1);
             $word = $pool[$pickIndex];
 

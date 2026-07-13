@@ -65,8 +65,8 @@ final class SyncKitchenSinkPageAssetsAction
             foreach ($selectedPages as $order => $assetPage) {
                 $rows[] = $this->widgetAssetRow($page, $widget, $assetPage, $order + 1, [
                     'scope' => 'kitchen-sink-demo-page-selection',
-                    'caption' => $assetPage->translation?->title ?? $assetPage->name,
-                    'content' => $assetPage->translation?->summary ?? $assetPage->name,
+                    'caption' => $assetPage->translation->title ?? $assetPage->name,
+                    'content' => $assetPage->translation->summary ?? $assetPage->name,
                     'role' => 'selected-page',
                     'accent' => ['teal', 'blue', 'slate', 'amber'][$order % 4],
                     'crop_preset' => ['thumbnail', 'card', 'hero'][$order % 3],
@@ -89,8 +89,8 @@ final class SyncKitchenSinkPageAssetsAction
             foreach ($selectedPages as $order => $assetPage) {
                 $rows[] = $this->widgetAssetRow($page, $widget, $assetPage, $order + 1, [
                     'scope' => 'kitchen-sink-livewire-latest-pages',
-                    'caption' => $assetPage->translation?->title ?? $assetPage->name,
-                    'content' => $assetPage->translation?->summary ?? $assetPage->name,
+                    'caption' => $assetPage->translation->title ?? $assetPage->name,
+                    'content' => $assetPage->translation->summary ?? $assetPage->name,
                     'role' => 'selected-page',
                 ], $timestamp);
             }
@@ -101,7 +101,10 @@ final class SyncKitchenSinkPageAssetsAction
         }
     }
 
-    /** @param array<string, mixed> $meta */
+    /**
+     * @param  array<string, mixed>  $meta
+     * @return array<string, mixed>
+     */
     private function widgetAssetRow(Page $page, Widget $widget, Page $asset, int $order, array $meta, DateTimeInterface $timestamp): array
     {
         return [

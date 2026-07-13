@@ -48,15 +48,7 @@ final class InstallKitchenSinkDemoPageAction
 
     private const int DefaultContextAssetLimit = 12;
 
-    private const string LivewireStressWidgetKey = 'kitchen-sink-livewire-stress';
-
     private const string LivewireLatestPagesWidgetKey = 'kitchen-sink-livewire-latest-pages';
-
-    private const string HeroTopWidgetKey = 'kitchen-sink-hero-top';
-
-    private const string HeroMiddleWidgetKey = 'kitchen-sink-hero-middle';
-
-    private const string HeroDeepWidgetKey = 'kitchen-sink-hero-deep';
 
     /**
      * @var array<int, string>
@@ -177,7 +169,7 @@ final class InstallKitchenSinkDemoPageAction
         SyncKitchenSinkPageAssetsAction::run(
             $page,
             $contextPages,
-            self::layoutWidgetEntries(),
+            array_values(self::layoutWidgetEntries()),
             self::PageAssetWidgetKeys,
             self::LivewireLatestPagesWidgetKey,
             self::contextAssetLimit(),
@@ -397,7 +389,7 @@ final class InstallKitchenSinkDemoPageAction
         ConfigureKitchenSinkReferenceWidgetsAction::run($languages);
         CreateKitchenSinkSourceWidgetsAction::run($languages);
 
-        CreateKitchenSinkVariantWidgetsAction::run($languages, self::layoutWidgetEntries());
+        CreateKitchenSinkVariantWidgetsAction::run($languages, array_values(self::layoutWidgetEntries()));
     }
 
     private function ensureDemoMedia(Model $model, string $name, MediaCollectionEnum|string $collection): void
@@ -446,26 +438,6 @@ final class InstallKitchenSinkDemoPageAction
         return $fallbacks[crc32($name) % count($fallbacks)] ?? null;
     }
 
-    private function imageNameForIndex(int $index): string
-    {
-        $images = [
-            'pricing',
-            'fresh-water',
-            'salt-water',
-            'birds',
-            'fish',
-            'reptiles',
-            'mammals',
-            'cats',
-            'dogs',
-            'sharks',
-            'owls',
-            'eagles',
-        ];
-
-        return $images[($index - 1) % count($images)];
-    }
-
     /**
      * @param  EloquentCollection<int, Language>  $languages
      * @return array<string, array<string, mixed>>
@@ -487,31 +459,6 @@ final class InstallKitchenSinkDemoPageAction
                     'label' => self::PageName,
                     'exclude_from_footer' => true,
                     'demo_fixture' => 'kitchen-sink',
-                ],
-            ];
-        }
-
-        return $translations;
-    }
-
-    /**
-     * @param  EloquentCollection<int, Language>  $languages
-     * @return array<string, array<string, mixed>>
-     */
-    private function simplePageTranslations(EloquentCollection $languages, string $title, string $slug, string $summary): array
-    {
-        $translations = [];
-
-        foreach ($languages as $language) {
-            $translations[(string) $language->code] = [
-                'title' => $title,
-                'content' => '<p>' . e($summary) . '</p>',
-                'summary' => $summary,
-                'meta' => [
-                    'slug' => $slug,
-                    'label' => $title,
-                    'exclude_from_footer' => true,
-                    'demo_fixture' => 'kitchen-sink-context',
                 ],
             ];
         }

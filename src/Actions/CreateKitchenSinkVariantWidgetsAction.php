@@ -66,7 +66,10 @@ final class CreateKitchenSinkVariantWidgetsAction
         }
     }
 
-    /** @param array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool} $entry */
+    /**
+     * @param  array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}  $entry
+     * @return array<string, mixed>
+     */
     private function variantMeta(Widget $sourceWidget, array $entry): array
     {
         $stressIndex = $entry['stress_index'];

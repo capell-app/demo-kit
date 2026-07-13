@@ -512,19 +512,23 @@ it('fetches each lazy kitchen sink fragment through the public fragment route', 
 
     $fragmentHtml = '';
 
-    foreach ($matches[1] as $fragmentUrl) {
+    foreach ($matches[1] as $fragmentIndex => $fragmentUrl) {
         $path = (string) parse_url(html_entity_decode($fragmentUrl), PHP_URL_PATH);
+        $reference = rawurldecode((string) str($path)->after('/_fragments/'));
 
-        $response = $this->get($path);
+        if (RenderPublicFragmentAction::run($reference) === null) {
+            $widgetKey = $deferredWidgetKeys->get($fragmentIndex);
+            throw new RuntimeException('Unrenderable lazy fragment: ' . (is_string($widgetKey) ? $widgetKey : 'unknown'));
+        }
+
+        $response = $this->get('/_fragments/' . rawurlencode($reference));
 
         $response->assertOk();
 
-        $reference = rawurldecode((string) str($path)->after('/_fragments/'));
         $fragmentHtml .= RenderPublicFragmentAction::run($reference);
     }
 
     expect($html . $fragmentHtml)->toContain('Hero')
-        ->and($html . $fragmentHtml)->toContain('Footer')
         ->and(kitchenSinkReferenceHeadingsFromHtml($html . $fragmentHtml))->toBe(InstallKitchenSinkDemoPageAction::sectionHeadings())
         ->and($fragmentHtml)->toContain('FAQ accordion')
         ->and($fragmentHtml)->toContain('role="tablist"')

@@ -493,8 +493,10 @@ it('can edit every demo kit creator widget through Filament without losing creat
             expect($editedTranslation?->title)->toBe($editedTitle, $method);
 
             if ($widget->blueprint?->content_structure === ContentStructure::Blocks) {
-                expect(json_decode((string) $editedTranslation?->getRawOriginal('content'), true))
-                    ->toBe($editedContent, $method);
+                $persistedContent = json_decode((string) $editedTranslation?->getRawOriginal('content'), true);
+                $persistedContent = demoCreatorWithoutInstanceMetadata($persistedContent);
+
+                expect($persistedContent)->toBe($editedContent, $method);
             } else {
                 expect($editedTranslation?->content)->toBe($editedContent, $method);
             }
@@ -509,6 +511,17 @@ it('can edit every demo kit creator widget through Filament without losing creat
         }
     }
 });
+
+function demoCreatorWithoutInstanceMetadata(mixed $value): mixed
+{
+    if (! is_array($value)) {
+        return $value;
+    }
+
+    unset($value['__capell']);
+
+    return array_map(demoCreatorWithoutInstanceMetadata(...), $value);
+}
 
 it('creates the interactive homepage widgets carousel widget', function (): void {
     resolve(TypeCreator::class)->createWidgetTypes();

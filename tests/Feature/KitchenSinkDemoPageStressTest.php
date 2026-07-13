@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Models\Widget;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -101,13 +102,17 @@ it('renders kitchen sink contributor HTML from the preloaded widget payload only
         ->with('translation')
         ->firstWhere('key', 'kitchen-sink-structured-text');
 
-    expect($language)->toBeInstanceOf(Language::class)
-        ->and($widget)->toBeInstanceOf(Widget::class);
+    if (! $language instanceof Language || ! $widget instanceof Widget) {
+        throw new LogicException('Expected a translated kitchen sink widget.');
+    }
 
-    assert($language instanceof Language);
-    assert($widget instanceof Widget);
+    $translation = $widget->translation;
 
-    $widget->translation?->forceFill([
+    if (! $translation instanceof Model) {
+        throw new LogicException('Expected a loaded widget translation.');
+    }
+
+    $translation->forceFill([
         'content' => '<p>Safe content</p><script>alert(1)</script><span data-field-path="content">hidden authoring</span>',
     ]);
 

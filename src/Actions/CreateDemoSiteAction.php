@@ -32,13 +32,13 @@ final class CreateDemoSiteAction
             ));
         }
 
-        $site = CreateSiteAction::run(
+        $site = (new CreateSiteAction)->handle(
             $name,
             url: $url,
             language: $language,
             languages: $languages,
         );
 
-        return MarkDemoSiteProvenanceAction::run($site);
+        return (new MarkDemoSiteProvenanceAction)->handle($site);
     }
 }

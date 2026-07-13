@@ -11,7 +11,7 @@ it('blocks the admin demo surface outside local and testing environments', funct
 
     try {
         expect(DemoKitPage::canAccess())->toBeFalse()
-            ->and(fn (): null => InsertExampleSiteDataAction::run([]))
+            ->and(fn (): mixed => InsertExampleSiteDataAction::run([]))
             ->toThrow(
                 RuntimeException::class,
                 'Example site data can only be installed from the admin panel in local or testing environments.',
