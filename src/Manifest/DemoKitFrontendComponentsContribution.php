@@ -10,6 +10,6 @@ final class DemoKitFrontendComponentsContribution implements RegistersExtensionF
 {
     public static function compatibleCapellApiVersion(): string
     {
-        return '^4.0';
+        return '^1.0';
     }
 }
