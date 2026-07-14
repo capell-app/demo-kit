@@ -31,3 +31,15 @@ it('keeps the demo hero background selector aligned with hero package markup', f
         ->toContain('.widget-capell-home-hero-command-center .capell-hero-background {')
         ->toContain('$heroHighlights = $homepageItems(\'highlights\');');
 });
+
+it('keeps hero proof points token driven and above decorative layers', function (): void {
+    $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
+
+    expect($view)
+        ->toContain('.capell-home-hero-highlight {')
+        ->toContain('var(--theme-primary, #315f8f)')
+        ->toContain('.dark .capell-home-hero-highlight {')
+        ->toContain('class="capell-home-hero-grid relative z-10"')
+        ->toContain('class="capell-home-hero-copy grid gap-6"')
+        ->toContain('class="capell-home-hero-highlight rounded-full');
+});
