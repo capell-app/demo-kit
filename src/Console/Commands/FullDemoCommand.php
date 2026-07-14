@@ -31,6 +31,7 @@ final class FullDemoCommand extends Command
         {--seed=}
         {--quick}
         {--reset}
+        {--adopt-existing-site}
         {--skip-demo-users}
         {--allow-production}
         {--force}';
@@ -112,6 +113,10 @@ final class FullDemoCommand extends Command
 
         if ($this->option('reset') === true) {
             $adminDemoParams['--reset'] = true;
+        }
+
+        if ($this->option('adopt-existing-site') === true) {
+            $adminDemoParams['--adopt-existing-site'] = true;
         }
 
         if ($this->option('skip-demo-users') === true) {

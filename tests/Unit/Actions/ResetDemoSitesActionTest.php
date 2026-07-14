@@ -45,6 +45,22 @@ it('refuses to reuse an unmarked site as a demo site', function (): void {
     );
 });
 
+it('explicitly adopts an existing unmarked site without replacing it', function (): void {
+    $site = Site::factory()->create(['name' => 'Installed Site']);
+
+    $adoptedSite = CreateDemoSiteAction::run(
+        name: $site->name,
+        url: 'https://example.test',
+        language: $site->language,
+        languages: collect([$site->language]),
+        adoptExistingSite: true,
+    );
+
+    expect($adoptedSite->is($site))->toBeTrue()
+        ->and(HasDemoSiteProvenanceAction::run($adoptedSite))->toBeTrue()
+        ->and(Site::query()->where('name', 'Installed Site')->count())->toBe(1);
+});
+
 it('marks newly created demo sites with durable provenance', function (): void {
     $language = Language::factory()->english()->create();
     Blueprint::factory()->site()->default()->create();

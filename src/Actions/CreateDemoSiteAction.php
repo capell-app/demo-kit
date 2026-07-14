@@ -12,7 +12,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
 /**
- * @method static Site run(string $name, string $url, Language $language, Collection<int, Language> $languages)
+ * @method static Site run(string $name, string $url, Language $language, Collection<int, Language> $languages, bool $adoptExistingSite = false)
  */
 final class CreateDemoSiteAction
 {
@@ -21,11 +21,20 @@ final class CreateDemoSiteAction
     /**
      * @param  Collection<int, Language>  $languages
      */
-    public function handle(string $name, string $url, Language $language, Collection $languages): Site
-    {
+    public function handle(
+        string $name,
+        string $url,
+        Language $language,
+        Collection $languages,
+        bool $adoptExistingSite = false,
+    ): Site {
         $existingSite = Site::query()->where('name', $name)->first();
 
         if ($existingSite instanceof Site && ! HasDemoSiteProvenanceAction::run($existingSite)) {
+            if ($adoptExistingSite) {
+                return MarkDemoSiteProvenanceAction::run($existingSite);
+            }
+
             throw new RuntimeException(sprintf(
                 'Refusing to replace site [%s] because it was not provisioned by Demo Kit.',
                 $name,
