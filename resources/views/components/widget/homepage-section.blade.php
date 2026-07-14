@@ -98,16 +98,19 @@
             }
 
             .capell-home-hero-highlight {
+                border-color: #b7c8d9;
                 border-color: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 28%,
                     transparent
                 );
+                background: #e8eff6;
                 background: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 12%,
                     var(--theme-surface, #ffffff)
                 );
+                color: #24496f;
                 color: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 78%,
@@ -116,16 +119,19 @@
             }
 
             .dark .capell-home-hero-highlight {
+                border-color: #7895b3;
                 border-color: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 52%,
                     #ffffff
                 );
+                background: #172a3d;
                 background: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 32%,
                     var(--theme-surface, #020617)
                 );
+                color: #e7f0f8;
                 color: color-mix(
                     in srgb,
                     var(--theme-primary, #315f8f) 30%,

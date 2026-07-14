@@ -34,12 +34,20 @@ it('keeps the demo hero background selector aligned with hero package markup', f
 
 it('keeps hero proof points token driven and above decorative layers', function (): void {
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
+    $borderFallbackCount = preg_match_all('/border-color:\s*#[0-9a-f]{6};\s*border-color:\s*color-mix\(/i', $view);
+    $backgroundFallbackCount = preg_match_all('/background:\s*#[0-9a-f]{6};\s*background:\s*color-mix\(/i', $view);
+    $textFallbackCount = preg_match_all('/color:\s*#[0-9a-f]{6};\s*color:\s*color-mix\(/i', $view);
 
     expect($view)
         ->toContain('.capell-home-hero-highlight {')
         ->toContain('var(--theme-primary, #315f8f)')
+        ->toContain('var(--theme-surface, #ffffff)')
+        ->toContain('var(--theme-foreground, #1a1c1b)')
         ->toContain('.dark .capell-home-hero-highlight {')
         ->toContain('class="capell-home-hero-grid relative z-10"')
         ->toContain('class="capell-home-hero-copy grid gap-6"')
-        ->toContain('class="capell-home-hero-highlight rounded-full');
+        ->toContain('class="capell-home-hero-highlight rounded-full')
+        ->and($borderFallbackCount)->toBe(2)
+        ->and($backgroundFallbackCount)->toBe(2)
+        ->and($textFallbackCount)->toBe(2);
 });
