@@ -1,0 +1,40 @@
+{
+    "whatThisPluginAdds": {
+        "text": "Demo Kit creates deterministic demo users, sites, languages, pages, media, and package examples from a repeatable generation plan.",
+        "evidence": [
+            "capell.json",
+            "src/Actions/BuildDemoGenerationPlanAction.php",
+            "src/Support/Creator/DemoCreator.php",
+            "src/Providers/DemoKitServiceProvider.php"
+        ]
+    },
+    "surfaceOutcome": {
+        "text": "Administrators can start demo generation from a package page or console command, then inspect the generated pages and components on the frontend.",
+        "evidence": [
+            "docs/overview.admin.md",
+            "docs/screenshots.json",
+            "src/Filament/Pages/DemoKitPage.php",
+            "tests/Feature/Commands/FullDemoCommandTest.php"
+        ]
+    },
+    "whyItMatters": {
+        "developers": {
+            "text": "Typed generation plans and package demo command orchestration make local setup, screenshots, and QA data reproducible from a chosen seed.",
+            "evidence": [
+                "src/Data/DemoGenerationPlanData.php",
+                "src/Actions/BuildDemoGenerationPlanAction.php",
+                "src/Console/Commands/FullDemoCommand.php",
+                "tests/Unit/Actions/BuildDemoGenerationPlanActionTest.php"
+            ]
+        },
+        "teams": {
+            "text": "Teams can evaluate a populated site before entering real content and reset the sample state between demos, with explicit guards against production seeding.",
+            "evidence": [
+                "docs/overview.admin.md",
+                "src/Actions/ResetDemoSitesAction.php",
+                "src/Console/Commands/Concerns/GuardsAgainstProduction.php",
+                "tests/Feature/Commands/AdminDemoCommandTest.php"
+            ]
+        }
+    }
+}
