@@ -249,7 +249,7 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             return 1;
         }
 
-        return max(1, (int) ($matches['index'] ?? 1));
+        return max(1, (int) $matches['index']);
     }
 
     private function eagerWidgetLimit(): int
@@ -275,7 +275,8 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         }
 
         $translation = $translations->first(
-            static fn (Model $candidate): bool => $candidate->getAttribute('language_id') === $language->getKey(),
+            static fn (mixed $candidate): bool => $candidate instanceof Model
+                && $candidate->getAttribute('language_id') === $language->getKey(),
         );
 
         return $translation instanceof Model ? $translation : null;

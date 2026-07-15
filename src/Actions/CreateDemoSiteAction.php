@@ -32,7 +32,7 @@ final class CreateDemoSiteAction
 
         if ($existingSite instanceof Site && ! HasDemoSiteProvenanceAction::run($existingSite)) {
             if ($adoptExistingSite) {
-                return MarkDemoSiteProvenanceAction::run($existingSite);
+                return MarkDemoSiteProvenanceAction::make()->handle($existingSite);
             }
 
             throw new RuntimeException(sprintf(

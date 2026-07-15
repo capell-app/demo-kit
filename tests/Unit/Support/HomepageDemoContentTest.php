@@ -26,6 +26,8 @@ it('ships concise homepage hero proof points', function (): void {
 it('keeps the demo hero background selector aligned with hero package markup', function (): void {
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
 
+    throw_unless(is_string($view), RuntimeException::class, 'Unable to read the Demo Kit homepage section view.');
+
     expect($view)
         ->toContain('.widget-capell-home-hero-command-center .hero-background,')
         ->toContain('.widget-capell-home-hero-command-center .capell-hero-background {')
@@ -34,6 +36,9 @@ it('keeps the demo hero background selector aligned with hero package markup', f
 
 it('keeps hero proof points token driven and above decorative layers', function (): void {
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
+
+    throw_unless(is_string($view), RuntimeException::class, 'Unable to read the Demo Kit homepage section view.');
+
     $borderFallbackCount = preg_match_all('/border-color:\s*#[0-9a-f]{6};\s*border-color:\s*color-mix\(/i', $view);
     $backgroundFallbackCount = preg_match_all('/background:\s*#[0-9a-f]{6};\s*background:\s*color-mix\(/i', $view);
     $textFallbackCount = preg_match_all('/color:\s*#[0-9a-f]{6};\s*color:\s*color-mix\(/i', $view);
