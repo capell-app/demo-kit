@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Actions\Diagnostics;
 
-use Capell\Core\Actions\Diagnostics\VerifyFrontendBuildAssetsAction;
 use Capell\Core\Actions\Packages\BuildPackageCapabilityGraphAction;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
-use Capell\Core\Data\Diagnostics\FrontendBuildAssetVerificationResultData;
 use Capell\Core\Enums\PackageCapability;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -50,7 +48,6 @@ final class AssertDefaultDemoInstallHealthAction
                 $this->placeholderLabelsAreAbsent(),
             ] : []),
             $this->minimumMediaCount(),
-            $this->runtimeAssetsExist(),
             $this->capabilityGraphIncludesDemoPackages(),
             $this->cacheEligibilityDiagnosticsAreAvailable(),
             $this->publicRenderContractIsAvailable(),
@@ -317,29 +314,6 @@ final class AssertDefaultDemoInstallHealthAction
             label: 'Default demo placeholder labels',
             passed: true,
             message: 'No known placeholder homepage labels were found.',
-        );
-    }
-
-    private function runtimeAssetsExist(): DoctorCheckResultData
-    {
-        $failures = VerifyFrontendBuildAssetsAction::run()
-            ->reject(fn (FrontendBuildAssetVerificationResultData $result): bool => $result->passed);
-
-        if ($failures->isNotEmpty()) {
-            $firstFailure = $failures->first();
-
-            return new DoctorCheckResultData(
-                label: 'Required published runtime assets',
-                passed: false,
-                message: $firstFailure->message,
-                remediation: $firstFailure->remediation,
-            );
-        }
-
-        return new DoctorCheckResultData(
-            label: 'Required published runtime assets',
-            passed: true,
-            message: 'All registered runtime build assets are published.',
         );
     }
 
