@@ -97,6 +97,48 @@
                 max-width: 18ch;
             }
 
+            .capell-home-hero-highlight {
+                border-color: #b7c8d9;
+                border-color: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 28%,
+                    transparent
+                );
+                background: #e8eff6;
+                background: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 12%,
+                    var(--theme-surface, #ffffff)
+                );
+                color: #24496f;
+                color: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 78%,
+                    var(--theme-foreground, #1a1c1b)
+                );
+            }
+
+            .dark .capell-home-hero-highlight {
+                border-color: #7895b3;
+                border-color: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 52%,
+                    #ffffff
+                );
+                background: #172a3d;
+                background: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 32%,
+                    var(--theme-surface, #020617)
+                );
+                color: #e7f0f8;
+                color: color-mix(
+                    in srgb,
+                    var(--theme-primary, #315f8f) 30%,
+                    #ffffff
+                );
+            }
+
             .capell-home-hero-carousel {
                 --swiper-pagination-bullet-horizontal-gap: 0.2rem;
             }
@@ -246,7 +288,7 @@
             @endif
 
             <div class="capell-home-hero-grid relative z-10">
-                <section class="grid gap-5">
+                <section class="capell-home-hero-copy grid gap-6">
                     <p
                         class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
                     >
@@ -264,7 +306,7 @@
                         <ul class="flex max-w-2xl flex-wrap gap-2">
                             @foreach ($heroHighlights as $highlight)
                                 <li
-                                    class="rounded-md border border-[#c7d3df] bg-white/70 px-3 py-1.5 text-sm font-extrabold text-[#24496f] shadow-[0_10px_24px_rgb(26_28_27_/_0.06)] backdrop-blur-sm"
+                                    class="capell-home-hero-highlight rounded-full border px-3.5 py-1.5 text-sm font-extrabold shadow-[0_10px_24px_rgb(26_28_27_/_0.06)] backdrop-blur-sm"
                                 >
                                     {{ $highlight }}
                                 </li>

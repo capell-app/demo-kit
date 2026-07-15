@@ -14,6 +14,8 @@ use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+use function Pest\Laravel\get;
+
 /**
  * Stress the public render of the canonical Kitchen Sink demo page — the Demo Kit reference
  * fixture that exercises every widget family (structured text, rich text, data display,
@@ -130,6 +132,36 @@ it('renders kitchen sink contributor HTML from the preloaded widget payload only
         ->toContain('<p>Safe content</p>')
         ->not->toContain('<script')
         ->not->toContain('data-field-path')
+        ->and(data_get($data, 'sections.0.html'))->toContain('<p>Safe content</p>')
         ->and(json_encode($data, JSON_THROW_ON_ERROR))->not->toContain('data-field-path')
         ->and($queryCount)->toBe(0);
+})->group('demo-kit', 'stress');
+
+it('renders the kitchen sink public route from its query-free graph projection', function (): void {
+    config()->set('capell-demo-kit.kitchen_sink.target_widget_count', 32);
+    config()->set('capell-demo-kit.kitchen_sink.eager_widget_limit', 12);
+    config()->set('capell-demo-kit.kitchen_sink.context_page_count', 8);
+    config()->set('capell-demo-kit.kitchen_sink.context_asset_limit', 6);
+    config()->set('capell-frontend.public_view_query_guard.enabled', true);
+    config()->set('capell-frontend.public_view_query_guard.mode', 'exception');
+
+    $page = InstallKitchenSinkDemoPageAction::run()->loadMissing('pageUrl.siteDomain');
+    $pageUrl = $page->pageUrl;
+
+    if ($pageUrl === null) {
+        throw new LogicException('Expected the kitchen sink page to have a public URL.');
+    }
+
+    $response = get($pageUrl->full_url);
+
+    $response->assertOk();
+
+    expect($response->getContent())
+        ->toContain('Kitchen Sink Demo Page')
+        ->toContain('Table of contents')
+        ->toContain('data-deferred-fragment')
+        ->not->toContain('data-capell-authoring')
+        ->not->toContain('data-field-path')
+        ->not->toContain('signed_url')
+        ->not->toContain('capell-layout-builder');
 })->group('demo-kit', 'stress');

@@ -13,7 +13,9 @@ use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\PageCreator;
+use Capell\DemoKit\Actions\HasDemoSiteProvenanceAction;
 use Capell\DemoKit\Actions\InsertExampleSiteDataAction;
 use Capell\DemoKit\Filament\Pages\DemoKitPage;
 use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
@@ -113,6 +115,8 @@ function fakeDemoKitCurrentRouteName(string $routeName): void
 it('creates full multi site and language demo data and runs package demos', function (): void {
     TrackingDemoCommand::reset();
 
+    $installedSite = Site::factory()->create(['name' => 'Main Site']);
+
     CapellCore::forcePackageInstalled('capell-app/content-sections');
     CapellCore::forcePackageInstalled('capell-app/layout-builder');
 
@@ -149,6 +153,7 @@ it('creates full multi site and language demo data and runs package demos', func
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
         '--seed' => 1234,
+        '--adopt-existing-site' => true,
         '--skip-demo-users' => true,
         '--force' => true,
     ])->assertExitCode(0);
@@ -157,6 +162,8 @@ it('creates full multi site and language demo data and runs package demos', func
     capell_expect(TrackingDemoCommand::$queueConversionsByDefault)->toBeFalse();
     capell_expect(TrackingDemoCommand::$receivedSeedByCommand)->toBe(['test:demo' => '1234']);
     capell_expect(User::query()->where('email', 'demo@example.com')->exists())->toBeFalse();
+    capell_expect(Site::query()->where('name', 'Main Site')->sole()->is($installedSite))->toBeTrue();
+    capell_expect(HasDemoSiteProvenanceAction::run($installedSite->refresh()))->toBeTrue();
     capell_expect(Page::query()->where('name', 'Kitchen Sink Demo Page')->exists())->toBeTrue();
     capell_expect(Layout::query()->where('key', 'kitchen-sink-demo')->exists())->toBeTrue();
 });

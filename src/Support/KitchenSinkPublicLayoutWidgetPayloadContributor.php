@@ -10,7 +10,9 @@ use Capell\Core\Support\Security\PublicHtmlSanitizer;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
@@ -42,10 +44,15 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         }
 
         $translation = $this->translation($widget, $language);
+        $sectionHtml = $this->publicSectionHtml($widget, $page, $language, $containerKey, $occurrence);
 
         return [
             'widget_key' => $widget->key,
             'content' => $this->sanitizeHtml($translation instanceof Model ? $translation->getAttribute('content') : null),
+            'sections' => $sectionHtml === null ? [] : [[
+                'order' => $this->stressIndex($widget),
+                'html' => $sectionHtml,
+            ]],
         ];
     }
 
@@ -182,17 +189,92 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         return resolve(PublicHtmlSanitizer::class)->sanitize(is_string($html) ? $html : '');
     }
 
-    private function translation(Widget $widget, Language $language): ?Model
+    private function publicSectionHtml(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
-        if ($widget->relationLoaded('translation') && $widget->translation instanceof Model) {
-            return $widget->translation;
+        $stressIndex = $this->stressIndex($widget);
+
+        if ($stressIndex > $this->eagerWidgetLimit()) {
+            return $this->deferredFragmentPlaceholder($widget, $page, $language, $containerKey, $occurrence, $stressIndex);
         }
 
-        if (! $widget->relationLoaded('translations')) {
+        $html = $this->html($widget, $page, $language, $containerKey, $occurrence);
+
+        if (! is_string($html) || trim($html) === '') {
             return null;
         }
 
-        $translation = $widget->translations->first(
+        if ($stressIndex !== 1) {
+            return $html;
+        }
+
+        $pageTranslation = $this->translation($page, $language);
+        $pageContent = $this->sanitizeHtml($pageTranslation instanceof Model ? $pageTranslation->getAttribute('content') : null);
+
+        return $pageContent . $html;
+    }
+
+    private function deferredFragmentPlaceholder(
+        Widget $widget,
+        Page $page,
+        Language $language,
+        string $containerKey,
+        int $occurrence,
+        int $stressIndex,
+    ): string {
+        $layout = $page->relationLoaded('layout') ? $page->getRelation('layout') : null;
+        $layoutId = $layout instanceof Model ? $layout->getKey() : $page->getAttribute('layout_id');
+        $reference = OpaqueWidgetReference::encode([
+            'container_key' => $containerKey,
+            'widget_key' => $widget->key,
+            'layout_id' => $layoutId,
+            'language_id' => $language->getKey(),
+            'occurrence' => $occurrence,
+            'page_id' => $page->getKey(),
+            'page_type' => $page->getMorphClass(),
+            'site_id' => $page->getAttribute('site_id'),
+            'widget_index' => $stressIndex - 1,
+        ]);
+        $widgetDomId = 'layout-widget-' . hash('xxh128', (string) $layoutId . ':' . $containerKey . ':' . (string) ($stressIndex - 1));
+
+        return '<div id="' . e($widgetDomId) . '" data-deferred-fragment data-deferred-fragment-url="'
+            . e(url('/_fragments/' . rawurlencode($reference)))
+            . '" class="deferred-fragment"></div>';
+    }
+
+    private function stressIndex(Widget $widget): int
+    {
+        $matches = [];
+
+        if (preg_match('/\Akitchen-sink-(?<index>\d{3})-/', $widget->key, $matches) !== 1) {
+            return 1;
+        }
+
+        return max(1, (int) ($matches['index'] ?? 1));
+    }
+
+    private function eagerWidgetLimit(): int
+    {
+        $limit = config('capell-demo-kit.kitchen_sink.eager_widget_limit', 20);
+
+        return max(1, is_numeric($limit) ? (int) $limit : 20);
+    }
+
+    private function translation(Model $model, Language $language): ?Model
+    {
+        if ($model->relationLoaded('translation') && $model->getRelation('translation') instanceof Model) {
+            return $model->getRelation('translation');
+        }
+
+        if (! $model->relationLoaded('translations')) {
+            return null;
+        }
+
+        $translations = $model->getRelation('translations');
+        if (! $translations instanceof Collection) {
+            return null;
+        }
+
+        $translation = $translations->first(
             static fn (Model $candidate): bool => $candidate->getAttribute('language_id') === $language->getKey(),
         );
 

@@ -71,6 +71,7 @@ class AdminDemoCommand extends Command
         {--page-count=}
         {--seed=}
         {--reset}
+        {--adopt-existing-site}
         {--skip-demo-users}
         {--allow-production}';
 
@@ -332,6 +333,7 @@ class AdminDemoCommand extends Command
                 url: rtrim($siteUrl, '/') . ($siteIndex > 0 ? '/' . str()->slug($sitePlan->name) : ''),
                 language: $defaultLanguage,
                 languages: $siteLanguages,
+                adoptExistingSite: $this->option('adopt-existing-site') === true,
             );
 
             $bar = $this->output->createProgressBar($sitePlan->pageCount() + 4);
