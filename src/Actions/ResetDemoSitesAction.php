@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions;
 
 use Capell\Core\Models\Site;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static int run(list<string> $siteNames)
  */
 final class ResetDemoSitesAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @param  list<string>  $siteNames

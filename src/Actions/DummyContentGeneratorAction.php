@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Actions;
 
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * Simple dummy content generator moved out of config so callers can request
@@ -15,7 +16,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  */
 class DummyContentGeneratorAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(string $languageCode = 'en'): string
     {

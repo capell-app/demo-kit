@@ -137,7 +137,7 @@ class AdminDemoCommand extends Command
 
             $this->error(sprintf(
                 'Demo command failed: %s in %s:%d',
-                (new RedactDemoKitErrorMessageAction)->handle($throwable),
+                RedactDemoKitErrorMessageAction::run($throwable),
                 $throwable->getFile(),
                 $throwable->getLine(),
             ));

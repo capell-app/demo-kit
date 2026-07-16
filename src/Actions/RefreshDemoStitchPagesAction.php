@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -23,6 +24,7 @@ use RuntimeException;
  */
 final class RefreshDemoStitchPagesAction
 {
+    use AsFake;
     use AsObject;
 
     /** @var list<string> */

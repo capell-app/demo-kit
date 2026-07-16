@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Actions;
 use Capell\Core\Models\Language;
 use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Database\Eloquent\Collection;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class CreateDemoLanguagesAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(

@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Actions;
 use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class ConfigureKitchenSinkReferenceWidgetsAction
 {
+    use AsFake;
     use AsObject;
 
     /**

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions;
 
 use Capell\Core\Models\Site;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class MarkDemoSiteProvenanceAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Site $site): Site

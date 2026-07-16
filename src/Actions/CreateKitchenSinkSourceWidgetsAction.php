@@ -13,12 +13,14 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\MediaLibrary\HasMedia;
 
 /** @method static void run(EloquentCollection<int, Language> $languages) */
 final class CreateKitchenSinkSourceWidgetsAction
 {
+    use AsFake;
     use AsObject;
 
     /**

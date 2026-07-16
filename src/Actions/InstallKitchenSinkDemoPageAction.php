@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\MediaLibrary\HasMedia;
 
@@ -32,6 +33,7 @@ use Spatie\MediaLibrary\HasMedia;
  */
 final class InstallKitchenSinkDemoPageAction
 {
+    use AsFake;
     use AsObject;
 
     private const string PageName = 'Kitchen Sink Demo Page';

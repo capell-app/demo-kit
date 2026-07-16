@@ -76,7 +76,7 @@ final class DemoKitPage extends Page
                     try {
                         InsertExampleSiteDataAction::run($data);
                     } catch (Throwable $throwable) {
-                        $action->failureNotificationBody((new RedactDemoKitErrorMessageAction)->handle($throwable));
+                        $action->failureNotificationBody(RedactDemoKitErrorMessageAction::run($throwable));
                         $action->failure();
 
                         return;

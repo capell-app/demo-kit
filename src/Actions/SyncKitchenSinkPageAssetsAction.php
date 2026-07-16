@@ -8,6 +8,7 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use DateTimeInterface;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class SyncKitchenSinkPageAssetsAction
 {
+    use AsFake;
     use AsObject;
 
     /**

@@ -7,12 +7,14 @@ namespace Capell\DemoKit\Actions;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Illuminate\Support\Facades\Artisan;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
 final class InsertExampleSiteDataAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @param  array<string, mixed>  $data

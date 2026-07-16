@@ -11,6 +11,7 @@ use Capell\DemoKit\Data\DemoProfileData;
 use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class BuildDemoGenerationPlanAction
 {
+    use AsFake;
     use AsObject;
 
     public const int MAX_SITE_COUNT = 25;

@@ -6,6 +6,7 @@ namespace Capell\DemoKit\Actions;
 
 use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class BuildKitchenSinkLayoutWidgetEntriesAction
 {
+    use AsFake;
     use AsObject;
 
     /**

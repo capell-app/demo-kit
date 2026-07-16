@@ -11,10 +11,12 @@ use Capell\Frontend\Facades\Frontend;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildDemoPageContentViewDataAction
 {
+    use AsFake;
     use AsObject;
 
     /**

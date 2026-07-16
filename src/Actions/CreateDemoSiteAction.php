@@ -8,6 +8,7 @@ use Capell\Core\Actions\CreateSiteAction;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Illuminate\Support\Collection;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -16,6 +17,7 @@ use RuntimeException;
  */
 final class CreateDemoSiteAction
 {
+    use AsFake;
     use AsObject;
 
     /**
@@ -32,7 +34,7 @@ final class CreateDemoSiteAction
 
         if ($existingSite instanceof Site && ! HasDemoSiteProvenanceAction::run($existingSite)) {
             if ($adoptExistingSite) {
-                return MarkDemoSiteProvenanceAction::make()->handle($existingSite);
+                return MarkDemoSiteProvenanceAction::run($existingSite);
             }
 
             throw new RuntimeException(sprintf(
@@ -41,13 +43,13 @@ final class CreateDemoSiteAction
             ));
         }
 
-        $site = (new CreateSiteAction)->handle(
+        $site = CreateSiteAction::run(
             $name,
             url: $url,
             language: $language,
             languages: $languages,
         );
 
-        return (new MarkDemoSiteProvenanceAction)->handle($site);
+        return MarkDemoSiteProvenanceAction::run($site);
     }
 }

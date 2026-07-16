@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Actions;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 use Spatie\Permission\Models\Role;
@@ -16,6 +17,7 @@ use Spatie\Permission\Models\Role;
  */
 final class CreateDemoUsersAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(): void

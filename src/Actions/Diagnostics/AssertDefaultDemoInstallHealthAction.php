@@ -17,6 +17,7 @@ use Capell\HtmlCache\Actions\BuildHtmlCacheEligibilityReportAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Facades\Schema;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
@@ -25,6 +26,7 @@ use Throwable;
  */
 final class AssertDefaultDemoInstallHealthAction
 {
+    use AsFake;
     use AsObject;
 
     private const string LAYOUT_BUILDER_ELEMENT_MODEL = Widget::class;

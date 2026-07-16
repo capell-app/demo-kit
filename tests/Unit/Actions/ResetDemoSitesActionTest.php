@@ -12,11 +12,11 @@ use Capell\DemoKit\Actions\MarkDemoSiteProvenanceAction;
 use Capell\DemoKit\Actions\ResetDemoSitesAction;
 
 it('deletes only named sites carrying demo kit provenance during reset', function (): void {
-    $demoSite = (new MarkDemoSiteProvenanceAction)->handle(
+    $demoSite = MarkDemoSiteProvenanceAction::run(
         Site::factory()->create(['name' => 'Harbour Digital']),
     );
     $unmarkedNamedSite = Site::factory()->create(['name' => 'Summit Works']);
-    $unrequestedDemoSite = (new MarkDemoSiteProvenanceAction)->handle(
+    $unrequestedDemoSite = MarkDemoSiteProvenanceAction::run(
         Site::factory()->create(['name' => 'Demo Reference']),
     );
 
