@@ -12,7 +12,9 @@ it('refuses to mint known-credential demo users in production', function (): voi
     app()->detectEnvironment(static fn (): string => 'production');
 
     try {
-        expect(fn (): null => CreateDemoUsersAction::run())
+        expect(function (): void {
+            CreateDemoUsersAction::run();
+        })
             ->toThrow(
                 RuntimeException::class,
                 'Refusing to create known-credential demo users outside the local or testing environment.',
