@@ -19,8 +19,7 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Support\Creator\PageCreator;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
 use Capell\FoundationTheme\View\Components\Footer\LatestPages;
-use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Support\CapellFrontendContext;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
@@ -654,17 +653,14 @@ function kitchenSinkBindFrontendContext(Page $page): void
             ->setEffectiveUrl($page->pageUrl->url);
     }
 
-    Frontend::clearResolvedInstance(CapellFrontendContext::class);
     app()->instance(
-        CapellFrontendContext::class,
-        new CapellFrontendContext(
-            (new FrontendState)
-                ->withSite($site)
-                ->withLanguage($language)
-                ->withPage($page)
-                ->withLayout($layout)
-                ->withTheme($theme),
-        ),
+        FrontendContextReader::class,
+        (new FrontendState)
+            ->withSite($site)
+            ->withLanguage($language)
+            ->withPage($page)
+            ->withLayout($layout)
+            ->withTheme($theme),
     );
 }
 
