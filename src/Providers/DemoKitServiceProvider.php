@@ -6,6 +6,7 @@ namespace Capell\DemoKit\Providers;
 
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Data\RenderableDefinitionData;
@@ -59,6 +60,8 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
+        parent::registeringPackage();
+
         if (CapellCore::hasPackage(self::$packageName)) {
             $package = CapellCore::getPackage(self::$packageName);
             $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
@@ -72,13 +75,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
-        $this->registerLivewireComponents();
+        $this->registerPackageLivewireComponents();
         $this->registerTailwindSources();
         $this->registerRenderables();
         $this->registerAdminPanelExtensions();
     }
 
-    private function registerLivewireComponents(): void
+    private function registerPackageLivewireComponents(): void
     {
         Livewire::component('capell-demo-kit.resources-library', ResourcesLibrary::class);
         Livewire::component('capell-demo-kit.kitchen-sink-stress-widget', KitchenSinkStressWidget::class);
@@ -127,6 +130,23 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminPanelExtensions(): void
     {
+        if (config('capell-demo-kit.presentation_mode', true)) {
+            config()->set('capell-welcome-tour.presentation_mode', true);
+
+            CapellAdmin::registerWelcomeTourStep(
+                key: 'capell-demo-kit.extensions',
+                title: fn (): string => __('capell-demo-kit::page.tour_extensions_title'),
+                description: fn (): string => __('capell-demo-kit::page.tour_extensions_description'),
+                element: '.fi-ta, .fi-resource-table, table',
+                icon: 'heroicon-o-squares-plus',
+                iconColor: 'info',
+                sort: 65,
+                visible: fn (): bool => ExtensionsPage::canAccess(),
+                chapter: 'extensions',
+                route: '/admin/extensions',
+            );
+        }
+
         $this->registerExtensionPageRegistry();
         $this->registerAdminSurfacePage();
         $this->registerConfigurators();

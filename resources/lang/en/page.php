@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'tour_extensions_title' => 'Extensions',
+    'tour_extensions_description' => 'Capell grows with your site. Add focused capabilities such as a shop, blog, or forms from the extension marketplace.',
     'navigation_label' => 'Demo Kit',
     'kitchen_sink_stress' => [
         'description' => 'This section exercises a public interactive component with local state, loading feedback, and enough surrounding content to catch repeated rendering issues.',
