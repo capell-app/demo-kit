@@ -129,6 +129,8 @@
             "reset",
             "skip-demo-users",
             "allow-production",
+            "adopt-existing-site",
+            "skip-package-demos",
             "force"
         ],
         "doctor": "capell:demo-kit-doctor"
@@ -152,12 +154,14 @@
             "throttledRoutes": []
         },
         "sensitiveData": {
-            "encryptedFields": [],
+            "encryptedFields": [
+                "Capell\\DemoKit\\Models\\DemoKitGenerationRun::$parameters"
+            ],
             "hashedTokenFields": [],
             "redactedOutputClasses": [
                 "Capell\\DemoKit\\Actions\\RedactDemoKitErrorMessageAction",
                 "Capell\\DemoKit\\Console\\Commands\\AdminDemoCommand",
-                "Capell\\DemoKit\\Filament\\Pages\\DemoKitPage"
+                "Capell\\DemoKit\\Jobs\\RunDemoKitGenerationJob"
             ],
             "plaintextJustifications": []
         },

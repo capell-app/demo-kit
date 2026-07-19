@@ -32,6 +32,8 @@ describe('demo kit capell.json manifest', function (): void {
                 'reset',
                 'skip-demo-users',
                 'allow-production',
+                'adopt-existing-site',
+                'skip-package-demos',
                 'force',
             ]);
     });

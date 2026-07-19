@@ -6,7 +6,6 @@ namespace Capell\DemoKit\Providers;
 
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Data\RenderableDefinitionData;
@@ -46,6 +45,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     {
         $package->name(self::$name)
             ->hasConfigFile('capell-demo-kit')
+            ->hasMigration('2026_07_19_130000_create_demo_kit_generation_runs_table')
             ->hasViews(self::$name)
             ->hasTranslations()
             ->hasCommands([
@@ -66,7 +66,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $package = CapellCore::getPackage(self::$packageName);
             $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
             $package->demoCommand = 'capell:demo-kit-full-demo';
-            $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
+            $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'adopt-existing-site', 'skip-package-demos', 'force'];
         }
 
         $this->registerAdminPanelExtensions();
@@ -133,18 +133,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
         if (config('capell-demo-kit.presentation_mode', true)) {
             config()->set('capell-welcome-tour.presentation_mode', true);
 
-            CapellAdmin::registerWelcomeTourStep(
-                key: 'capell-demo-kit.extensions',
-                title: fn (): string => __('capell-demo-kit::page.tour_extensions_title'),
-                description: fn (): string => __('capell-demo-kit::page.tour_extensions_description'),
-                element: '.fi-ta, .fi-resource-table, table',
-                icon: 'heroicon-o-squares-plus',
-                iconColor: 'info',
-                sort: 65,
-                visible: fn (): bool => ExtensionsPage::canAccess(),
-                chapter: 'extensions',
-                route: '/admin/extensions',
-            );
         }
 
         $this->registerExtensionPageRegistry();

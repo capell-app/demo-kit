@@ -3,6 +3,12 @@
 declare(strict_types=1);
 
 return [
+    'generation_status' => [
+        'queued' => 'Example site data generation is queued.',
+        'running' => 'Example site data generation is running.',
+        'succeeded' => 'Example site data generation completed successfully.',
+        'failed' => 'Example site data generation failed.',
+    ],
     'tour_extensions_title' => 'Extensions',
     'tour_extensions_description' => 'Capell grows with your site. Add focused capabilities such as a shop, blog, or forms from the extension marketplace.',
     'navigation_label' => 'Demo Kit',

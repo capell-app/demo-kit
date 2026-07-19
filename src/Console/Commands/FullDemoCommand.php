@@ -32,6 +32,7 @@ final class FullDemoCommand extends Command
         {--quick}
         {--reset}
         {--adopt-existing-site}
+        {--skip-package-demos}
         {--skip-demo-users}
         {--allow-production}
         {--force}';
@@ -137,7 +138,9 @@ final class FullDemoCommand extends Command
             return $adminDemoExitCode;
         }
 
-        $packageNames = $this->demoPackageNames();
+        $packageNames = $this->option('skip-package-demos') === true
+            ? []
+            : $this->demoPackageNames();
 
         if ($packageNames !== []) {
             $packageDemoParams = [
