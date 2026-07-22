@@ -4,7 +4,7 @@
 
 ## What This Plugin Adds
 
-Demo Kit is an **Available**, **No schema impact** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
+Demo Kit is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
 
 Demo Kit creates deterministic demo users, sites, languages, pages, media, and package examples from a repeatable generation plan.
 
@@ -46,10 +46,13 @@ Screenshot contract: `docs/screenshots.json`.
 
 - Service providers: `Capell\DemoKit\Providers\DemoKitServiceProvider`.
 - Config files: `packages/demo-kit/config/capell-demo-kit.php`.
+- Migrations: `packages/demo-kit/database/migrations/2026_07_19_130000_create_demo_kit_generation_runs_table.php`.
+- Models: `DemoKitGenerationRun`.
 - Filament classes: `HomepageSectionWidgetConfigurator`, `DemoKitPage`.
 - Livewire components: `KitchenSinkStressWidget`, `ResourcesLibrary`.
-- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `BuildKitchenSinkLayoutWidgetEntriesAction`, `ConfigureKitchenSinkReferenceWidgetsAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `CreateKitchenSinkContextPagesAction`, `CreateKitchenSinkSourceWidgetsAction`, `CreateKitchenSinkVariantWidgetsAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `and 9 more`.
+- Actions: `BuildDemoGenerationPlanAction`, `BuildDemoPageContentViewDataAction`, `BuildKitchenSinkLayoutWidgetEntriesAction`, `ConfigureKitchenSinkReferenceWidgetsAction`, `CreateDemoLanguagesAction`, `CreateDemoSiteAction`, `CreateDemoUsersAction`, `CreateKitchenSinkContextPagesAction`, `CreateKitchenSinkSourceWidgetsAction`, `CreateKitchenSinkVariantWidgetsAction`, `AssertDefaultDemoInstallHealthAction`, `DemoInstallHealthData`, `and 10 more`.
 - Data objects: `DemoGenerationPlanData`, `DemoPageContentViewData`, `DemoPagePlanData`, `DemoProfileData`, `DemoSiteGenerationPlanData`.
+- Jobs: `RunDemoKitGenerationJob`.
 - Command signatures: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 - Console command classes: `AdminDemoCommand`, `GuardsAgainstProduction`, `HasLanguagesOption`, `HasSitesOption`, `DemoCommand`, `DemoKitDoctorCommand`, `FullDemoCommand`, `KitchenSinkDemoCommand`, `RefreshDemoStitchPagesCommand`.
 - Manifest contributions: `admin-page: Capell\DemoKit\Manifest\DemoKitAdminPageContribution`, `asset: Capell\DemoKit\Manifest\DemoKitAssetsContribution`, `configurator: Capell\DemoKit\Manifest\DemoKitConfiguratorContribution`, `console-command: Capell\DemoKit\Manifest\DemoKitConsoleCommandsContribution`, `dashboard-widget: Capell\DemoKit\Manifest\DemoKitRenderablesContribution`, `frontend-component: Capell\DemoKit\Manifest\DemoKitFrontendComponentsContribution`, `health-check: Capell\DemoKit\Health\DemoKitHealthCheck`.
@@ -59,7 +62,10 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Data Model
 
-This package has no schema impact. It extends Capell through `admin-page` contributions, `asset` contributions, `configurator` contributions, `console-command` contributions, `dashboard-widget` contributions, `frontend-component` contributions, and `health-check` contributions instead of declaring package-owned tables.
+- Models: `DemoKitGenerationRun`.
+- Migration files: `2026_07_19_130000_create_demo_kit_generation_runs_table.php`.
+- Migration impact: run host migrations through the package install flow before opening package surfaces.
+- Deletion/retention behaviour: Docs gap: migrations and manifest contributions do not prove a cascade, pruning command, or timed retention policy.
 
 ## Install Impact
 
@@ -68,10 +74,10 @@ This package has no schema impact. It extends Capell through `admin-page` contri
 - Admin/editor extensions: `configurator: DemoKitConfiguratorContribution`, `dashboard-widget: DemoKitRenderablesContribution`.
 - Permissions: none declared in `capell.json`.
 - Public routes: none declared.
-- Database changes: no package migrations declared.
+- Database changes: migration files exist in the scaffold, but `capell.json` does not currently declare active migrations.
 - Config: `config/capell-demo-kit.php`.
 - Settings: no package settings declared.
-- Queues or schedules: none declared.
+- Queues or schedules: queue jobs `RunDemoKitGenerationJob`.
 - Cache tags: `demo-kit`.
 - Commands: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
 
@@ -87,12 +93,14 @@ This package has no schema impact. It extends Capell through `admin-page` contri
 | Symptom | Likely cause | Check | Fix |
 | --- | --- | --- | --- |
 | Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
+| Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
+| Background work does not run | Queue worker or declared schedule is not active | Check the jobs and scheduled commands listed in `Technical Shape` | Start the queue worker or host scheduler, then run the focused command or package test |
 | Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
 
 ## Quick Start
 
 1. Install the package: `composer require capell-app/demo-kit`.
-2. Review `config/capell-demo-kit.php` before enabling the package.
+2. Run the required setup: `php artisan migrate`.
 3. Open the Demo Kit admin page and confirm the admin workflow loads.
 
 ## Next Steps

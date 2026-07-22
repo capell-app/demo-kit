@@ -16,11 +16,14 @@ it('registers demo kit views as frontend tailwind sources', function (): void {
         ->all())->toContain('resources/views/**/*.blade.php');
 });
 
-it('enables session presentation mode without changing the seven chapter tour', function (): void {
+it('enables session presentation mode and contributes the optional extensions chapter', function (): void {
     Gate::before(fn (): bool => true);
     test()->actingAs(User::factory()->create());
 
+    $step = collect(CapellAdmin::getWelcomeTourSteps())->firstWhere('key', 'capell-demo-kit.extensions');
+
     expect(config('capell-welcome-tour.presentation_mode'))->toBeTrue()
-        ->and(collect(CapellAdmin::getWelcomeTourSteps())->pluck('chapter')->unique()->values()->all())
-        ->not->toContain('extensions');
+        ->and($step)->not->toBeNull()
+        ->and(data_get($step, 'chapter'))->toBe('extensions')
+        ->and(data_get($step, 'route'))->toBe('/admin/extensions');
 });
