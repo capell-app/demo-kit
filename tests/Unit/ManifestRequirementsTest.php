@@ -46,6 +46,22 @@ describe('demo kit capell.json manifest', function (): void {
             ->and($registeredPackage->demoParams)->toBe($manifest['commands']['demoParams']);
     });
 
+    it('declares its registered package migration and owned table', function () use ($demoKitManifest): void {
+        $manifest = $demoKitManifest();
+        $migrationFiles = glob(__DIR__ . '/../../database/migrations/*.php') ?: [];
+
+        expect(data_get($manifest, 'database.migrations'))->toBeTrue()
+            ->and(data_get($manifest, 'database.requiredTables'))->toBe([
+                'capell_demo_kit_generation_runs',
+            ])
+            ->and(array_map(
+                static fn (string $path): string => pathinfo($path, PATHINFO_FILENAME),
+                $migrationFiles,
+            ))->toBe([
+                '2026_07_19_130000_create_demo_kit_generation_runs_table',
+            ]);
+    });
+
     it('keeps the showcase frontend output cacheable with invalidation metadata', function () use ($demoKitManifest): void {
         // Demo Kit's public showcase output is cache-safe, so it must not veto
         // the origin HTML cache. The cacheable flag has to agree with the

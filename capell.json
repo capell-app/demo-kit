@@ -107,9 +107,9 @@
         }
     ],
     "database": {
-        "migrations": false,
+        "migrations": true,
         "settings": false,
-        "requiredTables": []
+        "requiredTables": ["capell_demo_kit_generation_runs"]
     },
     "commands": {
         "install": null,

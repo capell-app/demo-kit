@@ -138,7 +138,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 key: 'capell-demo-kit.extensions',
                 title: fn (): string => __('capell-demo-kit::page.tour_extensions_title'),
                 description: fn (): string => __('capell-demo-kit::page.tour_extensions_description'),
-                element: '.fi-ta, .fi-resource-table, table',
+                element: '[data-tour-id="welcome-tour-extensions"]',
                 icon: 'heroicon-o-squares-plus',
                 iconColor: 'info',
                 sort: 65,
