@@ -462,10 +462,8 @@ it('can edit every demo kit creator widget through Filament without losing creat
         try {
             $component = Livewire::test(EditWidget::class, ['record' => $widget->getRouteKey()])
                 ->assertSuccessful()
-                ->fillForm([
-                    'name' => $editedName,
-                    'status' => (bool) $widget->status,
-                ]);
+                ->set('data.name', $editedName)
+                ->set('data.status', (bool) $widget->status);
 
             if ($existingTranslation instanceof Translation) {
                 $component

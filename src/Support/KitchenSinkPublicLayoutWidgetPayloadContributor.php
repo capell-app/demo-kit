@@ -8,9 +8,9 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Security\PublicHtmlSanitizer;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
+use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -194,7 +194,7 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         $stressIndex = $this->stressIndex($widget);
 
         if ($stressIndex > $this->eagerWidgetLimit()) {
-            return $this->deferredFragmentPlaceholder($widget, $page, $language, $containerKey, $occurrence, $stressIndex);
+            return $this->deferredFragmentPlaceholder($widget, $page, $containerKey, $occurrence, $stressIndex);
         }
 
         $html = $this->html($widget, $page, $language, $containerKey, $occurrence);
@@ -216,24 +216,18 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
     private function deferredFragmentPlaceholder(
         Widget $widget,
         Page $page,
-        Language $language,
         string $containerKey,
         int $occurrence,
         int $stressIndex,
-    ): string {
+    ): ?string {
         $layout = $page->relationLoaded('layout') ? $page->getRelation('layout') : null;
         $layoutId = $layout instanceof Model ? $layout->getKey() : $page->getAttribute('layout_id');
-        $reference = OpaqueWidgetReference::encode([
-            'container_key' => $containerKey,
-            'widget_key' => $widget->key,
-            'layout_id' => $layoutId,
-            'language_id' => $language->getKey(),
-            'occurrence' => $occurrence,
-            'page_id' => $page->getKey(),
-            'page_type' => $page->getMorphClass(),
-            'site_id' => $page->getAttribute('site_id'),
-            'widget_index' => $stressIndex - 1,
-        ]);
+        $reference = BuildLayoutBuilderFragmentReferenceAction::run($containerKey, $occurrence, $widget);
+
+        if (! is_string($reference) || $reference === '') {
+            return null;
+        }
+
         $widgetDomId = 'layout-widget-' . hash('xxh128', (string) $layoutId . ':' . $containerKey . ':' . (string) ($stressIndex - 1));
 
         return '<div id="' . e($widgetDomId) . '" data-deferred-fragment data-deferred-fragment-url="'

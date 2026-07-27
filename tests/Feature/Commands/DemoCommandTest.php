@@ -192,6 +192,11 @@ it('runs demo commands in package workflow order', function (): void {
     CapellCore::registerPackage(name: 'capell-app/form-builder');
     CapellCore::registerPackage(name: DemoKitServiceProvider::$packageName);
 
+    foreach (['capell-app/worktree', 'capell-app/blog', 'capell-app/form-builder'] as $packageName) {
+        CapellCore::getPackage($packageName)->requirements = [];
+        CapellCore::getPackage($packageName)->supportingPackages = ['vendor/not-registered'];
+    }
+
     CapellCore::getPackage('capell-app/worktree')->demoCommand = 'worktree:demo';
     CapellCore::getPackage('capell-app/worktree')->sort = 1;
     CapellCore::getPackage('capell-app/blog')->demoCommand = 'blog:demo';

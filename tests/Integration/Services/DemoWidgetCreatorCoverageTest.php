@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Actions\Content\ExtractTextContentAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
@@ -75,17 +76,17 @@ it('creates standard content widgets with translated portable content', function
 
     $contentWidget = $creator->createContentWidget($site->languages);
     $splitWidget = $creator->createSplitContentWidget($site->languages);
-    $contentWidgetContent = (string) $contentWidget->translations()->first()?->content;
-    $splitWidgetContent = (string) $splitWidget->translations()->first()?->content;
+    $contentWidgetContent = $contentWidget->translations()->first()?->content;
+    $splitWidgetContent = $splitWidget->translations()->first()?->content;
 
     expect($contentWidget)->toBeInstanceOf(Widget::class)
         ->and($contentWidget->key)->toBe('example-content')
         ->and($contentWidget->translations)->toHaveCount(1)
-        ->and($contentWidgetContent)->toContain('<p>')
-        ->and(strip_tags($contentWidgetContent))->not->toBe('')
+        ->and($contentWidgetContent)->toBeArray()
+        ->and(ExtractTextContentAction::run($contentWidgetContent))->not->toBe('')
         ->and($splitWidget->key)->toBe('example-split-content')
-        ->and($splitWidgetContent)->toContain('<p>')
-        ->and(strip_tags($splitWidgetContent))->not->toBe('');
+        ->and($splitWidgetContent)->toBeArray()
+        ->and(ExtractTextContentAction::run($splitWidgetContent))->not->toBe('');
 });
 
 it('creates asset backed standard demo widgets idempotently', function (): void {
