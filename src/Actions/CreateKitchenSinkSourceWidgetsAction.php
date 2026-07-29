@@ -76,7 +76,7 @@ final class CreateKitchenSinkSourceWidgetsAction
                 );
             }
 
-            if (is_string($source['image'] ?? null)) {
+            if (is_string($source['image'])) {
                 $this->ensureDemoMedia($widget, $source['image']);
             }
         }
