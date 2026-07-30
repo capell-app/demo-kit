@@ -3,9 +3,7 @@
     class="capell-kitchen-sink-livewire grid gap-5 border-y border-slate-200 bg-white px-5 py-8 text-slate-950 md:px-8 dark:border-white/10 dark:bg-slate-950 dark:text-white"
 >
     <div class="grid gap-3">
-        <p
-            class="text-xs font-extrabold tracking-[0.12em] text-teal-700 uppercase dark:text-teal-300"
-        >
+        <p class="text-xs font-extrabold tracking-[0.12em] text-teal-700 uppercase dark:text-teal-300">
             {{ __('capell-demo-kit::page.kitchen_sink_stress.eyebrow') }}
         </p>
         <h2
@@ -13,9 +11,7 @@
         >
             {{ __('capell-demo-kit::page.kitchen_sink_stress.heading') }}
         </h2>
-        <p
-            class="max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-300"
-        >
+        <p class="max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-300">
             {{ __('capell-demo-kit::page.kitchen_sink_stress.description') }}
         </p>
     </div>

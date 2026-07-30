@@ -10,7 +10,7 @@
                 <button
                     type="button"
                     wire:click="selectFilter('{{ $filter }}')"
-                    @class ([
+                    @class([
                         'rounded-lg border px-4 py-2 text-sm font-extrabold transition',
                         'border-[#0f766e] bg-[#0f766e] text-white' => $activeFilter === $filter,
                         'border-slate-200 bg-white text-slate-950 hover:border-[#0f766e]' => $activeFilter !== $filter,
@@ -40,16 +40,10 @@
                 >
                     {{ $item['title'] }}
                 </h3>
-                <p
-                    class="text-base leading-7 text-pretty text-slate-600 dark:text-slate-300"
-                >
-                    {{ $item['copy'] }}
-                </p>
+                <p class="text-base leading-7 text-pretty text-slate-600 dark:text-slate-300">{{ $item['copy'] }}</p>
             </article>
         @empty
-            <p
-                class="rounded-lg border border-slate-200 bg-white p-5 text-base font-bold text-slate-600"
-            >No resources found.</p>
+            <p class="rounded-lg border border-slate-200 bg-white p-5 text-base font-bold text-slate-600">No resources found.</p>
         @endforelse
     </div>
 

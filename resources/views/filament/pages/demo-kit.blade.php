@@ -12,9 +12,7 @@
                     </p>
 
                     @if ($generationError !== null)
-                        <p class="text-danger-600 dark:text-danger-400">
-                            {{ $generationError }}
-                        </p>
+                        <p class="text-danger-600 dark:text-danger-400">{{ $generationError }}</p>
                     @endif
                 </div>
             </x-filament::section>
@@ -26,9 +24,7 @@
             {{ __('capell-demo-kit::page.section_heading') }}
         </x-slot>
 
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ __('capell-demo-kit::page.section_description') }}
-        </p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('capell-demo-kit::page.section_description') }}</p>
     </x-filament::section>
 
     <x-filament-actions::modals />

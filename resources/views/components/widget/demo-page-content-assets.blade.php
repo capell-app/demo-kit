@@ -1,4 +1,4 @@
-@props ([
+@props([
     'sections',
     'sectionClass',
     'splitSectionClass',
@@ -100,9 +100,7 @@
                             >
                                 {{ $step['title'] }}
                             </strong>
-                            <p class="text-sm leading-6 text-slate-600">
-                                {{ $step['copy'] }}
-                            </p>
+                            <p class="text-sm leading-6 text-slate-600">{{ $step['copy'] }}</p>
                         </li>
                     @endforeach
                 </ol>
@@ -121,7 +119,7 @@
             <div class="capell-demo-pricing-grid {{ $carouselClass }}">
                 @foreach ($items as $item)
                     <article
-                        @class ([$carouselItemClass, $cardClass, 'min-h-72', 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $loop->iteration === 2])
+                        @class([$carouselItemClass, $cardClass, 'min-h-72', 'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $loop->iteration === 2])
                     >
                         <span
                             class="{{ $loop->iteration === 2 ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
@@ -152,9 +150,7 @@
                             <h3 class="mt-3 text-xl leading-tight font-black">
                                 {{ $step['title'] }}
                             </h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-200">
-                                {{ $step['copy'] }}
-                            </p>
+                            <p class="mt-2 text-sm leading-6 text-slate-200">{{ $step['copy'] }}</p>
                         </article>
                     @endforeach
                 </div>
@@ -171,7 +167,7 @@
             </div>
 
             @if (($items[0] ?? null) !== null)
-                @php ($featured = $items[0])
+                @php($featured = $items[0])
                 <article
                     class="grid gap-6 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-end md:p-8"
                 >
@@ -184,9 +180,7 @@
                         >
                             {{ $featured['title'] }}
                         </h3>
-                        <p class="mt-4 text-base leading-7 text-slate-600">
-                            {{ $featured['copy'] }}
-                        </p>
+                        <p class="mt-4 text-base leading-7 text-slate-600">{{ $featured['copy'] }}</p>
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
@@ -229,9 +223,9 @@
                             <h3 class="{{ $cardTitleClass }}">
                                 {{ $item['title'] }}
                             </h3>
-                            <p class="{{ $cardCopyClass }} mt-2">
-                                {{ $item['copy'] }}
-                            </p>
+                            <p
+                                class="{{ $cardCopyClass }} mt-2"
+                            >{{ $item['copy'] }}</p>
                         </div>
                     </article>
                 @endforeach
@@ -258,9 +252,7 @@
                         >
                             {{ $item['title'] }}
                         </summary>
-                        <p class="mt-3 text-base leading-7 text-slate-600">
-                            {{ $item['copy'] }}
-                        </p>
+                        <p class="mt-3 text-base leading-7 text-slate-600">{{ $item['copy'] }}</p>
                     </details>
                 @endforeach
             </div>
@@ -279,9 +271,7 @@
                 >
                     {{ $section['title'] }}
                 </h2>
-                <p
-                    class="max-w-2xl text-base leading-8 text-pretty text-slate-600 md:text-lg"
-                >
+                <p class="max-w-2xl text-base leading-8 text-pretty text-slate-600 md:text-lg">
                     {{ $section['intro'] }}
                 </p>
                 @if (($cta['label'] ?? '') !== '' && ($cta['href'] ?? '') !== '')

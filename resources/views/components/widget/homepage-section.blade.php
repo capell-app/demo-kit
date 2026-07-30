@@ -1,4 +1,4 @@
-@props ([
+@props([
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -46,36 +46,22 @@
                 background-color: rgb(2 6 23);
             }
 
-            .dark
-                .capell-widget-homepage-section
-                :where(article, div, a, button)[class*='bg-white'],
-            .dark
-                .capell-widget-homepage-section
-                :where(article, div, a, button)[class*='bg-slate-50'] {
+            .dark .capell-widget-homepage-section :where(article, div, a, button)[class*='bg-white'],
+            .dark .capell-widget-homepage-section :where(article, div, a, button)[class*='bg-slate-50'] {
                 background-color: rgb(15 23 42 / 0.84);
             }
 
-            .dark
-                .capell-widget-homepage-section
-                :where(article, div, a, button)[class*='border-slate'],
-            .dark
-                .capell-widget-homepage-section
-                :where(article, div, a, button)[class*='border-[#'] {
+            .dark .capell-widget-homepage-section :where(article, div, a, button)[class*='border-slate'],
+            .dark .capell-widget-homepage-section :where(article, div, a, button)[class*='border-[#'] {
                 border-color: rgb(255 255 255 / 0.12);
             }
 
-            .dark
-                .capell-widget-homepage-section
-                :where(h2, h3, p, span, a, button)[class*='text-slate-950'],
-            .dark
-                .capell-widget-homepage-section
-                :where(h2, h3, p, span, a, button)[class*='text-[#1a1c1b]'] {
+            .dark .capell-widget-homepage-section :where(h2, h3, p, span, a, button)[class*='text-slate-950'],
+            .dark .capell-widget-homepage-section :where(h2, h3, p, span, a, button)[class*='text-[#1a1c1b]'] {
                 color: rgb(248 250 252);
             }
 
-            .dark
-                .capell-widget-homepage-section
-                :where(p, span)[class*='text-slate-600'] {
+            .dark .capell-widget-homepage-section :where(p, span)[class*='text-slate-600'] {
                 color: rgb(203 213 225);
             }
 
@@ -99,172 +85,136 @@
 
             .capell-home-hero-highlight {
                 border-color: #b7c8d9;
-                border-color: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 28%,
-                    transparent
-                );
+                border-color: color-mix(in srgb, var(--theme-primary, #315f8f) 28%, transparent);
                 background: #e8eff6;
-                background: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 12%,
-                    var(--theme-surface, #ffffff)
-                );
+                background: color-mix(in srgb, var(--theme-primary, #315f8f) 12%, var(--theme-surface, #ffffff));
                 color: #24496f;
-                color: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 78%,
-                    var(--theme-foreground, #1a1c1b)
-                );
+                color: color-mix(in srgb, var(--theme-primary, #315f8f) 78%, var(--theme-foreground, #1a1c1b));
             }
 
             .dark .capell-home-hero-highlight {
                 border-color: #7895b3;
-                border-color: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 52%,
-                    #ffffff
-                );
+                border-color: color-mix(in srgb, var(--theme-primary, #315f8f) 52%, #ffffff);
                 background: #172a3d;
-                background: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 32%,
-                    var(--theme-surface, #020617)
-                );
+                background: color-mix(in srgb, var(--theme-primary, #315f8f) 32%, var(--theme-surface, #020617));
                 color: #e7f0f8;
-                color: color-mix(
-                    in srgb,
-                    var(--theme-primary, #315f8f) 30%,
-                    #ffffff
-                );
+                color: color-mix(in srgb, var(--theme-primary, #315f8f) 30%, #ffffff);
             }
 
             .capell-home-hero-carousel {
                 --swiper-pagination-bullet-horizontal-gap: 0.2rem;
             }
+            @property
+            --capell-home-hero-progress {
+                           syntax: '<angle>';
+                           inherits: false;
+                           initial-value: 0deg;
+                       }
+            @keyframes
+            capellHomeHeroProgress {
+                           from {
+                               --capell-home-hero-progress: 0deg;
+                           }
 
-            @property --capell-home-hero-progress {
-                syntax: '<angle>';
-                inherits: false;
-                initial-value: 0deg;
-            }
+                           to {
+                               --capell-home-hero-progress: 360deg;
+                           }
+                       }
 
-            @keyframes capellHomeHeroProgress {
-                from {
-                    --capell-home-hero-progress: 0deg;
-                }
+                       .capell-home-hero-carousel .swiper-slide {
+                           height: auto;
+                       }
 
-                to {
-                    --capell-home-hero-progress: 360deg;
-                }
-            }
+                       .capell-home-hero-carousel-image {
+                           border: 0;
+                           border-radius: 0;
+                           height: 16rem;
+                           object-fit: cover;
+                           width: 100%;
+                       }
 
-            .capell-home-hero-carousel .swiper-slide {
-                height: auto;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination {
+                           align-items: center;
+                           display: flex;
+                           gap: 0.45rem;
+                           justify-content: center;
+                           position: static;
+                       }
 
-            .capell-home-hero-carousel-image {
-                border: 0;
-                border-radius: 0;
-                height: 16rem;
-                object-fit: cover;
-                width: 100%;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet {
+                           background: transparent;
+                           border: 0;
+                           border-radius: 999px;
+                           box-shadow: inset 0 0 0 1px #9aa6b5;
+                           cursor: pointer;
+                           height: 1rem;
+                           margin: 0;
+                           opacity: 1;
+                           padding: 0;
+                           position: relative;
+                           transition: box-shadow 160ms ease;
+                           width: 1rem;
+                       }
 
-            .capell-home-hero-carousel-controls .swiper-pagination {
-                align-items: center;
-                display: flex;
-                gap: 0.45rem;
-                justify-content: center;
-                position: static;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet::before {
+                           background: conic-gradient(
+                               rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
+                               rgb(154 166 181 / 0.12) 0
+                           );
+                           border-radius: inherit;
+                           content: '';
+                           inset: -0.2rem;
+                           opacity: 0;
+                           position: absolute;
+                       }
 
-            .capell-home-hero-carousel-controls .swiper-pagination-bullet {
-                background: transparent;
-                border: 0;
-                border-radius: 999px;
-                box-shadow: inset 0 0 0 1px #9aa6b5;
-                cursor: pointer;
-                height: 1rem;
-                margin: 0;
-                opacity: 1;
-                padding: 0;
-                position: relative;
-                transition: box-shadow 160ms ease;
-                width: 1rem;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet::after {
+                           background: #9aa6b5;
+                           border-radius: inherit;
+                           content: '';
+                           inset: 0.34rem;
+                           position: absolute;
+                       }
 
-            .capell-home-hero-carousel-controls
-                .swiper-pagination-bullet::before {
-                background: conic-gradient(
-                    rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
-                    rgb(154 166 181 / 0.12) 0
-                );
-                border-radius: inherit;
-                content: '';
-                inset: -0.2rem;
-                opacity: 0;
-                position: absolute;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet-active {
+                           box-shadow: inset 0 0 0 1px #315f8f;
+                       }
 
-            .capell-home-hero-carousel-controls
-                .swiper-pagination-bullet::after {
-                background: #9aa6b5;
-                border-radius: inherit;
-                content: '';
-                inset: 0.34rem;
-                position: absolute;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet-active::before {
+                           animation: capellHomeHeroProgress 4200ms linear forwards;
+                           background: conic-gradient(
+                               rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
+                               rgb(154 166 181 / 0.12) 0
+                           );
+                           opacity: 0.55;
+                       }
 
-            .capell-home-hero-carousel-controls
-                .swiper-pagination-bullet-active {
-                box-shadow: inset 0 0 0 1px #315f8f;
-            }
+                       .capell-home-hero-carousel-controls .swiper-pagination-bullet-active::after {
+                           background: #315f8f;
+                       }
+            @media(prefers-reduced-motion: reduce)
+            {
+                           .capell-home-hero-carousel-controls .swiper-pagination-bullet-active::before {
+                               animation: none;
+                               background: conic-gradient(rgb(49 95 143 / 0.38) 360deg, rgb(154 166 181 / 0.12) 0);
+                           }
+                       }
+            @media(min-width: 1024px)
+            {
+                           .capell-home-hero-grid {
+                               align-items: center;
+                               grid-template-columns: minmax(0, 0.82fr) minmax(30rem, 1.18fr);
+                               padding-widget: 3.5rem 4rem;
+                           }
 
-            .capell-home-hero-carousel-controls
-                .swiper-pagination-bullet-active::before {
-                animation: capellHomeHeroProgress 4200ms linear forwards;
-                background: conic-gradient(
-                    rgb(49 95 143 / 0.38) var(--capell-home-hero-progress),
-                    rgb(154 166 181 / 0.12) 0
-                );
-                opacity: 0.55;
-            }
+                           .capell-home-hero-title {
+                               max-width: 19ch;
+                           }
 
-            .capell-home-hero-carousel-controls
-                .swiper-pagination-bullet-active::after {
-                background: #315f8f;
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                .capell-home-hero-carousel-controls
-                    .swiper-pagination-bullet-active::before {
-                    animation: none;
-                    background: conic-gradient(
-                        rgb(49 95 143 / 0.38) 360deg,
-                        rgb(154 166 181 / 0.12) 0
-                    );
-                }
-            }
-
-            @media (min-width: 1024px) {
-                .capell-home-hero-grid {
-                    align-items: center;
-                    grid-template-columns: minmax(0, 0.82fr) minmax(
-                            30rem,
-                            1.18fr
-                        );
-                    padding-widget: 3.5rem 4rem;
-                }
-
-                .capell-home-hero-title {
-                    max-width: 19ch;
-                }
-
-                .capell-home-hero-carousel-image {
-                    height: 20rem;
-                }
-            }
+                           .capell-home-hero-carousel-image {
+                               height: 20rem;
+                           }
+                       }
         </style>
     @endonce
 
@@ -289,9 +239,7 @@
 
             <div class="capell-home-hero-grid relative z-10">
                 <section class="capell-home-hero-copy grid gap-6">
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h1
@@ -299,9 +247,7 @@
                     >
                         {{ $homepageText('heading') }}
                     </h1>
-                    <p class="max-w-2xl text-lg leading-8 text-[#444650]">
-                        {{ $homepageText('copy') }}
-                    </p>
+                    <p class="max-w-2xl text-lg leading-8 text-[#444650]">{{ $homepageText('copy') }}</p>
                     @if ($heroHighlights !== [])
                         <ul class="flex max-w-2xl flex-wrap gap-2">
                             @foreach ($heroHighlights as $highlight)
@@ -417,9 +363,7 @@
         @case ('capell-home-demo-showcase')
             <div class="grid gap-6 py-10 md:py-14">
                 <div class="max-w-3xl">
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
@@ -427,9 +371,7 @@
                     >
                         {{ $homepageText('heading') }}
                     </h2>
-                    <p class="mt-4 text-lg leading-8 text-slate-600">
-                        {{ $homepageText('copy') }}
-                    </p>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">{{ $homepageText('copy') }}</p>
                 </div>
                 <div
                     class="overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
@@ -448,9 +390,7 @@
                         <article
                             class="min-w-full snap-start rounded-lg border border-slate-200 bg-white p-5 md:min-w-0 md:p-6"
                         >
-                            <p
-                                class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                            >
+                            <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                                 {{ $card['eyebrow'] ?? '' }}
                             </p>
                             <h3
@@ -459,11 +399,7 @@
                                 {{ $card['title'] ?? '' }}
                             </h3>
                             @if (filled($card['copy'] ?? null))
-                                <p
-                                    class="mt-3 text-base leading-7 text-slate-600"
-                                >
-                                    {{ $card['copy'] }}
-                                </p>
+                                <p class="mt-3 text-base leading-7 text-slate-600">{{ $card['copy'] }}</p>
                             @endif
 
                             @if (is_array($card['badges'] ?? null))
@@ -569,9 +505,7 @@
                     class="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
                 >
                     <div class="max-w-3xl">
-                        <p
-                            class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                        >
+                        <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                             {{ $homepageText('eyebrow') }}
                         </p>
                         <h2
@@ -580,9 +514,7 @@
                         >
                             {{ $homepageText('heading') }}
                         </h2>
-                        <p class="mt-4 text-lg leading-8 text-slate-600">
-                            {{ $homepageText('copy') }}
-                        </p>
+                        <p class="mt-4 text-lg leading-8 text-slate-600">{{ $homepageText('copy') }}</p>
                     </div>
                     <div class="flex gap-2">
                         <button
@@ -640,9 +572,7 @@
                                             >
                                                 {{ $widget['title'] }}
                                             </h3>
-                                            <p
-                                                class="mt-3 text-base leading-7 text-slate-600"
-                                            >
+                                            <p class="mt-3 text-base leading-7 text-slate-600">
                                                 {{ $widget['description'] }}
                                             </p>
                                         </div>
@@ -679,11 +609,7 @@
                         <button
                             type="button"
                             class="h-2.5 rounded-full transition-all"
-                            x-bind:class="
-                                activePage() === index - 1
-                                    ? 'w-8 bg-[#315f8f]'
-                                    : 'w-2.5 bg-slate-300'
-                            "
+                            x-bind:class="activePage() === index - 1 ? 'w-8 bg-[#315f8f]' : 'w-2.5 bg-slate-300'"
                             x-on:click="goPage(index - 1)"
                             x-bind:aria-label="`{{ $homepageText('page_button_label') }} ${index}`"
                             x-bind:aria-selected="activePage() === index - 1"
@@ -697,9 +623,7 @@
                 class="grid gap-6 py-10 md:py-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-start"
             >
                 <div>
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
@@ -707,9 +631,7 @@
                     >
                         {{ $homepageText('heading') }}
                     </h2>
-                    <p class="mt-4 text-lg leading-8 text-slate-600">
-                        {{ $homepageText('copy') }}
-                    </p>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">{{ $homepageText('copy') }}</p>
                     <div
                         class="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white p-2"
                     >
@@ -742,9 +664,7 @@
                 class="grid gap-6 py-10 md:py-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-start"
             >
                 <div>
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase"
-                    >
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-[#315f8f] uppercase">
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
@@ -752,27 +672,23 @@
                     >
                         {{ $homepageText('heading') }}
                     </h2>
-                    <p class="mt-4 text-lg leading-8 text-slate-600">
-                        {{ $homepageText('copy') }}
-                    </p>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">{{ $homepageText('copy') }}</p>
                 </div>
                 <ol
                     class="[&::-webkit-scrollbar]:hidden flex snap-x [scrollbar-width:none] gap-4 overflow-x-auto rounded-lg border border-slate-200 bg-white md:grid md:grid-cols-4 md:gap-0 md:overflow-visible"
                 >
                     @foreach ($homepageItems('steps') as $step)
                         <li
-                            @class ([
-                                'grid min-w-full snap-start gap-2 p-5 md:min-w-0',
-                                'border-b border-slate-200 md:border-r md:border-b-0' => ! $loop->last,
-                            ])
+                            @class([
+                            'grid min-w-full snap-start gap-2 p-5 md:min-w-0',
+                            'border-b border-slate-200 md:border-r md:border-b-0' => ! $loop->last,
+                        ])
                         >
                             <span class="text-sm font-black text-[#315f8f]">
                                 {{ $step['number'] ?? '' }}
                             </span>
                             <strong>{{ $step['title'] ?? '' }}</strong>
-                            <p class="text-sm leading-6 text-slate-600">
-                                {{ $step['copy'] ?? '' }}
-                            </p>
+                            <p class="text-sm leading-6 text-slate-600">{{ $step['copy'] ?? '' }}</p>
                         </li>
                     @endforeach
                 </ol>
@@ -811,9 +727,7 @@
                 class="grid gap-8 py-20 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:py-28"
             >
                 <div>
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-slate-100 uppercase"
-                    >
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-slate-100 uppercase">
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
@@ -821,11 +735,7 @@
                     >
                         {{ $homepageText('heading') }}
                     </h2>
-                    <p
-                        class="mt-4 max-w-3xl text-base leading-7 text-slate-300"
-                    >
-                        {{ $homepageText('copy') }}
-                    </p>
+                    <p class="mt-4 max-w-3xl text-base leading-7 text-slate-300">{{ $homepageText('copy') }}</p>
                 </div>
                 <a
                     class="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#315f8f] bg-[#315f8f] px-5 font-extrabold text-white no-underline hover:bg-[#24496f]"

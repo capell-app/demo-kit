@@ -2,7 +2,7 @@
     use Capell\DemoKit\Actions\BuildDemoPageContentViewDataAction;
 @endphp
 
-@props ([
+@props([
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -151,75 +151,33 @@
 >
     @once
         <style>
-            .dark
-                .capell-demo-page-content
-                :where(article, aside, div, form, a)[class*='bg-white'],
-            .dark
-                .capell-demo-page-content
-                :where(article, aside, div, form, a)[class*='bg-slate-50'] {
+            .dark .capell-demo-page-content :where(article, aside, div, form, a)[class*='bg-white'],
+            .dark .capell-demo-page-content :where(article, aside, div, form, a)[class*='bg-slate-50'] {
                 background-color: rgb(15 23 42 / 0.82);
             }
 
-            .dark
-                .capell-demo-page-content
-                :where(input, textarea)[class*='bg-white'] {
+            .dark .capell-demo-page-content :where(input, textarea)[class*='bg-white'] {
                 background-color: rgb(2 6 23 / 0.9);
             }
 
             .dark
                 .capell-demo-page-content
-                :where(
-                    article,
-                    aside,
-                    div,
-                    form,
-                    a,
-                    input,
-                    textarea
-                )[class*='border-slate'] {
+                :where(article, aside, div, form, a, input, textarea)[class*='border-slate'] {
                 border-color: rgb(255 255 255 / 0.12);
             }
 
             .dark
                 .capell-demo-page-content
-                :where(
-                    h2,
-                    h3,
-                    h4,
-                    p,
-                    span,
-                    dt,
-                    dd,
-                    label,
-                    summary,
-                    input,
-                    textarea
-                )[class*='text-slate-950'],
+                :where(h2, h3, h4, p, span, dt, dd, label, summary, input, textarea)[class*='text-slate-950'],
             .dark
                 .capell-demo-page-content
-                :where(
-                    h2,
-                    h3,
-                    h4,
-                    p,
-                    span,
-                    dt,
-                    dd,
-                    label,
-                    summary
-                )[class*='text-[#131b2e]'] {
+                :where(h2, h3, h4, p, span, dt, dd, label, summary)[class*='text-[#131b2e]'] {
                 color: rgb(248 250 252);
             }
 
-            .dark
-                .capell-demo-page-content
-                :where(p, span, dd)[class*='text-slate-600'],
-            .dark
-                .capell-demo-page-content
-                :where(p, span, dd)[class*='text-slate-700'],
-            .dark
-                .capell-demo-page-content
-                :where(label)[class*='text-slate-800'] {
+            .dark .capell-demo-page-content :where(p, span, dd)[class*='text-slate-600'],
+            .dark .capell-demo-page-content :where(p, span, dd)[class*='text-slate-700'],
+            .dark .capell-demo-page-content :where(label)[class*='text-slate-800'] {
                 color: rgb(203 213 225);
             }
         </style>
@@ -245,7 +203,7 @@
         @endif
 
         @if ($hasAssetSections)
-            @include ('capell-demo-kit::components.widget.demo-page-content-assets', [
+            @include('capell-demo-kit::components.widget.demo-page-content-assets', [
                 'sections' => $assetSections,
                 'sectionClass' => $sectionClass,
                 'splitSectionClass' => $splitSectionClass,
@@ -275,20 +233,16 @@
                     </h2>
                 </div>
 
-                <p
-                    class="max-w-3xl text-base leading-8 text-pretty text-slate-600"
-                >
-                    {{ $lesson[1] }}
-                </p>
+                <p class="max-w-3xl text-base leading-8 text-pretty text-slate-600">{{ $lesson[1] }}</p>
             </section>
         @endif
 
         @if ($showcase)
             <section class="{{ $splitSectionClass }}">
                 <div class="grid gap-5">
-                    <p class="{{ $eyebrowClass }}">
-                        {{ $showcase['eyebrow'] }}
-                    </p>
+                    <p
+                        class="{{ $eyebrowClass }}"
+                    >{{ $showcase['eyebrow'] }}</p>
                     <h2 class="{{ $headingClass }}">
                         {{ $showcase['title'] }}
                     </h2>
@@ -306,9 +260,9 @@
                             <h3 class="{{ $cardTitleClass }}">
                                 {{ $item['title'] }}
                             </h3>
-                            <p class="{{ $cardCopyClass }}">
-                                {{ $item['copy'] }}
-                            </p>
+                            <p
+                                class="{{ $cardCopyClass }}"
+                            >{{ $item['copy'] }}</p>
                         </article>
                     @endforeach
                 </div>
@@ -316,14 +270,13 @@
         @elseif ($pageName === 'Contact')
             @once
                 <style>
-                    @media (min-width: 1024px) {
-                        .capell-demo-contact-gateway {
-                            grid-template-columns: minmax(0, 1fr) minmax(
-                                    22rem,
-                                    0.72fr
-                                );
-                        }
-                    }
+
+                    @media(min-width: 1024px)
+                    {
+                                           .capell-demo-contact-gateway {
+                                               grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.72fr);
+                                           }
+                                       }
                 </style>
             @endonce
 
@@ -333,17 +286,13 @@
             >
                 <div class="grid gap-8">
                     <div class="grid gap-5">
-                        <p
-                            class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase"
-                        >Contact</p>
+                        <p class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase">Contact</p>
                         <h2
                             class="max-w-[10ch] font-[Manrope] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
                         >
                             Start the right conversation
                         </h2>
-                        <p
-                            class="max-w-2xl text-lg leading-8 text-pretty text-slate-600 md:text-xl md:leading-9"
-                        >Tell us what you are planning, fixing, moving, or partnering on. One governed contact page routes project scoping, technical support, migrations, and partnerships to the right Capell team.</p>
+                        <p class="max-w-2xl text-lg leading-8 text-pretty text-slate-600 md:text-xl md:leading-9">Tell us what you are planning, fixing, moving, or partnering on. One governed contact page routes project scoping, technical support, migrations, and partnerships to the right Capell team.</p>
                     </div>
 
                     <div
@@ -361,9 +310,7 @@
                         </div>
 
                         <div class="grid gap-5">
-                            <p
-                                class="text-base leading-7 text-pretty text-slate-600"
-                            >Remote-first delivery with UK timezone handover. Send an enquiry and the form builder passes it into the right follow-up path.</p>
+                            <p class="text-base leading-7 text-pretty text-slate-600">Remote-first delivery with UK timezone handover. Send an enquiry and the form builder passes it into the right follow-up path.</p>
                             <dl
                                 class="grid gap-3 text-sm font-bold text-slate-700 sm:grid-cols-2"
                             >
@@ -407,11 +354,7 @@
                                     >
                                         {{ $title }}
                                     </h3>
-                                    <p
-                                        class="text-base leading-7 text-pretty text-slate-600"
-                                    >
-                                        {{ $copy }}
-                                    </p>
+                                    <p class="text-base leading-7 text-pretty text-slate-600">{{ $copy }}</p>
                                 </div>
                             </article>
                         @endforeach
@@ -599,9 +542,7 @@
                             >
                                 {{ $title }}
                             </strong>
-                            <p class="text-sm leading-6 text-slate-600">
-                                {{ $copy }}
-                            </p>
+                            <p class="text-sm leading-6 text-slate-600">{{ $copy }}</p>
                         </li>
                     @endforeach
                 </ol>
@@ -628,9 +569,7 @@
                             >
                                 {{ $question }}
                             </summary>
-                            <p class="mt-3 text-base leading-7 text-slate-600">
-                                {{ $answer }}
-                            </p>
+                            <p class="mt-3 text-base leading-7 text-slate-600">{{ $answer }}</p>
                         </details>
                     @endforeach
                 </div>
@@ -651,12 +590,12 @@
                 <div class="capell-demo-pricing-grid {{ $carouselClass }}">
                     @foreach ([['Developer', 'GBP 0', 'For evaluation, prototypes, and local proof-of-concept work.', 'Self-guided', false], ['Agency', 'GBP 99', 'For production teams that need support, package confidence, and release guidance.', 'Popular', true], ['Enterprise', 'Custom', 'For governed estates, multi-site publishing, migrations, and dedicated support paths.', 'Scoped', false]] as [$label, $price, $copy, $badge, $featured])
                         <article
-                            @class ([
-                                $carouselItemClass,
-                                $cardClass,
-                                'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $featured,
-                                'min-h-72' => true,
-                            ])
+                            @class([
+                            $carouselItemClass,
+                            $cardClass,
+                            'border-[#0f766e] bg-teal-50 shadow-[0_18px_48px_rgb(0_92_85_/_0.12)]' => $featured,
+                            'min-h-72' => true,
+                        ])
                         >
                             <span
                                 class="{{ $featured ? 'text-xs font-black tracking-normal text-green-700 uppercase' : $labelClass }}"
@@ -697,17 +636,13 @@
                 class="capell-demo-implementation-plan my-10 grid gap-8 rounded-2xl bg-linear-to-br from-slate-950 to-blue-900 p-6 shadow-2xl md:my-16 md:p-10"
             >
                 <div class="grid gap-5">
-                    <p
-                        class="text-xs font-black tracking-normal text-blue-200 uppercase"
-                    >Implementation scoping</p>
+                    <p class="text-xs font-black tracking-normal text-blue-200 uppercase">Implementation scoping</p>
                     <h2
                         class="max-w-[16ch] text-3xl leading-[1.02] font-black tracking-normal text-balance text-white md:text-5xl xl:text-6xl"
                     >
                         Implementation plan with commercial guardrails
                     </h2>
-                    <p
-                        class="max-w-3xl text-base leading-8 text-pretty text-blue-100 md:text-lg"
-                    >Turn scope, timeline, risk, and price confidence into a visible delivery surface.</p>
+                    <p class="max-w-3xl text-base leading-8 text-pretty text-blue-100 md:text-lg">Turn scope, timeline, risk, and price confidence into a visible delivery surface.</p>
                 </div>
 
                 <div
@@ -727,11 +662,7 @@
                             >
                                 {{ $title }}
                             </h3>
-                            <p
-                                class="text-base leading-7 text-pretty text-blue-50"
-                            >
-                                {{ $copy }}
-                            </p>
+                            <p class="text-base leading-7 text-pretty text-blue-50">{{ $copy }}</p>
                         </article>
                     @endforeach
                 </div>
@@ -781,7 +712,7 @@
             >
                 @foreach (['All resources', 'Architecture', 'Migration', 'Publishing', 'Theme systems'] as $filter)
                     <a
-                        @class ([
+                        @class([
                             'flex-none rounded-lg border px-4 py-2 text-sm font-extrabold no-underline',
                             'border-[#0f766e] bg-[#0f766e] text-white' => $loop->first,
                             'border-slate-200 bg-white text-slate-950' => ! $loop->first,
@@ -840,9 +771,7 @@
                 class="my-10 grid gap-6 rounded-lg bg-slate-950 p-6 shadow-[0_18px_60px_rgb(15_23_42_/_0.18)] md:my-16 md:grid-cols-[minmax(0,1fr)_18rem] md:items-end md:p-10"
             >
                 <div>
-                    <p
-                        class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase"
-                    >Implementation toolkit</p>
+                    <p class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase">Implementation toolkit</p>
                     <h2
                         class="mt-3 font-[Manrope] text-3xl leading-tight font-extrabold text-white md:text-4xl"
                     >
