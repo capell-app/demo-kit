@@ -795,7 +795,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         $type = $this->typeModel::query()
             ->where([
                 'key' => WidgetTypeEnum::Sections,
-                'type' => LayoutTypeEnum::Widget,
+                'type' => LayoutTypeEnum::Widget->value,
             ])
             ->first();
 

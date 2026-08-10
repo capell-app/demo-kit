@@ -69,6 +69,28 @@
             "screenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget.png",
             "useCase": "A maintainer checks the generated homepage uses portable CMS data with presentation kept in package Blade.",
             "darkScreenshotPath": "packages/demo-kit/docs/screenshots/homepage-section-widget-dark.png"
+        },
+        {
+            "id": "demo-kit-admin-sidebar-menu-open",
+            "title": "Demo Kit admin page with admin sidebar menu open.",
+            "package": "demo-kit",
+            "surface": "admin",
+            "targetType": "admin-page",
+            "target": "DemoKitPage",
+            "url": "/demo-kit",
+            "waitFor": "text=Demo Kit",
+            "required": false,
+            "notes": "Capture as an admin who can manage extensions, with the Insert example site data header action available. Opening the action modal is useful when the runner supports modal state. Capture this same admin surface with the fully collapsible sidebar opened.",
+            "screenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open.png",
+            "useCase": "An administrator starts deterministic demo content generation from the package-owned admin page.",
+            "darkScreenshotPath": "packages/demo-kit/docs/screenshots/demo-kit-admin-sidebar-menu-open-dark.png",
+            "covers": ["packages/demo-kit/src/Filament/Pages/DemoKitPage.php"],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                }
+            ]
         }
     ]
 }
