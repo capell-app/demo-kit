@@ -10,6 +10,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\DemoKit\Filament\Configurators\Widgets\HomepageSectionWidgetConfigurator;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Support\HomepageDemoContent;
+use Capell\DemoKit\Support\HomepageDemoImages;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeGroupEnum;
 use Capell\LayoutBuilder\Models\Widget;
@@ -18,45 +19,6 @@ use Override;
 
 abstract class HomepageDemoWidgetCreator extends ModernDemoWidgetCreator
 {
-    private const array HOMEPAGE_IMAGE_SOURCES = [
-        'capell-home-hero-command-center' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
-        'capell-home-demo-showcase' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
-        'capell-extension-marketplace-showcase' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
-    ];
-
-    private const array HOMEPAGE_HERO_SLIDES = [
-        [
-            'image' => [
-                'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
-            ],
-            'alt' => 'Capell CMS workspace preview',
-            'label' => 'Page types',
-            'value' => 'Home, Resources, Services',
-            'status' => 'Typed',
-        ],
-        [
-            'image' => [
-                'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
-            ],
-            'alt' => 'Capell content package dashboard preview',
-            'label' => 'Packages',
-            'value' => 'Layout Builder, SEO, Search, Publishing',
-            'status' => 'Installed',
-        ],
-        [
-            'image' => [
-                'type' => 'url',
-                'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
-            ],
-            'alt' => 'Capell publishing workflow preview',
-            'label' => 'Workflow',
-            'value' => 'Draft, preview, approve, publish',
-            'status' => 'Traceable',
-        ],
-    ];
-
     public function createHomepageHeroCommandCenterWidget(): Widget
     {
         $widget = $this->createHomepageBladeWidget(
@@ -156,17 +118,14 @@ abstract class HomepageDemoWidgetCreator extends ModernDemoWidgetCreator
 
     private function withHomepageImageSource(Widget $widget): Widget
     {
-        $url = self::HOMEPAGE_IMAGE_SOURCES[$widget->key] ?? null;
+        $source = HomepageDemoImages::sourceForWidget($widget->key);
 
-        if ($url === null) {
+        if ($source === null) {
             return $widget;
         }
 
         $meta = is_array($widget->meta) ? $widget->meta : [];
-        $meta['image_source'] = [
-            'type' => 'url',
-            'url' => $url,
-        ];
+        $meta['image_source'] = $source;
 
         $widget->forceFill(['meta' => $meta])->save();
 
@@ -176,7 +135,7 @@ abstract class HomepageDemoWidgetCreator extends ModernDemoWidgetCreator
     private function withHomepageHeroSlides(Widget $widget): Widget
     {
         $meta = is_array($widget->meta) ? $widget->meta : [];
-        $meta['hero_slides'] = self::HOMEPAGE_HERO_SLIDES;
+        $meta['hero_slides'] = HomepageDemoImages::heroSlides();
 
         $widget->forceFill(['meta' => $meta])->save();
 

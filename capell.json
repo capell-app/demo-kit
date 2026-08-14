@@ -53,6 +53,7 @@
             "assets": [
                 "resources/views/**/*.blade.php",
                 "resources/css/demo-homepage.css",
+                "resources/dist/images/*.jpg",
                 "demo/img/test.svg",
                 "demo/video/SampleVideo_1280x720_1mb.mp4"
             ]

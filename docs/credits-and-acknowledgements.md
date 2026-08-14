@@ -24,6 +24,12 @@ Package role: Demo content and media kit for Capell
 
 Demo Kit is useful because empty installs are hard to judge. Demo content, media, and seedable examples make package bugs easier to reproduce and the product easier to understand.
 
+The bundled Foundation showcase photographs were retrieved from Unsplash on 12 August 2026 and are retained locally so the public demo does not depend on a third-party image request:
+
+- `photo-1497366754035-f200968a6e72` — workspace.
+- `photo-1516321318423-f06f85e504b3` — laptop and notebook.
+- `photo-1454165804606-c3d57bc86b40` — planning session.
+
 ## Keeping This Page Current
 
 When Demo Kit adds a new framework, service, or third-party package that becomes part of the user-facing workflow, update this page and the package README together. Credits should explain the practical help we get from a dependency, not just list a package name.

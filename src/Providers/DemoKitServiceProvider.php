@@ -45,6 +45,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
+            ->hasAssets()
             ->hasConfigFile('capell-demo-kit')
             ->hasMigration('2026_07_19_130000_create_demo_kit_generation_runs_table')
             ->hasViews(self::$name)
@@ -76,10 +77,23 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->registerLaravelAssetPublishGroup();
         $this->registerPackageLivewireComponents();
         $this->registerTailwindSources();
         $this->registerRenderables();
+        $this->registerPresentationMode();
         $this->registerAdminPanelExtensions();
+    }
+
+    private function registerLaravelAssetPublishGroup(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        $this->publishes([
+            __DIR__ . '/../../resources/dist' => public_path('vendor/' . self::$name),
+        ], 'laravel-assets');
     }
 
     private function registerPackageLivewireComponents(): void
@@ -131,6 +145,13 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminPanelExtensions(): void
     {
+        $this->registerExtensionPageRegistry();
+        $this->registerAdminSurfacePage();
+        $this->registerConfigurators();
+    }
+
+    private function registerPresentationMode(): void
+    {
         if (config('capell-demo-kit.presentation_mode', true)) {
             config()->set('capell-welcome-tour.presentation_mode', true);
 
@@ -147,10 +168,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
                 route: '/admin/extensions',
             );
         }
-
-        $this->registerExtensionPageRegistry();
-        $this->registerAdminSurfacePage();
-        $this->registerConfigurators();
     }
 
     private function registerConfigurators(): void

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'presentation_mode' => true,
+    'presentation_mode' => env('CAPELL_DEMO_KIT_PRESENTATION_MODE', true),
 
     /*
     |--------------------------------------------------------------------------

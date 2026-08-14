@@ -45,38 +45,7 @@ final class HomepageDemoContent
                 'secondary_url' => '/pricing',
                 'system_board_label' => 'Capell system board',
                 'pagination_label' => 'Capell system board pagination',
-                'slides' => [
-                    [
-                        'image' => [
-                            'type' => 'url',
-                            'url' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=75',
-                        ],
-                        'alt' => 'Capell CMS workspace preview',
-                        'label' => 'Page types',
-                        'value' => 'Home, Resources, Services',
-                        'status' => 'Typed',
-                    ],
-                    [
-                        'image' => [
-                            'type' => 'url',
-                            'url' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=75',
-                        ],
-                        'alt' => 'Capell content package dashboard preview',
-                        'label' => 'Packages',
-                        'value' => 'Layout Builder, SEO, Search, Publishing',
-                        'status' => 'Installed',
-                    ],
-                    [
-                        'image' => [
-                            'type' => 'url',
-                            'url' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=75',
-                        ],
-                        'alt' => 'Capell publishing workflow preview',
-                        'label' => 'Workflow',
-                        'value' => 'Draft, preview, approve, publish',
-                        'status' => 'Traceable',
-                    ],
-                ],
+                'slides' => HomepageDemoImages::heroSlides(),
             ],
             'capell-home-proof-strip' => [
                 'label' => 'Demo proof points',
