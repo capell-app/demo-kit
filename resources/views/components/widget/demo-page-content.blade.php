@@ -26,7 +26,7 @@
     $isContactPage = $demoPageContentData->isContactPage;
 
     $eyebrowClass = 'text-xs font-extrabold tracking-[0.08em] text-[#0f766e] uppercase';
-    $headingClass = 'max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
+    $headingClass = 'max-w-[18ch] font-[\'Manrope\',\'Inter\',system-ui,sans-serif] text-3xl leading-[1.08] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-5xl';
     $introClass = 'max-w-3xl text-base leading-8 text-pretty text-slate-600 md:text-lg dark:text-slate-300';
     $sectionClass = 'grid gap-6 border-b border-slate-200/70 py-10 md:gap-8 md:py-16 dark:border-white/10';
     $splitSectionClass = $sectionClass . ' lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:items-start';
@@ -227,7 +227,7 @@
                         class="{{ $eyebrowClass }}"
                     >How this page is assembled</p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-2xl leading-tight font-extrabold tracking-normal text-slate-950 md:text-3xl"
+                        class="mt-3 max-w-[18ch] font-['Manrope','Inter',system-ui,sans-serif] text-2xl leading-tight font-extrabold tracking-normal text-slate-950 md:text-3xl"
                     >
                         {{ $lesson[0] }}
                     </h2>
@@ -288,7 +288,7 @@
                     <div class="grid gap-5">
                         <p class="text-xs font-extrabold tracking-[0.16em] text-[#0f766e] uppercase">Contact</p>
                         <h2
-                            class="max-w-[10ch] font-[Manrope] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
+                            class="max-w-[10ch] font-['Manrope','Inter',system-ui,sans-serif] text-5xl leading-[0.98] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-7xl"
                         >
                             Start the right conversation
                         </h2>
@@ -502,7 +502,7 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $value }}
                         </strong>
@@ -687,7 +687,7 @@
                     <div>
                         <span class="{{ $labelClass }}">Featured guide</span>
                         <h3
-                            class="mt-3 font-[Manrope] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
+                            class="mt-3 font-['Manrope','Inter',system-ui,sans-serif] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
                         >
                             Scaling Laravel CMS architecture for 1M+ records
                         </h3>
@@ -695,7 +695,7 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             18 min
                         </strong>
@@ -773,7 +773,7 @@
                 <div>
                     <p class="text-xs font-extrabold tracking-[0.08em] text-teal-100 uppercase">Implementation toolkit</p>
                     <h2
-                        class="mt-3 font-[Manrope] text-3xl leading-tight font-extrabold text-white md:text-4xl"
+                        class="mt-3 font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-tight font-extrabold text-white md:text-4xl"
                     >
                         Build faster with architectural blueprints.
                     </h2>
@@ -811,7 +811,7 @@
                         class="grid content-start gap-4 border-l-4 border-[#0f766e] bg-teal-50 p-4"
                     >
                         <strong
-                            class="font-[Manrope] text-2xl leading-tight font-extrabold text-[#0f766e]"
+                            class="font-['Manrope','Inter',system-ui,sans-serif] text-2xl leading-tight font-extrabold text-[#0f766e]"
                         >
                             Article chrome
                         </strong>

@@ -61,7 +61,7 @@
                         class="border border-slate-200 bg-white p-5 md:border-y-0 md:border-l-0 md:p-6"
                     >
                         <strong
-                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
+                            class="widget font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-none font-extrabold text-[#0f766e] md:text-4xl"
                         >
                             {{ $metric['value'] }}
                         </strong>
@@ -176,7 +176,7 @@
                             {{ $featured['label'] }}
                         </span>
                         <h3
-                            class="mt-3 font-[Manrope] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
+                            class="mt-3 font-['Manrope','Inter',system-ui,sans-serif] text-2xl leading-tight font-extrabold text-slate-950 md:text-4xl"
                         >
                             {{ $featured['title'] }}
                         </h3>
@@ -184,7 +184,7 @@
                     </div>
                     <aside class="border-l-4 border-[#0f766e] bg-teal-50 p-4">
                         <strong
-                            class="widget font-[Manrope] text-3xl leading-none font-extrabold text-[#0f766e]"
+                            class="widget font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-none font-extrabold text-[#0f766e]"
                         >
                             18 min
                         </strong>
@@ -267,7 +267,7 @@
             >
                 <p class="{{ $eyebrowClass }}">{{ $section['eyebrow'] }}</p>
                 <h2
-                    class="max-w-[11ch] font-[Manrope] text-4xl leading-[1.02] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-6xl"
+                    class="max-w-[11ch] font-['Manrope','Inter',system-ui,sans-serif] text-4xl leading-[1.02] font-extrabold tracking-normal text-balance text-[#131b2e] md:text-6xl"
                 >
                     {{ $section['title'] }}
                 </h2>

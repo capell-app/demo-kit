@@ -243,7 +243,7 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h1
-                        class="capell-home-hero-title font-[Manrope] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-5xl"
+                        class="capell-home-hero-title font-['Manrope','Inter',system-ui,sans-serif] text-4xl leading-[1.06] font-extrabold tracking-normal text-balance text-[#1a1c1b] md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h1>
@@ -347,7 +347,7 @@
                         class="min-w-full snap-start border border-slate-200 bg-white p-5 md:min-w-0"
                     >
                         <strong
-                            class="widget font-[Manrope] text-4xl leading-none font-extrabold text-[#315f8f]"
+                            class="widget font-['Manrope','Inter',system-ui,sans-serif] text-4xl leading-none font-extrabold text-[#315f8f]"
                         >
                             {{ $metric['value'] ?? '' }}
                         </strong>
@@ -367,7 +367,7 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h2>
@@ -510,7 +510,7 @@
                         </p>
                         <h2
                             id="capell-demo-widgets-title"
-                            class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
+                            class="mt-3 max-w-[18ch] font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                         >
                             {{ $homepageText('heading') }}
                         </h2>
@@ -627,7 +627,7 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h2>
@@ -668,7 +668,7 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
-                        class="mt-3 max-w-[18ch] font-[Manrope] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
+                        class="mt-3 max-w-[18ch] font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-[1.08] font-extrabold text-balance text-slate-950 md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h2>
@@ -731,7 +731,7 @@
                         {{ $homepageText('eyebrow') }}
                     </p>
                     <h2
-                        class="mt-3 max-w-2xl font-[Manrope] text-3xl leading-tight font-extrabold text-balance text-white md:text-5xl"
+                        class="mt-3 max-w-2xl font-['Manrope','Inter',system-ui,sans-serif] text-3xl leading-tight font-extrabold text-balance text-white md:text-5xl"
                     >
                         {{ $homepageText('heading') }}
                     </h2>
