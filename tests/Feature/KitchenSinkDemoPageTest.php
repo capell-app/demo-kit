@@ -570,8 +570,7 @@ function kitchenSinkLayoutHtml(Page $page): string
     $page->loadMissing(['layout', 'site.theme', 'translations.language']);
     $layout = kitchenSinkRequiredLayout($page->layout);
     $container = kitchenSinkMainContainer($layout);
-    $translationContent = $page->translations->first()?->getAttribute('content');
-    $html = is_string($translationContent) ? $translationContent : '';
+    $html = '';
 
     foreach ($container['widgets'] as $widgetIndex => $widgetData) {
         $widget = Widget::query()
