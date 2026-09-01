@@ -138,14 +138,14 @@ it('deactivates duplicate active urls left behind by refreshed pages', function 
 });
 
 it('returns command failures for invalid refresh options and success with force', function (): void {
-    test()->artisan('capell:demo-kit-refresh-stitch-pages')
+    capell_artisan('capell:demo-kit-refresh-stitch-pages')
         ->expectsOutput('Refreshing Stitch demo pages requires force confirmation.')
         ->assertExitCode(1);
 
     $language = Language::factory()->english()->create();
     Site::factory()->default()->language($language)->withTranslations($language)->create(['name' => 'Command Site']);
 
-    test()->artisan('capell:demo-kit-refresh-stitch-pages', [
+    capell_artisan('capell:demo-kit-refresh-stitch-pages', [
         '--site' => 'Command Site',
         '--force' => true,
     ])

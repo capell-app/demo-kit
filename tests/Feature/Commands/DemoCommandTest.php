@@ -81,7 +81,7 @@ it('runs core demo command successfully', function (): void {
 
     Artisan::registerCommand(new TrackingDemoCommand);
 
-    test()->artisan('capell:demo', [
+    capell_artisan('capell:demo', [
         '--url' => 'https://example.test',
         '--user' => 'author@example.com',
         '--languages' => 'en,fr',
@@ -114,7 +114,7 @@ it('only forwards seed to package demos that declare the seed parameter', functi
     Artisan::registerCommand(new TrackingDemoCommand('seeded:demo {--url=} {--seed=}'));
     Artisan::registerCommand(new TrackingDemoCommand('unseeded:demo {--url=}'));
 
-    test()->artisan('capell:demo', [
+    capell_artisan('capell:demo', [
         '--url' => 'https://example.test',
         '--packages' => 'vendor/seeded-package,vendor/unseeded-package',
         '--languages' => 'en',
@@ -144,7 +144,7 @@ it('only forwards allow-production to package demos that declare the allow-produ
     Artisan::registerCommand(new TrackingDemoCommand('production-aware:demo {--url=} {--allow-production}'));
     Artisan::registerCommand(new TrackingDemoCommand('production-unaware:demo {--url=}'));
 
-    test()->artisan('capell:demo', [
+    capell_artisan('capell:demo', [
         '--url' => 'https://example.test',
         '--packages' => 'vendor/production-aware-package,vendor/production-unaware-package',
         '--languages' => 'en',
@@ -170,7 +170,7 @@ it('reports selected packages that do not declare a demo command', function (): 
 
     Artisan::registerCommand(new TrackingDemoCommand('with-demo:demo {--url=}'));
 
-    test()->artisan('capell:demo', [
+    capell_artisan('capell:demo', [
         '--url' => 'https://example.test',
         '--packages' => 'vendor/with-demo,vendor/missing-demo',
         '--languages' => 'en',
@@ -208,7 +208,7 @@ it('runs demo commands in package workflow order', function (): void {
     Artisan::registerCommand(new TrackingDemoCommand('blog:demo {--url=} {--user=} {--languages=*} {--sites=*}'));
     Artisan::registerCommand(new TrackingDemoCommand('form-builder:demo {--url=} {--user=} {--languages=*} {--sites=*}'));
 
-    test()->artisan('capell:demo', [
+    capell_artisan('capell:demo', [
         '--url' => 'https://example.test',
         '--packages' => 'capell-app/worktree,capell-app/blog,capell-app/form-builder',
         '--sites' => 'Main Site',

@@ -103,7 +103,7 @@ it('runs demo command successfully', function (): void {
             && $plan->user?->is($user)))
         ->andReturn(true);
 
-    test()->artisan('capell:admin-demo', [
+    capell_artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
         '--user' => $user->email,
         '--languages' => 'en,fr',
@@ -148,7 +148,7 @@ it('skips layout builder demo when the layout demo packages are not installed', 
     CreateLayoutBuilderDemoSiteAction::shouldRun()
         ->never();
 
-    test()->artisan('capell:admin-demo', [
+    capell_artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
         '--user' => $user->email,
         '--languages' => 'en',
@@ -179,7 +179,7 @@ it('skips default demo users when requested', function (): void {
         return $mock;
     });
 
-    test()->artisan('capell:admin-demo', [
+    capell_artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
         '--user' => $user->email,
         '--languages' => 'en',
@@ -191,7 +191,7 @@ it('skips default demo users when requested', function (): void {
 });
 
 it('rejects invalid numeric demo scale options', function (): void {
-    expect(fn () => test()->artisan('capell:admin-demo', [
+    expect(fn () => capell_artisan('capell:admin-demo', [
         '--url' => 'https://example.test',
         '--languages' => 'en',
         '--sites' => 'Main Site',

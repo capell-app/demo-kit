@@ -32,7 +32,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Artisan;
 
 beforeEach(function (): void {
-    app(Kernel::class)->registerCommand(
+    resolve(Kernel::class)->registerCommand(
         new class extends Command
         {
             protected $signature = 'capell:navigation-demo {--sites=} {--languages=}';
@@ -148,7 +148,7 @@ it('creates full multi site and language demo data and runs package demos', func
         return $mock;
     });
 
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--languages' => 'en,fr',
         '--sites' => 'Main Site,Sub Site',
@@ -204,7 +204,7 @@ it('forwards the chosen author username to package demos', function (): void {
         return $mock;
     });
 
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--user' => $author->email,
         '--languages' => 'en',
@@ -220,7 +220,7 @@ it('refuses to run in the production environment without an override', function 
     app()->detectEnvironment(static fn (): string => 'production');
 
     try {
-        test()->artisan('capell:demo-kit-full-demo', [
+        capell_artisan('capell:demo-kit-full-demo', [
             '--url' => 'https://example.test',
             '--languages' => 'en',
             '--sites' => 'Main Site',
@@ -271,7 +271,7 @@ it('only runs package demos selected by packages option', function (): void {
         return $mock;
     });
 
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--languages' => 'en',
         '--sites' => 'Main Site',
@@ -317,7 +317,7 @@ it('uses a compact quick profile when full demo counts are omitted', function ()
         return $mock;
     });
 
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--packages' => 'vendor/quick-package',
         '--quick' => true,
@@ -374,7 +374,7 @@ it('runs non theme package demos and only the selected theme demo when theme opt
         return $mock;
     });
 
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--languages' => 'en',
         '--sites' => 'Main Site',
@@ -391,7 +391,7 @@ it('runs non theme package demos and only the selected theme demo when theme opt
 });
 
 it('requires force when running non interactively', function (): void {
-    test()->artisan('capell:demo-kit-full-demo', [
+    capell_artisan('capell:demo-kit-full-demo', [
         '--url' => 'https://example.test',
         '--no-interaction' => true,
     ])->assertExitCode(1);
