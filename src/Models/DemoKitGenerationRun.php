@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Models;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Override;
@@ -19,10 +21,13 @@ use Override;
  */
 final class DemoKitGenerationRun extends Model
 {
+    /** @use HasFactory<Factory<static>> */
+    use HasFactory;
+
     protected $table = 'capell_demo_kit_generation_runs';
 
     /** @var list<string> */
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     /** @return MorphTo<Model, $this> */
     public function requestedBy(): MorphTo
