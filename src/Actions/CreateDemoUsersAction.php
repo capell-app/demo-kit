@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions;
 
 use BezhanSalleh\FilamentShield\Support\Utils;
+use Capell\Core\Models\Site;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Hash;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -13,14 +14,14 @@ use RuntimeException;
 use Spatie\Permission\Models\Role;
 
 /**
- * @method static void run()
+ * @method static void run(Site $site)
  */
 final class CreateDemoUsersAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(): void
+    public function handle(Site $site): void
     {
         $this->assertSafeEnvironment();
 
@@ -29,6 +30,7 @@ final class CreateDemoUsersAction
             email: 'demo@example.com',
             password: 'password',
             roleName: Utils::getSuperAdminName(),
+            site: $site,
         );
 
         $this->createUser(
@@ -36,6 +38,7 @@ final class CreateDemoUsersAction
             email: 'editor@example.com',
             password: 'password',
             roleName: 'editor',
+            site: $site,
         );
     }
 
@@ -56,16 +59,10 @@ final class CreateDemoUsersAction
         );
     }
 
-    private function createUser(string $name, string $email, string $password, string $roleName): void
+    private function createUser(string $name, string $email, string $password, string $roleName, Site $site): void
     {
         /** @var class-string<User> $userModel */
         $userModel = config('auth.providers.users.model');
-
-        $roles = [$roleName];
-
-        if ($roleName !== Utils::getSuperAdminName() && Utils::isPanelUserRoleEnabled()) {
-            $roles[] = Utils::getPanelUserRoleName();
-        }
 
         /** @var User $user */
         $user = $userModel::query()->where('email', $email)->first() ?? new $userModel;
@@ -76,9 +73,17 @@ final class CreateDemoUsersAction
 
         $guardName = (string) config('auth.defaults.guard', 'web');
 
-        $user->assignRole(array_map(
-            static fn (string $role): Role => Role::findOrCreate($role, $guardName),
-            array_values(array_unique($roles)),
-        ));
+        $role = Role::findOrCreate($roleName, $guardName);
+
+        if ($roleName === Utils::getSuperAdminName()) {
+            $user->assignRole($role);
+        } else {
+            $user->assignRoleForSite($site, $role);
+        }
+
+        if ($roleName !== Utils::getSuperAdminName() && Utils::isPanelUserRoleEnabled()) {
+            // Panel access is not a site-content role, so keep it global.
+            $user->assignRole(Role::findOrCreate(Utils::getPanelUserRoleName(), $guardName));
+        }
     }
 }

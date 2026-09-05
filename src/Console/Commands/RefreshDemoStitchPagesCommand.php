@@ -5,20 +5,28 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Console\Commands;
 
 use Capell\DemoKit\Actions\RefreshDemoStitchPagesAction;
+use Capell\DemoKit\Console\Commands\Concerns\GuardsAgainstProduction;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
 
 final class RefreshDemoStitchPagesCommand extends Command
 {
+    use GuardsAgainstProduction;
+
     protected $signature = 'capell:demo-kit-refresh-stitch-pages
         {--site= : Restrict the refresh to a site name}
         {--language= : Restrict the refresh to a language code}
-        {--force : Confirm that demo pages should be created or updated}';
+        {--force : Confirm that demo pages should be created or updated}
+        {--allow-production}';
 
     protected $description = 'Refresh the Stitch-inspired Demo Kit pages and layouts.';
 
     public function handle(): int
     {
+        if (! $this->passesProductionGuard()) {
+            return self::FAILURE;
+        }
+
         try {
             $pages = RefreshDemoStitchPagesAction::run(
                 $this->stringOption('site'),

@@ -116,7 +116,6 @@ class AdminDemoCommand extends Command
 
             $this->outputDemoSetupInfo($plan);
             $this->resetDemoSites($plan);
-            $this->createDemoUsers();
             $this->demoCreator = app()->make(DemoCreator::class, [
                 'url' => $siteUrl,
                 'author' => $user,
@@ -277,7 +276,7 @@ class AdminDemoCommand extends Command
         $this->newLine();
     }
 
-    private function createDemoUsers(): void
+    private function createDemoUsers(Site $site): void
     {
         if ($this->option('skip-demo-users') === true) {
             $this->line('Skipping default demo users');
@@ -286,7 +285,7 @@ class AdminDemoCommand extends Command
         }
 
         $this->line('Creating demo users');
-        CreateDemoUsersAction::run();
+        CreateDemoUsersAction::run($site);
         $this->info('Demo admin created with super admin role: demo@example.com');
         $this->info('Editor user created with editor role');
     }
@@ -335,6 +334,10 @@ class AdminDemoCommand extends Command
                 languages: $siteLanguages,
                 adoptExistingSite: $this->option('adopt-existing-site') === true,
             );
+
+            if ($siteNumber === 1) {
+                $this->createDemoUsers($site);
+            }
 
             $bar = $this->output->createProgressBar($sitePlan->pageCount() + 4);
 
