@@ -1112,8 +1112,16 @@
             ],
             "beforeWait": [
                 {
+                    "type": "waitForTimeout",
+                    "timeout": 1000
+                },
+                {
                     "type": "click",
                     "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-sidebar.fi-sidebar-open"
                 }
             ]
         },
@@ -1138,8 +1146,24 @@
             ],
             "beforeWait": [
                 {
+                    "type": "waitForTimeout",
+                    "timeout": 2500
+                },
+                {
                     "type": "click",
                     "selector": ".fi-topbar-open-sidebar-btn"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-sidebar.fi-sidebar-open"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "timeout": 1500
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-sidebar.fi-sidebar-open"
                 }
             ]
         },

@@ -128,8 +128,9 @@ it('registers the guarded prepare and restore command', function (): void {
 
     expect($sidebarMobileEntries)->toHaveCount(1);
     foreach ($sidebarMobileEntries as $entry) {
-        expect(data_get($entry, 'beforeWait.0.selector'))
-            ->toBe('.fi-topbar-open-sidebar-btn');
+        expect(data_get($entry, 'beforeWait.*.selector'))
+            ->toContain('.fi-topbar-open-sidebar-btn')
+            ->toContain('.fi-sidebar.fi-sidebar-open');
     }
 
     withDemoKitScreenshotEnvironment(function (): void {

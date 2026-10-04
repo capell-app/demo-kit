@@ -10,8 +10,6 @@ Demo Kit creates deterministic demo users, sites, languages, pages, media, and p
 
 Administrators can start demo generation from a package page or console command, then inspect the generated pages and components on the frontend.
 
-Evidence: [`capell.json`](capell.json), [`src/Actions/BuildDemoGenerationPlanAction.php`](src/Actions/BuildDemoGenerationPlanAction.php), [`src/Support/Creator/DemoCreator.php`](src/Support/Creator/DemoCreator.php), [`src/Providers/DemoKitServiceProvider.php`](src/Providers/DemoKitServiceProvider.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`docs/screenshots.json`](docs/screenshots.json), [`src/Filament/Pages/DemoKitPage.php`](src/Filament/Pages/DemoKitPage.php), [`tests/Feature/Commands/FullDemoCommandTest.php`](tests/Feature/Commands/FullDemoCommandTest.php).
-
 Status details:
 
 - Status: Available
@@ -27,15 +25,13 @@ Status details:
 
 **For teams:** Teams can evaluate a populated site before entering real content and reset the sample state between demos, with explicit guards against production seeding.
 
-Evidence: [`src/Data/DemoGenerationPlanData.php`](src/Data/DemoGenerationPlanData.php), [`src/Actions/BuildDemoGenerationPlanAction.php`](src/Actions/BuildDemoGenerationPlanAction.php), [`src/Console/Commands/FullDemoCommand.php`](src/Console/Commands/FullDemoCommand.php), [`tests/Unit/Actions/BuildDemoGenerationPlanActionTest.php`](tests/Unit/Actions/BuildDemoGenerationPlanActionTest.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`src/Actions/ResetDemoSitesAction.php`](src/Actions/ResetDemoSitesAction.php), [`src/Console/Commands/Concerns/GuardsAgainstProduction.php`](src/Console/Commands/Concerns/GuardsAgainstProduction.php), [`tests/Feature/Commands/AdminDemoCommandTest.php`](tests/Feature/Commands/AdminDemoCommandTest.php).
-
 ## Screens And Workflow
 
 Screenshot contract: `docs/screenshots.json`.
 
 ![Demo Kit ready to plan](docs/screenshots/demo-kit-admin-page.png)
 
-![Review of reusable generated sites](docs/screenshots/demo-kit-reuse-review.png)
+![Demo Kit ready to plan on mobile](docs/screenshots/demo-kit-admin-page-mobile.png)
 
 - Demo Kit ready to plan (admin, required evidence).
 - Demo Kit ready to plan on mobile (admin, required evidence).
@@ -63,8 +59,6 @@ Screenshot contract: `docs/screenshots.json`.
 - Stalled generation requiring a new review on mobile (admin, required evidence).
 - Provenance-only reset confirmation (admin, required evidence).
 - Provenance-only reset confirmation on mobile (admin, required evidence).
-- Ordinary content preserved after reset (admin, required evidence).
-- Ordinary content preserved after reset on mobile (admin, required evidence).
 - Demo Kit with navigation open (admin, required evidence).
 - Demo Kit with navigation open on mobile (admin, required evidence).
 - Insights consent priming capture (frontend, supplementary evidence).
@@ -235,7 +229,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/demo-kit`.
 2. See it working: run `php artisan capell:demo-kit-full-demo`.
-3. Open the package admin surface at `/demo-kit` and confirm Demo Kit is available.
+3. Open the package admin surface at `/admin/demo-kit` and confirm Demo Kit is available.
 
 ## Next Steps
 
@@ -249,6 +243,5 @@ Screenshot contract: `docs/screenshots.json`.
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
 - Related packages: [Layout Builder](../layout-builder/README.md).
-- Focused tests: `vendor/bin/pest packages/demo-kit/tests --configuration=phpunit.xml`.
 
 <!-- prettier-ignore-end -->

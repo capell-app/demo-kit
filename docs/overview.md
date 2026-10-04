@@ -37,15 +37,6 @@ shared application environment. Restore with the same state and token plus
 removes only rows created by that attempt. Do not run this command against a
 shared or production database.
 
-The screenshot workbench uses four Testbench workers because fixture routes can
-make loopback requests while a browser request is still open. Those workers
-share one disposable SQLite file, so the workbench enables a 30-second SQLite
-busy timeout for short writer overlap between HTTP requests and fixture setup
-or restore, and the guarded command retries only SQLite's transient
-database-lock error for a bounded interval. If a run is interrupted, stop its owned server, restore the clean
-workbench snapshot, and resume only after the database integrity check passes;
-do not fix a lock by deleting rows from a shared database.
-
 ---
 
 For developers: see the [README](../README.md).
