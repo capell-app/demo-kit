@@ -165,7 +165,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         $meta = $widget->meta;
 
         $meta['background_color'] = 'light-gray';
-        $meta['background_image'] = $media->getFullUrl(MediaConversionEnum::Medium->value);
+        $meta['background_image'] = $media->getPathRelativeToRoot(MediaConversionEnum::Medium->value);
 
         $widget->meta = $meta;
 
@@ -242,9 +242,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', 'assets');
 
-        if ($widgetType === null) {
-            $widgetType = resolve(TypeCreator::class)->assetsWidgetType();
-        }
+        $widgetType ??= resolve(TypeCreator::class)->assetsWidgetType();
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
@@ -414,9 +412,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         $widgetType = resolve(TypeCreator::class)->navigationWidgetType();
 
         $navigationType = $this->typeModel::query()->navigationType()->default()->first();
-        if ($navigationType === null) {
-            $navigationType = resolve(BlueprintCreator::class)->createNavigationType();
-        }
+        $navigationType ??= resolve(BlueprintCreator::class)->createNavigationType();
 
         $language = $languages->first();
 
@@ -799,9 +795,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             ])
             ->first();
 
-        if ($type === null) {
-            $type = resolve(TypeCreator::class)->contentsWidgetType();
-        }
+        $type ??= resolve(TypeCreator::class)->contentsWidgetType();
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',

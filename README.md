@@ -70,6 +70,7 @@ Screenshot contract: `docs/screenshots.json`.
 ### Service providers
 
 - `Capell\DemoKit\Providers\DemoKitServiceProvider`
+- `Capell\DemoKit\Providers\ConsoleServiceProvider`
 
 ### Config files
 

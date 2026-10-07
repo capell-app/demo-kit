@@ -44,6 +44,9 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/demo-kit';
 
+    private bool $installedRuntimeBooted = false;
+
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
@@ -67,7 +70,14 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     public function registeringPackage(): void
     {
+        $this->app->register(ConsoleServiceProvider::class);
+
         parent::registeringPackage();
+
+        // Installation refreshes callbacks on providers already loaded as metadata.
+        $this->booted(function (): void {
+            $this->packageBooted();
+        });
 
         if (CapellCore::hasPackage(self::$packageName)) {
             $package = CapellCore::getPackage(self::$packageName);
@@ -75,19 +85,30 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $package->demoCommand = 'capell:demo-kit-full-demo';
             $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'adopt-existing-site', 'skip-package-demos', 'force'];
         }
-
-        $this->registerAdminPanelExtensions();
-        $this->registerPublicLayoutWidgetPayloadContributors();
     }
 
+    #[Override]
     public function packageBooted(): void
     {
+        $this->bootInstalledRuntime();
+    }
+
+    #[Override]
+    protected function bootInstalledRuntime(): void
+    {
+        if ($this->installedRuntimeBooted || ! $this->isPackageInstalled()) {
+            return;
+        }
+
+        $this->registerPublicLayoutWidgetPayloadContributors();
         $this->registerLaravelAssetPublishGroup();
         $this->registerPackageLivewireComponents();
         $this->registerTailwindSources();
         $this->registerRenderables();
         $this->registerPresentationMode();
         $this->registerAdminPanelExtensions();
+
+        $this->installedRuntimeBooted = true;
     }
 
     private function registerLaravelAssetPublishGroup(): void

@@ -359,6 +359,17 @@ it('creates homepage demo snippets as layout builder widgets', function (): void
         ->and($widget->getViewFile())->toBeNull();
 });
 
+it('stores generated banner background metadata as a relative media path', function (): void {
+    $fixture = prepareDemoKitWidgetCreatorFixture();
+
+    $widget = $fixture['creator']->createBannerImageWidget($fixture['languages']);
+    $backgroundImage = $widget->getMeta('background_image');
+
+    expect($backgroundImage)
+        ->toBeString()
+        ->not->toContain('://');
+});
+
 it('persists every public demo kit widget creator output', function (): void {
     $fixture = prepareDemoKitWidgetCreatorFixture();
     $cases = demoKitWidgetCreatorCases($fixture);
