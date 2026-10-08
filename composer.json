@@ -25,7 +25,7 @@
     "require": {
         "php": "^8.4",
         "capell-app/admin": "^1.0",
-        "capell-app/core": "^1.0",
+        "capell-app/core": "^1.0.56",
         "capell-app/frontend": "^1.0",
         "capell-app/layout-builder": "^1.0",
         "fakerphp/faker": "^1.24.1"
