@@ -44,8 +44,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/demo-kit';
 
-    private bool $installedRuntimeBooted = false;
-
     #[Override]
     public function configurePackage(Package $package): void
     {
@@ -74,11 +72,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
         parent::registeringPackage();
 
-        // Installation refreshes callbacks on providers already loaded as metadata.
-        $this->booted(function (): void {
-            $this->packageBooted();
-        });
-
         if (CapellCore::hasPackage(self::$packageName)) {
             $package = CapellCore::getPackage(self::$packageName);
             $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
@@ -90,25 +83,21 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     public function packageBooted(): void
     {
-        $this->bootInstalledRuntime();
+        if ($this->isPackageInstalled()) {
+            $this->registerLaravelAssetPublishGroup();
+        }
     }
 
     #[Override]
     protected function bootInstalledRuntime(): void
     {
-        if ($this->installedRuntimeBooted || ! $this->isPackageInstalled()) {
-            return;
-        }
-
-        $this->registerPublicLayoutWidgetPayloadContributors();
         $this->registerLaravelAssetPublishGroup();
+        $this->registerPublicLayoutWidgetPayloadContributors();
         $this->registerPackageLivewireComponents();
         $this->registerTailwindSources();
         $this->registerRenderables();
         $this->registerPresentationMode();
         $this->registerAdminPanelExtensions();
-
-        $this->installedRuntimeBooted = true;
     }
 
     private function registerLaravelAssetPublishGroup(): void
@@ -219,13 +208,7 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $extensionPageRegistry->register(self::$packageName, DemoKitPage::class);
         };
 
-        if ($this->app->bound(ExtensionPageRegistry::class)) {
-            $registerExtensionPage($this->app->make(ExtensionPageRegistry::class));
-
-            return;
-        }
-
-        $this->app->afterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
+        $this->callAfterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
     }
 
     private function registerAdminSurfacePage(): void
@@ -239,12 +222,6 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
             $capellAdminManager->registerExtensionPage(self::$packageName, DemoKitPage::class);
         };
 
-        if ($this->app->bound(CapellAdminManager::class)) {
-            CapellAdmin::registerExtensionPage(self::$packageName, DemoKitPage::class);
-
-            return;
-        }
-
-        $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
+        $this->callAfterResolving(CapellAdminManager::class, $registerExtensionPage);
     }
 }

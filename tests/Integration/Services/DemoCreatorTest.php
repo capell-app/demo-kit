@@ -225,9 +225,9 @@ it('rejects demo zip entries that escape the extraction directory', function ():
         'https://capell.app/demo.zip' => Http::response(File::get($zipPath), 200),
     ]);
 
-    $method = new ReflectionMethod(DemoCreator::class, 'ensureStorageDemoResources');
+    $resolver = resolve(DemoResourceResolver::class);
 
-    expect(fn (): mixed => $method->invoke(null))
+    expect(fn (): mixed => $resolver->ensureStorageDemoResources())
         ->toThrow(Exception::class, 'Unsafe demo zip entry');
 
     expect(File::exists($outsidePath))->toBeFalse();
@@ -253,9 +253,9 @@ it('rejects demo zip downloads with a checksum mismatch', function (): void {
         'https://capell.app/demo.zip' => Http::response(File::get($zipPath), 200),
     ]);
 
-    $method = new ReflectionMethod(DemoCreator::class, 'ensureStorageDemoResources');
+    $resolver = resolve(DemoResourceResolver::class);
 
-    expect(fn (): mixed => $method->invoke(null))
+    expect(fn (): mixed => $resolver->ensureStorageDemoResources())
         ->toThrow(Exception::class, 'checksum mismatch');
 
     File::delete($zipPath);
@@ -277,9 +277,9 @@ it('rejects demo zip downloads larger than the configured maximum size', functio
         'https://capell.app/demo.zip' => Http::response(str_repeat('x', 6), 200),
     ]);
 
-    $method = new ReflectionMethod(DemoCreator::class, 'ensureStorageDemoResources');
+    $resolver = resolve(DemoResourceResolver::class);
 
-    expect(fn (): mixed => $method->invoke(null))
+    expect(fn (): mixed => $resolver->ensureStorageDemoResources())
         ->toThrow(Exception::class, 'maximum size');
 
     $leftoverArchivePaths = glob($capellDir . '/demo.*.zip');
@@ -304,9 +304,9 @@ it('rejects demo zip responses with oversized content length before writing the 
         'https://capell.app/demo.zip' => Http::response('zip', 200, ['Content-Length' => '6']),
     ]);
 
-    $method = new ReflectionMethod(DemoCreator::class, 'ensureStorageDemoResources');
+    $resolver = resolve(DemoResourceResolver::class);
 
-    expect(fn (): mixed => $method->invoke(null))
+    expect(fn (): mixed => $resolver->ensureStorageDemoResources())
         ->toThrow(Exception::class, 'maximum size');
 
     $leftoverArchivePaths = glob($capellDir . '/demo.*.zip');
@@ -326,9 +326,11 @@ it('rejects demo zip symlink entries', function (): void {
 
     $archive->open($zipPath);
 
-    $method = new ReflectionMethod(DemoCreator::class, 'assertSafeDemoZipEntries');
+    $resolver = resolve(DemoResourceResolver::class);
 
-    expect(fn (): mixed => $method->invoke(null, $archive))
+    expect(function () use ($resolver, $archive): void {
+        $resolver->assertSafeDemoZipEntries($archive);
+    })
         ->toThrow(Exception::class, 'Unsafe demo zip entry');
 
     $archive->close();

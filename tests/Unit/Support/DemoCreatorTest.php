@@ -35,6 +35,8 @@ use Livewire\Livewire;
 
 use function Pest\Laravel\assertDatabaseHas;
 
+use Symfony\Component\Process\Process;
+
 uses(CreatesAdminUser::class);
 
 beforeEach(function (): void {
@@ -466,6 +468,8 @@ it('can edit every demo kit creator widget through Filament without losing creat
                     'content' => $editedHtml,
                     'mediaAlign' => null,
                     'mediaOrdering' => null,
+                    'title' => null,
+                    'summary' => null,
                 ],
             ]]
             : $editedHtml;
@@ -532,11 +536,13 @@ function demoCreatorWithoutInstanceMetadata(mixed $value): mixed
     return array_map(demoCreatorWithoutInstanceMetadata(...), $value);
 }
 
+require_once __DIR__ . '/../../Support/HomepageRender.php';
+
 it('creates the interactive homepage widgets carousel widget', function (): void {
     resolve(TypeCreator::class)->createWidgetTypes();
 
     $widget = resolve(DemoCreator::class)->createHomepageDemoWidgetsCarouselWidget();
-    $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
+    $html = renderHomepageWidget($widget);
 
     expect($widget)->toBeInstanceOf(Widget::class)
         ->and($widget->key)->toBe('capell-home-demo-widgets-carousel')
@@ -546,13 +552,39 @@ it('creates the interactive homepage widgets carousel widget', function (): void
             'configurator' => HomepageSectionWidgetConfigurator::getKey(),
         ])
         ->and($widget->meta)->toHaveKey('content')
-        ->and(data_get($widget->meta, 'content.items.0.title'))->toBe('Editorial workflow')
-        ->and($view)->toContain('window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 2 : 1')
-        ->and($view)->toContain('pageCount()')
-        ->and($view)->toContain('x-on:touchstart.passive="swipeStart($event)"')
-        ->and($view)->toContain('x-on:touchend.passive="swipeEnd($event)"')
-        ->and($view)->toContain('$homepageItems(\'items\')')
-        ->and($view)->not->toContain('Editorial workflow');
+        ->and(data_get($widget->meta, 'content.items.0.title'))->toBe('Editorial workflow');
+    expect(domQueryCount($html, '//article//h3[normalize-space(.)="Editorial workflow"]'))->toBe(1);
+    $document = new DOMDocument;
+    throw_if($html === '', RuntimeException::class, 'The homepage widget must render content.');
+    @$document->loadHTML($html, LIBXML_NONET);
+    $xpath = new DOMXPath($document);
+    $roots = $xpath->query('//section[@x-data]');
+    throw_unless($roots instanceof DOMNodeList, RuntimeException::class);
+    $root = $roots->item(0);
+    throw_unless($root instanceof DOMElement, RuntimeException::class);
+    $read = static function (string $expression, string $attribute) use ($xpath): string {
+        $nodes = $xpath->query($expression);
+        throw_unless($nodes instanceof DOMNodeList, RuntimeException::class);
+        $node = $nodes->item(0);
+        throw_unless($node instanceof DOMElement, RuntimeException::class);
+
+        return $node->getAttribute($attribute);
+    };
+    $process = new Process(['node', dirname(__DIR__, 5) . '/tests/Fixtures/BrowserScripts/homepage-carousel.cjs']);
+    $process->setInput(json_encode([
+        'data' => $root->getAttribute('x-data'),
+        'style' => $read("//*[@*[name()='x-bind:style']]", 'x-bind:style'),
+        'next' => $read('//button[@aria-label="Next demo widgets"]', 'x-on:click'),
+        'previous' => $read('//button[@aria-label="Previous demo widgets"]', 'x-on:click'),
+        'touchstart' => $root->getAttribute('x-on:touchstart.passive'),
+        'touchend' => $root->getAttribute('x-on:touchend.passive'),
+    ], JSON_THROW_ON_ERROR))->setTimeout(10)->mustRun();
+    expect(capell_json_array($process->getOutput()))->toBe([
+        ['transform: translateX(-0%);', 'transform: translateX(-100%);', 'transform: translateX(-0%);', 'transform: translateX(-100%);'],
+        ['transform: translateX(-0%);', 'transform: translateX(-100%);', 'transform: translateX(-0%);', 'transform: translateX(-100%);'],
+        ['transform: translateX(-0%);', 'transform: translateX(-100%);', 'transform: translateX(-0%);', 'transform: translateX(-100%);'],
+    ]);
+
 });
 
 it('uses a blade-backed demo page content widget for designed demo pages', function (): void {
@@ -739,8 +771,7 @@ it('keeps seeded demo page assets idempotent and preserves editor assets', funct
     ]);
 
     $creator = resolve(DemoCreator::class);
-    $method = new ReflectionMethod($creator, 'syncDemoPageContentAssets');
-    $method->invoke($creator, $page, 'Services');
+    $creator->refreshDemoPage($page, Language::query()->get(), refreshUrls: false);
 
     $pageAssets = WidgetAsset::query()
         ->where('widget_id', $widget->getKey())

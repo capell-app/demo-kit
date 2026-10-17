@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Capell\DemoKit\Support\HomepageDemoContent;
+use Capell\LayoutBuilder\Models\Widget;
+
+require_once __DIR__ . '/../../Support/HomepageRender.php';
 
 it('ships concise homepage hero proof points', function (): void {
     $content = HomepageDemoContent::forWidget('capell-home-hero-command-center');
@@ -23,18 +26,37 @@ it('ships concise homepage hero proof points', function (): void {
     expect($merged['highlights'])->toBe(['Custom proof point']);
 });
 
-it('keeps the demo hero background selector aligned with hero package markup', function (): void {
+it('renders edited hero proof points as a semantic list without default copy or injected markup', function (): void {
+    $highlights = ['An editor-owned proof point', '<script>untrusted()</script>'];
+    $html = renderHomepageWidget(new Widget([
+        'key' => 'capell-home-hero-command-center',
+        'meta' => ['content' => ['highlights' => $highlights]],
+    ]));
+
+    expect(domQueryCount($html, '//ul/li[normalize-space(.)="An editor-owned proof point"]'))->toBe(1)
+        ->and(domQueryCount($html, '//ul/li[normalize-space(.)="<script>untrusted()</script>"]'))->toBe(1)
+        ->and(domQueryCount($html, '//li/script'))->toBe(0)
+        ->and($html)->not->toContain('Typed page trees');
+
+    $empty = renderHomepageWidget(new Widget([
+        'key' => 'capell-home-hero-command-center',
+        'meta' => ['content' => ['highlights' => []]],
+    ]));
+
+    expect(domQueryCount($empty, '//li'))->toBe(0);
+});
+
+it('aligns the demo hero background selectors with the hero package', function (): void {
+    // Required hooks and values protect the visual contract independently of formatting.
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
 
-    throw_unless(is_string($view), RuntimeException::class, 'Unable to read the Demo Kit homepage section view.');
-
     expect($view)
-        ->toContain('.widget-capell-home-hero-command-center .hero-background,')
-        ->toContain('.widget-capell-home-hero-command-center .capell-hero-background {')
-        ->toContain('$heroHighlights = $homepageItems(\'highlights\');');
+        ->toMatch('/\.widget\-capell\-home\-hero\-command\-center\s+\.hero\-background\s*,\s*/')
+        ->toMatch('/\.widget\-capell\-home\-hero\-command\-center\s+\.capell\-hero\-background\s*\{\s*/');
 });
 
 it('keeps hero proof points token driven and above decorative layers', function (): void {
+    // Required hooks and values protect the visual contract independently of formatting.
     $view = file_get_contents(dirname(__DIR__, 3) . '/resources/views/components/widget/homepage-section.blade.php');
 
     throw_unless(is_string($view), RuntimeException::class, 'Unable to read the Demo Kit homepage section view.');
@@ -44,14 +66,14 @@ it('keeps hero proof points token driven and above decorative layers', function 
     $textFallbackCount = preg_match_all('/color:\s*#[0-9a-f]{6};\s*color:\s*color-mix\(/i', $view);
 
     expect($view)
-        ->toContain('.capell-home-hero-highlight {')
-        ->toContain('var(--theme-primary, #315f8f)')
-        ->toContain('var(--theme-surface, #ffffff)')
-        ->toContain('var(--theme-foreground, #1a1c1b)')
-        ->toContain('.dark .capell-home-hero-highlight {')
-        ->toContain('class="capell-home-hero-grid relative z-10"')
-        ->toContain('class="capell-home-hero-copy grid gap-6"')
-        ->toContain('class="capell-home-hero-highlight rounded-full')
+        ->toMatch('/\.capell\-home\-hero\-highlight\s*\{\s*/')
+        ->toMatch('/var\s*\(\s*\-\-theme\-primary\s*,\s*\#315f8f\s*\)\s*/')
+        ->toMatch('/var\s*\(\s*\-\-theme\-surface\s*,\s*\#ffffff\s*\)\s*/')
+        ->toMatch('/var\s*\(\s*\-\-theme\-foreground\s*,\s*\#1a1c1b\s*\)\s*/')
+        ->toMatch('/\.dark\s+\.capell\-home\-hero\-highlight\s*\{\s*/')
+        ->toMatch('/class="capell\-home\-hero\-grid\s+relative\s+z\-10"/')
+        ->toMatch('/class="capell\-home\-hero\-copy\s+grid\s+gap\-6"/')
+        ->toMatch('/class="capell\-home\-hero\-highlight\s+rounded\-full/')
         ->and($borderFallbackCount)->toBe(2)
         ->and($backgroundFallbackCount)->toBe(2)
         ->and($textFallbackCount)->toBe(2);

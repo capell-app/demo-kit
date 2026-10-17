@@ -5,7 +5,11 @@ declare(strict_types=1);
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
-use Capell\DemoKit\Console\Commands\AdminDemoCommand;
+use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
+use Capell\DemoKit\Data\DemoGenerationPlanData;
+use Capell\DemoKit\Data\DemoPagePlanData;
+use Capell\DemoKit\Data\DemoProfileData;
+use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
@@ -17,15 +21,39 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
 it('keeps progress messages short enough to preserve the bar width', function (): void {
-    $command = new AdminDemoCommand;
-    $method = new ReflectionMethod(AdminDemoCommand::class, 'formatProgressMessage');
-    $message = $method->invoke(
-        $command,
-        'Dogs » Spaniel » Springer Spaniel » English Springer Spaniel » Show English Springer Spaniel',
-    );
+    CapellCore::forcePackageInstalled('capell-app/content-sections', false);
+    CapellCore::forcePackageInstalled('capell-app/layout-builder', false);
+    $user = User::factory()->create(['email' => 'progress@example.test']);
+    $longName = 'Dogs Spaniel Springer Spaniel English Springer Spaniel Show English Springer Spaniel';
+    $planner = Mockery::mock(new BuildDemoGenerationPlanAction);
+    app()->instance('LaravelActions:AsFake:' . BuildDemoGenerationPlanAction::class, $planner);
+    $planner->shouldReceive('handle')->once()->andReturn(new DemoGenerationPlanData(
+        seed: 7,
+        languageCodes: ['en'],
+        sites: [new DemoSiteGenerationPlanData('Progress Site', ['en'], [new DemoPagePlanData(['en' => $longName], mediaCount: 0)])],
+        profile: DemoProfileData::default(),
+    ));
+    $pages = Mockery::mock(PageCreator::class);
+    $pages->shouldReceive('createHomePage')->once()->andReturn(new Page);
+    $pages->shouldReceive('createErrorPage')->once()->andReturn(new Page);
+    app()->instance(PageCreator::class, $pages);
+    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+        $creator = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite]', [$params['url'], $params['author']]);
+        $creator->shouldReceive('setupRelatedSites')->once()->andReturnNull();
+        $creator->shouldReceive('createPage')->once()->andReturn(new Page);
+        $creator->shouldReceive('setupSite')->twice()->andReturnNull();
 
-    expect(mb_strlen((string) $message))->toBeLessThanOrEqual(32)
-        ->and($message)->toEndWith('...');
+        return $creator;
+    });
+    $exit = Artisan::call('capell:admin-demo', ['--url' => 'https://example.test', '--user' => $user->email, '--languages' => 'en', '--sites' => 'Progress Site']);
+    $output = Artisan::output();
+    preg_match_all('/— ([^\r\n]+)/u', $output, $matches);
+    expect($exit)->toBe(0)->and($matches[1])->not->toBeEmpty();
+    foreach ($matches[1] as $message) {
+        expect(mb_strlen(trim($message)))->toBeLessThanOrEqual(32);
+    }
+
+    expect(collect($matches[1])->filter(static fn (string $message): bool => str_ends_with(trim($message), '...')))->not->toBeEmpty();
 });
 
 it('runs demo command successfully', function (): void {

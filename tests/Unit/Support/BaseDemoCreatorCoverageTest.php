@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -15,6 +16,7 @@ use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\Navigation\Providers\NavigationServiceProvider;
 use Illuminate\Database\Eloquent\Collection;
 
 beforeEach(function (): void {
@@ -149,6 +151,9 @@ it('normalizes demo page metadata content summaries and hero snippets', function
 });
 
 it('falls back to page names for navigation labels when navigation is not installed', function (): void {
+    CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName, false);
+    expect(CapellCore::isPackageInstalled(NavigationServiceProvider::$packageName))->toBeFalse();
+
     $creator = new class extends DemoCreator
     {
         /**

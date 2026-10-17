@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
@@ -14,6 +15,7 @@ use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
+use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -54,8 +56,10 @@ class DemoKitTestCase extends AbstractTestCase
             AdminServiceProvider::class,
             ContentSectionsServiceProvider::class,
             FrontendServiceProvider::class,
+            BlockLibraryServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             FormBuilderServiceProvider::class,
+            NavigationServiceProvider::class,
             FoundationThemeServiceProvider::class,
             DemoKitServiceProvider::class,
             LivewireServiceProvider::class,
@@ -73,8 +77,10 @@ class DemoKitTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(BlockLibraryServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FormBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FoundationThemeServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(DemoKitServiceProvider::$packageName);
     }

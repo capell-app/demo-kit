@@ -7,6 +7,7 @@ use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PageTypeEnum;
 use Capell\Core\Enums\PresentationDeliveryMode;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -17,7 +18,9 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Translation;
 use Capell\Core\Support\Creator\PageCreator;
+use Capell\Core\Support\Packages\InstalledRuntimeLifecycle;
 use Capell\DemoKit\Actions\InstallKitchenSinkDemoPageAction;
+use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\FoundationTheme\View\Components\Footer\LatestPages;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Support\State\FrontendState;
@@ -28,6 +31,7 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
+use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
@@ -40,6 +44,12 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 uses(CreatesAdminUser::class);
 
 beforeEach(function (): void {
+    // Foundation's asset runtime requires Navigation, including the Page asset renderer.
+    CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName);
+    app()->register(NavigationServiceProvider::class);
+    $this->loadMigrationsFrom(dirname(__DIR__, 3) . '/navigation/database/migrations');
+    resolve(InstalledRuntimeLifecycle::class)->refresh(FoundationThemeServiceProvider::$packageName);
+
     config()->set('capell-demo-kit.kitchen_sink.target_widget_count', 12);
     config()->set('capell-demo-kit.kitchen_sink.eager_widget_limit', 11);
     config()->set('capell-demo-kit.kitchen_sink.context_page_count', 4);
