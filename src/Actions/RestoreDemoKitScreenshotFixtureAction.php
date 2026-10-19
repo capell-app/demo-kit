@@ -8,6 +8,7 @@ use Capell\Core\Models\Site;
 use Capell\DemoKit\Data\DemoKitScreenshotFixtureData;
 use Capell\DemoKit\Models\DemoKitGenerationRun;
 use Capell\DemoKit\Support\DemoKitScreenshotFixtureGuard;
+use Capell\ScreenshotFixtures\FixtureState;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -25,6 +26,9 @@ final class RestoreDemoKitScreenshotFixtureAction
     public function handle(string $state, string $attemptToken): DemoKitScreenshotFixtureData
     {
         DemoKitScreenshotFixtureGuard::assertEnvironment();
+
+        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        FixtureState::boot();
         $state = DemoKitScreenshotFixtureGuard::state($state);
         $attemptToken = DemoKitScreenshotFixtureGuard::attemptToken($attemptToken);
 

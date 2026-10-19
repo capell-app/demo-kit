@@ -41,7 +41,9 @@ final class DemoKitScreenshotFixtureGuard
                 && in_array($configuredFixture, ['1', 'true', 'record-state'], true)
                 && is_string($basePath)
                 && is_string($appPath)
-                && $basePath === $appPath,
+                && $basePath === $appPath
+                && ($basePath === realpath(dirname(__DIR__, 4) . '/vendor/orchestra/testbench-core/laravel')
+                    || str_starts_with($basePath, dirname(__DIR__, 4) . '/tmp/testbench-skeletons/')),
             RuntimeException::class,
             'Demo Kit screenshot fixtures require the explicit disposable local screenshot environment.',
         );

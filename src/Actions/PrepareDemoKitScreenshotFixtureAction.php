@@ -12,6 +12,7 @@ use Capell\DemoKit\Data\DemoKitScreenshotFixtureData;
 use Capell\DemoKit\Models\DemoKitGenerationRun;
 use Capell\DemoKit\Support\DemoKitPermissions;
 use Capell\DemoKit\Support\DemoKitScreenshotFixtureGuard;
+use Capell\ScreenshotFixtures\FixtureState;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +49,9 @@ final class PrepareDemoKitScreenshotFixtureAction
     public function handle(string $state, string $attemptToken, ?Model $actor = null): DemoKitScreenshotFixtureData
     {
         DemoKitScreenshotFixtureGuard::assertEnvironment();
+
+        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        FixtureState::boot();
         $state = DemoKitScreenshotFixtureGuard::state($state);
         $attemptToken = DemoKitScreenshotFixtureGuard::attemptToken($attemptToken);
 
