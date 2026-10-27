@@ -62,17 +62,19 @@ final class AssertDefaultDemoInstallHealthAction
     {
         if ($this->hasLayoutBuilderWidgetModel()) {
             return new DoctorCheckResultData(
-                label: 'Layout Builder demo dependency',
+                label: 'Demo Kit: Layout Builder installed',
                 passed: true,
                 message: 'Layout Builder widget model is available.',
+                id: 'legacy.layout.builder.demo.dependency',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Layout Builder demo dependency',
+            label: 'Demo Kit: Layout Builder installed',
             passed: false,
             message: 'Layout Builder is not available to Demo Kit.',
             remediation: 'Install capell-app/layout-builder before running the default demo health check.',
+            id: 'legacy.layout.builder.demo.dependency',
         );
     }
 
@@ -87,17 +89,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if (! $homepage instanceof Page) {
             return new DoctorCheckResultData(
-                label: 'Default demo homepage exists',
+                label: 'Demo Kit: home page present',
                 passed: false,
                 message: 'No published homepage was found for the default site.',
                 remediation: 'Rerun php artisan capell:install --fresh --demo and confirm the theme demo step completes.',
+                id: 'legacy.default.demo.homepage.exists',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo homepage exists',
+            label: 'Demo Kit: home page present',
             passed: true,
             message: sprintf('Homepage #%d is published.', $homepage->getKey()),
+            id: 'legacy.default.demo.homepage.exists',
         );
     }
 
@@ -108,17 +112,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($widgets === []) {
             return new DoctorCheckResultData(
-                label: 'Homepage layout has widgets',
+                label: 'Demo Kit: home page has widgets',
                 passed: false,
                 message: 'The homepage layout does not contain any widget keys.',
                 remediation: 'Run the selected theme setup/demo command after package setup has completed.',
+                id: 'legacy.homepage.layout.has.widgets',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage layout has widgets',
+            label: 'Demo Kit: home page has widgets',
             passed: true,
             message: sprintf('Homepage layout references %d widget occurrence(s).', count($widgets)),
+            id: 'legacy.homepage.layout.has.widgets',
         );
     }
 
@@ -128,17 +134,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($count < $this->profile->minimumWidgetCount) {
             return new DoctorCheckResultData(
-                label: 'Default demo widget count',
+                label: 'Demo Kit: expected widgets present',
                 passed: false,
                 message: sprintf('Homepage has %d widget(s); expected at least %d.', $count, $this->profile->minimumWidgetCount),
                 remediation: 'Rerun the demo package step and confirm the demo package runs after setup packages.',
+                id: 'legacy.default.demo.widget.count',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo widget count',
+            label: 'Demo Kit: expected widgets present',
             passed: true,
             message: sprintf('Homepage has %d widget(s).', $count),
+            id: 'legacy.default.demo.widget.count',
         );
     }
 
@@ -150,7 +158,7 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($actual !== $this->profile->showcaseWidgetOrder) {
             return new DoctorCheckResultData(
-                label: 'Default demo showcase widget order',
+                label: 'Demo Kit: showcase widgets in order',
                 passed: false,
                 message: sprintf(
                     'Homepage starts with [%s]; expected [%s].',
@@ -158,13 +166,15 @@ final class AssertDefaultDemoInstallHealthAction
                     implode(', ', $this->profile->showcaseWidgetOrder),
                 ),
                 remediation: 'Rerun the demo package step so the curated Foundation showcase homepage layout is rebuilt.',
+                id: 'legacy.default.demo.showcase.widget.order',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo showcase widget order',
+            label: 'Demo Kit: showcase widgets in order',
             passed: true,
             message: 'Homepage uses the configured showcase widget order.',
+            id: 'legacy.default.demo.showcase.widget.order',
         );
     }
 
@@ -186,17 +196,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($missingKeys !== []) {
             return new DoctorCheckResultData(
-                label: 'Default demo showcase widget keys',
+                label: 'Demo Kit: showcase widget types valid',
                 passed: false,
                 message: sprintf('Missing configured demo widget key(s): %s.', implode(', ', $missingKeys)),
                 remediation: 'Update capell-demo-kit health config or rerun the Foundation showcase demo so configured widget keys exist.',
+                id: 'legacy.default.demo.showcase.widget.keys',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo showcase widget keys',
+            label: 'Demo Kit: showcase widget types valid',
             passed: true,
             message: sprintf('All %d configured showcase widget key(s) exist.', count($expectedKeys)),
+            id: 'legacy.default.demo.showcase.widget.keys',
         );
     }
 
@@ -214,18 +226,20 @@ final class AssertDefaultDemoInstallHealthAction
 
             if ($assetCount < $minimum) {
                 return new DoctorCheckResultData(
-                    label: 'Default demo AP widget assets',
+                    label: 'Demo Kit: showcase widget assets present',
                     passed: false,
                     message: sprintf('Widget "%s" has %d asset(s); expected at least %d.', $widgetKey, $assetCount, $minimum),
                     remediation: 'Rerun the default demo fixtures so AP widgets receive their editable content and media assets.',
+                    id: 'legacy.default.demo.ap.widget.assets',
                 );
             }
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo AP widget assets',
+            label: 'Demo Kit: showcase widget assets present',
             passed: true,
             message: 'AP showcase widgets have the expected editable assets.',
+            id: 'legacy.default.demo.ap.widget.assets',
         );
     }
 
@@ -235,7 +249,7 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($firstWidgetKey === null || ! in_array($firstWidgetKey, $this->profile->homepageOpeningWidgetKeys, true)) {
             return new DoctorCheckResultData(
-                label: 'Homepage starts with a hero widget',
+                label: 'Demo Kit: home page starts with a hero',
                 passed: false,
                 message: $firstWidgetKey === null
                     ? 'The homepage layout has no first widget.'
@@ -245,13 +259,15 @@ final class AssertDefaultDemoInstallHealthAction
                         implode(', ', $this->profile->homepageOpeningWidgetKeys),
                     ),
                 remediation: 'Rerun the demo package step after the selected theme setup so the homepage layout order is rebuilt.',
+                id: 'legacy.homepage.starts.with.a.hero.widget',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Homepage starts with a hero widget',
+            label: 'Demo Kit: home page starts with a hero',
             passed: true,
             message: sprintf('Homepage starts with configured opening widget "%s".', $firstWidgetKey),
+            id: 'legacy.homepage.starts.with.a.hero.widget',
         );
     }
 
@@ -259,10 +275,11 @@ final class AssertDefaultDemoInstallHealthAction
     {
         if (! Schema::hasTable('media')) {
             return new DoctorCheckResultData(
-                label: 'Default demo media count',
+                label: 'Demo Kit: expected media present',
                 passed: false,
                 message: 'The media table does not exist.',
                 remediation: 'Run php artisan migrate and rerun the demo package step.',
+                id: 'legacy.default.demo.media.count',
             );
         }
 
@@ -270,17 +287,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($count < $this->profile->minimumMediaCount) {
             return new DoctorCheckResultData(
-                label: 'Default demo media count',
+                label: 'Demo Kit: expected media present',
                 passed: false,
                 message: sprintf('Demo has %d media record(s); expected at least %d.', $count, $this->profile->minimumMediaCount),
                 remediation: 'Rerun php artisan capell:install --fresh --demo and confirm media fixtures publish successfully.',
+                id: 'legacy.default.demo.media.count',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo media count',
+            label: 'Demo Kit: expected media present',
             passed: true,
             message: sprintf('Demo has %d media record(s).', $count),
+            id: 'legacy.default.demo.media.count',
         );
     }
 
@@ -305,17 +324,19 @@ final class AssertDefaultDemoInstallHealthAction
 
         if ($found) {
             return new DoctorCheckResultData(
-                label: 'Default demo placeholder labels',
+                label: 'Demo Kit: placeholder labels replaced',
                 passed: false,
                 message: 'The demo still contains placeholder or generic homepage labels.',
                 remediation: 'Rerun the default demo fixtures and ensure the Foundation showcase copy replaces generic AP/lorem content.',
+                id: 'legacy.default.demo.placeholder.labels',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo placeholder labels',
+            label: 'Demo Kit: placeholder labels replaced',
             passed: true,
             message: 'No known placeholder homepage labels were found.',
+            id: 'legacy.default.demo.placeholder.labels',
         );
     }
 
@@ -326,17 +347,19 @@ final class AssertDefaultDemoInstallHealthAction
         if ($graph->packageHas('capell-app/frontend', PackageCapability::PublicStatic)
             || $graph->packageHas('capell-app/theme-foundation', PackageCapability::FrontendAssets)) {
             return new DoctorCheckResultData(
-                label: 'Default demo package capabilities',
+                label: 'Demo Kit: package features available',
                 passed: true,
                 message: 'The package capability graph includes frontend demo capabilities.',
+                id: 'legacy.default.demo.package.capabilities',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo package capabilities',
+            label: 'Demo Kit: package features available',
             passed: false,
             message: 'The package capability graph does not include expected frontend demo capabilities.',
             remediation: 'Confirm capell.json manifests are discovered and include typed frontend capabilities.',
+            id: 'legacy.default.demo.package.capabilities',
         );
     }
 
@@ -344,17 +367,19 @@ final class AssertDefaultDemoInstallHealthAction
     {
         if (class_exists(BuildHtmlCacheEligibilityReportAction::class)) {
             return new DoctorCheckResultData(
-                label: 'Default demo cache eligibility diagnostics',
+                label: 'Demo Kit: cache eligibility available',
                 passed: true,
                 message: 'HTML cache eligibility diagnostics are available for demo routes.',
+                id: 'legacy.default.demo.cache.eligibility.diagnostics',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo cache eligibility diagnostics',
+            label: 'Demo Kit: cache eligibility available',
             passed: false,
             message: 'HTML cache eligibility diagnostics are not available.',
             remediation: 'Install capell-app/html-cache with the demo package set.',
+            id: 'legacy.default.demo.cache.eligibility.diagnostics',
         );
     }
 
@@ -362,17 +387,19 @@ final class AssertDefaultDemoInstallHealthAction
     {
         if (class_exists(AssertPublicRenderContractAction::class)) {
             return new DoctorCheckResultData(
-                label: 'Default demo public render contract',
+                label: 'Demo Kit: public rendering ready',
                 passed: true,
                 message: 'The public render contract can validate demo frontend output.',
+                id: 'legacy.default.demo.public.render.contract',
             );
         }
 
         return new DoctorCheckResultData(
-            label: 'Default demo public render contract',
+            label: 'Demo Kit: public rendering ready',
             passed: false,
             message: 'The public render contract action is not available.',
             remediation: 'Update capell-app/frontend before running demo parity checks.',
+            id: 'legacy.default.demo.public.render.contract',
         );
     }
 

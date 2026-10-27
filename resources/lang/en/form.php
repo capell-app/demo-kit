@@ -12,6 +12,7 @@ return [
     'cta' => 'CTA',
     'description' => 'Description',
     'eyebrow' => 'Eyebrow',
+    'email' => 'Email address',
     'heading' => 'Heading',
     'homepage_content' => 'Homepage content',
     'image_alt' => 'Image alt text',

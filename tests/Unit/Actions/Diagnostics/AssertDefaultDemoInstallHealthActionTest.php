@@ -58,11 +58,11 @@ it('passes the showcase order asset and placeholder demo checks for curated home
         createDemoHealthWidget($key, showcaseWidgetTitle($key));
     }
 
-    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('id');
 
-    expect(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo AP widget assets')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeTrue();
+    expect(demoHealthCheck($checks, 'legacy.default.demo.showcase.widget.order')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.ap.widget.assets')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.placeholder.labels')->passed)->toBeTrue();
 });
 
 it('allows applications to configure the homepage health profile', function (): void {
@@ -99,11 +99,11 @@ it('allows applications to configure the homepage health profile', function (): 
         ->withTranslations($language, ['title' => 'Home'])
         ->create();
 
-    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('id');
 
-    expect(demoHealthCheck($checks, 'Homepage starts with a hero widget')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeTrue();
+    expect(demoHealthCheck($checks, 'legacy.homepage.starts.with.a.hero.widget')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.showcase.widget.order')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.media.count')->passed)->toBeTrue();
 });
 
 it('fails when the homepage keeps generic AP labels or an incomplete showcase order', function (): void {
@@ -120,23 +120,23 @@ it('fails when the homepage keeps generic AP labels or an incomplete showcase or
 
     createDemoHealthWidget('ap-card-grid', 'AP Card Grid');
 
-    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('id');
 
-    expect(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo placeholder labels')->passed)->toBeFalse();
+    expect(demoHealthCheck($checks, 'legacy.default.demo.showcase.widget.order')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.placeholder.labels')->passed)->toBeFalse();
 });
 
 it('reports actionable demo health failures before homepage content and media are installed', function (): void {
-    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('label');
+    $checks = AssertDefaultDemoInstallHealthAction::run()->checks->keyBy('id');
 
-    expect(demoHealthCheck($checks, 'Layout Builder demo dependency')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo homepage exists')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Homepage layout has widgets')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Homepage starts with a hero widget')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo showcase widget order')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo widget count')->passed)->toBeFalse()
-        ->and(demoHealthCheck($checks, 'Default demo AP widget assets')->passed)->toBeTrue()
-        ->and(demoHealthCheck($checks, 'Default demo media count')->passed)->toBeFalse();
+    expect(demoHealthCheck($checks, 'legacy.layout.builder.demo.dependency')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.homepage.exists')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.homepage.layout.has.widgets')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.homepage.starts.with.a.hero.widget')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.showcase.widget.order')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.widget.count')->passed)->toBeFalse()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.ap.widget.assets')->passed)->toBeTrue()
+        ->and(demoHealthCheck($checks, 'legacy.default.demo.media.count')->passed)->toBeFalse();
 });
 
 /**

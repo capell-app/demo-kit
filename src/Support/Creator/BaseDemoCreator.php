@@ -863,7 +863,7 @@ abstract class BaseDemoCreator
             return;
         }
 
-        $formModel::query()->updateOrCreate(
+        $formModel::query()->firstOrCreate(
             [
                 'site_id' => $site->getKey(),
                 'handle' => 'contact',
@@ -880,7 +880,7 @@ abstract class BaseDemoCreator
                     ],
                     [
                         'key' => 'email',
-                        'label' => 'Email',
+                        'label' => __('capell-demo-kit::form.email'),
                         'type' => 'email',
                         'required' => true,
                         'validation_rules' => ['email'],

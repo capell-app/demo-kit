@@ -142,8 +142,13 @@ Screenshot contract: `docs/screenshots.json`.
 
 ### Command signatures
 
+- `capell:admin-demo`
+- `capell:demo`
 - `capell:demo-kit-doctor`
 - `capell:demo-kit-full-demo`
+- `capell:demo-kit-kitchen-sink`
+- `capell:demo-kit-refresh-stitch-pages`
+- `capell:demo-kit-screenshot-fixture`
 
 ### Console command classes
 
@@ -206,7 +211,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Settings: no package settings declared.
 - Queues or schedules: queue jobs `RunDemoKitGenerationJob`.
 - Cache tags: `demo-kit`.
-- Commands: `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`.
+- Commands: `capell:admin-demo`, `capell:demo`, `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`, `capell:demo-kit-kitchen-sink`, `capell:demo-kit-refresh-stitch-pages`, `capell:demo-kit-screenshot-fixture`.
 
 ## Common Pitfalls
 
@@ -231,6 +236,12 @@ Screenshot contract: `docs/screenshots.json`.
 1. Install the package: `composer require capell-app/demo-kit`.
 2. See it working: run `php artisan capell:demo-kit-full-demo`.
 3. Open the package admin surface at `/admin/demo-kit` and confirm Demo Kit is available.
+
+## Upgrading
+
+No manual steps between minor versions.
+
+Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 
 ## Next Steps
 

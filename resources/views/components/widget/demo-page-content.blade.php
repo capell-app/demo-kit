@@ -381,7 +381,7 @@
                         method="post"
                         action="#"
                     >
-                        @foreach ([['contact-name', 'name', 'text', 'Name', 'name'], ['contact-email', 'email', 'email', 'Work email', 'email'], ['contact-company', 'company', 'text', 'Company', 'organization']] as [$id, $name, $type, $label, $autocomplete])
+                        @foreach ([['contact-name', 'name', 'text', 'Name', 'name'], ['contact-email', 'email', 'email', __('capell-demo-kit::form.email'), 'email'], ['contact-company', 'company', 'text', 'Company', 'organization']] as [$id, $name, $type, $label, $autocomplete])
                             <div class="grid gap-2">
                                 <label
                                     class="text-sm font-bold text-slate-800"

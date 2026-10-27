@@ -398,7 +398,44 @@ it('uses standalone contact and footer layouts for demo pages', function (): voi
         ])
         ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->exists())->toBeTrue()
         ->and(Widget::query()->where('key', 'contact-form')->where('component', 'capell-form-builder::widget.form')->exists())->toBeTrue();
+
+    $form = Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->firstOrFail();
+
+    expect(collect($form->schema)->firstWhere('key', 'email'))->toMatchArray([
+        'key' => 'email',
+        'label' => 'Email address',
+        'type' => 'email',
+        'required' => true,
+        'validation_rules' => ['email'],
+    ]);
 });
+
+it('preserves authored contact forms when creating demo contact pages', function (string $emailLabel): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $form = Form::factory()->create([
+        'site_id' => $site->getKey(),
+        'handle' => 'contact',
+        'name' => 'Project enquiries',
+        'description' => 'Our custom contact form.',
+        'schema' => [
+            ['key' => 'email', 'label' => $emailLabel, 'type' => 'email', 'required' => false],
+        ],
+        'settings' => ['success_message' => 'We will be in touch.'],
+        'is_active' => false,
+    ]);
+    $originalAttributes = $form->refresh()->getAttributes();
+    $demoCreator = new DemoCreator;
+    $demoCreator->setupSite($site);
+
+    $demoCreator->createPage([
+        'name' => ['en' => 'Contact'],
+        'title' => ['en' => 'Contact'],
+    ], $site, createMedia: false);
+
+    expect($form->fresh()?->getAttributes())->toBe($originalAttributes)
+        ->and(Form::query()->where('site_id', $site->getKey())->where('handle', 'contact')->count())->toBe(1);
+})->with(['Email', 'Your work email']);
 
 it('adds the reusable bottom banner to the demo article layout', function (): void {
     Blueprint::factory()->create([

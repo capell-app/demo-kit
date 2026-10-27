@@ -154,7 +154,7 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
             'faq-accordion' => '<button type="button" aria-expanded="false" aria-controls="faq-panel-demo" id="faq-button-demo">What does this prove?</button><div id="faq-panel-demo" role="region" aria-labelledby="faq-button-demo" hidden><p>The accordion uses a native button and labelled panel.</p></div>',
             'tabs' => '<div role="tablist" aria-label="Demo tab set"><button type="button" role="tab" aria-selected="true" aria-controls="tab-panel-overview" id="tab-overview">Overview</button><button type="button" role="tab" aria-selected="false" aria-controls="tab-panel-details" id="tab-details" tabindex="-1">Details</button></div><div id="tab-panel-overview" role="tabpanel" aria-labelledby="tab-overview"><p>Tab panels stay labelled and keyboard reachable.</p></div>',
             'table-of-data', 'complex-table' => '<table><caption>' . e(str($key)->headline()->toString()) . ' example</caption><thead><tr><th scope="col">Pattern</th><th scope="col">Status</th></tr></thead><tbody><tr><th scope="row">Semantic HTML</th><td>Ready</td></tr></tbody></table>',
-            'form-field-demo', 'full-form' => '<form action="#" method="post"><label for="' . $escapedKey . '-email">Work email</label><input id="' . $escapedKey . '-email" name="email" type="email" aria-describedby="' . $escapedKey . '-email-help ' . $escapedKey . '-email-error"><p id="' . $escapedKey . '-email-help">Use a visible label and helper text.</p><p id="' . $escapedKey . '-email-error" role="alert">Example validation message.</p><button type="button">Submit demo form</button></form>',
+            'form-field-demo', 'full-form' => '<form action="#" method="post"><label for="' . $escapedKey . '-email">' . e(__('capell-demo-kit::form.email')) . '</label><input id="' . $escapedKey . '-email" name="email" type="email" aria-describedby="' . $escapedKey . '-email-help ' . $escapedKey . '-email-error"><p id="' . $escapedKey . '-email-help">Use a visible label and helper text.</p><p id="' . $escapedKey . '-email-error" role="alert">Example validation message.</p><button type="button">Submit demo form</button></form>',
             default => '<p aria-labelledby="' . $escapedKey . '-heading">Reference output.</p>',
         };
     }
@@ -221,14 +221,14 @@ final class KitchenSinkPublicLayoutWidgetPayloadContributor implements PublicLay
         int $stressIndex,
     ): ?string {
         $layout = $page->relationLoaded('layout') ? $page->getRelation('layout') : null;
-        $layoutId = $layout instanceof Model ? $layout->getKey() : $page->getAttribute('layout_id');
+        $layoutId = (string) ($layout instanceof Model ? $layout->getKey() : $page->getAttribute('layout_id'));
         $reference = BuildLayoutBuilderFragmentReferenceAction::run($containerKey, $occurrence, $widget);
 
         if (! is_string($reference) || $reference === '') {
             return null;
         }
 
-        $widgetDomId = 'layout-widget-' . hash('xxh128', (string) $layoutId . ':' . $containerKey . ':' . (string) ($stressIndex - 1));
+        $widgetDomId = 'layout-widget-' . hash('xxh128', $layoutId . ':' . $containerKey . ':' . ($stressIndex - 1));
 
         return '<div id="' . e($widgetDomId) . '" data-deferred-fragment data-deferred-fragment-url="'
             . e(url('/_fragments/' . rawurlencode($reference)))
