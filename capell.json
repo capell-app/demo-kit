@@ -19,7 +19,8 @@
             "capell-app/admin",
             "capell-app/core",
             "capell-app/frontend",
-            "capell-app/layout-builder"
+            "capell-app/layout-builder",
+            "capell-app/theme-foundation"
         ],
         "supports": [],
         "conflicts": []

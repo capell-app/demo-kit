@@ -20,14 +20,24 @@
                         <ul class="list-disc pl-5">
                             @foreach ($generationReview['created_content'] ?? [] as $content)
                                 <li>
-                                    @if (($content['url'] ?? '') !== '')
+                                    {{ ($content['name'] ?? '') !== '' ? $content['name'] : __('capell-demo-kit::page.result_unavailable') }}
+                                    @if (is_string($content['edit_url'] ?? null))
                                         <a
                                             class="underline"
-                                            href="{{ $content['url'] }}"
-                                            >{{ $content['name'] }}</a
+                                            href="{{ $content['edit_url'] }}"
+                                            >{{ __('capell-demo-kit::page.edit_site') }}</a
+                                        >
+                                    @endif
+                                    @if (is_string($content['public_url'] ?? null))
+                                        <a
+                                            class="underline"
+                                            href="{{ $content['public_url'] }}"
+                                            >{{ __('capell-demo-kit::page.view_public_page') }}</a
                                         >
                                     @else
-                                        {{ $content['name'] }}
+                                        <span
+                                            >{{ __('capell-demo-kit::page.public_page_unavailable') }}</span
+                                        >
                                     @endif
                                 </li>
                             @endforeach

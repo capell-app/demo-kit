@@ -232,7 +232,9 @@
             @endphp
 
             @if ($capellHeroBackground?->enabled)
-                <x-capell-hero::hero.background
+                {{-- Hero is optional: resolve its component at render time so this view compiles without it. --}}
+                <x-dynamic-component
+                    component="capell-hero::hero.background"
                     :background="$capellHeroBackground"
                 />
             @endif

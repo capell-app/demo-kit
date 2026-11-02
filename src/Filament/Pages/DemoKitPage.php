@@ -12,6 +12,7 @@ use Capell\DemoKit\Actions\ListDemoKitProvenanceSitesAction;
 use Capell\DemoKit\Actions\QueueDemoKitGenerationAction;
 use Capell\DemoKit\Actions\ReclaimStalledDemoKitGenerationRunsAction;
 use Capell\DemoKit\Actions\ResetDemoKitProvenanceAction;
+use Capell\DemoKit\Actions\ResolveDemoKitResultAction;
 use Capell\DemoKit\Models\DemoKitGenerationRun;
 use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Filament\Actions\Action;
@@ -217,7 +218,10 @@ final class DemoKitPage extends Page
         $this->generationStatus = $run->status;
         $this->generationError = $run->error_message;
         $this->generationReview = is_array($run->review)
-            ? [...$run->review, 'created_content' => $run->created_content]
+            ? [...$run->review, 'created_content' => array_map(
+                static fn (array $content): array => ResolveDemoKitResultAction::run($content),
+                array_values(array_filter($run->created_content ?? [], 'is_array')),
+            )]
             : null;
         $this->generationReviewFingerprint = $run->fingerprint;
     }

@@ -15,7 +15,7 @@ it('forwards every reviewed generation option to the full demo command', functio
         /** @var array<string, mixed> */
         public array $received = [];
 
-        protected $signature = 'test:review-options {--url=} {--languages=*} {--sites=*} {--seed=} {--site-count=} {--page-count=} {--force}';
+        protected $signature = 'test:review-options {--url=} {--languages=} {--sites=} {--seed=} {--site-count=} {--page-count=} {--force}';
 
         public function handle(): int
         {
@@ -39,8 +39,8 @@ it('forwards every reviewed generation option to the full demo command', functio
     expect($command->received)->toMatchArray([
         'force' => true,
         'url' => 'https://example.test',
-        'languages' => ['en', 'fr'],
-        'sites' => ['Reviewed Site'],
+        'languages' => 'en,fr',
+        'sites' => 'Reviewed Site',
         'seed' => 44,
         'site-count' => 1,
         'page-count' => 3,

@@ -125,5 +125,6 @@ it('renders the review counts, collision warning, created links, and every durab
         ->set('generationReviewFingerprint', str_repeat('c', 64))
         ->assertSee(__('capell-demo-kit::page.generation_status.completed'))
         ->assertSee('Generated Site')
-        ->assertSee('/admin/sites/1/edit');
+        ->assertDontSee('/admin/sites/1/edit')
+        ->assertSee(__('capell-demo-kit::page.public_page_unavailable'));
 });

@@ -74,7 +74,14 @@ final class InsertExampleSiteDataAction
                 continue;
             }
 
-            $params['--' . $option] = $data[$param];
+            $value = $data[$param];
+            // The full demo command declares these as scalar CSV options, not
+            // repeatable options. Symfony rejects an array for a scalar option.
+            if (in_array($param, ['languages', 'sites'], true) && is_array($value)) {
+                $value = implode(',', array_filter($value, is_string(...)));
+            }
+
+            $params['--' . $option] = $value;
         }
 
         return $params;

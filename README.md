@@ -123,6 +123,7 @@ Screenshot contract: `docs/screenshots.json`.
 - `RefreshDemoStitchPagesAction`
 - `ResetDemoKitProvenanceAction`
 - `ResetDemoSitesAction`
+- `ResolveDemoKitResultAction`
 - `RestoreDemoKitScreenshotFixtureAction`
 - `SyncKitchenSinkPageAssetsAction`
 
@@ -201,7 +202,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Install Impact
 
-- Required packages: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Required packages: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/theme-foundation`.
 - Admin navigation: declares `admin-page: DemoKitAdminPageContribution`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: DemoKitConfiguratorContribution`, `dashboard-widget: DemoKitRenderablesContribution`.
 - Permissions: Shield-generated page permissions for `Capell\DemoKit\Filament\Pages\DemoKitPage` (names and grants depend on host Shield configuration).
@@ -215,7 +216,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 ## Common Pitfalls
 
-- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`.
+- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/theme-foundation`.
 - Run migrations before opening package resources or public routes.
 - Review package configuration before production-like verification: `config/capell-demo-kit.php`.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
@@ -254,6 +255,6 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Layout Builder](../layout-builder/README.md).
+- Related packages: [Layout Builder](../layout-builder/README.md), [Theme Foundation](../theme-foundation/README.md).
 
 <!-- prettier-ignore-end -->

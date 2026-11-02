@@ -29,6 +29,10 @@ return [
     'collision_reuse' => 'reusable Demo Kit provenance',
     'collision_blocked' => 'ordinary content — blocked',
     'fingerprint' => 'Plan fingerprint: :fingerprint',
+    'result_unavailable' => 'Site result unavailable',
+    'edit_site' => 'Edit site',
+    'view_public_page' => 'View public page',
+    'public_page_unavailable' => 'No public homepage is currently available. Enable a site domain and publish an accessible homepage before viewing it.',
     'completed_fingerprint' => 'Completed plan fingerprint: :fingerprint',
     'generation_status' => [
         'queued' => 'Generation is queued.',

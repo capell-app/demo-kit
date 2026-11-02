@@ -37,6 +37,8 @@ shared application environment. Restore with the same state and token plus
 removes only rows created by that attempt. Do not run this command against a
 shared or production database.
 
+After generation, the completion panel offers an edit action when permitted and a public homepage link only when the current domain and published page resolve for that site. If no public homepage is available, enable a domain and publish an accessible homepage before viewing it. Older results are checked against current site state.
+
 ---
 
 For developers: see the [README](../README.md).
