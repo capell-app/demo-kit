@@ -34,7 +34,7 @@ final class ResolveDemoKitResultAction
         $name = is_string($content['name'] ?? null) ? $content['name'] : '';
         $result = ['name' => '', 'edit_url' => null, 'public_url' => null];
         $id = $content['site_id'] ?? null;
-        if (! app()->environment(['local', 'testing']) || ! DemoKitPermissions::canManage(auth()->user()) || ! is_int($id)) {
+        if (config('capell-demo-kit.result_links') !== true || ! DemoKitPermissions::canManage(auth()->user()) || ! is_int($id)) {
             return $result;
         }
 

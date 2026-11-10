@@ -15,6 +15,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\Core\Support\TableName;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
@@ -251,9 +252,9 @@ abstract class BaseDemoCreator
             ->with(['language'])
             ->withWhereHas(
                 'translation',
-                fn (BuilderContract $query): BuilderContract => $query->whereIn('translations.language_id', $language_ids),
+                fn (BuilderContract $query): BuilderContract => $query->whereIn(TableName::resolve('translations') . '.language_id', $language_ids),
             )
-            ->whereNot('sites.id', $site->id)
+            ->whereNot(TableName::resolve('sites') . '.id', $site->id)
             ->get();
     }
 
@@ -859,7 +860,7 @@ abstract class BaseDemoCreator
 
         if (! CapellCore::isPackageInstalled(self::FormBuilderPackage)
             || ! class_exists($formModel)
-            || ! Schema::hasTable('forms')) {
+            || ! Schema::hasTable(TableName::resolve('forms'))) {
             return;
         }
 
@@ -1663,6 +1664,7 @@ abstract class BaseDemoCreator
      */
     protected function imageDimensions(string $path): array
     {
+        // capell-security-scan: local-stream reads demo media files resolved inside the demo resource directory
         $dimensions = @getimagesize($path);
 
         if (! is_array($dimensions)) {

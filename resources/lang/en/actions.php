@@ -19,7 +19,7 @@ return [
     'profile_recommended' => 'Recommended example site',
     'queue_confirmation_required' => 'Explicit confirmation is required before queuing demo generation.',
     'queue_generation' => 'Queue reviewed generation',
-    'queue_generation_description' => 'Queue :sites site(s), :languages site-language pair(s), :pages page(s), and :media media item(s)? Fingerprint: :fingerprint',
+    'queue_generation_description' => 'Queue :sites sites, :languages site-language pairs, :pages pages and :media media items? Fingerprint: :fingerprint',
     'queue_generation_heading' => 'Confirm demo generation',
     'reset_demo_sites' => 'Reset generated sites',
     'reset_demo_sites_description' => 'This removes only sites marked as provisioned by Demo Kit. Ordinary sites are never selected or deleted.',

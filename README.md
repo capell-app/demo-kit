@@ -2,203 +2,79 @@
 
 <!-- prettier-ignore-start -->
 
-## What This Plugin Adds
-
-Demo Kit is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
+## What It Does
 
 Demo Kit creates deterministic demo users, sites, languages, pages, media, and package examples from a repeatable generation plan.
 
+- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
+- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`, `fakerphp/faker ^1.24.1`.
+- **Install:** `composer require capell-app/demo-kit`.
+
 Administrators can start demo generation from a package page or console command, then inspect the generated pages and components on the frontend.
 
-Status details:
-
-- Status: Available
-- Tier: free
-- Bundle: foundation
-- Composer package: `capell-app/demo-kit`
-- Namespace: `Capell\DemoKit`
-- Theme key: not applicable
-
-## Why It Matters
+## Who It Is For
 
 **For developers:** Typed generation plans and package demo command orchestration make local setup, screenshots, and QA data reproducible from a chosen seed.
 
 **For teams:** Teams can evaluate a populated site before entering real content and reset the sample state between demos, with explicit guards against production seeding.
 
-## Screens And Workflow
+## Quick Start
 
-Screenshot contract: `docs/screenshots.json`.
+1. Install the package: `composer require capell-app/demo-kit`.
+2. For developers and operators preparing a local or demo site: A local or testing environment, and permission to manage extensions. The page is not available in production.
+3. Open `/admin/demo-kit`. Choose **Plan demo generation**, enter the site URL and any sites and languages, then review the plan. Choose **Queue reviewed generation** and confirm.
+4. Check the result: The page reports that generation is queued, then that example site data was generated, with **Edit site** and **View public page** links for each site. Next: Run `php artisan capell:demo-kit-doctor` to check the generated data, and replace the sample content before launch.
+
+## Configure
+
+- **Configuration files:** `config/capell-demo-kit.php`.
+- **Commands:** `php artisan capell:admin-demo`, `php artisan capell:demo`, `php artisan capell:demo-kit-doctor`, `php artisan capell:demo-kit-full-demo`, `php artisan capell:demo-kit-kitchen-sink`, `php artisan capell:demo-kit-refresh-stitch-pages`, `php artisan capell:demo-kit-screenshot-fixture`.
+
+## Limits And Pitfalls
+
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`.
+- Run migrations before opening package resources or public routes.
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Custom write integrations must preserve invalidation for `demo-kit` cache tags.
+
+## Screens And Workflow
 
 ![Demo Kit ready to plan](docs/screenshots/demo-kit-admin-page.png)
 
 ![Demo Kit ready to plan on mobile](docs/screenshots/demo-kit-admin-page-mobile.png)
 
-- Demo Kit ready to plan (admin, required evidence).
-- Demo Kit ready to plan on mobile (admin, required evidence).
-- Recommended generation profile (admin, required evidence).
-- Recommended generation profile on mobile (admin, required evidence).
-- Custom generation profile (admin, required evidence).
-- Custom generation profile on mobile (admin, required evidence).
-- Generation review before confirmation (admin, required evidence).
-- Generation review before confirmation on mobile (admin, required evidence).
-- Review of reusable generated sites (admin, required evidence).
-- Review of reusable generated sites on mobile (admin, required evidence).
-- Review blocked by ordinary content (admin, required evidence).
-- Review blocked by ordinary content on mobile (admin, required evidence).
-- Explicit generation confirmation (admin, required evidence).
-- Explicit generation confirmation on mobile (admin, required evidence).
-- Queued generation (admin, required evidence).
-- Queued generation on mobile (admin, required evidence).
-- Running generation (admin, required evidence).
-- Running generation on mobile (admin, required evidence).
-- Completed generation and created content (admin, required evidence).
-- Completed generation and created content on mobile (admin, required evidence).
-- Failed generation with redacted error (admin, required evidence).
-- Failed generation with redacted error on mobile (admin, required evidence).
-- Stalled generation requiring a new review (admin, required evidence).
-- Stalled generation requiring a new review on mobile (admin, required evidence).
-- Provenance-only reset confirmation (admin, required evidence).
-- Provenance-only reset confirmation on mobile (admin, required evidence).
-- Demo Kit with navigation open (admin, required evidence).
-- Demo Kit with navigation open on mobile (admin, required evidence).
-- Insights consent priming capture (frontend, supplementary evidence).
-- Generated demo page content widget (frontend, required evidence).
-- Generated homepage section widget (frontend, required evidence).
-
-## Technical Shape
-
-### Service providers
-
-- `Capell\DemoKit\Providers\DemoKitServiceProvider`
-- `Capell\DemoKit\Providers\ConsoleServiceProvider`
-
-### Config files
-
-- `packages/demo-kit/config/capell-demo-kit.php`
-
-### Migrations
-
-- `packages/demo-kit/database/migrations/2026_07_19_130000_create_demo_kit_generation_runs_table.php`
-- `packages/demo-kit/database/migrations/2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table.php`
-
-### Models
-
-- `DemoKitGenerationRun`
-
-### Filament classes
-
-- `HomepageSectionWidgetConfigurator`
-- `DemoKitPage`
-
-### Livewire components
-
-- `KitchenSinkStressWidget`
-- `ResourcesLibrary`
-
-### Actions
-
-- `BuildDemoGenerationPlanAction`
-- `BuildDemoGenerationReviewAction`
-- `BuildDemoPageContentViewDataAction`
-- `BuildKitchenSinkLayoutWidgetEntriesAction`
-- `ConfigureKitchenSinkReferenceWidgetsAction`
-- `CreateDemoLanguagesAction`
-- `CreateDemoSiteAction`
-- `CreateDemoUsersAction`
-- `CreateKitchenSinkContextPagesAction`
-- `CreateKitchenSinkSourceWidgetsAction`
-- `CreateKitchenSinkVariantWidgetsAction`
-- `AssertDefaultDemoInstallHealthAction`
-- `DemoInstallHealthData`
-- `DummyContentGeneratorAction`
-- `HasDemoSiteProvenanceAction`
-- `InsertExampleSiteDataAction`
-- `InstallKitchenSinkDemoPageAction`
-- `ListDemoKitProvenanceSitesAction`
-- `MarkDemoSiteProvenanceAction`
-- `PrepareDemoKitScreenshotFixtureAction`
-- `QueueDemoKitGenerationAction`
-- `ReclaimStalledDemoKitGenerationRunsAction`
-- `RedactDemoKitErrorMessageAction`
-- `RefreshDemoStitchPagesAction`
-- `ResetDemoKitProvenanceAction`
-- `ResetDemoSitesAction`
-- `ResolveDemoKitResultAction`
-- `RestoreDemoKitScreenshotFixtureAction`
-- `SyncKitchenSinkPageAssetsAction`
-
-### Data objects
-
-- `DemoGenerationPlanData`
-- `DemoGenerationReviewData`
-- `DemoKitScreenshotFixtureData`
-- `DemoPageContentViewData`
-- `DemoPagePlanData`
-- `DemoProfileData`
-- `DemoSiteGenerationPlanData`
-
-### Jobs
-
-- `RunDemoKitGenerationJob`
-
-### Command signatures
-
-- `capell:admin-demo`
-- `capell:demo`
-- `capell:demo-kit-doctor`
-- `capell:demo-kit-full-demo`
-- `capell:demo-kit-kitchen-sink`
-- `capell:demo-kit-refresh-stitch-pages`
-- `capell:demo-kit-screenshot-fixture`
-
-### Console command classes
-
-- `AdminDemoCommand`
-- `GuardsAgainstProduction`
-- `HasLanguagesOption`
-- `HasSitesOption`
-- `DemoCommand`
-- `DemoKitDoctorCommand`
-- `DemoKitScreenshotFixtureCommand`
-- `FullDemoCommand`
-- `KitchenSinkDemoCommand`
-- `RefreshDemoStitchPagesCommand`
-
-### Manifest contributions
-
-- `admin-page: Capell\DemoKit\Manifest\DemoKitAdminPageContribution`
-- `asset: Capell\DemoKit\Manifest\DemoKitAssetsContribution`
-- `configurator: Capell\DemoKit\Manifest\DemoKitConfiguratorContribution`
-- `console-command: Capell\DemoKit\Manifest\DemoKitConsoleCommandsContribution`
-- `dashboard-widget: Capell\DemoKit\Manifest\DemoKitRenderablesContribution`
-- `frontend-component: Capell\DemoKit\Manifest\DemoKitFrontendComponentsContribution`
-- `health-check: Capell\DemoKit\Health\DemoKitHealthCheck`
-
-### Health checks
-
-- `Capell\DemoKit\Health\DemoKitHealthCheck`
-
-### Blade views
-
-- `packages/demo-kit/resources/views/components/widget/demo-page-content-assets.blade.php`
-- `packages/demo-kit/resources/views/components/widget/demo-page-content.blade.php`
-- `packages/demo-kit/resources/views/components/widget/homepage-section.blade.php`
-- `packages/demo-kit/resources/views/filament/pages/demo-kit.blade.php`
-- `packages/demo-kit/resources/views/livewire/kitchen-sink-stress-widget.blade.php`
-- `packages/demo-kit/resources/views/livewire/resources-library.blade.php`
-
-### Cache tags
-
-- `demo-kit`
-
-
-## Data Model
-
-- Required tables: `capell_demo_kit_generation_runs`.
-- Models: `DemoKitGenerationRun`.
-- Migration files: `2026_07_19_130000_create_demo_kit_generation_runs_table.php`, `2026_09_08_120000_add_review_data_to_demo_kit_generation_runs_table.php`.
-- Migration impact: run host migrations through the package install flow before opening package surfaces.
-- Deletion/retention behaviour: Docs gap: migrations and manifest contributions do not prove a cascade, pruning command, or timed retention policy.
+- Demo Kit ready to plan (admin).
+- Demo Kit ready to plan on mobile (admin).
+- Recommended generation profile (admin).
+- Recommended generation profile on mobile (admin).
+- Custom generation profile (admin).
+- Custom generation profile on mobile (admin).
+- Generation review before confirmation (admin).
+- Generation review before confirmation on mobile (admin).
+- Review of reusable generated sites (admin).
+- Review of reusable generated sites on mobile (admin).
+- Review blocked by ordinary content (admin).
+- Review blocked by ordinary content on mobile (admin).
+- Explicit generation confirmation (admin).
+- Explicit generation confirmation on mobile (admin).
+- Queued generation (admin).
+- Queued generation on mobile (admin).
+- Running generation (admin).
+- Running generation on mobile (admin).
+- Completed generation and created content (admin).
+- Completed generation and created content on mobile (admin).
+- Failed generation with redacted error (admin).
+- Failed generation with redacted error on mobile (admin).
+- Stalled generation requiring a new review (admin).
+- Stalled generation requiring a new review on mobile (admin).
+- Provenance-only reset confirmation (admin).
+- Provenance-only reset confirmation on mobile (admin).
+- Demo Kit with navigation open (admin).
+- Demo Kit with navigation open on mobile (admin).
+- Insights consent priming capture (frontend).
+- Generated demo page content widget (frontend).
+- Generated homepage section widget (frontend).
 
 ## Install Impact
 
@@ -214,14 +90,6 @@ Screenshot contract: `docs/screenshots.json`.
 - Cache tags: `demo-kit`.
 - Commands: `capell:admin-demo`, `capell:demo`, `capell:demo-kit-doctor`, `capell:demo-kit-full-demo`, `capell:demo-kit-kitchen-sink`, `capell:demo-kit-refresh-stitch-pages`, `capell:demo-kit-screenshot-fixture`.
 
-## Common Pitfalls
-
-- Keep required Capell packages on compatible v4 releases: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/theme-foundation`.
-- Run migrations before opening package resources or public routes.
-- Review package configuration before production-like verification: `config/capell-demo-kit.php`.
-- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
-- Custom write integrations must preserve invalidation for `demo-kit` cache tags.
-
 ## Troubleshooting
 
 | Symptom | Likely cause | Check | Fix |
@@ -231,12 +99,6 @@ Screenshot contract: `docs/screenshots.json`.
 | Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
 | Background work does not run | Queue worker or declared schedule is not active | Check the jobs and scheduled commands listed in `Technical Shape` | Start the queue worker or host scheduler, then run the focused command or package test |
 | Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
-
-## Quick Start
-
-1. Install the package: `composer require capell-app/demo-kit`.
-2. See it working: run `php artisan capell:demo-kit-full-demo`.
-3. Open the package admin surface at `/admin/demo-kit` and confirm Demo Kit is available.
 
 ## Upgrading
 
@@ -250,11 +112,11 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Overview](docs/overview.md)
 - Configuration files: [`config/capell-demo-kit.php`](config/capell-demo-kit.php).
 - [Troubleshooting](#troubleshooting)
-- [Screenshot contract](docs/screenshots.json)
+- [Developer reference](docs/reference.md)
 - [Marketplace assets](docs/assets/marketplace/)
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Layout Builder](../layout-builder/README.md), [Theme Foundation](../theme-foundation/README.md).
+- Related packages: [Layout Builder](../layout-builder/README.md), [Foundation Theme](../theme-foundation/README.md).
 
 <!-- prettier-ignore-end -->

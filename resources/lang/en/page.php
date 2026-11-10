@@ -27,7 +27,7 @@ return [
     'count_media' => 'Media',
     'collisions_heading' => 'Existing names',
     'collision_reuse' => 'reusable Demo Kit provenance',
-    'collision_blocked' => 'ordinary content — blocked',
+    'collision_blocked' => 'ordinary content (blocked)',
     'fingerprint' => 'Plan fingerprint: :fingerprint',
     'result_unavailable' => 'Site result unavailable',
     'edit_site' => 'Edit site',

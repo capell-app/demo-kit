@@ -50,7 +50,7 @@ final class PrepareDemoKitScreenshotFixtureAction
     {
         DemoKitScreenshotFixtureGuard::assertEnvironment();
 
-        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        require_once (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/scripts/screenshots/FixtureState.php';
         FixtureState::boot();
         $state = DemoKitScreenshotFixtureGuard::state($state);
         $attemptToken = DemoKitScreenshotFixtureGuard::attemptToken($attemptToken);

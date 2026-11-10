@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Console\Commands\Concerns;
 
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
+use Capell\Core\Support\TableName;
 use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -36,8 +37,8 @@ trait HasLanguagesOption
             ->mapWithKeys(fn (array $language, string $key): array => [$key => $language['name']])
             ->all();
 
-        $databaseLanguages = Schema::hasTable('languages')
-            ? DB::table('languages')
+        $databaseLanguages = Schema::hasTable(TableName::resolve('languages'))
+            ? DB::table(TableName::resolve('languages'))
                 ->whereIn('code', array_keys($demoLanguages))
                 ->pluck('name', 'code')
                 ->toArray()

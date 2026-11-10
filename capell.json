@@ -8,7 +8,7 @@
     "version": "1.0.0",
     "description": "Deterministic demo-data orchestration for Capell: seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
     "product": {
-        "group": "Capell Foundation",
+        "group": "Capell Essentials",
         "tier": "free",
         "bundle": "foundation"
     },
@@ -26,7 +26,10 @@
         "conflicts": []
     },
     "providers": {
-        "metadata": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"],
+        "metadata": [
+            "Capell\\DemoKit\\Providers\\DemoKitServiceProvider",
+            "Capell\\DemoKit\\Providers\\MigrationMetadataServiceProvider"
+        ],
         "install": ["Capell\\DemoKit\\Providers\\ConsoleServiceProvider"],
         "runtime": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"],
         "admin": [],
@@ -236,6 +239,22 @@
     },
     "marketplace": {
         "summary": "The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data.",
+        "problem": "Teams evaluating a site spend time assembling example pages before they can explore it.",
+        "outcome": "A site has repeatable demonstration content ready for inspection.",
+        "faq": [
+            {
+                "question": "What does demo generation create?",
+                "answer": "The generation plan creates demo users, sites, languages, pages, media and package examples."
+            },
+            {
+                "question": "Where can administrators start generation?",
+                "answer": "They can start it from the package page or a console command."
+            },
+            {
+                "question": "Can generated examples be inspected?",
+                "answer": "Yes. Administrators can inspect generated pages and components on the frontend."
+            }
+        ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",

@@ -1,0 +1,8 @@
+{
+    "audience": "developers and operators preparing a local or demo site",
+    "prerequisites": "A local or testing environment, and permission to manage extensions. The page is not available in production.",
+    "destination": "/admin/demo-kit",
+    "task": "Choose **Plan demo generation**, enter the site URL and any sites and languages, then review the plan. Choose **Queue reviewed generation** and confirm.",
+    "expectedResult": "The page reports that generation is queued, then that example site data was generated, with **Edit site** and **View public page** links for each site.",
+    "nextStep": "Run `php artisan capell:demo-kit-doctor` to check the generated data, and replace the sample content before launch."
+}

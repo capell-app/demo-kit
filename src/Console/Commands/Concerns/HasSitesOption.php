@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Console\Commands\Concerns;
 
 use Capell\Core\Console\Commands\Concerns\PromptsWithOptionFallback;
+use Capell\Core\Support\TableName;
 use Capell\DemoKit\Support\DemoContentPool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -32,8 +33,8 @@ trait HasSitesOption
             ));
         }
 
-        $databaseSites = Schema::hasTable('sites')
-            ? DB::table('sites')->pluck('name')->toArray()
+        $databaseSites = Schema::hasTable(TableName::resolve('sites'))
+            ? DB::table(TableName::resolve('sites'))->pluck('name')->toArray()
             : [];
 
         $demoSitesOptions = collect([config('app.name')])

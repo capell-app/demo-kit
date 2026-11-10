@@ -7,6 +7,7 @@ namespace Capell\DemoKit\Filament\Pages;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Capell\Admin\Filament\Pages\ExtensionsPage;
+use Capell\Core\Support\TableName;
 use Capell\DemoKit\Actions\BuildDemoGenerationReviewAction;
 use Capell\DemoKit\Actions\ListDemoKitProvenanceSitesAction;
 use Capell\DemoKit\Actions\QueueDemoKitGenerationAction;
@@ -80,7 +81,7 @@ final class DemoKitPage extends Page
 
     public function mount(): void
     {
-        if (! Schema::hasTable('capell_demo_kit_generation_runs')) {
+        if (! Schema::hasTable(TableName::resolve('capell_demo_kit_generation_runs'))) {
             return;
         }
 
@@ -210,6 +211,15 @@ final class DemoKitPage extends Page
         return is_numeric($value) ? (int) $value : 0;
     }
 
+    /**
+     * @param  array<string, mixed>  $content
+     * @return array<string, mixed>
+     */
+    private function resolveCreatedContent(array $content): array
+    {
+        return ResolveDemoKitResultAction::run($content);
+    }
+
     private function applyGenerationRun(DemoKitGenerationRun $run): void
     {
         $runId = $run->getKey();
@@ -219,8 +229,8 @@ final class DemoKitPage extends Page
         $this->generationError = $run->error_message;
         $this->generationReview = is_array($run->review)
             ? [...$run->review, 'created_content' => array_map(
-                static fn (array $content): array => ResolveDemoKitResultAction::run($content),
-                array_values(array_filter($run->created_content ?? [], 'is_array')),
+                $this->resolveCreatedContent(...),
+                array_values(array_filter($run->created_content ?? [], is_array(...))),
             )]
             : null;
         $this->generationReviewFingerprint = $run->fingerprint;

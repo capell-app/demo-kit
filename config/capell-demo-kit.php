@@ -7,6 +7,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Result Links
+    |--------------------------------------------------------------------------
+    |
+    | Lets a generation result show edit and public links for the demo site it
+    | made. Demo content is never meant for production, so this defaults to
+    | local and testing applications only.
+    |
+    */
+    'result_links' => env('CAPELL_DEMO_KIT_RESULT_LINKS', in_array(env('APP_ENV', 'production'), ['local', 'testing'], true)),
+
+    /*
+    |--------------------------------------------------------------------------
     | Demo Generation
     |--------------------------------------------------------------------------
     |

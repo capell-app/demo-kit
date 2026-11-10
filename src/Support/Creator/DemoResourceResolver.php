@@ -43,6 +43,7 @@ final class DemoResourceResolver
 
         File::ensureDirectoryExists($capellDir);
 
+        // capell-security-scan: local-stream reads a lock file in the local Capell demo directory
         $lockHandle = @fopen($capellDir . '/demo.lock', 'c');
         if ($lockHandle !== false) {
             @flock($lockHandle, LOCK_EX);
