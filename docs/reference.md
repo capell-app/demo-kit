@@ -6,7 +6,7 @@ Developer reference for `capell-app/demo-kit`. Start with the [README](../README
 
 ## Package Details
 
-Demo Kit is an **Available**, **Schema-owning** Capell package in the **Capell Essentials** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
+Demo Kit is an **Available** Capell package in the **Capell Essentials** product group. It ships as `capell-app/demo-kit` and extends these surfaces: admin, frontend, console.
 
 - Status: Available
 - Tier: free
@@ -56,6 +56,10 @@ Demo Kit is an **Available**, **Schema-owning** Capell package in the **Capell E
 - `CreateDemoLanguagesAction`
 - `CreateDemoSiteAction`
 - `CreateDemoUsersAction`
+- `CreateFoundationShowcaseArticleAction`
+- `CreateFoundationShowcaseBookingAction`
+- `CreateFoundationShowcaseMediaAction`
+- `CreateFoundationShowcaseVisitAction`
 - `CreateKitchenSinkContextPagesAction`
 - `CreateKitchenSinkSourceWidgetsAction`
 - `CreateKitchenSinkVariantWidgetsAction`
@@ -75,6 +79,7 @@ Demo Kit is an **Available**, **Schema-owning** Capell package in the **Capell E
 - `ResetDemoKitProvenanceAction`
 - `ResetDemoSitesAction`
 - `ResolveDemoKitResultAction`
+- `ResolveKitchenSinkInstalledWidgetSourceKeysAction`
 - `RestoreDemoKitScreenshotFixtureAction`
 - `SyncKitchenSinkPageAssetsAction`
 

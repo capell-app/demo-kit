@@ -6,6 +6,7 @@ namespace Capell\DemoKit\Filament\Pages;
 
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\Admin\Filament\Pages\ExtensionsPage;
 use Capell\Core\Support\TableName;
 use Capell\DemoKit\Actions\BuildDemoGenerationReviewAction;
@@ -55,9 +56,9 @@ final class DemoKitPage extends Page
     }
 
     #[Override]
-    public static function getNavigationGroup(): string
+    public static function getNavigationGroup(): NavigationGroupEnum
     {
-        return (string) __('capell-admin::navigation.group_system');
+        return NavigationGroupEnum::Developer;
     }
 
     #[Override]

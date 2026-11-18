@@ -731,3 +731,26 @@ function restoreRealQueue(): void
 
     Queue::swap(Queue::getFacadeRoot()->queue);
 }
+
+it('gives the home page a real description instead of its generic welcome line', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $home = Page::factory()->site($site)->home()->withTranslations($language, ['title' => 'Home', 'content' => '<p>Welcome to Demo</p>'])->create();
+
+    (new DemoCreator)->setupSite($site);
+
+    $translation = $home->translations()->where('language_id', $language->id)->firstOrFail();
+
+    expect($translation->meta_description)->not->toBe('Welcome to Demo')
+        ->and($translation->meta_description)->not->toBe('');
+});
+
+it('keeps an authored home page description when the demo site is set up again', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
+    $home = Page::factory()->site($site)->home()->withTranslations($language, ['title' => 'Home', 'content' => '<p>Welcome to Demo</p>', 'meta' => ['description' => 'Written by an editor.']])->create();
+
+    (new DemoCreator)->setupSite($site);
+
+    expect($home->translations()->where('language_id', $language->id)->firstOrFail()->meta_description)->toBe('Written by an editor.');
+});

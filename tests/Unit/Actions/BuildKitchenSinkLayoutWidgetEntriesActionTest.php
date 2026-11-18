@@ -19,3 +19,20 @@ it('builds deterministic kitchen sink widget entries with lazy thresholds', func
         ->and($entries[5]['lazy'])->toBeTrue()
         ->and(collect($entries)->pluck('widget_key')->unique())->toHaveCount(30);
 });
+
+it('places additional installed widget sources after the fixed sources', function (): void {
+    $baseSourceCount = count(BuildKitchenSinkLayoutWidgetEntriesAction::baseSourceKeys());
+
+    $entries = BuildKitchenSinkLayoutWidgetEntriesAction::run($baseSourceCount + 2, 5, ['foundation-hero', 'blog-archives']);
+
+    expect(array_slice(array_column($entries, 'source_key'), -2))->toBe(['foundation-hero', 'blog-archives'])
+        ->and(array_column($entries, 'source_key'))->not->toContain(null);
+});
+
+it('does not repeat an additional source that is already a fixed source', function (): void {
+    $baseSourceCount = count(BuildKitchenSinkLayoutWidgetEntriesAction::baseSourceKeys());
+
+    $entries = BuildKitchenSinkLayoutWidgetEntriesAction::run($baseSourceCount, 5, ['breadcrumbs']);
+
+    expect(array_count_values(array_column($entries, 'source_key'))['breadcrumbs'])->toBe(1);
+});

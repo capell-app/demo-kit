@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\LanguageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
@@ -403,7 +404,7 @@ it('registers its package owned extension page', function (): void {
 
     capell_expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class);
     capell_expect(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class);
-    capell_expect(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
+    capell_expect(DemoKitPage::getNavigationGroup())->toBe(NavigationGroupEnum::Developer);
 
     if (! class_exists(ExtensionBreadcrumbDecorator::class)) {
         return;

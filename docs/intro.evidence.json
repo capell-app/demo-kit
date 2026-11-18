@@ -1,0 +1,98 @@
+[
+    {
+        "claim": "Example sites, pages, media and two sample users",
+        "evidence": [
+            "src/Actions/InsertExampleSiteDataAction.php",
+            "capell.json",
+            "src/Console/Commands/FullDemoCommand.php",
+            "src/Console/Commands/AdminDemoCommand.php"
+        ]
+    },
+    {
+        "claim": "A System page is shown to people who manage packages, on local and test copies only",
+        "evidence": [
+            "src/Filament/Pages/DemoKitPage.php",
+            "src/Actions/InsertExampleSiteDataAction.php"
+        ]
+    },
+    {
+        "claim": "The page shows site and page counts and waits for confirmation before anything is made",
+        "evidence": [
+            "src/Filament/Pages/DemoKitPage.php",
+            "src/Actions/BuildDemoGenerationReviewAction.php"
+        ]
+    },
+    {
+        "claim": "Generation runs in the background",
+        "evidence": [
+            "src/Actions/QueueDemoKitGenerationAction.php",
+            "src/Jobs/RunDemoKitGenerationJob.php"
+        ]
+    },
+    {
+        "claim": "Each finished site gets Edit and View links",
+        "evidence": ["src/Actions/ResolveDemoKitResultAction.php"]
+    },
+    {
+        "claim": "A fixed number in the settings file repeats the plan",
+        "evidence": [
+            "config/capell-demo-kit.php",
+            "src/Actions/BuildDemoGenerationPlanAction.php"
+        ]
+    },
+    {
+        "claim": "Sample images come from capell.app",
+        "evidence": [
+            "src/Support/Creator/DemoResourceResolver.php",
+            "config/capell-demo-kit.php"
+        ]
+    },
+    {
+        "claim": "Sample users are created only on local and test copies, never anywhere else",
+        "evidence": ["src/Actions/CreateDemoUsersAction.php"]
+    },
+    {
+        "claim": "One user is a full administrator, the other an editor, both with the password \"password\"",
+        "evidence": ["src/Actions/CreateDemoUsersAction.php"]
+    },
+    {
+        "claim": "Reset clears only the sites Demo Kit made",
+        "evidence": [
+            "src/Actions/ResetDemoKitProvenanceAction.php",
+            "src/Actions/ListDemoKitProvenanceSitesAction.php"
+        ]
+    },
+    {
+        "claim": "The Demo Editor can sign in",
+        "evidence": ["src/Actions/CreateDemoUsersAction.php"]
+    },
+    {
+        "claim": "The default plan is three sites, one to four languages and 12 to 30 pages",
+        "evidence": ["config/capell-demo-kit.php"]
+    },
+    {
+        "claim": "A quick option builds one site with three pages",
+        "evidence": ["src/Console/Commands/FullDemoCommand.php"]
+    },
+    {
+        "claim": "Installed packages add their own example content",
+        "evidence": ["src/Console/Commands/FullDemoCommand.php"]
+    },
+    {
+        "claim": "A reference page shows around 120 building blocks",
+        "evidence": ["config/capell-demo-kit.php"]
+    },
+    {
+        "claim": "A check command confirms the demo homepage, its sections and the media count",
+        "evidence": [
+            "src/Console/Commands/DemoKitDoctorCommand.php",
+            "src/Actions/Diagnostics/AssertDefaultDemoInstallHealthAction.php"
+        ]
+    },
+    {
+        "claim": "The command line blocks production unless overridden",
+        "evidence": [
+            "src/Console/Commands/Concerns/GuardsAgainstProduction.php"
+        ]
+    }
+]

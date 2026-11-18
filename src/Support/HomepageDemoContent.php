@@ -70,7 +70,7 @@ final class HomepageDemoContent
                     [
                         'eyebrow' => 'Package marketplace',
                         'title' => 'Extension evidence grid',
-                        'badges' => ['SEO Suite', 'Search', 'Forms', 'Access Gate', 'Newsletter', 'Insights'],
+                        'badges' => ['SEO Checks', 'Search', 'Forms', 'Access Gate', 'Newsletter', 'Insights'],
                     ],
                     [
                         'eyebrow' => 'Publishing workflow',

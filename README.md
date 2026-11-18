@@ -2,22 +2,18 @@
 
 <!-- prettier-ignore-start -->
 
-## What It Does
+A developer or agency can fill a local or test copy of Capell with example sites, pages, media and two sample users. That gives them something to click through and try editing on before any real content exists.
 
-Demo Kit creates deterministic demo users, sites, languages, pages, media, and package examples from a repeatable generation plan.
+On those copies, Demo Kit adds a System page for this, shown to people who manage packages. Before anything is made, the page shows how many sites and pages the chosen plan will create and waits for your confirmation. Generation then runs in the background, and each finished site gets Edit and View links.
+
+Set a fixed number in the settings file and Demo Kit plans the same sites and pages every time. Sample images come from capell.app and all the text is invented. Replace both before launch. Demo Kit will not create the two sample users anywhere except those copies. One is a full administrator and the other an editor, and both use the public password "password". Reset clears the sites Demo Kit made and leaves your own alone.
+
+Anyone who wants to try editing can sign in as the Demo Editor.
 
 - **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
 - **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
 - **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`, `fakerphp/faker ^1.24.1`.
 - **Install:** `composer require capell-app/demo-kit`.
-
-Administrators can start demo generation from a package page or console command, then inspect the generated pages and components on the frontend.
-
-## Who It Is For
-
-**For developers:** Typed generation plans and package demo command orchestration make local setup, screenshots, and QA data reproducible from a chosen seed.
-
-**For teams:** Teams can evaluate a populated site before entering real content and reset the sample state between demos, with explicit guards against production seeding.
 
 ## Quick Start
 
@@ -25,6 +21,10 @@ Administrators can start demo generation from a package page or console command,
 2. For developers and operators preparing a local or demo site: A local or testing environment, and permission to manage extensions. The page is not available in production.
 3. Open `/admin/demo-kit`. Choose **Plan demo generation**, enter the site URL and any sites and languages, then review the plan. Choose **Queue reviewed generation** and confirm.
 4. Check the result: The page reports that generation is queued, then that example site data was generated, with **Edit site** and **View public page** links for each site. Next: Run `php artisan capell:demo-kit-doctor` to check the generated data, and replace the sample content before launch.
+
+## For Developers
+
+Typed generation plans and package demo command orchestration make local setup, screenshots, and QA data reproducible from a chosen seed.
 
 ## Configure
 
@@ -117,6 +117,6 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Layout Builder](../layout-builder/README.md), [Foundation Theme](../theme-foundation/README.md).
+- Related packages: [Layout Builder](../layout-builder/README.md), [Foundation Theme](../theme-foundation/README.md), [Form Builder](../form-builder/README.md).
 
 <!-- prettier-ignore-end -->

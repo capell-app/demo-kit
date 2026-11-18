@@ -10,7 +10,7 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static list<array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}> run(int $targetWidgetCount, int $eagerWidgetLimit)
+ * @method static list<array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}> run(int $targetWidgetCount, int $eagerWidgetLimit, list<string> $additionalSourceKeys = [])
  */
 final class BuildKitchenSinkLayoutWidgetEntriesAction
 {
@@ -18,11 +18,11 @@ final class BuildKitchenSinkLayoutWidgetEntriesAction
     use AsObject;
 
     /**
-     * @return list<array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}>
+     * @return list<string>
      */
-    public function handle(int $targetWidgetCount, int $eagerWidgetLimit): array
+    public static function baseSourceKeys(): array
     {
-        $sourceKeys = [
+        return array_values(array_unique([
             'kitchen-sink-hero-top',
             'kitchen-sink-structured-text',
             'breadcrumbs',
@@ -48,13 +48,22 @@ final class BuildKitchenSinkLayoutWidgetEntriesAction
             'siblings',
             'assets-widget',
             'default',
-            ...array_diff($this->widgetFamilyKeys(), ['kitchen-sink-structured-text']),
+            ...array_diff(self::widgetFamilyKeys(), ['kitchen-sink-structured-text']),
             'kitchen-sink-hero-deep',
             ...collect([
                 ...LayoutWidgetCatalogDefinitionData::defaultCatalog(),
                 ...LayoutWidgetCatalogDefinitionData::extraCatalog(),
             ])->map(static fn (LayoutWidgetCatalogDefinitionData $definition): string => $definition->key)->all(),
-        ];
+        ]));
+    }
+
+    /**
+     * @param  list<string>  $additionalSourceKeys  Installed widgets whose component the fixed sources do not cover.
+     * @return list<array{widget_key: string, source_key: string, occurrence: int, stress_index: int, variant: string, lazy: bool}>
+     */
+    public function handle(int $targetWidgetCount, int $eagerWidgetLimit, array $additionalSourceKeys = []): array
+    {
+        $sourceKeys = [...self::baseSourceKeys(), ...$additionalSourceKeys];
 
         $entries = [];
         $sourceOccurrences = [];
@@ -87,7 +96,7 @@ final class BuildKitchenSinkLayoutWidgetEntriesAction
     /**
      * @return list<string>
      */
-    private function widgetFamilyKeys(): array
+    private static function widgetFamilyKeys(): array
     {
         return [
             'kitchen-sink-rich-text',

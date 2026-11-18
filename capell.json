@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
-    "description": "Deterministic demo-data orchestration for Capell: seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
+    "description": "Fills a local or test copy of Capell with example sites, pages, media and users, so you can explore before adding real content.",
     "product": {
         "group": "Capell Essentials",
         "tier": "free",
@@ -22,7 +22,7 @@
             "capell-app/layout-builder",
             "capell-app/theme-foundation"
         ],
-        "supports": [],
+        "supports": ["capell-app/form-builder"],
         "conflicts": []
     },
     "providers": {
@@ -144,11 +144,7 @@
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [
-        "frontend-rendering",
-        "demo-site-provenance",
-        "production-admin-seeding-block"
-    ],
+    "capabilities": ["frontend-rendering"],
     "security": {
         "riskTier": "standard",
         "publicSurface": {
@@ -238,38 +234,43 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "The demo engine for Capell: deterministic, multi-site, multi-language sample content and media. Generates a curated showcase site, fans out to each installed package's own demo command, and ships a health doctor so every demo, screenshot, and QA run starts from known data.",
-        "problem": "Teams evaluating a site spend time assembling example pages before they can explore it.",
-        "outcome": "A site has repeatable demonstration content ready for inspection.",
+        "summary": "Get realistic example sites to click through, with a plan you review before anything is created.",
+        "description": "Developers, agencies and evaluators get example content for non-live copies. The default plan creates three sites with one to four languages each and twelve to thirty pages per site. A quick option builds one site with three pages. Installed packages are asked to add their own example content, and a reference page shows around 120 building blocks for testing. A check command confirms the demo homepage is published with its sections in place and enough sample media. The command line blocks production unless a developer passes an override, and the System page only works on local and test copies.",
+        "problem": "My new Capell install is empty, so I can't show a client what it can do.",
+        "outcome": "A populated local copy to click through, demonstrate or screenshot, which you can reset when finished.",
         "faq": [
             {
-                "question": "What does demo generation create?",
-                "answer": "The generation plan creates demo users, sites, languages, pages, media and package examples."
+                "question": "Can I use Demo Kit on my live site?",
+                "answer": "It is built to stay off live sites. The admin page appears only on local and test copies, and the two sample users, who share the public password password, are never created anywhere else. The command-line tools refuse a live site unless your developer overrides that on purpose."
             },
             {
-                "question": "Where can administrators start generation?",
-                "answer": "They can start it from the package page or a console command."
+                "question": "Is the demo content real?",
+                "answer": "No. All the text is invented and the sample images come from capell.app. Replace both before launch."
             },
             {
-                "question": "Can generated examples be inspected?",
-                "answer": "Yes. Administrators can inspect generated pages and components on the frontend."
+                "question": "Can I get the same demo sites every time?",
+                "answer": "Yes. Set a fixed number in the settings file and Demo Kit plans the same sites and pages on every run. Without one, each run is different."
+            },
+            {
+                "question": "Will Reset delete the sites I made myself?",
+                "answer": "No. Reset clears the sites Demo Kit made and leaves your own alone."
             }
         ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",
-                "alt": "Demo Kit extension preview image",
-                "caption": "Demo Kit extension preview"
+                "alt": "Demo Kit card with its admin page in light and dark themes above steps labelled Seed, Showcase and Reset.",
+                "caption": "The card shows the same admin page in the light and dark themes."
             },
             {
                 "path": "docs/screenshots/demo-kit-admin-page.png",
-                "alt": "Demo Kit admin page for deterministic content generation",
-                "caption": "Start repeatable demo generation from Capell Admin"
+                "alt": "Demo Kit admin page with an Example site data panel and a Plan demo generation button at the top right.",
+                "caption": "An administrator starts a demo run from here by planning it, then confirming."
             },
             {
                 "path": "docs/screenshots/demo-kit-admin-page-dark.png",
-                "alt": "Demo Kit admin page in dark mode",
-                "caption": "Dark-mode admin capture for demo generation"
+                "alt": "Dark theme of the Demo Kit admin page with the Example site data panel and the Plan demo generation button.",
+                "caption": "The demo kit admin page in the dark admin theme, with the same controls."
             }
         ],
         "categories": ["admin", "console", "foundation", "frontend"],
@@ -287,6 +288,28 @@
         ]
     },
     "contributionTraceability": {
-        "deferredContributions": []
+        "deferredContributions": [],
+        "contributions": [
+            {
+                "type": "admin-action-extender",
+                "key": "welcome-tour:capell-demo-kit.extensions",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell-demo-kit.widget.kitchen-sink-livewire-stress",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.demo-page-content",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.homepage-section",
+                "providerBucket": "runtime"
+            }
+        ]
     }
 }

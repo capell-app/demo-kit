@@ -140,6 +140,8 @@ class DemoCreator extends ApDemoWidgetCreator
                 ],
             ]);
 
+            $this->seedHomeDescription($site, $language, $localizedMeta['description']);
+
             $path = '';
             if (! $language->default) {
                 $path .= '/' . $language->code;
@@ -358,6 +360,27 @@ class DemoCreator extends ApDemoWidgetCreator
 
             $site->related()->attach($relatedSites)->save();
         });
+    }
+
+    /**
+     * The home page falls back to its first words of content for the share and search description, which on a fresh
+     * demo is the generic welcome line. An authored description is never replaced.
+     */
+    private function seedHomeDescription(Site $site, Language $language, string $description): void
+    {
+        $translation = $site->getHomePage($language)?->translations()->where('language_id', $language->id)->first();
+
+        if ($translation === null) {
+            return;
+        }
+
+        $meta = (array) $translation->meta;
+
+        if (is_string($meta['description'] ?? null) && $meta['description'] !== '') {
+            return;
+        }
+
+        $translation->update(['meta' => [...$meta, 'description' => $description]]);
     }
 
     /**

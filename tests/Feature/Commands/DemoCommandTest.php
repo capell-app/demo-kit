@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Actions\DemoPackageAction;
+use Capell\Core\Enums\PackageRole;
 use Capell\Core\Facades\CapellCore;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
@@ -199,6 +200,8 @@ it('runs demo commands in package workflow order', function (): void {
 
     CapellCore::getPackage('capell-app/worktree')->demoCommand = 'worktree:demo';
     CapellCore::getPackage('capell-app/worktree')->sort = 1;
+    // The planner runs a package declaring the workflow-final role after every other package, whatever its sort.
+    CapellCore::getPackage('capell-app/worktree')->declaredRoles = [PackageRole::WorkflowFinal];
     CapellCore::getPackage('capell-app/blog')->demoCommand = 'blog:demo';
     CapellCore::getPackage('capell-app/blog')->sort = 30;
     CapellCore::getPackage('capell-app/form-builder')->demoCommand = 'form-builder:demo';

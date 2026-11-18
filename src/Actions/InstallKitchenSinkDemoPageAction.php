@@ -132,6 +132,7 @@ final class InstallKitchenSinkDemoPageAction
         return BuildKitchenSinkLayoutWidgetEntriesAction::run(
             self::targetWidgetCount(),
             self::eagerWidgetLimit(),
+            ResolveKitchenSinkInstalledWidgetSourceKeysAction::run(BuildKitchenSinkLayoutWidgetEntriesAction::baseSourceKeys()),
         );
     }
 

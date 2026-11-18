@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\DemoKit\Support;
 
+use Capell\ScreenshotFixtures\FixtureState;
 use RuntimeException;
 
 final class DemoKitScreenshotFixtureGuard
@@ -42,8 +43,7 @@ final class DemoKitScreenshotFixtureGuard
                 && is_string($basePath)
                 && is_string($appPath)
                 && $basePath === $appPath
-                && ($basePath === realpath((str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/vendor/orchestra/testbench-core/laravel')
-                    || str_starts_with($basePath, (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/tmp/testbench-skeletons/')),
+                && class_exists(FixtureState::class) && FixtureState::isDisposableApplication($basePath),
             RuntimeException::class,
             'Demo Kit screenshot fixtures require the explicit disposable local screenshot environment.',
         );

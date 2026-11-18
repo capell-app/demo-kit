@@ -12,6 +12,10 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\DemoKit\Actions\CreateFoundationShowcaseArticleAction;
+use Capell\DemoKit\Actions\CreateFoundationShowcaseBookingAction;
+use Capell\DemoKit\Actions\CreateFoundationShowcaseMediaAction;
+use Capell\DemoKit\Actions\CreateFoundationShowcaseVisitAction;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
@@ -64,6 +68,10 @@ class CreateLayoutBuilderDemoSiteAction
 
         if ($site->default) {
             $this->setupHomepage($homePage);
+            CreateFoundationShowcaseArticleAction::run($site);
+            CreateFoundationShowcaseVisitAction::run($site);
+            CreateFoundationShowcaseMediaAction::run($site);
+            CreateFoundationShowcaseBookingAction::run($site);
         }
 
         $this->setupSiteNavigations($site, $languages, $homePage);

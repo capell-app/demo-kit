@@ -1,6 +1,6 @@
 {
     "name": "capell-app/demo-kit",
-    "description": "Deterministic demo-data orchestration for Capell — seeds users, sites, languages, pages, media and a Foundation showcase homepage, and dispatches per-package demo commands.",
+    "description": "Generates example sites, pages, media and sample users for local and test copies of Capell, with a reviewed plan and a reset.",
     "keywords": [
         "capell",
         "demo",
@@ -30,6 +30,9 @@
         "capell-app/layout-builder": "^1.0",
         "capell-app/theme-foundation": "^1.0",
         "fakerphp/faker": "^1.24.1"
+    },
+    "suggest": {
+        "capell-app/form-builder": "Seeds the Foundation showcase booking page with its Form Builder form."
     },
     "autoload": {
         "psr-4": {

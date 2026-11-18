@@ -4,8 +4,8 @@
     "scenarios": {
         "default": {
             "source": {
-                "ref": "c92ce184be4d91c372f35ca125ea25f6c1308599",
-                "commit": "c92ce184be4d91c372f35ca125ea25f6c1308599",
+                "ref": "HEAD",
+                "commit": "c896bfefd4984473288537cc296829557229a116",
                 "providers": {
                     "Providers/ConsoleServiceProvider.php": "e5110f5a76a795ba136addb2b18e9cc5eb0defd965aa732ad9e0bb9ee2f5cead",
                     "Providers/DemoKitServiceProvider.php": "91ec46203e42b2683e05499bf077aafd4e31063863a35c0e6e3a8c0f41c82bae",

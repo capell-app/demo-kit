@@ -1182,7 +1182,7 @@
             "required": false,
             "notes": "Runner-only warm-up capture that dismisses the Insights consent banner before marketplace-facing public screenshots are taken.",
             "screenshotPath": "packages/demo-kit/docs/screenshots/insights-consent-prime.png",
-            "useCase": "The screenshot runner sets anonymous visitor consent state so public Demo Kit captures do not include analytics consent chrome.",
+            "useCase": "A public Demo Kit page as an anonymous visitor sees it, without the analytics consent banner.",
             "viewport": "desktop"
         },
         {
