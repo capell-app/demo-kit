@@ -17,7 +17,7 @@ final class RefreshDemoStitchPagesCommand extends Command
         {--site= : Restrict the refresh to a site name}
         {--language= : Restrict the refresh to a language code}
         {--force : Confirm that demo pages should be created or updated}
-        {--allow-production}';
+        {--allow-production} {--allow-non-local}';
 
     protected $description = 'Refresh the Stitch-inspired Demo Kit pages and layouts.';
 

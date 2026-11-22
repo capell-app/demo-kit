@@ -13,7 +13,7 @@ final class KitchenSinkDemoCommand extends Command
     use GuardsAgainstProduction;
 
     protected $signature = 'capell:demo-kit-kitchen-sink
-        {--allow-production}';
+        {--allow-production} {--allow-non-local}';
 
     protected $description = 'Install the Kitchen Sink Demo Page CMS reference fixture.';
 

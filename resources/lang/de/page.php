@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'tour_extensions_title' => 'Erweiterungen',
+    'tour_extensions_description' => 'Capell wächst mit Ihrer Website. Ergänzen Sie gezielte Funktionen wie einen Shop, einen Blog oder Formulare über den Erweiterungs-Marktplatz.',
+    'navigation_label' => 'Demo Kit',
+    'kitchen_sink_stress' => [
+        'description' => 'Dieser Abschnitt testet eine öffentliche interaktive Komponente mit lokalem Zustand, Ladehinweisen und genügend umgebendem Inhalt, um wiederholte Darstellungsfehler aufzudecken.',
+        'dynamic' => 'Dynamisch',
+        'eyebrow' => 'Interaktive Grenze',
+        'heading' => 'Interaktiver Stressabschnitt',
+        'interactions' => 'Interaktionen',
+        'mode' => 'Modus',
+        'payload_size' => 'Nutzdatengröße',
+        'trigger_update' => 'Livewire-Aktualisierung auslösen',
+        'updating' => 'Wird aktualisiert ...',
+    ],
+    'section_description' => 'Fügen Sie Demo-Inhalte und Medien für lokale Builds, Demos und die Paketentwicklung ein.',
+    'section_heading' => 'Beispiel-Websitedaten',
+    'review_heading' => 'Prüfung der Generierung',
+    'review_description' => 'Es wird nichts in die Warteschlange gestellt, bis Sie den geprüften Plan bestätigen.',
+    'count_sites' => 'Websites',
+    'count_languages' => 'Website-Sprach-Paare',
+    'count_pages' => 'Seiten',
+    'count_media' => 'Medien',
+    'collisions_heading' => 'Vorhandene Namen',
+    'collision_reuse' => 'wiederverwendbare Demo-Kit-Herkunft',
+    'collision_blocked' => 'reguläre Inhalte (blockiert)',
+    'fingerprint' => 'Plan-Fingerabdruck: :fingerprint',
+    'result_unavailable' => 'Website-Ergebnis nicht verfügbar',
+    'edit_site' => 'Website bearbeiten',
+    'view_public_page' => 'Öffentliche Seite ansehen',
+    'public_page_unavailable' => 'Derzeit ist keine öffentliche Startseite verfügbar. Aktivieren Sie eine Website-Domain und veröffentlichen Sie eine zugängliche Startseite, bevor Sie sie ansehen.',
+    'completed_fingerprint' => 'Fingerabdruck des abgeschlossenen Plans: :fingerprint',
+    'generation_status' => [
+        'queued' => 'Die Generierung wurde in die Warteschlange gestellt.',
+        'running' => 'Die Generierung läuft.',
+        'completed' => 'Beispiel-Websitedaten wurden erfolgreich generiert.',
+        'failed' => 'Die Generierung ist fehlgeschlagen.',
+        'stalled' => 'Die Generierung ist ins Stocken geraten und muss erneut geprüft werden.',
+    ],
+    'subheading' => 'Demo Kit installiert Beispielinhalte und Medien für lokale Demos.',
+    'title' => 'Demo Kit',
+];

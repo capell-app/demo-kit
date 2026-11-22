@@ -73,7 +73,7 @@ class AdminDemoCommand extends Command
         {--reset}
         {--adopt-existing-site}
         {--skip-demo-users}
-        {--allow-production}';
+        {--allow-production} {--allow-non-local}';
 
     private DemoCreator $demoCreator;
 

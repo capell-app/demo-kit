@@ -270,8 +270,6 @@ function bindDemoWidgetCreatorTinyResources(): void
         imagejpeg($image, $imageDirectory . '/' . $imageName . '.jpg', 85);
     }
 
-    imagedestroy($image);
-
     File::put($videoDirectory . '/SampleVideo_1280x720_1mb.mp4', 'video');
 
     test()->beforeApplicationDestroyed(function () use ($demoDirectory): void {

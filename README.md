@@ -10,14 +10,14 @@ Set a fixed number in the settings file and Demo Kit plans the same sites and pa
 
 Anyone who wants to try editing can sign in as the Demo Editor.
 
-- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
-- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/demo-kit).
-- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`, `fakerphp/faker ^1.24.1`.
-- **Install:** `composer require capell-app/demo-kit`.
+- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/demo-kit).
+- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/demo-kit).
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.78`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`, `fakerphp/faker ^1.24.1`.
+- **Install:** `composer require capell-app/demo-kit:@beta`.
 
 ## Quick Start
 
-1. Install the package: `composer require capell-app/demo-kit`.
+1. Install the package: `composer require capell-app/demo-kit:@beta`.
 2. For developers and operators preparing a local or demo site: A local or testing environment, and permission to manage extensions. The page is not available in production.
 3. Open `/admin/demo-kit`. Choose **Plan demo generation**, enter the site URL and any sites and languages, then review the plan. Choose **Queue reviewed generation** and confirm.
 4. Check the result: The page reports that generation is queued, then that example site data was generated, with **Edit site** and **View public page** links for each site. Next: Run `php artisan capell:demo-kit-doctor` to check the generated data, and replace the sample content before launch.
@@ -33,7 +33,7 @@ Typed generation plans and package demo command orchestration make local setup, 
 
 ## Limits And Pitfalls
 
-- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`.
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.78`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0`, `capell-app/layout-builder ^1.0`, `capell-app/theme-foundation ^1.0`.
 - Run migrations before opening package resources or public routes.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
 - Custom write integrations must preserve invalidation for `demo-kit` cache tags.
@@ -117,6 +117,6 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Layout Builder](../layout-builder/README.md), [Foundation Theme](../theme-foundation/README.md), [Form Builder](../form-builder/README.md).
+- Related packages: [Layout Builder](../layout-builder/README.md), [Foundation Theme](../theme-foundation/README.md), [Form Builder](../form-builder/README.md), [HTML Cache](../html-cache/README.md), [Navigation](../navigation/README.md).
 
 <!-- prettier-ignore-end -->

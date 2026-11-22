@@ -72,7 +72,12 @@ final class CreateFoundationShowcaseArticleAction
     /** @return array<string, mixed> */
     private function translation(Language $language): array
     {
-        $copy = $language->code === 'fr' ? $this->french() : $this->english();
+        $copy = match ($language->code) {
+            'fr' => $this->french(),
+            'de' => $this->german(),
+            'ar' => $this->arabic(),
+            default => $this->english(),
+        };
 
         return [
             'title' => $copy['title'],
@@ -107,6 +112,28 @@ final class CreateFoundationShowcaseArticleAction
             'summary' => 'La marée vient de tourner. Dans l’estuaire, les échassiers passent d’une flaque à l’autre en suivant l’eau qui se retire vers la mer.',
             'heading' => 'Regarder lentement, écouter attentivement',
             'body' => 'Une bonne sortie sur le terrain commence par une pause. Trouvez un endroit abrité, laissez vos yeux s’habituer et écoutez avant de sortir l’appareil photo. Ce qui semblait vide devient vite un réseau de petits trajets.',
+        ];
+    }
+
+    /** @return array{title: string, summary: string, heading: string, body: string} */
+    private function german(): array
+    {
+        return [
+            'title' => 'Die Flussmündung im ersten Licht',
+            'summary' => 'Die Gezeiten haben sich gerade gewendet. Quer über die Flussmündung ziehen Watvögel von Priel zu Priel und folgen dem Wasser, das sich zum Meer hin zurückzieht.',
+            'heading' => 'Langsam schauen, aufmerksam lauschen',
+            'body' => 'Ein guter Feldspaziergang beginnt mit einer Pause. Suchen Sie sich einen geschützten Platz, lassen Sie Ihre Augen zur Ruhe kommen und hören Sie zu, bevor Sie zur Kamera greifen. Was zuerst leer wirkt, wird bald zu einem Netz aus kleinen Wegen.',
+        ];
+    }
+
+    /** @return array{title: string, summary: string, heading: string, body: string} */
+    private function arabic(): array
+    {
+        return [
+            'title' => 'مصب النهر عند أول ضوء',
+            'summary' => 'بدأ الجزر للتو. عبر مصب النهر، تتنقل الطيور الخواضة بين البرك الضحلة، متتبعة الماء وهو ينحسر نحو البحر.',
+            'heading' => 'انظر ببطء، واستمع بانتباه',
+            'body' => 'تبدأ الجولة الميدانية الجيدة بوقفة. ابحث عن مكان محمي، ودع عينيك تعتاد المشهد، واستمع قبل أن تمد يدك إلى الكاميرا. ما بدا فارغا في البداية يتحول سريعا إلى شبكة من الرحلات الصغيرة.',
         ];
     }
 }

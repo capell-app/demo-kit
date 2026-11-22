@@ -384,8 +384,6 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
      */
     public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
-        $model = Navigation::class;
-
         // Create menu + items
         $name = 'Example Menu';
         $key = Str::slug($name);
@@ -416,16 +414,18 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
 
         $language = $languages->first();
 
-        $navigation = $language instanceof Language && CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($model)
-            ? $model::query()->updateOrCreate([
+        $navigation = null;
+
+        if ($language instanceof Language && CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            $navigation = Navigation::query()->updateOrCreate([
                 'key' => $key,
                 'site_id' => $site->id,
                 'blueprint_id' => $navigationType->id,
             ], [
                 'name' => $name,
                 'items' => $this->navigationPageItems($pages, $language),
-            ])
-            : null;
+            ]);
+        }
 
         // Create widget
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [

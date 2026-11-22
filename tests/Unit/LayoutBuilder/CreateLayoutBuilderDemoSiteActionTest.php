@@ -203,6 +203,35 @@ it('seeds the Foundation showcase article once on the default site', function ()
         ->and($articles->first()?->pageUrl?->url)->toEndWith('/' . CreateFoundationShowcaseArticleAction::Slug);
 });
 
+it('seeds the Foundation showcase article in every site language rather than falling back to English', function (): void {
+    $english = Language::factory()->english()->create();
+    $languages = [
+        $english,
+        Language::factory()->french()->create(),
+        Language::factory()->german()->create(),
+        Language::factory()->forCountry('العربية', 'ar', 'ar', 'sa', order: 4)->create(),
+    ];
+    $site = Site::factory()->default()->language($english)->withTranslations($languages)->create();
+    Layout::query()->firstWhere('key', LayoutEnum::Default)
+        ?? Layout::factory()->site($site)->create(['key' => LayoutEnum::Default]);
+
+    $article = CreateFoundationShowcaseArticleAction::run($site);
+
+    expect($article)->toBeInstanceOf(Page::class);
+    assert($article instanceof Page);
+
+    $titles = $article->translations()->with('language')->get()
+        ->mapWithKeys(fn ($translation): array => [(string) $translation->language?->code => (string) $translation->title])
+        ->all();
+
+    expect($titles)->toBe([
+        'en' => 'The estuary at first light',
+        'fr' => 'L’estuaire au petit jour',
+        'de' => 'Die Flussmündung im ersten Licht',
+        'ar' => 'مصب النهر عند أول ضوء',
+    ]);
+});
+
 it('seeds the Foundation showcase visit section once, with both child pages under it', function (): void {
     $plan = showcaseFixtureSitePlan();
 

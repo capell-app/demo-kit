@@ -4,6 +4,7 @@ All notable changes to `capell-app/demo-kit` will be documented in this file.
 
 ## Unreleased
 
+- Demo seeding commands now refuse to run outside the `local` and `testing` environments, matching the admin page, unless `--allow-non-local` is supplied. `--allow-production` remains as an alias.
 - Blocked the Filament seeding surface outside local/testing environments and enforced the same guard inside its Action boundary.
 - Marked Demo Kit sites with explicit provenance; reset and reseed now refuse to delete or reuse an unmarked site even when its name matches the demo plan.
 - Added a `--reset` path for `capell:demo-kit-full-demo` and `capell:admin-demo` that deletes only sites named by the generated plan before reseeding.

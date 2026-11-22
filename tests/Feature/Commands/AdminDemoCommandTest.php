@@ -67,7 +67,6 @@ it('runs demo command successfully', function (): void {
     File::ensureDirectoryExists($demoDirectory . '/video');
     $image = imagecreatetruecolor(4, 4);
     imagejpeg($image, $demoDirectory . '/img/demo.jpg');
-    imagedestroy($image);
 
     $zipPath = tempnam(sys_get_temp_dir(), 'capell-demo-kit-') . '.zip';
     $archive = new ZipArchive;

@@ -5,10 +5,10 @@
         "default": {
             "source": {
                 "ref": "HEAD",
-                "commit": "c896bfefd4984473288537cc296829557229a116",
+                "commit": "441f2208301346ab8e90b8e06ecb9533195853b1",
                 "providers": {
                     "Providers/ConsoleServiceProvider.php": "e5110f5a76a795ba136addb2b18e9cc5eb0defd965aa732ad9e0bb9ee2f5cead",
-                    "Providers/DemoKitServiceProvider.php": "91ec46203e42b2683e05499bf077aafd4e31063863a35c0e6e3a8c0f41c82bae",
+                    "Providers/DemoKitServiceProvider.php": "8ffa6dbe5c16492a4d28f0b2425b11e07cfbc08c1c970dc339a5f1c2a0cb15a1",
                     "Providers/MigrationMetadataServiceProvider.php": "51e6703b723e82d41fcb88777e51fd541203d04b0136628a026dea00294dc73d"
                 },
                 "configure": null

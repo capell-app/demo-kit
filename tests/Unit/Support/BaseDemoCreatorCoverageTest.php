@@ -151,8 +151,9 @@ it('normalizes demo page metadata content summaries and hero snippets', function
 });
 
 it('falls back to page names for navigation labels when navigation is not installed', function (): void {
-    CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName, false);
-    expect(CapellCore::isPackageInstalled(NavigationServiceProvider::$packageName))->toBeFalse();
+    CapellCore::partialMock()->shouldReceive('isPackageAvailable')->andReturnUsing(
+        static fn (string $name): bool => $name !== NavigationServiceProvider::$packageName,
+    );
 
     $creator = new class extends DemoCreator
     {

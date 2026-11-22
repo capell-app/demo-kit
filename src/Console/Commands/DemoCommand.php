@@ -31,7 +31,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:demo {--user=} {--languages=} {--packages=} {--seed=} {--sites=} {--url=} {--allow-production} {--force}';
+    protected $signature = 'capell:demo {--user=} {--languages=} {--packages=} {--seed=} {--sites=} {--url=} {--allow-production} {--allow-non-local} {--force}';
 
     /**
      * The console command description.
@@ -175,6 +175,10 @@ class DemoCommand extends Command
 
             if ($this->option('allow-production') === true && in_array('allow-production', $package->getDemoParams(), true)) {
                 $params['--allow-production'] = true;
+            }
+
+            if ($this->option('allow-non-local') === true && in_array('allow-non-local', $package->getDemoParams(), true)) {
+                $params['--allow-non-local'] = true;
             }
 
             if (in_array('url', $package->getDemoParams(), true)) {

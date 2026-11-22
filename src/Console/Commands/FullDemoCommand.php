@@ -35,6 +35,7 @@ final class FullDemoCommand extends Command
         {--skip-package-demos}
         {--skip-demo-users}
         {--allow-production}
+        {--allow-non-local}
         {--force}';
 
     protected $description = 'Create full multi-site and multi-language example data.';
@@ -132,6 +133,10 @@ final class FullDemoCommand extends Command
             $adminDemoParams['--allow-production'] = true;
         }
 
+        if ($this->option('allow-non-local') === true) {
+            $adminDemoParams['--allow-non-local'] = true;
+        }
+
         $adminDemoExitCode = $this->call('capell:admin-demo', $adminDemoParams);
 
         if ($adminDemoExitCode !== Command::SUCCESS) {
@@ -161,6 +166,10 @@ final class FullDemoCommand extends Command
 
             if ($this->option('allow-production') === true) {
                 $packageDemoParams['--allow-production'] = true;
+            }
+
+            if ($this->option('allow-non-local') === true) {
+                $packageDemoParams['--allow-non-local'] = true;
             }
 
             $packageDemoExitCode = $this->call('capell:demo', $packageDemoParams);

@@ -74,9 +74,9 @@ final class DemoKitServiceProvider extends AbstractPackageServiceProvider
 
         if (CapellCore::hasPackage(self::$packageName)) {
             $package = CapellCore::getPackage(self::$packageName);
-            $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'force'];
+            $package->setupParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'allow-non-local', 'force'];
             $package->demoCommand = 'capell:demo-kit-full-demo';
-            $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'adopt-existing-site', 'skip-package-demos', 'force'];
+            $package->demoParams = ['url', 'user', 'languages', 'sites', 'site-count', 'page-count', 'packages', 'theme', 'seed', 'quick', 'reset', 'skip-demo-users', 'allow-production', 'allow-non-local', 'adopt-existing-site', 'skip-package-demos', 'force'];
         }
     }
 

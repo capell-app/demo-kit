@@ -24,7 +24,7 @@ The Demo Kit extension page is available only in `local` and `testing` environme
 
 ## Good to know
 
-- The admin action is intentionally unavailable in production. The CLI commands also refuse production by default; `--allow-production` overrides that guard and is almost never appropriate because demo seeding creates sites, pages, media, and known-credential users.
+- The admin action is intentionally unavailable outside `local` and `testing`. The CLI commands refuse to run there too; pass `--allow-non-local` to override that guard for a staging demo (`--allow-production` still works as an older alias). Demo seeding creates sites, pages, media, and known-credential users, so never use the flag against production. Sample users are still only created in `local` and `testing`.
 - Use `--seed` when screenshots, tests, or a bug report need the same generated content again. The full command can scope the generated sites, languages, page count, theme, and package demos; `--quick` creates a smaller fixture.
 - `--reset` deletes only named sites that carry Demo Kit provenance. It refuses to replace an unmarked existing site; use `--adopt-existing-site` only when you deliberately want to use that site without replacing it.
 - The full console flow creates demo users unless you pass `--skip-demo-users`. Treat all generated credentials and content as non-production material.

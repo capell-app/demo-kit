@@ -1,7 +1,8 @@
 {
     "package": "demo-kit",
     "composerName": "capell-app/demo-kit",
-    "generatedFor": "deployment-screenshot-runner",
+    "generatedFor": "shared-capell-screenshot-runner",
+    "provenancePolicy": "runner-only-v1",
     "requiresInstalledPackage": true,
     "outputDirectory": "packages/demo-kit/docs/screenshots",
     "entries": [

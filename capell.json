@@ -22,7 +22,11 @@
             "capell-app/layout-builder",
             "capell-app/theme-foundation"
         ],
-        "supports": ["capell-app/form-builder"],
+        "supports": [
+            "capell-app/form-builder",
+            "capell-app/html-cache",
+            "capell-app/navigation"
+        ],
         "conflicts": []
     },
     "providers": {
@@ -136,6 +140,7 @@
             "reset",
             "skip-demo-users",
             "allow-production",
+            "allow-non-local",
             "adopt-existing-site",
             "skip-package-demos",
             "force"

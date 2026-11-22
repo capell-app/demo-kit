@@ -287,10 +287,8 @@ abstract class BaseDemoCreator
 
     protected function getPageNavigationLabel(Page $page, Language $language): string
     {
-        $navigationCreator = NavigationCreator::class;
-
-        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator)) {
-            return $navigationCreator::getPageNavigationLabel($page, $language);
+        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            return NavigationCreator::getPageNavigationLabel($page, $language);
         }
 
         return $page->translation->title ?? $page->name;
