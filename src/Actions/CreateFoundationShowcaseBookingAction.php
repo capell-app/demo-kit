@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace Capell\DemoKit\Actions;
 
 use Capell\Core\Enums\LayoutEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Support\TableName;
+use Capell\DemoKit\Bridges\FormBuilder\DemoFormBuilderBridge;
 use Capell\DemoKit\Support\Showcase\FoundationShowcasePageWriter;
-use Capell\FormBuilder\Models\Form;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -94,15 +91,7 @@ final class CreateFoundationShowcaseBookingAction
     /** @return class-string<Model>|null */
     private function formModel(): ?string
     {
-        if (! CapellCore::isPackageAvailable('capell-app/form-builder')) {
-            return null;
-        }
-
-        if (! Schema::hasTable(TableName::resolve('forms'))) {
-            return null;
-        }
-
-        return Form::class;
+        return DemoFormBuilderBridge::formModel();
     }
 
     /** @param class-string<Model> $formModel */

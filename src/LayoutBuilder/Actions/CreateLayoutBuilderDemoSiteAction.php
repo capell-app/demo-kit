@@ -7,7 +7,6 @@ namespace Capell\DemoKit\LayoutBuilder\Actions;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -16,11 +15,11 @@ use Capell\DemoKit\Actions\CreateFoundationShowcaseArticleAction;
 use Capell\DemoKit\Actions\CreateFoundationShowcaseBookingAction;
 use Capell\DemoKit\Actions\CreateFoundationShowcaseMediaAction;
 use Capell\DemoKit\Actions\CreateFoundationShowcaseVisitAction;
+use Capell\DemoKit\Bridges\Navigation\DemoNavigationBridge;
 use Capell\DemoKit\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
-use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -241,17 +240,7 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
-        if (! (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation'))) {
-            return;
-        }
-
-        $navigationDemoCreator = resolve(NavigationDemoCreator::class);
-
-        $languages->each(function (Language $language) use ($navigationDemoCreator, $site, $homePage): void {
-            $navigationDemoCreator->setupMainNavigation($site, $language, $homePage);
-            $navigationDemoCreator->setupFooterNavigation($site, $language);
-            $navigationDemoCreator->setupSubFooterNavigation($site, $language);
-        });
+        DemoNavigationBridge::setupSiteNavigations($site, $languages, $homePage);
     }
 
     private function getHomeLayout(): ?Layout

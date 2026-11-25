@@ -16,6 +16,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Support\TableName;
+use Capell\DemoKit\Bridges\Navigation\DemoNavigationBridge;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
@@ -24,7 +25,6 @@ use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
-use Capell\Navigation\Support\Creator\NavigationCreator;
 use Error;
 use Exception;
 use FilesystemIterator;
@@ -287,11 +287,7 @@ abstract class BaseDemoCreator
 
     protected function getPageNavigationLabel(Page $page, Language $language): string
     {
-        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
-            return NavigationCreator::getPageNavigationLabel($page, $language);
-        }
-
-        return $page->translation->title ?? $page->name;
+        return DemoNavigationBridge::pageNavigationLabel($page, $language) ?? $page->translation->title ?? $page->name;
     }
 
     protected function hasExistingMedia(Model&HasMedia $model, BackedEnum|string $collection): bool

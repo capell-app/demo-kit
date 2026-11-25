@@ -7,14 +7,13 @@ namespace Capell\DemoKit\Actions\Diagnostics;
 use Capell\Core\Actions\Packages\BuildPackageCapabilityGraphAction;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Core\Enums\PackageCapability;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\DemoKit\Bridges\HtmlCache\DemoHtmlCacheBridge;
 use Capell\DemoKit\Data\DemoProfileData;
 use Capell\Frontend\Actions\AssertPublicRenderContractAction;
-use Capell\HtmlCache\Actions\BuildHtmlCacheEligibilityReportAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Support\Facades\Schema;
@@ -366,7 +365,7 @@ final class AssertDefaultDemoInstallHealthAction
 
     private function cacheEligibilityDiagnosticsAreAvailable(): DoctorCheckResultData
     {
-        if (CapellCore::isPackageAvailable('capell-app/html-cache') && class_exists(BuildHtmlCacheEligibilityReportAction::class)) {
+        if (DemoHtmlCacheBridge::eligibilityReportAction() !== null) {
             return new DoctorCheckResultData(
                 label: 'Demo Kit: cache eligibility available',
                 passed: true,

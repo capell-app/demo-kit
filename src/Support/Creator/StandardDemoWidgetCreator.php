@@ -8,13 +8,13 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\MediaConversionEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\DemoKit\Actions\DummyContentGeneratorAction;
+use Capell\DemoKit\Bridges\Navigation\DemoNavigationBridge;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
@@ -25,7 +25,6 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
-use Capell\Navigation\Models\Navigation;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -414,18 +413,9 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
 
         $language = $languages->first();
 
-        $navigation = null;
-
-        if ($language instanceof Language && CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
-            $navigation = Navigation::query()->updateOrCreate([
-                'key' => $key,
-                'site_id' => $site->id,
-                'blueprint_id' => $navigationType->id,
-            ], [
-                'name' => $name,
-                'items' => $this->navigationPageItems($pages, $language),
-            ]);
-        }
+        $navigation = $language instanceof Language
+            ? DemoNavigationBridge::upsertNavigation($key, $name, (int) $site->id, (int) $navigationType->id, $this->navigationPageItems($pages, $language))
+            : null;
 
         // Create widget
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
