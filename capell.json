@@ -6,6 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
+    "launchStatus": "shipped",
     "description": "Fills a local or test copy of Capell with example sites, pages, media and users, so you can explore before adding real content.",
     "product": {
         "group": "Capell Essentials",
